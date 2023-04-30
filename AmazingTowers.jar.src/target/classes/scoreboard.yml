@@ -1,0 +1,64 @@
+# +###----------------------------------------------###+ #
+# <#               AmazingTowers - v2.3b              #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+Scoreboard:
+  name: '&e&lTHETOWERS'
+  formatDate: dd/MM/yy
+  
+  # LOBBY
+  # VARIABLES
+  # %date% , %online_players% , %max_players%
+  lobby:
+    scores:
+    - '&7%date%'
+    - '&4'
+    - 'Jugadores: &a%online_players%/%max_players%'
+    - '&3'
+    - '&fEsperando...'
+    - '&2'
+    - '&fMapa: &aClassic'
+    - '&1'
+    - '&ewww.ejemplo.com'
+  
+  # PREGAME  
+  # VARIABLES
+  # %date% , %online_players% , %max_players% , %seconds%
+  pre-game:
+    scores:
+    - '&7%date%'
+    - '&4'
+    - '&fJugadores: &a%online_players%/%max_players%'
+    - '&3'
+    - '&fEmpezando en &a%seconds%s'
+    - '&2'
+    - '&fMapa: &aClassic'
+    - '&1'
+    - '&ewww.ejemplo.com'
+  
+  # GAME 
+  # VARIABLES
+  # %date% , %online_players% , %max_players% ,  %points_blue% , 
+  # %points_red% , %maxPointsWin% , %player_kills%,
+  # %player_deaths% , %refill_time%
+  game:
+    scores:
+    - '&7%date%'
+    - '&f'
+    - '&fSiguiente Refill:'
+    - '&a%refill_time%'
+    - '&f'
+    - '&f->&c&lR &fRojo: &c%points_red%'
+    - '&f->&9&lB &fAzul: &9%points_blue%'
+    - '&f'
+    - '&7Mete &a%maxPointsWin% &7puntos para ganar!'
+    - '&f'
+    - '&fKills: &a%player_kills%'
+    - '&f'
+    - '&fMapa: &aClassic'
+    - '&8'
+    - '&ewww.ejemplo.com'
+    
+    
+    

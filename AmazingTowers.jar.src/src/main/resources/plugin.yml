@@ -1,0 +1,14 @@
+name: AmazingTowers
+
+author: Pato14,Marco2124
+
+version: 2.3b
+depend: [NametagEdit]
+softdepend: [Vault,PlaceholderAPI]
+
+main: mx.towers.pato14.AmazingTowers
+
+
+commands:
+  towers: 
+    aliases: [tower, tw, tt]

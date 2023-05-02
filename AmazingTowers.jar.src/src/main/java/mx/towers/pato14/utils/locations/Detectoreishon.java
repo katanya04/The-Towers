@@ -69,11 +69,9 @@ public class Detectoreishon {
     }
 //Comprueba si la location tiene coordenadas (si existe, vamos)
     public static void detectoreishonLocations() {
-        byte b;
-        int i;
-        Locationshion[] arrayOfLocationshion;
+        Locationshion[] arrayOfLocationshion = Locationshion.values();
         //for (i = numero de locations; b = 0; b < i)
-        for (i = ((arrayOfLocationshion = Locationshion.values()).length), b = 0; b < i; ) {
+        for (int i = arrayOfLocationshion.length, b = 0; b < i; ) {
             //loc = "LOBBY" por ejemplo
             Locationshion loc = arrayOfLocationshion[b];
             //Si esta en la lista de localizaciones ya asignadas (?)

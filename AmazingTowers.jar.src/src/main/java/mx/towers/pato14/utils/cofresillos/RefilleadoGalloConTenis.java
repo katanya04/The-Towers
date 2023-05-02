@@ -17,7 +17,7 @@ public class RefilleadoGalloConTenis {
     public RefilleadoGalloConTenis(AmazingTowers plugin) {
         this.plugin = plugin;
         String[] timer = plugin.getConfig().getString("Options.refill_chests.timer_refill").split(";");
-        this.regeneration = Integer.valueOf(timer[0]).intValue() * 60 + Integer.valueOf(timer[1]).intValue();
+        this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);
     }
 
     public void iniciarRefill() {

@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 
 public class TntListener implements Listener {
     @EventHandler
-    public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException, IllegalAccessException {
+    public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException {
         Class<Block> blockclass = Block.class;
         Field f = blockclass.getDeclaredField("durability");
         f.setAccessible(true);

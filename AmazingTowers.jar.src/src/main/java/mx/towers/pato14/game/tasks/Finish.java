@@ -1,12 +1,10 @@
 package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.utils.Dar;
-import mx.towers.pato14.utils.enums.StatType;
-import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Locationshion;
-import mx.towers.pato14.utils.enums.Rank;
-import mx.towers.pato14.utils.enums.Team;
+import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
@@ -29,24 +27,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Finish {
-    private final AmazingTowers at = AmazingTowers.getPlugin();
-    private int seconds = this.at.getConfig().getInt("Options.timerEndSeconds") + 1;
-    private boolean bungeecord = this.at.getConfig().getBoolean("Options.bungeecord-support.enabled");
+    private final AmazingTowers plugin = AmazingTowers.getPlugin();
+    private int seconds;
+    private final boolean bungeecord;
+    private final Game game;
+    public Finish(Game game) {
+        this.game = game;
+        seconds = game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.timerEndSeconds") + 1;
+        bungeecord = game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled");
+    }
     public void Fatality(final Team team) {
         if (!GameState.isState(GameState.FINISH)) {
             GameState.setState(GameState.FINISH);
         }
-        for (String p: this.at.getGame().getStats().getPlayerStats().keySet()) {
-            this.at.getGame().getStats().addOne(p, StatType.GAMES_PLAYED);
-            if (this.at.getGame().getTeams().getTeam(team).containsPlayer(p))
-                this.at.getGame().getStats().addOne(p, StatType.WINS);
+        for (String p: game.getStats().getPlayerStats().keySet()) {
+            game.getStats().addOne(p, StatType.GAMES_PLAYED);
+            if (game.getTeams().getTeam(team).containsPlayer(p))
+                game.getStats().addOne(p, StatType.WINS);
         }
-        StatisticsPlayer stats = this.at.getGame().getStats();
+        StatisticsPlayer stats = game.getStats();
         sendTitle(team);
         (new BukkitRunnable() {
             public void run() {
                 if (Finish.this.seconds == 0) {
-                    if (Bukkit.getOnlinePlayers().size() > 0) {
+                    if (game.getPlayers().size() > 0) {
                         return;
                     }
                     cancel();
@@ -54,17 +58,17 @@ public class Finish {
                         public void run() {
                             Bukkit.dispatchCommand((CommandSender) Bukkit.getConsoleSender(), AmazingTowers.getPlugin().getConfig().getString("Options.command"));
                         }
-                    }).runTaskLater((Plugin) Finish.this.at, 60L);
+                    }).runTaskLater((Plugin) Finish.this.plugin, 60L);
                     return;
                 }
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
                             if (AmazingTowers.getPlugin().getConfig().getBoolean("Options.bungeecord-support.enabled")) {
-                                for (Player player : Bukkit.getOnlinePlayers()) {
-                                    player.teleport(Locations.getLocationFromStringConfig(AmazingTowers.getPlugin().getLocations(), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
+                                for (Player player : game.getPlayers()) {
+                                    player.teleport(Locations.getLocationFromStringConfig(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
                                     Dar.bungeecordTeleport(player);
-                                    if (Bukkit.getOnlinePlayers().size() == 0) {
+                                    if (game.getPlayers().size() == 0) {
                                         run();
                                         return;
                                     }
@@ -73,20 +77,20 @@ public class Finish {
                                 return;
                             }
                             if (team == Team.RED) {
-                                for (Player player : Bukkit.getOnlinePlayers()) {
-                                    player.kickPlayer(AmazingTowers.getPlugin().getColor(AmazingTowers.getPlugin().getMessages().getString("messages.kickPlayerinFinishRed"))
+                                for (Player player : game.getPlayers()) {
+                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinishRed"))
                                             .replace("%newLine%", "\n"));
                                 }
                             } else {
-                                for (Player player : Bukkit.getOnlinePlayers()) {
-                                    player.kickPlayer(AmazingTowers.getPlugin().getColor(AmazingTowers.getPlugin().getMessages().getString("messages.kickPlayerinFinishBlue"))
+                                for (Player player : game.getPlayers()) {
+                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinishBlue"))
                                             .replace("%newLine%", "\n"));
                                 }
                             }
                         }
-                    }).runTaskLater((Plugin) Finish.this.at, 60L);
-                    if (Finish.this.at.getMessages().getBoolean("messages.restart_server.enabled")) {
-                        Bukkit.broadcastMessage(Finish.this.at.getColor(Finish.this.at.getMessages().getString("messages.restart_server.message")));
+                    }).runTaskLater((Plugin) Finish.this.plugin, 60L);
+                    if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.restart_server.enabled")) {
+                        Bukkit.broadcastMessage(AmazingTowers.getColor(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.restart_server.message")));
                     }
                 }
                 if (Finish.this.seconds == 9) {
@@ -95,7 +99,7 @@ public class Finish {
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byKills))).collect(Collectors.toList());
                     String topFiveKills = getTopFive(killsSorted, StatType.KILLS);
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : game.getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFiveKills);
                         if (!topFiveKills.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
@@ -109,7 +113,7 @@ public class Finish {
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byPoints))).collect(Collectors.toList());
                     String topFivePoints = getTopFive(pointsSorted, StatType.POINTS);
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : game.getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFivePoints);
                         if (!topFivePoints.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
@@ -118,12 +122,12 @@ public class Finish {
                         }
                     }
                 } else if (Finish.this.seconds == 4) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : game.getPlayers()) {
                         if (stats.getPlayerStats().containsKey(player.getName()))
                             player.sendMessage("\n§lRango: ");
                     }
                 } else if (Finish.this.seconds == 3) {
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : game.getPlayers()) {
                         if (stats.getPlayerStats().containsKey(player.getName())) {
                             double killDeathRatio = stats.getStat(player.getName(), StatType.DEATHS) == 0 ?
                                     (stats.getStat(player.getName(), StatType.KILLS)) : (stats.getStat(player.getName(), StatType.KILLS)
@@ -135,47 +139,45 @@ public class Finish {
                         }
                     }
                 }
-                for (Player player : Bukkit.getOnlinePlayers()) {
+                for (Player player : game.getPlayers()) {
                     if (team == Team.RED) {
-                        if (Finish.this.at.getGame().getTeams().getRed().containsPlayer(player.getName()) &&
+                        if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName()) &&
                                 player.getGameMode() != GameMode.SPECTATOR) {
                             Finish.this.fuegosArtificiales(player, Color.RED);
                         }
                         continue;
                     }
-                    if (Finish.this.at.getGame().getTeams().getBlue().containsPlayer(player.getName()) &&
+                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()) &&
                             player.getGameMode() != GameMode.SPECTATOR) {
                         Finish.this.fuegosArtificiales(player, Color.BLUE);
                     }
                 }
                 Finish.this.seconds = Finish.this.seconds - 1;
             }
-        }).runTaskTimer((Plugin) this.at, 0L, 20L);
-        if (this.at.getConfig().getBoolean("Options.Rewards.vault") &&
+        }).runTaskTimer(this.plugin, 0L, 20L);
+        if (this.plugin.getConfig().getBoolean("Options.Rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : game.getPlayers()) {
                 if (team == Team.RED) {
-                    if (this.at.getGame().getTeams().getRed().containsPlayer(player.getName())) {
-                        if (player.getGameMode() == GameMode.SURVIVAL)
-                            this.at.getVault().setReward(player, RewardsEnum.WIN);
+                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+                        this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
                         continue;
                     }
-                    if (this.at.getGame().getTeams().getBlue().containsPlayer(player.getName()))
-                        this.at.getVault().setReward(player, RewardsEnum.LOSER_TEAM);
+                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()))
+                        this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
                     continue;
                 }
-                if (this.at.getGame().getTeams().getBlue().containsPlayer(player.getName())) {
-                    if (player.getGameMode() == GameMode.SURVIVAL)
-                        this.at.getVault().setReward(player, RewardsEnum.WIN);
+                if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
+                    this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
                     continue;
                 }
-                if (this.at.getGame().getTeams().getRed().containsPlayer(player.getName())) {
-                    this.at.getVault().setReward(player, RewardsEnum.LOSER_TEAM);
+                if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+                    this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
                 }
             }
         }
-        if (this.at.getConfig().getBoolean("Options.mysql.active")) {
-            FindOneCallback.updatePlayersDataAsync(this.at.getGame().getStats().getPlayerStats(), this.at,  result -> {});
+        if (this.plugin.getConfig().getBoolean("Options.mysql.active")) {
+            FindOneCallback.updatePlayersDataAsync(game.getStats().getPlayerStats(), this.plugin, result -> {});
         }
     }
 
@@ -195,25 +197,16 @@ public class Finish {
     }
 
     private void sendTitle(Team team) {
-        if (team == Team.RED) {
-            if (this.at.getMessages().getBoolean("messages.Win-Messages.titles.enabled")) {
-                String Title = this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.titles.redWinTitle"));
-                String Subtitle = this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.titles.redWinSubTitle"));
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    this.at.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
-                }
+        Config messages = game.getGameInstance().getConfig(ConfigType.MESSAGES);
+        String teamName = team.name().toLowerCase();
+        if (messages.getBoolean("messages.Win-Messages.titles.enabled")) {
+            String Title = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinTitle"));
+            String Subtitle = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinSubTitle"));
+            for (Player player : game.getPlayers()) {
+                this.plugin.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
-            Bukkit.broadcastMessage(this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.redWin")));
-        } else if (team == Team.BLUE) {
-            if (this.at.getMessages().getBoolean("messages.Win-Messages.titles.enabled")) {
-                String Title = this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.titles.blueWinTitle"));
-                String Subtitle = this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.titles.blueWinSubTitle"));
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    this.at.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
-                }
-            }
-            Bukkit.broadcastMessage(this.at.getColor(this.at.getMessages().getString("messages.Win-Messages.blueWin")));
         }
+        Bukkit.broadcastMessage(AmazingTowers.getColor(messages.getString("messages.Win-Messages." + teamName + "Win")));
     }
 
     public int getSeconds() {
@@ -226,9 +219,9 @@ public class Finish {
         int i;
         for (i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            if (this.at.getGame().getTeams().getBlue().containsPlayer(current.getKey()))
+            if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(current.getKey()))
                 sb.append("§1");
-            else if (this.at.getGame().getTeams().getRed().containsPlayer(current.getKey()))
+            else if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(current.getKey()))
                 sb.append("§4");
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("§r");
@@ -246,9 +239,9 @@ public class Finish {
             current = listIterator.next();
             if (current.getKey().equals(p)) break;
         }
-        if (this.at.getGame().getTeams().getBlue().containsPlayer(p))
+        if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(p))
             sb.append("§1");
-        else if (this.at.getGame().getTeams().getRed().containsPlayer(p))
+        else if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(p))
             sb.append("§4");
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");

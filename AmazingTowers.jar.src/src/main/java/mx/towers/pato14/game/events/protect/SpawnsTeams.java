@@ -3,7 +3,9 @@ package mx.towers.pato14.game.events.protect;
 import java.util.ArrayList;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Cuboide;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.locations.Locations;
@@ -15,7 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class SpawnsTeams implements Listener {
-    private AmazingTowers plugin;
+    private final AmazingTowers plugin;
 
     public SpawnsTeams(AmazingTowers plugin) {
         this.plugin = plugin;
@@ -26,9 +28,10 @@ public class SpawnsTeams implements Listener {
         if (!GameState.isState(GameState.GAME)) {
             return;
         }
-        if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_2), e.getBlock().getLocation())) {
+        Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
+        if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_2), e.getBlock().getLocation())) {
             e.setCancelled(true);
-        } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_2), e.getBlock().getLocation())) {
+        } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_2), e.getBlock().getLocation())) {
             e.setCancelled(true);
         }
     }
@@ -36,12 +39,13 @@ public class SpawnsTeams implements Listener {
     @EventHandler
     public void Main(EntityExplodeEvent e) {
         ArrayList<Block> end = new ArrayList<>(e.blockList());
+        Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
         for (Block bl : e.blockList()) {
-            if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_2), bl.getLocation())) {
+            if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_2), bl.getLocation())) {
                 end.remove(bl);
                 continue;
             }
-            if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_2), bl.getLocation())) {
+            if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_2), bl.getLocation())) {
                 e.setCancelled(true);
             }
         }
@@ -54,9 +58,10 @@ public class SpawnsTeams implements Listener {
         if (!GameState.isState(GameState.GAME)) {
             return;
         }
-        if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNRED_PROTECT_2), e.getBlock().getLocation())) {
+        Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
+        if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNRED_PROTECT_2), e.getBlock().getLocation())) {
             e.setCancelled(true);
-        } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.SPAWNBLUE_PROTECT_2), e.getBlock().getLocation())) {
+        } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(locations, Locationshion.SPAWNBLUE_PROTECT_2), e.getBlock().getLocation())) {
             e.setCancelled(true);
         }
     }

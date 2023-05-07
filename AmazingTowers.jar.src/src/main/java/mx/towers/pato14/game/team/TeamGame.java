@@ -1,79 +1,53 @@
 package mx.towers.pato14.game.team;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.game.Game;
+import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
 
 
 public class TeamGame {
-    private Team red;
-    private Team blue;
-    public int redPoints = 0;
-    public int bluePoints = 0;
-    private final AmazingTowers a;
-    private final String PREFIX_RED;
-    private final String PREFIX_BLUE;
-    private final List<Team> teams = new ArrayList<>();
+    private final Map<mx.towers.pato14.utils.enums.Team, Team> teams;
 
-    public TeamGame(AmazingTowers a) {
-        this.a = a;
-        this.PREFIX_RED = getPlugin().getConfig().getString("Options.team.red.prefix");
-        this.PREFIX_BLUE = getPlugin().getConfig().getString("Options.team.blue.prefix");
-        this.red = new Team("red");
-        this.red.setPrefix(this.PREFIX_RED);
-        this.blue = new Team("blue");
-        this.blue.setPrefix(this.PREFIX_BLUE);
-        teams.add(red);
-        teams.add(blue);
+    public TeamGame(Game game) {
+        this.teams = new HashMap<>();
+        for (mx.towers.pato14.utils.enums.Team team : mx.towers.pato14.utils.enums.Team.values()) {
+            String teamName = team.name().toLowerCase();
+            Team currentTeam = new Team(teamName);
+            currentTeam.setPrefix(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.team." + teamName + ".prefix"));
+
+            teams.put(team, currentTeam);
+        }
     }
 
     public void removePlayer(Player player) {
-        if (this.red.containsPlayer(player.getName())) {
-            this.red.removePlayer(player);
-        } else if (this.blue.containsPlayer(player.getName())) {
-            this.blue.removePlayer(player);
+        for (Team team : teams.values()) {
+            if (team.containsPlayer(player.getName())) {
+                team.removePlayer(player);
+                return;
+            }
         }
     }
 
     public boolean containsTeamPlayer(String namePlayer) {
-        if (this.red.containsPlayer(namePlayer))
-            return true;
-        if (this.blue.containsPlayer(namePlayer)) {
-            return true;
+        for (Team team : teams.values()) {
+            if (team.containsPlayer(namePlayer)) {
+                return true;
+            }
         }
         return false;
     }
 
     public boolean containsTeamPlayer(Player player) {
-        if (this.red.containsPlayer(player.getName()))
-            return true;
-        if (this.blue.containsPlayer(player.getName())) {
-            return true;
-        }
-        return false;
+        return containsTeamPlayer(player.getName());
     }
 
-    public Team getRed() {
-        return this.red;
-    }
-
-    public Team getBlue() {
-        return this.blue;
-    }
     public Team getTeam(mx.towers.pato14.utils.enums.Team team) {
-        for (Team t: teams) {
-            if (t.getTeamColor().equals(team))
-                return t;
-        }
-        return null;
+        return this.teams.get(team);
     }
 
-    private AmazingTowers getPlugin() {
-        return this.a;
-    }
 }
 
 

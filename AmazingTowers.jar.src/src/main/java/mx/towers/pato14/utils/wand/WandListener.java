@@ -11,7 +11,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WandListener implements Listener {
-    private AmazingTowers plugin;
+    private final AmazingTowers plugin;
 
     public WandListener(AmazingTowers plugin) {
         this.plugin = plugin;

@@ -1,5 +1,6 @@
 package mx.towers.pato14.game.events.player;
 
+import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,9 +16,14 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 public class EnchantItem implements Listener {
+    private final AmazingTowers plugin;
+    public EnchantItem(AmazingTowers plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onEnchantTableClick(PlayerInteractEvent e) {
-        if (!Rule.ENCHANTS.getCurrentState()) {
+        if (!this.plugin.getGameInstance(e.getPlayer()).getRules().get(Rule.ENCHANTS)) {
             Material block = e.getClickedBlock().getType();
             if (block.equals(Material.ENCHANTMENT_TABLE))
                 e.setCancelled(true);
@@ -26,7 +32,7 @@ public class EnchantItem implements Listener {
 
     @EventHandler
     public void onAnvilEnchant(InventoryClickEvent e) {
-        if (Rule.ENCHANTS.getCurrentState())
+        if (this.plugin.getGameInstance(e.getWhoClicked()).getRules().get(Rule.ENCHANTS))
             return;
         if (e.getInventory() instanceof AnvilInventory) {
             InventoryView view = e.getView();

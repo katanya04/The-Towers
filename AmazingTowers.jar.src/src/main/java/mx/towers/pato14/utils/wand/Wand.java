@@ -5,8 +5,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class Wand {
-    private String[] region;
-    private ItemStack wand;
+    private final String[] region;
+    private final ItemStack wand;
 
     public Wand() {
         this.region = new String[2];

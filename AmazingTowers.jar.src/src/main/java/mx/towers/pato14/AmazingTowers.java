@@ -1,10 +1,7 @@
 package mx.towers.pato14;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.Game;
@@ -22,7 +19,10 @@ import mx.towers.pato14.utils.wand.WandListener;
 import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionAttachment;
@@ -32,7 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class AmazingTowers extends JavaPlugin {
 
     private static AmazingTowers plugin;
-    private static List<GameInstance> games;
+    private static Map<String, GameInstance> games;
     private NMS nms;
     private Wand wand;
     private Config globalConfig;
@@ -47,7 +47,7 @@ public final class AmazingTowers extends JavaPlugin {
 
     public void onEnable() {
         plugin = this;
-        games = new LinkedList<>();
+        games = new HashMap<>();
 
         if (!setupNMS()) {
             Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] Your server version is not compatible with this plugin!");
@@ -66,7 +66,7 @@ public final class AmazingTowers extends JavaPlugin {
         this.globalConfig = new Config(this, "globalConfig.yml", true);
         int numberOfInstances = this.globalConfig.getInt("Options.Instances.amount");
         for (int i = 0; i < numberOfInstances; i++)
-            games.add(new GameInstance(this,"TheTowers" + (i + 1)));
+            games.put("TheTowers" + (i + 1), new GameInstance(this,"TheTowers" + (i + 1)));
 
         if (getConfig().getBoolean("Options.mysql.active")) {
             try {
@@ -91,8 +91,8 @@ public final class AmazingTowers extends JavaPlugin {
     private void enabledPlugin() {
         String prefix = "§f[§aAmazingTowers§f]";
         this.wand = new Wand();
-        getServer().getPluginManager().registerEvents((Listener) new WandListener(this), (Plugin) this);
-        getServer().getPluginManager().registerEvents((Listener) new SelectCofresillos(this), (Plugin) this);
+        getServer().getPluginManager().registerEvents(new WandListener(this), this);
+        getServer().getPluginManager().registerEvents(new SelectCofresillos(this), this);
         String version = null;
         getServer().getConsoleSender().sendMessage("");
         try {
@@ -132,7 +132,7 @@ public final class AmazingTowers extends JavaPlugin {
         return this.nms;
     }
 
-    public String getColor(String st) {
+    public static String getColor(String st) {
         return ChatColor.translateAlternateColorCodes('&', st);
     }
 
@@ -148,6 +148,25 @@ public final class AmazingTowers extends JavaPlugin {
     }
     public HashMap<String, PermissionAttachment> getPermissions() {
         return this.perms;
+    }
+
+    public GameInstance getGameInstance(Entity e) {
+        String worldName = e.getWorld().getName();
+        return games.get(worldName);
+    }
+
+    public GameInstance getGameInstance(Block e) {
+        String worldName = e.getWorld().getName();
+        return games.get(worldName);
+    }
+
+    public GameInstance getGameInstance(World w) {
+        String worldName = w.getName();
+        return games.get(worldName);
+    }
+
+    public static GameInstance getGameInstance(String worldName) {
+        return games.get(worldName);
     }
 }
 

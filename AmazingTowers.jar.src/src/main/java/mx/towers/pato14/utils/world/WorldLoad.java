@@ -18,10 +18,10 @@ public class WorldLoad {
 
     public void loadWorld() {
         File file = new File(getNameWorld());
-        if (file.exists()) {
+        if (file.exists()) {                                 //Borra el mundo que estaba de la anterior partida
             Bukkit.unloadWorld(getNameWorld(), false);
             WorldReset.deleteWorld(file);
-        }
+        }                                                    //Lo sobreescribe con el de backup
         WorldReset.copyWorld(this.source, this.target);
         Bukkit.createWorld(new WorldCreator(getNameWorld()));
     }

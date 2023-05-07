@@ -1,20 +1,21 @@
 package mx.towers.pato14.utils.rewards;
 
 import mx.towers.pato14.AmazingTowers;
-import org.bukkit.OfflinePlayer;
+import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 
 public class VaultT {
-    private AmazingTowers plugin;
+    private final GameInstance gameInstance;
 
-    public VaultT(AmazingTowers plugin) {
-        this.plugin = plugin;
+    public VaultT(GameInstance gameInstance) {
+        this.gameInstance = gameInstance;
     }
 
     public boolean setReward(Player player, RewardsEnum reward) {
-        if (this.plugin.getConfig().getBoolean("Options.Rewards.vault") &&
+        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.Rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
-            int points = this.plugin.getConfig().getInt("Options.Rewards.reward." + reward.getName());
+            int points = this.gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Rewards.reward." + reward.getName());
             if (player.hasPermission("towers.vip.coinsx6")) {
                 points *= 6;
             } else if (player.hasPermission("towers.vip.coinsx5")) {
@@ -26,15 +27,15 @@ public class VaultT {
             } else if (player.hasPermission("towers.vip.coinsx2")) {
                 points *= 2;
             }
-            SetupVault.getVaultEconomy().depositPlayer((OfflinePlayer) player, points);
-            player.sendMessage(this.plugin.getColor(this.plugin.getConfig().getString("Options.Rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
+            SetupVault.getVaultEconomy().depositPlayer(player, points);
+            player.sendMessage(AmazingTowers.getColor(this.gameInstance.getConfig(ConfigType.CONFIG).getString("Options.Rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
             return true;
         }
         return false;
     }
 
     public double getCoins(Player player) {
-        return (SetupVault.getVaultEconomy() != null) ? SetupVault.getVaultEconomy().getBalance((OfflinePlayer) player) : 0.0D;
+        return (SetupVault.getVaultEconomy() != null) ? SetupVault.getVaultEconomy().getBalance(player) : 0.0D;
     }
 
     public String getPrefixRank(Player player) {

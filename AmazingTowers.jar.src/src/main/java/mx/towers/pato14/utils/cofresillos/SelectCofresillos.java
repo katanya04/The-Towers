@@ -2,9 +2,11 @@ package mx.towers.pato14.utils.cofresillos;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,26 +33,26 @@ public class SelectCofresillos implements Listener {
             if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
                 if (block.getType() == Material.CHEST) {
                     e.setCancelled(true);
-                    List<String> locConfig = this.plugin.getLocations().getStringList("LOCATIONS.REFILLCHEST");
+                    List<String> locConfig = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST");
                     String locString = Locations.getLocationStringBlock(loc);
                     if (locConfig.contains(locString)) {
                         e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block already exist in Config!");
                     } else {
                         locConfig.add(locString);
-                        this.plugin.getLocations().set("LOCATIONS.REFILLCHEST", locConfig);
-                        this.plugin.getLocations().saveConfig();
+                        this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.REFILLCHEST", locConfig);
+                        this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).saveConfig();
                         e.getPlayer().sendMessage("§7(§aAT§7) §fSelected position the chest set to §a(x:" + loc.getX() + " y:" + loc.getY() + " z:" + loc.getZ() + ")");
                     }
                 }
             } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) &&
                     block.getType() == Material.CHEST) {
                 e.setCancelled(true);
-                List<String> locConfig = this.plugin.getLocations().getStringList("LOCATIONS.REFILLCHEST");
+                List<String> locConfig = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST");
                 String locString = Locations.getLocationStringBlock(loc);
                 if (locConfig.contains(locString)) {
                     locConfig.remove(locString);
-                    this.plugin.getLocations().set("LOCATIONS.REFILLCHEST", locConfig);
-                    this.plugin.getLocations().saveConfig();
+                    this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.REFILLCHEST", locConfig);
+                    this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).saveConfig();
                     e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block removed in Config successfully!");
                 } else {
                     e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block not exist in Config!");
@@ -59,22 +61,22 @@ public class SelectCofresillos implements Listener {
         }
     }
 
-    public static HashMap<Location, FixedItem[]> makelist(Config conf, String path) {
-        HashMap<Location, FixedItem[]> chs = (HashMap) new HashMap<>();
+    public static Map<Location, FixedItem[]> makelist(Config conf, String path) {
+        Map<Location, FixedItem[]> chs = new HashMap<>();
         List<String> Chests = conf.getStringList(path);
         for (String st : Chests) {
             Location loc = Locations.getLocationFromString(st);
             Location locBlock = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
             if (locBlock.getBlock().getType() == Material.CHEST) {
                 Chest ch = (Chest) locBlock.getBlock().getState();
-                FixedItem[] i = FixedItem.getArrayoBobin((ItemStack[]) ch.getInventory().getContents().clone());
+                FixedItem[] i = FixedItem.getArrayoBobin(ch.getInventory().getContents().clone());
                 chs.put(locBlock, i);
             }
         }
         return chs;
     }
 
-    public static void refill(HashMap<Location, FixedItem[]> Chests) {
+    public static void refill(Map<Location, FixedItem[]> Chests) {
         for (Location ch : Chests.keySet()) {
             if (ch.getBlock().getType() == Material.CHEST) {
                 Chest cht = (Chest) ch.getBlock().getState();

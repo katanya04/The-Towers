@@ -12,14 +12,14 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 public class ScoreHelper {
-    private static HashMap<UUID, ScoreHelper> players = new HashMap<>();
-    private Scoreboard scoreboard;
+    private static final HashMap<UUID, ScoreHelper> players = new HashMap<>();
+    private final Scoreboard scoreboard;
 
     public static boolean hasScore(Player player) {
         return players.containsKey(player.getUniqueId());
     }
 
-    private Objective sidebar;
+    private final Objective sidebar;
 
     public static ScoreHelper createScore(Player player) {
         return new ScoreHelper(player);

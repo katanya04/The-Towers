@@ -4,6 +4,8 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.jetbrains.annotations.NotNull;
+
 public class Expansion extends PlaceholderExpansion {
     private final AmazingTowers plugin;
 
@@ -12,17 +14,17 @@ public class Expansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "Marco2124";
     }
 
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "towers";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return "1.0.0";
     }
 
@@ -32,7 +34,7 @@ public class Expansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer player, String params) {
+    public String onRequest(OfflinePlayer player, @NotNull String params) {
         final String[] toret = new String[1];
         FindOneCallback.findPlayerAsync(player.getName(), plugin, result -> {
             if (params.equalsIgnoreCase("kills")) {

@@ -8,19 +8,29 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 public class Config extends YamlConfiguration {
-    private String name;
-    private File file;
+    private final String name;
+    private final File file;
     private final Plugin plugin;
 
-    public Config(Plugin plugin, String nameFile, Boolean defaults) {
+    public Config(Plugin plugin, String nameFile, Boolean defaults, String worldName) {
         this.plugin = plugin;
         this.name = nameFile;
-        this.file = new File(getPlugin().getDataFolder(), getNameFile());
-        if (defaults.booleanValue()) {
-            saveDefaultConfig();
-        } else {
-            saveConfig();
+        StringBuilder path = new StringBuilder();
+        path.append(getPlugin().getDataFolder());
+        if (!worldName.isEmpty()) {
+            path.append("/instances/");
+            path.append(worldName);
+            path.append("/");
         }
+        this.file = new File(path.toString(), getNameFile());
+        if (defaults)
+            saveDefaultConfig();
+        else
+            saveConfig();
+    }
+
+    public Config(Plugin plugin, String nameFile, Boolean defaults) {
+        this(plugin, nameFile, defaults, "");
     }
 
     private void saveDefaultConfig() {

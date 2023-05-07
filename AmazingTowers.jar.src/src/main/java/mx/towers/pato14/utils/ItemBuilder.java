@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemBuilder {
-    private ItemStack item;
+    private final ItemStack item;
     private ItemMeta itemMeta;
     private String name;
 
@@ -16,11 +16,11 @@ public class ItemBuilder {
     }
 
     public ItemBuilder(Material material, Short damage) {
-        this.item = new ItemStack(material, 1, damage.shortValue());
+        this.item = new ItemStack(material, 1, damage);
     }
 
     public ItemBuilder(Integer type, short damage) {
-        this.item = new ItemStack(type.intValue(), 1, damage);
+        this.item = new ItemStack(type, 1, damage);
     }
 
     public ItemBuilder setName(String name) {
@@ -32,7 +32,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setDurability(Short sh) {
-        this.item.setDurability(sh.shortValue());
+        this.item.setDurability(sh);
         return this;
     }
 

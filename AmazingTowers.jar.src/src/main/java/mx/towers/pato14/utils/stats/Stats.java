@@ -3,9 +3,10 @@ package mx.towers.pato14.utils.stats;
 import mx.towers.pato14.utils.enums.StatType;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Stats {
-    private final LinkedHashMap<StatType, Integer> stats = new LinkedHashMap<>();
+    private final Map<StatType, Integer> stats = new LinkedHashMap<>();
     public Stats() {
         for (StatType st : StatType.values())
             stats.put(st, 0);

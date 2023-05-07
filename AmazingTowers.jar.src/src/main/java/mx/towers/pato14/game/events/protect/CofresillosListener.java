@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Cuboide;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.plugin.PluginA;
@@ -19,9 +20,9 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class CofresillosListener implements Listener {
-    private AmazingTowers plugin;
-    private static ArrayList<Location> protectedChest = new ArrayList<>();
-    private ArrayList<Player> chestPlayerProtect = new ArrayList<>();
+    private final AmazingTowers plugin;
+    private static final ArrayList<Location> protectedChest = new ArrayList<>();
+    private final ArrayList<Player> chestPlayerProtect = new ArrayList<>();
 
     public CofresillosListener(AmazingTowers plugin) {
         this.plugin = plugin;
@@ -32,11 +33,11 @@ public class CofresillosListener implements Listener {
         ArrayList<Block> end = new ArrayList<>(e.blockList());
         for (Block bl : e.blockList()) {
             if (bl.getType() == Material.CHEST) {
-                if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTBLUE2), bl.getLocation())) {
+                if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE2), bl.getLocation())) {
                     end.remove(bl);
                     continue;
                 }
-                if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTRED2), bl.getLocation())) {
+                if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED2), bl.getLocation())) {
                     end.remove(bl);
                 }
             }
@@ -62,12 +63,12 @@ public class CofresillosListener implements Listener {
             }
             if (e.getClickedBlock().getType() == Material.CHEST &&
                     protectedChest.contains(e.getClickedBlock().getLocation())) {
-                if (this.plugin.getGame().getTeams().getBlue().containsPlayer(e.getPlayer().getName())) {
-                    if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTRED2), e.getClickedBlock().getLocation())) {
+                if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(e.getPlayer().getName())) {
+                    if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED2), e.getClickedBlock().getLocation())) {
                         this.chestPlayerProtect.add(e.getPlayer());
                     }
-                } else if (this.plugin.getGame().getTeams().getRed().containsPlayer(e.getPlayer().getName()) &&
-                        Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(this.plugin.getLocations(), Locationshion.CHESTPROTECTBLUE2), e.getClickedBlock().getLocation())) {
+                } else if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(e.getPlayer().getName()) &&
+                        Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE2), e.getClickedBlock().getLocation())) {
                     this.chestPlayerProtect.add(e.getPlayer());
                 }
             }
@@ -80,19 +81,19 @@ public class CofresillosListener implements Listener {
                 this.chestPlayerProtect.contains(e.getPlayer())) {
             e.setCancelled(true);
             this.chestPlayerProtect.remove(e.getPlayer());
-            e.getPlayer().sendMessage(this.plugin.getColor(this.plugin.getMessages().getString("messages.open_chest")));
+            e.getPlayer().sendMessage(AmazingTowers.getColor(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.MESSAGES).getString("messages.open_chest")));
         }
     }
 
-    public static void getChests() {
+    public static void getChests(String worldName) {
         Chunk[] loadedChunks;
-        for (int length = (loadedChunks = Bukkit.getWorld("TheTowers").getLoadedChunks()).length, i = 0; i < length; i++) {
+        for (int length = (loadedChunks = Bukkit.getWorld(worldName).getLoadedChunks()).length, i = 0; i < length; i++) {
             Chunk ch = loadedChunks[i];
             BlockState[] tileEntities;
             for (int length2 = (tileEntities = ch.getTileEntities()).length, j = 0; j < length2; j++) {
                 BlockState bls = tileEntities[j];
-                if ((bls.getType() == Material.CHEST && Cuboide.InCuboide(Locations.getLocationFromStringConfig((AmazingTowers.getPlugin()).getLocations(), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig((AmazingTowers.getPlugin()).getLocations(), Locationshion.CHESTPROTECTRED2), bls.getLocation())) ||
-                        Cuboide.InCuboide(Locations.getLocationFromStringConfig((AmazingTowers.getPlugin()).getLocations(), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig((AmazingTowers.getPlugin()).getLocations(), Locationshion.CHESTPROTECTBLUE2), bls.getLocation()))
+                if ((bls.getType() == Material.CHEST && Cuboide.InCuboide(Locations.getLocationFromStringConfig(AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED2), bls.getLocation())) ||
+                        Cuboide.InCuboide(Locations.getLocationFromStringConfig(AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE2), bls.getLocation()))
                     protectedChest.add(bls.getLocation());
             }
         }

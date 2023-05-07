@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -12,7 +13,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class AntiTrollTeamListener implements Listener {
-    private AmazingTowers plugin;
+    private final AmazingTowers plugin;
 
     public AntiTrollTeamListener(AmazingTowers plugin) {
         this.plugin = plugin;
@@ -32,18 +33,18 @@ public class AntiTrollTeamListener implements Listener {
                 if (en instanceof Player) {
                     Player player = (Player) en;
                     if (!pl.equals(player)) {
-                        if (this.plugin.getGame().getTeams().getBlue().containsPlayer(pl.getName())) {
-                            if (this.plugin.getGame().getTeams().getBlue().containsPlayer(player.getName()) &&
+                        if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(pl.getName())) {
+                            if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()) &&
                                     e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
                                 e.setCancelled(true);
-                                pl.sendMessage(this.plugin.getColor(this.plugin.getMessages().getString("messages.noTrollBreakBlock")));
+                                pl.sendMessage(AmazingTowers.getColor(this.plugin.getGameInstance(pl).getConfig(ConfigType.MESSAGES).getString("messages.noTrollBreakBlock")));
                                 return;
                             }
-                        } else if (this.plugin.getGame().getTeams().getRed().containsPlayer(pl.getName()) &&
-                                this.plugin.getGame().getTeams().getRed().containsPlayer(player.getName()) &&
+                        } else if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(pl.getName()) &&
+                                this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName()) &&
                                 e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
                             e.setCancelled(true);
-                            pl.sendMessage(this.plugin.getColor(this.plugin.getMessages().getString("messages.noTrollBreakBlock")));
+                            pl.sendMessage(AmazingTowers.getColor(this.plugin.getGameInstance(pl).getConfig(ConfigType.MESSAGES).getString("messages.noTrollBreakBlock")));
                             return;
                         }
                     }

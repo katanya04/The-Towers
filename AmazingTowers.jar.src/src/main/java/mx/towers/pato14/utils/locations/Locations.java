@@ -7,34 +7,32 @@ import org.bukkit.Location;
 
 public class Locations {
     public static String getLocationStringCenter(Location loc, boolean yawPitch) {
-        String a = "";
-        a = String.valueOf(a) + loc.getWorld().getName();
-        a = String.valueOf(a) + ";" + (int) loc.getX() + ".5";
-        a = String.valueOf(a) + ";" + (int) loc.getY();
-        a = String.valueOf(a) + ";" + (int) loc.getZ() + ".5";
+        StringBuilder toret = new StringBuilder();
+        toret.append(loc.getWorld().getName());
+        toret.append(";").append((int) loc.getX()).append(".5");
+        toret.append(";").append((int) loc.getY());
+        toret.append(";").append((int) loc.getZ()).append(".5");
         if (yawPitch) {
-            a = String.valueOf(a) + ";" + loc.getYaw();
-            a = String.valueOf(a) + ";" + loc.getPitch();
+            toret.append(";").append(loc.getYaw());
+            toret.append(";").append(loc.getPitch());
         }
-        return a;
+        return toret.toString();
     }
 
     public static String getLocationStringBlock(Location loc) {
-        String a = "";
-        a = String.valueOf(a) + loc.getWorld().getName();
-        a = String.valueOf(a) + ";" + (int) loc.getX();
-        a = String.valueOf(a) + ";" + (int) loc.getY();
-        a = String.valueOf(a) + ";" + (int) loc.getZ();
-        return a;
+        return loc.getWorld().getName() +
+                ";" + (int) loc.getX() +
+                ";" + (int) loc.getY() +
+                ";" + (int) loc.getZ();
     }
 
     public static Location getLocationFromStringConfig(Config config, Locationshion locations) {
         Location loc;
         String[] a = config.getString(locations.getLocationString()).split(";");
         if (a.length >= 6) {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]).doubleValue(), Double.valueOf(a[2]).doubleValue(), Double.valueOf(a[3]).doubleValue(), Float.valueOf(a[4]).floatValue(), Float.valueOf(a[5]).floatValue());
+            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
         } else {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]).doubleValue(), Double.valueOf(a[2]).doubleValue(), Double.valueOf(a[3]).doubleValue());
+            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
         }
         return loc;
     }
@@ -43,9 +41,9 @@ public class Locations {
         Location loc;
         String[] a = st.split(";");
         if (a.length >= 6) {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]).doubleValue(), Double.valueOf(a[2]).doubleValue(), Double.valueOf(a[3]).doubleValue(), Float.valueOf(a[4]).floatValue(), Float.valueOf(a[5]).floatValue());
+            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
         } else {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]).doubleValue(), Double.valueOf(a[2]).doubleValue(), Double.valueOf(a[3]).doubleValue());
+            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
         }
         return loc;
     }

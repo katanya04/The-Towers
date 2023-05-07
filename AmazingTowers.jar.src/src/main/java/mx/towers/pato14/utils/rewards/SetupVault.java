@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class SetupVault {
-    private static AmazingTowers plugin = AmazingTowers.getPlugin();
+    private static final AmazingTowers plugin = AmazingTowers.getPlugin();
     private static Chat chat;
     private static Economy economy;
 
@@ -39,8 +39,8 @@ public class SetupVault {
             }
             if (Bukkit.getServer().getPluginManager().getPlugin("Vault") != null) {
                 String format = "[AmazingTowers] %s: [%s]";
-                Bukkit.getConsoleSender().sendMessage(setupEconomy() ? String.format(format, new Object[]{"Economy", economy.getName()}) : String.format(format, new Object[]{"Economy", "NONE"}));
-                Bukkit.getConsoleSender().sendMessage(setupChat() ? String.format(format, new Object[]{"Chat", chat.getName()}) : String.format(format, new Object[]{"Chat", "NONE"}));
+                Bukkit.getConsoleSender().sendMessage(setupEconomy() ? String.format(format, "Economy", economy.getName()) : String.format(format, "Economy", "NONE"));
+                Bukkit.getConsoleSender().sendMessage(setupChat() ? String.format(format, "Chat", chat.getName()) : String.format(format, "Chat", "NONE"));
             }
         }
     }

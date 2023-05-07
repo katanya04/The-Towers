@@ -9,13 +9,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class Team {
-    private mx.towers.pato14.utils.enums.Team teamColor;
+    private final mx.towers.pato14.utils.enums.Team teamColor;
     private String prefix;
-    private String nameTeam;
-    private ArrayList<String> team;
-    private ArrayList<String> offlinePlayer;
+    private final String nameTeam;
+    private final ArrayList<String> team;
+    private final ArrayList<String> offlinePlayer;
+    private int points;
 
     public Team(String nameTeam) {
+        points = 0;
         this.nameTeam = nameTeam;
         this.team = new ArrayList<>();
         this.offlinePlayer = new ArrayList<>();
@@ -83,6 +85,18 @@ public class Team {
             this.offlinePlayer.remove(namePlayer);
             this.team.add(namePlayer);
         }
+    }
+
+    public int getPoints() {
+        return this.points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
+    public void sumarPunto() {
+        this.points++;
     }
 }
 

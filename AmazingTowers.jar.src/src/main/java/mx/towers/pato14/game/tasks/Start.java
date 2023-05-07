@@ -1,8 +1,10 @@
 package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.events.protect.CofresillosListener;
 import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.locations.Locations;
@@ -20,6 +22,11 @@ public class Start {
     private boolean stop = false;
     private boolean hasStarted = false;
     private boolean runFromCommand = false;
+    private final Game game;
+
+    public Start(Game game) {
+        this.game = game;
+    }
 
     public void gameStart() {
         hasStarted = true;
@@ -30,33 +37,33 @@ public class Start {
                     cancel();
                     Start.this.teleportPlayers();
                     Start.this.startGenerators();
-                    CofresillosListener.getChests();
-                    Start.this.at.getUpdates().getRefill().iniciarRefill();
-                    Start.this.at.getUpdates().updateScoreboardAll();
-                    Start.this.at.getGame().getDetectionMove().MoveDetect();
+                    CofresillosListener.getChests(Start.this.game.getGameInstance().getName());
+                    Start.this.game.getGameInstance().getUpdates().getRefill().iniciarRefill();
+                    Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
+                    Start.this.game.getDetectionMove().MoveDetect();
                     return;
                 }
                 if (!runFromCommand && Bukkit.getOnlinePlayers().size() < Start.this.at.getConfig().getInt("Options.gameStart.min-players")) {
                     cancel();
                     GameState.setState(GameState.LOBBY);
-                    Bukkit.broadcastMessage(Start.this.at.getColor(Start.this.at.getMessages().getString("messages.gameStart.necessaryPlayers")));
-                    Start.this.at.getUpdates().updateScoreboardAll();
+                    Bukkit.broadcastMessage(Start.this.at.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.necessaryPlayers")));
+                    Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
                     return;
                 }
                 if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
-                    Bukkit.broadcastMessage(Start.this.at.getColor(Start.this.at.getMessages().getString("messages.gameStart.start")
+                    Bukkit.broadcastMessage(Start.this.at.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.start")
                             .replace("{count}", String.valueOf(Start.this.seconds))
                             .replace("{seconds}", Start.this.getSeconds())));
                 }
                 if (Start.this.seconds <= 5 &&
-                        Start.this.at.getMessages().getBoolean("messages.gameStart.title.enabled")) {
-                    String title = Start.this.at.getColor(Start.this.at.getMessages().getString("messages.gameStart.title.title-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
-                    String subtitle = Start.this.at.getColor(Start.this.at.getMessages().getString("messages.gameStart.title.subtitle-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
+                        Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.gameStart.title.enabled")) {
+                    String title = Start.this.at.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.title.title-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
+                    String subtitle = Start.this.at.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.title.subtitle-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         Start.this.at.getNms().sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
-                Start.this.at.getUpdates().updateScoreboardAll();
+                Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
                 if (!Start.this.stop) Start.this.seconds = Start.this.seconds - 1;
             }
         }).runTaskTimer((Plugin) this.at, 0L, 20L);
@@ -69,7 +76,7 @@ public class Start {
     }
 
     private String getSeconds() {
-        return (this.seconds == 1) ? this.at.getMessages().getString("messages.gameStart.second") : this.at.getMessages().getString("messages.gameStart.seconds");
+        return (this.seconds == 1) ? this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.second") : this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.seconds");
     }
     public void setSeconds(int seconds) {
         this.seconds = seconds;
@@ -100,10 +107,10 @@ public class Start {
                     cancel();
                     return;
                 }
-                Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.at.getLocations().getString(Locationshion.IRON_GENERATOR.getLocationString())), new ItemStack(Material.IRON_INGOT, 1));
-                Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.at.getLocations().getString(Locationshion.XPBOTTLES_GENERATOR.getLocationString())), new ItemStack(Material.EXP_BOTTLE, 1));
+                Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.IRON_GENERATOR.getLocationString())), new ItemStack(Material.IRON_INGOT, 1));
+                Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.XPBOTTLES_GENERATOR.getLocationString())), new ItemStack(Material.EXP_BOTTLE, 1));
                 if (Start.this.at.getConfig().getBoolean("Options.generator_lapislazuli")) {
-                    Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.at.getLocations().getString(Locationshion.LAPISLAZULI_GENERATOR.getLocationString())), new ItemStack(Material.INK_SACK, 1, (short) 4));
+                    Bukkit.getWorld("TheTowers").dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.LAPISLAZULI_GENERATOR.getLocationString())), new ItemStack(Material.INK_SACK, 1, (short) 4));
                 }
             }
         }).runTaskTimer((Plugin) this.at, 0L, (this.at.getConfig().getInt("Options.generator_timePerSecond") * 20));

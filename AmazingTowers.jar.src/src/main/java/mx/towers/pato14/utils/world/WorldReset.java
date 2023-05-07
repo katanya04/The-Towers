@@ -17,11 +17,11 @@ public class WorldReset {
     public static void deleteWorld(File file) {
         if (file.exists()) {
             File[] files = file.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteWorld(files[i]);
+            for (File value : files) {
+                if (value.isDirectory()) {
+                    deleteWorld(value);
                 } else {
-                    files[i].delete();
+                    value.delete();
                 }
             }
         }

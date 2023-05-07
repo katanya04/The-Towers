@@ -4,31 +4,32 @@ import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.locations.Detectoreishon;
-import mx.towers.pato14.utils.nms.NMS;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.rewards.VaultT;
-import mx.towers.pato14.utils.wand.Wand;
 import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.File;
+
 public class GameInstance {
-    private static AmazingTowers plugin;
+    private final AmazingTowers plugin;
     private final String name;
     private Game game;
-    private final Map<String, Config> configs;
+    private final Map<ConfigType, Config> configs;
     private ScoreUpdate scoreUpdate;
     private VaultT vault;
+    private final Map<Rule, Boolean> rules;
 
     public GameInstance(AmazingTowers towers, String name) {
         plugin = towers;
         this.name = name;
         this.configs = new HashMap<>();
+        rules = new HashMap<>();
+        setRules();
         registerConfigs();
         createFolderBackup();
         Detectoreishon.detectoreishonLocations();
@@ -39,9 +40,9 @@ public class GameInstance {
             }
             loadWorld(this.name);
             SetupVault.setupVault();
-            this.vault = new VaultT(plugin);
-            this.game = new Game(plugin);
-            this.scoreUpdate = new ScoreUpdate(plugin);
+            this.vault = new VaultT(this);
+            this.game = new Game(this);
+            this.scoreUpdate = new ScoreUpdate(this);
         } else {
             Bukkit.getConsoleSender().sendMessage("Not all the locations have been set in "
                     + name + ". Please set them first.");
@@ -50,11 +51,11 @@ public class GameInstance {
 
     private void registerConfigs() {
         for (ConfigType config : ConfigType.values())
-            this.configs.put(config.toString().toLowerCase(), new Config(plugin,
-                    config.toString().toLowerCase() + ".yml", true));
+            this.configs.put(config, new Config(plugin,
+                    config.toString().toLowerCase() + ".yml", true, name));
     }
 
-    public void loadWorld(String worldName) {
+    public void loadWorld(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
         WorldLoad towers = new WorldLoad(worldName, plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName, Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName);
         if (towers.getFileSource().exists()) {
             towers.loadWorld();
@@ -63,14 +64,21 @@ public class GameInstance {
         }
     }
 
-    public void createFolderBackup() {
+    public void createFolderBackup() {  //Crear la carpeta "backup"
         File folder = new File(plugin.getDataFolder(), "backup");
         if (!folder.exists() &&
                 folder.mkdirs()) {
-            System.out.println("[AmazingTowers] The backup folder created successfully");
+            System.out.println("[AmazingTowers] The backup folder was created successfully");
         }
     }
 
+    private void setRules() {   //Sets rules to default values
+        for (Rule rule : Rule.values())
+            this.rules.put(rule, rule.getCurrentState());
+    }
+    public String getName() {
+        return this.name;
+    }
     public VaultT getVault() {
         return this.vault;
     }
@@ -78,27 +86,20 @@ public class GameInstance {
     public Game getGame() {
         return this.game;
     }
-    public Config getLocations() {
-        return this.locations;
-    }
-
-    public Config getScoreboard() {
-        return this.scoreboard;
-    }
-
-    public Config getMessages() {
-        return this.messages;
-    }
-
-    public Config getBook() {
-        return this.book;
-    }
 
     public Config getConfig(ConfigType config) {
-        return this.configs.get(config.toString().toLowerCase());
+        return this.configs.get(config);
     }
 
     public ScoreUpdate getUpdates() {
         return this.scoreUpdate;
+    }
+
+    public Map<Rule, Boolean> getRules() {
+        return rules;
+    }
+
+    public AmazingTowers getPlugin() {
+        return plugin;
     }
 }

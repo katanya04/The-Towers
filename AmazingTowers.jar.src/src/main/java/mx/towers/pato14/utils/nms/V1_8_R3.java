@@ -18,13 +18,13 @@ public class V1_8_R3 implements NMS
         final IChatBaseComponent CSubtitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + Subtitle + "\"}");
         final PacketPlayOutTitle stitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, CTitle);
         final PacketPlayOutTitle sSubtitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, CSubtitle);
-        ((CraftPlayer)player).getHandle().playerConnection.sendPacket((Packet)stitle);
-        ((CraftPlayer)player).getHandle().playerConnection.sendPacket((Packet)sSubtitle);
+        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(stitle);
+        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(sSubtitle);
         this.ticks(player, entrada, mantener, salida);
     }
 
     private void ticks(final Player player, final int entrada, final int mantener, final int salida) {
-        final PacketPlayOutTitle times = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TIMES, (IChatBaseComponent)null, entrada, mantener, salida);
-        ((CraftPlayer)player).getHandle().playerConnection.sendPacket((Packet)times);
+        final PacketPlayOutTitle times = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TIMES, null, entrada, mantener, salida);
+        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(times);
     }
 }

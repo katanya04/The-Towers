@@ -10,7 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class KitDefault {
-    private static AmazingTowers at = AmazingTowers.getPlugin();
+    private static final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     public static void KitDe(Player player) {
         ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
@@ -29,7 +29,7 @@ public class KitDefault {
         LeatherArmorMeta cmeta = (LeatherArmorMeta) chestplate.getItemMeta();
         LeatherArmorMeta lmeta = (LeatherArmorMeta) leggings.getItemMeta();
         LeatherArmorMeta bmeta = (LeatherArmorMeta) boots.getItemMeta();
-        if (at.getGame().getTeams().getBlue().containsPlayer(player.getName())) {
+        if (plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
             hmeta.setColor(Color.BLUE);
             cmeta.setColor(Color.BLUE);
             lmeta.setColor(Color.BLUE);
@@ -40,10 +40,10 @@ public class KitDefault {
             lmeta.setColor(Color.RED);
             bmeta.setColor(Color.RED);
         }
-        helmet.setItemMeta((ItemMeta) hmeta);
-        chestplate.setItemMeta((ItemMeta) cmeta);
-        leggings.setItemMeta((ItemMeta) lmeta);
-        boots.setItemMeta((ItemMeta) bmeta);
+        helmet.setItemMeta(hmeta);
+        chestplate.setItemMeta(cmeta);
+        leggings.setItemMeta(lmeta);
+        boots.setItemMeta(bmeta);
         player.getInventory().setArmorContents(new ItemStack[]{boots, leggings, chestplate, helmet});
     }
 }

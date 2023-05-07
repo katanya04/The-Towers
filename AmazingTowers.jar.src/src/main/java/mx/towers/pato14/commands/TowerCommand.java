@@ -2,7 +2,7 @@
 package mx.towers.pato14.commands;
 
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.utils.enums.StatType;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.enums.Team;
@@ -30,13 +30,13 @@ import org.bukkit.permissions.PermissionAttachment;
 
 public class TowerCommand implements CommandExecutor
 {
-    private final AmazingTowers a;
+    private final AmazingTowers plugin;
     private ItemStack itemChestRefill;
     private ArrayList<Player> senderPlayer;
     private final HashMap<String, Long> cooldown;
-    public TowerCommand(final AmazingTowers a) {
+    public TowerCommand(final AmazingTowers plugin) {
         this.senderPlayer = new ArrayList<Player>();
-        this.a = a;
+        this.plugin = plugin;
         this.itemChestRefill = new ItemStack(Material.IRON_SPADE);
         final ItemMeta metaItem = this.itemChestRefill.getItemMeta();
         metaItem.setDisplayName("§aSelect and Remove Chest Refill");
@@ -72,14 +72,14 @@ public class TowerCommand implements CommandExecutor
         if (args.length > 0) {
             if (args[0].equalsIgnoreCase("stats")) {
                 if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
-                    if (this.a.getConfig().getBoolean("Options.mysql.active")) {
+                    if (this.plugin.getConfig().getBoolean("Options.mysql.active")) {
                         String playername = null;
                         if (sender instanceof Player && args.length == 1) {
                             playername = sender.getName();
                         } else if (args.length > 1) {
                             playername = args[1];
                         }
-                        FindOneCallback.findPlayerAsync(playername, this.a, result -> {
+                        FindOneCallback.findPlayerAsync(playername, this.plugin, result -> {
                             if (result == null) {
                                 sender.sendMessage("§4No se ha encontrado ese jugador");
                                 return;
@@ -113,9 +113,9 @@ public class TowerCommand implements CommandExecutor
             }
             if (args[0].equalsIgnoreCase("organizer")) {
                 if (sender instanceof Player) {
-                    if (args.length >= 2 && args[1].equals(this.a.getConfig().getString("Permissions.password.organizer"))) {
-                        organizer = sender.addAttachment(this.a);
-                        this.a.getPermissions().put(sender.getName(), organizer);
+                    if (args.length >= 2 && args[1].equals(this.plugin.getConfig().getString("Permissions.password.organizer"))) {
+                        organizer = sender.addAttachment(this.plugin);
+                        this.plugin.getPermissions().put(sender.getName(), organizer);
                         organizer.setPermission("towers.organizer", true);
                     }
                 }
@@ -133,91 +133,87 @@ public class TowerCommand implements CommandExecutor
             Label_3759: {
                 final String s;
                 switch (s = st) {
-                    case "debug": {
-                        if (args.length >= 2) {
-                            if (args[1].equals("addPlayer")) {
-                                if (args.length >= 3) {
-                                    a.getGame().getStats().setHashStats(args[2]);
-                                    a.getGame().getStats().addOne(args[2], StatType.KILLS);
-                                    a.getGame().getStats().addOne(args[2], StatType.KILLS);
-                                }
-                            }
-                        } else
-                            sender.sendMessage("Do not use unless you know what you are doing!");
-                        return true;
-                    }
                     case "count": {
-                        if (GameState.isState(GameState.LOBBY) || GameState.isState(GameState.PREGAME)) {
-                            Start start = this.a.getGame().getStart();
-                            if (args.length >= 2 && args[1].equals("stop")) {
-                                start.stopCount();
-                            } else if (args.length >= 2 && args[1].equals("start")) {
-                                if (!start.hasStarted()) {
-                                    GameState.setState(GameState.PREGAME);
-                                    start.setRunFromCommand(true);
-                                    start.setHasStarted(true);
-                                    start.gameStart();
+                        if (sender instanceof Player) {
+                            if (GameState.isState(GameState.LOBBY) || GameState.isState(GameState.PREGAME)) {
+                                Start start = this.plugin.getGameInstance((Player) sender).getGame().getStart();
+                                if (args.length >= 2 && args[1].equals("stop")) {
+                                    start.stopCount();
+                                } else if (args.length >= 2 && args[1].equals("start")) {
+                                    if (!start.hasStarted()) {
+                                        GameState.setState(GameState.PREGAME);
+                                        start.setRunFromCommand(true);
+                                        start.setHasStarted(true);
+                                        start.gameStart();
+                                    }
+                                    start.continueCount();
+                                } else if (args.length >= 2 && isNumericInt(args[1])) {
+                                    start.setSeconds(Integer.parseInt(args[1]));
+                                } else {
+                                    sender.sendMessage("§fUsage: §a/towers §fcount §e<start|stop|number>");
                                 }
-                                start.continueCount();
-                            } else if (args.length >= 2 && isNumericInt(args[1])) {
-                                start.setSeconds(Integer.parseInt(args[1]));
                             } else {
-                                sender.sendMessage("§fUsage: §a/towers §fcount §e<start|stop|number>");
+                                sender.sendMessage("§4Este comando solo se puede usar antes de empezar la partida");
                             }
                         } else {
-                            sender.sendMessage("§4Este comando solo se puede usar antes de empezar la partida");
+                            sender.sendMessage("Missing");
                         }
                         return true;
                     }
                     case "rule": {
-                        if (args.length >= 2 && isRule(args[1])) {
-                            if (args.length >= 3 && (args[2].equalsIgnoreCase("true") || args[2].equalsIgnoreCase("false")))
-                                Rule.valueOf(args[1].toUpperCase()).setCurrentState(Boolean.parseBoolean(args[2]));
-                            sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + Rule.valueOf(args[1].toUpperCase()).getCurrentState());
-                        } else {
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("Usage: §a/towers §frule §e<");
-                            for (Rule r: Rule.values()) {
-                                sb.append(r.toString().toLowerCase());
-                                sb.append("|");
+                        if (sender instanceof Player) {
+                            if (args.length >= 2 && isRule(args[1])) {
+                                if (args.length >= 3 && (args[2].equalsIgnoreCase("true") || args[2].equalsIgnoreCase("false")))
+                                    this.plugin.getGameInstance((Player) sender).getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2]));
+                                sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + Rule.valueOf(args[1].toUpperCase()).getCurrentState());
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("Usage: §a/towers §frule §e<");
+                                for (Rule r : Rule.values()) {
+                                    sb.append(r.toString().toLowerCase());
+                                    sb.append("|");
+                                }
+                                sb.deleteCharAt(sb.length() - 1);
+                                sb.append("> <true|false>");
+                                sender.sendMessage(sb.toString());
                             }
-                            sb.deleteCharAt(sb.length()-1);
-                            sb.append("> <true|false>");
-                            sender.sendMessage(sb.toString());
+                        } else {
+                            sender.sendMessage("Missing");
                         }
                         return false;
                     }
                     case "setPoints": {
-                        if (GameState.isState(GameState.GAME)) {
-                            if (args.length > 2) {
-                                if (isNumeric(args[2]) && (args[1].equals("red") || args[1].equals("blue"))) {
-                                    if (args[1].equals("red"))
-                                        this.a.getGame().getTeams().redPoints = Integer.parseInt(args[2]);
-                                    else
-                                        this.a.getGame().getTeams().bluePoints = Integer.parseInt(args[2]);
-                                    Bukkit.broadcastMessage(this.a.getColor(this.a.getMessages().getString("messages.PointsScored-Messages.setpointsCommand")
-                                            .replace("%PointsRed%", String.valueOf((this.a.getGame().getTeams()).redPoints))
-                                            .replace("%PointsBlue%", String.valueOf((this.a.getGame().getTeams()).bluePoints))));
-                                    if ((this.a.getGame().getTeams()).bluePoints >= this.a.getConfig().getInt("Options.Points")) {
-                                        this.a.getGame().getFinish().Fatality(Team.BLUE);
-                                        GameState.setState(GameState.FINISH);
-                                    } else if ((this.a.getGame().getTeams()).redPoints >= this.a.getConfig().getInt("Options.Points")) {
-                                        this.a.getGame().getFinish().Fatality(Team.RED);
-                                        GameState.setState(GameState.FINISH);
+                        if (sender instanceof Player) {
+                            if (GameState.isState(GameState.GAME)) {
+                                if (args.length > 2) {
+                                    if (isNumeric(args[2]) && (args[1].equals("red") || args[1].equals("blue"))) {
+                                        this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
+                                        Bukkit.broadcastMessage(AmazingTowers.getColor(this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand")
+                                                .replace("%PointsRed%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.RED)).getPoints()))
+                                                .replace("%PointsBlue%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.BLUE)).getPoints()))));
+                                        int pointsToWin = this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.CONFIG).getInt("Options.Points");
+                                        for (Team team : Team.values()) {
+                                            if ((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(team)).getPoints() >= pointsToWin) {
+                                                this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team);
+                                                GameState.setState(GameState.FINISH);
+                                            }
+                                        }
+                                    } else {
+                                        sender.sendMessage("§fUsage: §a/towers §fsetPoints §e<blue|red> <number>");
+                                        return false;
                                     }
-                                } else  {
-                                    sender.sendMessage("§fUsage: §a/towers §fsetPoints §e<blue|red> <number>");
-                                    return false;
+                                } else {
+                                    {
+                                        sender.sendMessage("§fUsage: §a/towers §fsetPoints §e<blue|red> <number>");
+                                        return false;
+                                    }
                                 }
                             } else {
-                                {
-                                    sender.sendMessage("§fUsage: §a/towers §fsetPoints §e<blue|red> <number>");
-                                    return false;
-                                }
+                                sender.sendMessage("§4You can only execute this command during a match.");
+                                return false;
                             }
                         } else {
-                            sender.sendMessage("§4You can only execute this command during a match.");
-                            return false;
+                            sender.sendMessage("Missing");
                         }
                         return true;
                     }
@@ -228,18 +224,18 @@ public class TowerCommand implements CommandExecutor
                         if (args.length >= 2) {
                             final Player player = (Player) sender;
                             if (args[1].equals("red")) {
-                                if (this.a.getGame().getTeams().getBlue().containsPlayer(player.getName())) {
-                                    this.a.getGame().getTeams().getBlue().removePlayer(player);
+                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
+                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).removePlayer(player);
                                 }
-                                this.a.getGame().getTeams().getRed().addPlayer((OfflinePlayer) player);
+                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).addPlayer((OfflinePlayer) player);
                                 Dar.darItemsJoinTeam(player);
                                 return false;
                             }
                             if (args[1].equals("blue")) {
-                                if (this.a.getGame().getTeams().getRed().containsPlayer(player.getName())) {
-                                    this.a.getGame().getTeams().getRed().removePlayer(player);
+                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).removePlayer(player);
                                 }
-                                this.a.getGame().getTeams().getBlue().addPlayer((OfflinePlayer) player);
+                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).addPlayer((OfflinePlayer) player);
                                 Dar.darItemsJoinTeam(player);
                                 return false;
                             }
@@ -286,7 +282,7 @@ public class TowerCommand implements CommandExecutor
                             return false;
                         }
                         if (Bukkit.getWorld(args[1]) != null) {
-                            player.sendMessage("§fThe world §c" + args[1] + " §fnot exist!");
+                            player.sendMessage("§fThe world §c" + args[1] + " §fdoesn't exist!");
                             return false;
                         }
                         if (args[2].equals("emptyWorld")) {
@@ -302,7 +298,7 @@ public class TowerCommand implements CommandExecutor
                             world.setGameRuleValue("doMobSpawning", "false");
                             world.setGameRuleValue("mobGriefing", "false");
                             world.setGameRuleValue("doDaylightCycle", "false");
-                            player.sendMessage("The world §a" + args[1] + " §fcreated §asuccesfully...");
+                            player.sendMessage("The world §a" + args[1] + " §fwas created §asuccesfully...");
                             return false;
                         }
                         player.sendMessage("Usage: §a/towers §fcreateWorld §e<nameWorld> emptyWorld");
@@ -324,16 +320,16 @@ public class TowerCommand implements CommandExecutor
                             player.sendMessage("Usage: §a/towers §fprotect §e<blue|red|lobby|redbridge|bluebridge|redchestroom1|redchestroom2|bluechestroom1|bluechestroom2|redpoint|bluepoint>");
                             return false;
                         }
-                        if (!this.a.getWand().equalsPos1("") && !this.a.getWand().equalsPos2("")) {
-                            if (this.a.getWand().getPos1() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".1", (Object)this.a.getWand().getPos1());
-                                this.a.getLocations().saveConfig();
+                        if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
+                            if (this.plugin.getWand().getPos1() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".1", (Object)this.plugin.getWand().getPos1());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            if (this.a.getWand().getPos2() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".2", (Object)this.a.getWand().getPos2());
-                                this.a.getLocations().saveConfig();
+                            if (this.plugin.getWand().getPos2() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".2", (Object)this.plugin.getWand().getPos2());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            this.a.getWand().clearStrings();
+                            this.plugin.getWand().clearStrings();
                             player.sendMessage("§7Defined protection corner §a1 §7and §a2 §7of §a" + args[1]);
                             return false;
                         }
@@ -381,7 +377,7 @@ public class TowerCommand implements CommandExecutor
                             return false;
                         }
                         if (args[1].equals("wand")) {
-                            player.getInventory().addItem(new ItemStack[] { this.a.getWand().getItem() });
+                            player.getInventory().addItem(new ItemStack[] { this.plugin.getWand().getItem() });
                             player.sendMessage("§aLeft Click §7to set §aPos1 §7and §aRight click §7to set §aPos2");
                             return false;
                         }
@@ -406,16 +402,16 @@ public class TowerCommand implements CommandExecutor
                             player.sendMessage("Usage: §a/towers protectChest §e<blue|red>");
                             return false;
                         }
-                        if (!this.a.getWand().equalsPos1("") && !this.a.getWand().equalsPos2("")) {
-                            if (this.a.getWand().getPos1() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".CHEST.1", (Object)this.a.getWand().getPos1());
-                                this.a.getLocations().saveConfig();
+                        if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
+                            if (this.plugin.getWand().getPos1() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".CHEST.1", (Object)this.plugin.getWand().getPos1());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            if (this.a.getWand().getPos2() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".CHEST.2", (Object)this.a.getWand().getPos2());
-                                this.a.getLocations().saveConfig();
+                            if (this.plugin.getWand().getPos2() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".CHEST.2", (Object)this.plugin.getWand().getPos2());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            this.a.getWand().clearStrings();
+                            this.plugin.getWand().clearStrings();
                             player.sendMessage("§7Defined protection corner §a1 §7and §a2 §7of §a" + args[1] + " §7chest");
                             return false;
                         }
@@ -425,33 +421,37 @@ public class TowerCommand implements CommandExecutor
                         if (args.length != 2) {
                             return false;
                         }
-                        if (args[1].equals("config")) {
-                            this.a.getConfig().reloadConfig();
-                            sender.sendMessage("§aReload Config successfully§f!");
-                            return false;
+                        if (sender instanceof Player) {
+                            if (args[1].equals("config")) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.CONFIG).reloadConfig();
+                                sender.sendMessage("§aReload Config successfully§f!");
+                                return false;
+                            }
+                            if (args[1].equals("scoreboard")) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.SCOREBOARD).reloadConfig();
+                                sender.sendMessage("§aReload scoreboard config successfully§f!");
+                                return false;
+                            }
+                            if (args[1].equals("messages")) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.MESSAGES).reloadConfig();
+                                sender.sendMessage("§aReload messages config successfully§f!");
+                                return false;
+                            }
+                            if (args[1].equals("locations")) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).reloadConfig();
+                                sender.sendMessage("§aReload locations config successfully§f!");
+                                return false;
+                            }
+                            if (args[1].equals("book")) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.BOOK).reloadConfig();
+                                this.plugin.getGameInstance((Player) sender).getGame().getItemBook().createBookItem();
+                                sender.sendMessage("§aReload book config successfully§f!");
+                                return false;
+                            }
+                            sender.sendMessage("§fUsage: §a/towers §freloadConfig §e<config|scoreboard|messages|book>");
+                        } else {
+                            sender.sendMessage("Missing");
                         }
-                        if (args[1].equals("scoreboard")) {
-                            this.a.getScoreboard().reloadConfig();
-                            sender.sendMessage("§aReload scoreboard config successfully§f!");
-                            return false;
-                        }
-                        if (args[1].equals("messages")) {
-                            this.a.getMessages().reloadConfig();
-                            sender.sendMessage("§aReload messages config successfully§f!");
-                            return false;
-                        }
-                        if (args[1].equals("locations")) {
-                            this.a.getLocations().reloadConfig();
-                            sender.sendMessage("§aReload locations config successfully§f!");
-                            return false;
-                        }
-                        if (args[1].equals("book")) {
-                            this.a.getBook().reloadConfig();
-                            this.a.getGame().getItemBook().createBookItem();
-                            sender.sendMessage("§aReload book config successfully§f!");
-                            return false;
-                        }
-                        sender.sendMessage("§fUsage: §a/towers §freloadConfig §e<config|scoreboard|messages|book>");
                         return false;
                     }
                     case "setborder": {
@@ -463,16 +463,16 @@ public class TowerCommand implements CommandExecutor
                             player.sendMessage("Usage: §a/towers §fsetborder");
                             return false;
                         }
-                        if (!this.a.getWand().equalsPos1("") && !this.a.getWand().equalsPos2("")) {
-                            if (this.a.getWand().getPos1() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT.BORDER.1", (Object)this.a.getWand().getPos1());
-                                this.a.getLocations().saveConfig();
+                        if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
+                            if (this.plugin.getWand().getPos1() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT.BORDER.1", (Object)this.plugin.getWand().getPos1());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            if (this.a.getWand().getPos2() != null) {
-                                this.a.getLocations().set("LOCATIONS.PROTECT.BORDER.2", (Object)this.a.getWand().getPos2());
-                                this.a.getLocations().saveConfig();
+                            if (this.plugin.getWand().getPos2() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT.BORDER.2", (Object)this.plugin.getWand().getPos2());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            this.a.getWand().clearStrings();
+                            this.plugin.getWand().clearStrings();
                             player.sendMessage("§7Defined corner §a1 §7and §a2 §7of the border");
                             return false;
                         }
@@ -515,14 +515,14 @@ public class TowerCommand implements CommandExecutor
                         }
                         if (args[1].equals("lobby") || args[1].equals("red") || args[1].equals("blue")) {
                             final String t = args[1].equals("lobby") ? "LOCATIONS.LOBBY" : (args[1].equals("red") ? "LOCATIONS.RED_SPAWN" : "LOCATIONS.BLUE_SPAWN");
-                            this.a.getLocations().set(t, (Object)Locations.getLocationStringCenter(player.getLocation(), true));
-                            this.a.getLocations().saveConfig();
+                            this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set(t, (Object)Locations.getLocationStringCenter(player.getLocation(), true));
+                            this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             player.sendMessage("§7Spawn of §e" + args[1].toLowerCase() + " §7defined");
                             return false;
                         }
                         if (args[1].equalsIgnoreCase("iron") || args[1].equalsIgnoreCase("xpbottles") || args[1].equalsIgnoreCase("lapislazuli")) {
-                            this.a.getLocations().set("LOCATIONS.GENERATOR." + args[1].toUpperCase(), (Object)Locations.getLocationStringCenter(player.getLocation(), true));
-                            this.a.getLocations().saveConfig();
+                            this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.GENERATOR." + args[1].toUpperCase(), (Object)Locations.getLocationStringCenter(player.getLocation(), true));
+                            this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             player.sendMessage("§7You've defined generator of §e" + args[1].toLowerCase() + " §7successfully");
                             return false;
                         }
@@ -534,7 +534,7 @@ public class TowerCommand implements CommandExecutor
                             sender.sendMessage("§cThe vault plugin don't exist");
                             return false;
                         }
-                        if (this.a.getConfig().getBoolean("Options.Rewards.vault")) {
+                        if (this.plugin.getConfig().getBoolean("Options.Rewards.vault")) {
                             final String format = ChatColor.GRAY + "%s: [%s]";
                             sender.sendMessage("§7*--------------*");
                             sender.sendMessage(" §f*Vault* ");
@@ -559,16 +559,16 @@ public class TowerCommand implements CommandExecutor
                             player.sendMessage("Usage: §a/towers §fsetpool §e<blue|red>");
                             return false;
                         }
-                        if (!this.a.getWand().equalsPos1("") && !this.a.getWand().equalsPos2("")) {
-                            if (this.a.getWand().getPos1() != null) {
-                                this.a.getLocations().set("LOCATIONS.POOLS." + args[1].toUpperCase() + ".1", (Object)this.a.getWand().getPos1());
-                                this.a.getLocations().saveConfig();
+                        if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
+                            if (this.plugin.getWand().getPos1() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.POOLS." + args[1].toUpperCase() + ".1", (Object)this.plugin.getWand().getPos1());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            if (this.a.getWand().getPos2() != null) {
-                                this.a.getLocations().set("LOCATIONS.POOLS." + args[1].toUpperCase() + ".2", (Object)this.a.getWand().getPos2());
-                                this.a.getLocations().saveConfig();
+                            if (this.plugin.getWand().getPos2() != null) {
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.POOLS." + args[1].toUpperCase() + ".2", (Object)this.plugin.getWand().getPos2());
+                                this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
                             }
-                            this.a.getWand().clearStrings();
+                            this.plugin.getWand().clearStrings();
                             player.sendMessage("§7Defined corner §e1 §7and §a2 §7of §e" + args[1] + " §7pool");
                             return false;
                         }
@@ -585,7 +585,7 @@ public class TowerCommand implements CommandExecutor
                     player.sendMessage("§a/towers §fbackupWorld");
                     return false;
                 }
-                final File backup = new File(String.valueOf(this.a.getDataFolder().getAbsolutePath()) + "/backup", "TheTowers");
+                final File backup = new File(String.valueOf(this.plugin.getDataFolder().getAbsolutePath()) + "/backup", "TheTowers");
                 if (backup.exists()) {
                     player.sendMessage("§fThe folder §a'TheTowers' §falready exists in backup folder!");
                     return false;

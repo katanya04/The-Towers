@@ -17,17 +17,17 @@ public class RefilleadoGalloConTenis {
     private final AmazingTowers plugin;
     private int regeneration;
     private static Map<Location, FixedItem[]> refileadoProaso = new HashMap<>();
-    private GameInstance gameInstance;
+    private final GameInstance gameInstance;
 
     public RefilleadoGalloConTenis(GameInstance gameInstance) {
         this.gameInstance = gameInstance;
         this.plugin = gameInstance.getPlugin();
-        String[] timer = plugin.getConfig().getString("Options.refill_chests.timer_refill").split(";");
+        String[] timer = gameInstance.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.timer_refill").split(";");
         this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);
     }
 
     public void iniciarRefill() {
-        if (this.plugin.getConfig().getBoolean("Options.refill_chests.enabled") &&
+        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.refill_chests.enabled") &&
                 this.gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
             refileadoProaso = SelectCofresillos.makelist(this.gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             (new BukkitRunnable() {

@@ -12,34 +12,33 @@ import com.mysql.jdbc.CommunicationsException;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.stats.Stats;
-import org.bukkit.Bukkit;
 
 public class Conexion {
-    AmazingTowers t = AmazingTowers.getPlugin();
+    AmazingTowers plugin = AmazingTowers.getPlugin();
 
-    public Connection c;
+    public Connection connection;
 
-    String hostname = this.t.getConfig().getString("Options.mysql.hostname");
+    String hostname = this.plugin.getGlobalConfig().getString("Options.mysql.hostname");
 
-    //String port = this.t.getConfig().getString("Options.mysql.port");
+    //String port = this.t.getGlobalConfig().getString("Options.mysql.port");
 
-    String database = this.t.getConfig().getString("Options.mysql.database");
+    String database = this.plugin.getGlobalConfig().getString("Options.mysql.database");
 
-    String user = this.t.getConfig().getString("Options.mysql.user");
+    String user = this.plugin.getGlobalConfig().getString("Options.mysql.user");
 
-    String password = this.t.getConfig().getString("Options.mysql.password");
+    String password = this.plugin.getGlobalConfig().getString("Options.mysql.password");
 
     public void Conectar() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            this.c = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
+            this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
                     "/" + this.database + "?autoReconnect=true", this.user, this.password);
-            if (this.c != null)
-                this.t.message("Connection of MYSQL set successfully");
+            if (this.connection != null)
+                this.plugin.message("Connection of MYSQL set successfully");
         } catch (SQLException e) {
-            this.t.message("Error MySql: Error connecting of MYSQL (Disabling in config); " + e);
-            this.t.getConfig().set("Options.mysql.active", Boolean.valueOf(false));
-            this.t.saveConfig();
+            this.plugin.message("Error MySql: Error connecting of MYSQL (Disabling in config); " + e);
+            this.plugin.getGlobalConfig().set("Options.mysql.active", false);
+            this.plugin.saveConfig();
         } catch (ClassNotFoundException classNotFoundException) {}
     }
 
@@ -47,7 +46,7 @@ public class Conexion {
         boolean repeat = false;
         do {
             try {
-                PreparedStatement ps = this.c.prepareStatement("CREATE TABLE IF NOT EXISTS towers(UUID VARCHAR(37), PlayerName VARCHAR(20), Kills INT(9)NOT NULL, Deaths INT(9)NOT NULL, Anoted_Points INT(9) NOT NULL,Games_Played INT(9) NOT NULL,Wins INT(9)NOT NULL,Blocks_Broken INT(9)NOT NULL,Blocks_Placed INT(9)NOT NULL,PRIMARY KEY(UUID))");
+                PreparedStatement ps = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS towers(UUID VARCHAR(37), PlayerName VARCHAR(20), Kills INT(9)NOT NULL, Deaths INT(9)NOT NULL, Anoted_Points INT(9) NOT NULL,Games_Played INT(9) NOT NULL,Wins INT(9)NOT NULL,Blocks_Broken INT(9)NOT NULL,Blocks_Placed INT(9)NOT NULL,PRIMARY KEY(UUID))");
                 ps.execute();
                 ps.close();
                 repeat = false;
@@ -55,7 +54,7 @@ public class Conexion {
                 this.Conectar();
                 repeat = true;
             } catch (SQLException e) {
-                this.t.message("Error MySql: " + e);
+                this.plugin.message("Error MySql: " + e);
             }
         } while (repeat);
     }
@@ -65,7 +64,7 @@ public class Conexion {
         do {
             try {
                 if (!hasAccount(playername)) {
-                    PreparedStatement ps = this.c.prepareStatement("INSERT INTO towers(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,?,?,?,?,?,?,?)");
+                    PreparedStatement ps = this.connection.prepareStatement("INSERT INTO towers(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,?,?,?,?,?,?,?)");
                     ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername).getBytes(StandardCharsets.UTF_8)).toString());
                     ps.setString(2, playername);
                     ps.setInt(3, 0);
@@ -100,7 +99,7 @@ public class Conexion {
                 sb.deleteCharAt(sb.length() - 1);
                 sb.append(" WHERE UUID='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername)
                         .getBytes(StandardCharsets.UTF_8)).toString()).append("'");
-                PreparedStatement ps = this.c.prepareStatement(sb.toString());
+                PreparedStatement ps = this.connection.prepareStatement(sb.toString());
                 ps.executeUpdate();
                 ps.close();
                 repeat = false;
@@ -108,7 +107,7 @@ public class Conexion {
                 this.Conectar();
                 repeat = true;
             } catch (SQLException e) {
-                this.t.message("Error MySql: " + e);
+                this.plugin.message("Error MySql: " + e);
             }
         } while (repeat);
     }
@@ -120,7 +119,7 @@ public class Conexion {
             i = new int[7];
             try {
                 if (hasAccount(playername)) {
-                    PreparedStatement ps = this.c.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername).getBytes(StandardCharsets.UTF_8)).toString() + "'");
+                    PreparedStatement ps = this.connection.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername).getBytes(StandardCharsets.UTF_8)).toString() + "'");
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         for (int j = 0; j < 7; j++) {
@@ -135,7 +134,7 @@ public class Conexion {
                 this.Conectar();
                 repeat = true;
             } catch (SQLException e) {
-                this.t.message("Error MySql: " + e);
+                this.plugin.message("Error MySql: " + e);
             }
         } while (repeat);
         return i;
@@ -145,7 +144,7 @@ public class Conexion {
         boolean repeat = false;
         do {
             try {
-                PreparedStatement ps = this.c.prepareStatement("Select PlayerName From towers WHERE PlayerName ='" + playername + "'");
+                PreparedStatement ps = this.connection.prepareStatement("Select PlayerName From towers WHERE PlayerName ='" + playername + "'");
                 ResultSet rs = ps.executeQuery();
                 if (rs.next())
                     return true;
@@ -154,7 +153,7 @@ public class Conexion {
                 this.Conectar();
                 repeat = true;
             } catch (SQLException e) {
-                this.t.message("Error MySql: " + e);
+                this.plugin.message("Error MySql: " + e);
             }
         } while (repeat);
         return false;

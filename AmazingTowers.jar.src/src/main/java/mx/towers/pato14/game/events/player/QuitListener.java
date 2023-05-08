@@ -3,15 +3,14 @@ package mx.towers.pato14.game.events.player;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
-import mx.towers.pato14.game.team.TeamGame;
+import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Team;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class QuitListener implements Listener {
@@ -32,7 +31,7 @@ public class QuitListener implements Listener {
             public void run() {
                 int teamBlue, teamRed;
                 QuitListener.this.plugin.getGameInstance(player).getUpdates().updateScoreboardAll();
-                TeamGame teams = QuitListener.this.plugin.getGameInstance(player).getGame().getTeams();
+                GameTeams teams = QuitListener.this.plugin.getGameInstance(player).getGame().getTeams();
                 switch (GameState.getState()) {
                     case LOBBY:
                     case PREGAME:
@@ -45,29 +44,29 @@ public class QuitListener implements Listener {
                         if (!teams.containsTeamPlayer(player)) {
                             break;
                         }
-                        if (teams.getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(name)) {
-                            teams.getTeam(mx.towers.pato14.utils.enums.Team.BLUE).addOfflinePlayer(name);
-                            teams.getTeam(mx.towers.pato14.utils.enums.Team.BLUE).removePlayer(player);
-                        } else if (teams.getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(name)) {
-                            teams.getTeam(mx.towers.pato14.utils.enums.Team.RED).addOfflinePlayer(name);
-                            teams.getTeam(mx.towers.pato14.utils.enums.Team.RED).removePlayer(player);
+                        if (teams.getTeam(TeamColor.BLUE).containsPlayer(name)) {
+                            teams.getTeam(TeamColor.BLUE).addOfflinePlayer(name);
+                            teams.getTeam(TeamColor.BLUE).removePlayer(player);
+                        } else if (teams.getTeam(TeamColor.RED).containsPlayer(name)) {
+                            teams.getTeam(TeamColor.RED).addOfflinePlayer(name);
+                            teams.getTeam(TeamColor.RED).removePlayer(player);
                         }
-                        teamBlue = teams.getTeam(mx.towers.pato14.utils.enums.Team.BLUE).getSizePlayers();
-                        teamRed = teams.getTeam(mx.towers.pato14.utils.enums.Team.RED).getSizePlayers();
+                        teamBlue = teams.getTeam(TeamColor.BLUE).getSizePlayers();
+                        teamRed = teams.getTeam(TeamColor.RED).getSizePlayers();
                         if (teamBlue == 0 && teamRed > 0) {
-                            QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(Team.RED);
+                            QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(TeamColor.RED);
                             break;
                         }
                         if (teamRed == 0 && teamBlue > 0) {
-                            QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(Team.BLUE);
+                            QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(TeamColor.BLUE);
                             break;
                         }
                         if (teamRed == 0 && teamBlue == 0) {
                             int numero = (int) (Math.random() * 10.0D) + 1;
                             if (numero <= 5) {
-                                QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(Team.RED);
+                                QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(TeamColor.RED);
                             } else {
-                                QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(Team.BLUE);
+                                QuitListener.this.plugin.getGameInstance(player).getGame().getFinish().Fatality(TeamColor.BLUE);
                             }
                             System.out.println(numero);
                         }

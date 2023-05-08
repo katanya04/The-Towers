@@ -1,12 +1,11 @@
 package mx.towers.pato14.game.kits;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.utils.plugin.PluginA;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class KitDefault {
@@ -29,7 +28,7 @@ public class KitDefault {
         LeatherArmorMeta cmeta = (LeatherArmorMeta) chestplate.getItemMeta();
         LeatherArmorMeta lmeta = (LeatherArmorMeta) leggings.getItemMeta();
         LeatherArmorMeta bmeta = (LeatherArmorMeta) boots.getItemMeta();
-        if (plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
+        if (plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
             hmeta.setColor(Color.BLUE);
             cmeta.setColor(Color.BLUE);
             lmeta.setColor(Color.BLUE);

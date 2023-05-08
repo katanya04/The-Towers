@@ -3,7 +3,7 @@ package mx.towers.pato14.game.events.protect;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.Team;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,8 +30,8 @@ public class LeatherProtectListener implements Listener {
             return;
         }
         Game game = this.plugin.getGameInstance(e.getPlayer()).getGame();
-        for (Team team : Team.values()) {
-            if (i.getItemMeta().getDisplayName().equals(game.getItem().getItem(team).getName()))
+        for (TeamColor teamColor : TeamColor.values()) {
+            if (i.getItemMeta().getDisplayName().equals(game.getItem().getItem(teamColor).getName()))
                 e.setCancelled(true);
         }
         if (game.getItemBook() != null && i.getItemMeta().getDisplayName().equals(game.getItemBook().getItem().getItemMeta().getDisplayName())) {

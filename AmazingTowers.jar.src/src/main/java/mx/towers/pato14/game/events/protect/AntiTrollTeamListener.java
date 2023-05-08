@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events.protect;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -33,15 +34,15 @@ public class AntiTrollTeamListener implements Listener {
                 if (en instanceof Player) {
                     Player player = (Player) en;
                     if (!pl.equals(player)) {
-                        if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(pl.getName())) {
-                            if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()) &&
+                        if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(pl.getName())) {
+                            if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) &&
                                     e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
                                 e.setCancelled(true);
                                 pl.sendMessage(AmazingTowers.getColor(this.plugin.getGameInstance(pl).getConfig(ConfigType.MESSAGES).getString("messages.noTrollBreakBlock")));
                                 return;
                             }
-                        } else if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(pl.getName()) &&
-                                this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName()) &&
+                        } else if (this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(pl.getName()) &&
+                                this.plugin.getGameInstance(pl).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName()) &&
                                 e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
                             e.setCancelled(true);
                             pl.sendMessage(AmazingTowers.getColor(this.plugin.getGameInstance(pl).getConfig(ConfigType.MESSAGES).getString("messages.noTrollBreakBlock")));

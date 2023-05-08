@@ -1,8 +1,6 @@
 package mx.towers.pato14.utils.mysql;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.utils.enums.Team;
-import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.Bukkit;
 

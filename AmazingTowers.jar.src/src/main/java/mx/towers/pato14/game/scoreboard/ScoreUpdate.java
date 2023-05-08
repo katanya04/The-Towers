@@ -6,25 +6,22 @@ import java.util.List;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.cofresillos.RefilleadoGalloConTenis;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Team;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ScoreUpdate {
-    private AmazingTowers plugin;
-    private RefilleadoGalloConTenis refill;
-    private String title;
+    private final RefilleadoGalloConTenis refill;
+    private final String title;
     private final String date;
     private final GameInstance game;
 
     public ScoreUpdate(GameInstance gameInstance) {
         this.game = gameInstance;
-        this.plugin = gameInstance.getPlugin();
         this.refill = new RefilleadoGalloConTenis(gameInstance);
         this.title = gameInstance.getConfig(ConfigType.SCOREBOARD).getString("Scoreboard.name").replace("&", "§");
         this.date = (new SimpleDateFormat(gameInstance.getConfig(ConfigType.SCOREBOARD).getString("Scoreboard.formatDate"))).format(Calendar.getInstance().getTime());
@@ -79,8 +76,8 @@ public class ScoreUpdate {
                         .replace("%online_players%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                         .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers()))
                         .replace("%date%", this.date)
-                        .replace("%points_blue%", String.valueOf((game.getGame().getTeams().getTeam(Team.BLUE)).getPoints()))
-                        .replace("%points_red%", String.valueOf((game.getGame().getTeams().getTeam(Team.RED)).getPoints()))
+                        .replace("%points_blue%", String.valueOf((game.getGame().getTeams().getTeam(TeamColor.BLUE)).getPoints()))
+                        .replace("%points_red%", String.valueOf((game.getGame().getTeams().getTeam(TeamColor.RED)).getPoints()))
                         .replace("%maxPointsWin%", String.valueOf(game.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
                         .replace("%player_kills%", String.valueOf(game.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
                         .replace("%player_deaths%", String.valueOf(game.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
@@ -91,7 +88,7 @@ public class ScoreUpdate {
     }
 
     private String convertirTimeXd(int pTime) {
-        return this.plugin.getConfig().getBoolean("Options.refill_chests.enabled") ? ((this.refill.getTimeRegeneration() == 0.0F) ? AmazingTowers.getColor(this.plugin.getConfig().getString("Options.refill_chests.message_scoreboard")) : String.format("%02d:%02d", pTime / 60, pTime % 60)) : "00:00";
+        return this.game.getConfig(ConfigType.CONFIG).getBoolean("Options.refill_chests.enabled") ? ((this.refill.getTimeRegeneration() == 0.0F) ? AmazingTowers.getColor(this.game.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.message_scoreboard")) : String.format("%02d:%02d", pTime / 60, pTime % 60)) : "00:00";
     }
 
     public RefilleadoGalloConTenis getRefill() {

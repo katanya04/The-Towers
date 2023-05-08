@@ -15,7 +15,7 @@ public class SetupVault {
     private static boolean setupChat() {
         RegisteredServiceProvider<Chat> chatProvider = plugin.getServer().getServicesManager().getRegistration(Chat.class);
         if (chatProvider != null) {
-            chat = (Chat) chatProvider.getProvider();
+            chat = chatProvider.getProvider();
         }
         return (chat != null);
     }
@@ -23,13 +23,13 @@ public class SetupVault {
     private static boolean setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
         if (economyProvider != null) {
-            economy = (Economy) economyProvider.getProvider();
+            economy = economyProvider.getProvider();
         }
         return (economy != null);
     }
 
     public static void setupVault() {
-        if (plugin.getConfig().getBoolean("Options.Rewards.vault")) {
+        if (plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
             Bukkit.getConsoleSender().sendMessage("");
             Bukkit.getConsoleSender().sendMessage("[AmazingTowers] Detecting if you have the vault plugin...");
             if (Bukkit.getPluginManager().getPlugin("Vault") != null) {

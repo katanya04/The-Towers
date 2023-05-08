@@ -2,10 +2,11 @@
 package mx.towers.pato14.commands;
 
 import mx.towers.pato14.game.tasks.Start;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
-import mx.towers.pato14.utils.enums.Team;
+import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import org.bukkit.*;
 import mx.towers.pato14.utils.world.WorldReset;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.inventory.ItemStack;
 import mx.towers.pato14.AmazingTowers;
@@ -72,7 +74,7 @@ public class TowerCommand implements CommandExecutor
         if (args.length > 0) {
             if (args[0].equalsIgnoreCase("stats")) {
                 if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
-                    if (this.plugin.getConfig().getBoolean("Options.mysql.active")) {
+                    if (this.plugin.getGlobalConfig().getBoolean("Options.mysql.active")) {
                         String playername = null;
                         if (sender instanceof Player && args.length == 1) {
                             playername = sender.getName();
@@ -113,7 +115,7 @@ public class TowerCommand implements CommandExecutor
             }
             if (args[0].equalsIgnoreCase("organizer")) {
                 if (sender instanceof Player) {
-                    if (args.length >= 2 && args[1].equals(this.plugin.getConfig().getString("Permissions.password.organizer"))) {
+                    if (args.length >= 2 && args[1].equals(this.plugin.getGlobalConfig().getString("Permissions.password.organizer"))) {
                         organizer = sender.addAttachment(this.plugin);
                         this.plugin.getPermissions().put(sender.getName(), organizer);
                         organizer.setPermission("towers.organizer", true);
@@ -187,14 +189,14 @@ public class TowerCommand implements CommandExecutor
                             if (GameState.isState(GameState.GAME)) {
                                 if (args.length > 2) {
                                     if (isNumeric(args[2]) && (args[1].equals("red") || args[1].equals("blue"))) {
-                                        this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
+                                        this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
                                         Bukkit.broadcastMessage(AmazingTowers.getColor(this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand")
-                                                .replace("%PointsRed%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.RED)).getPoints()))
-                                                .replace("%PointsBlue%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.BLUE)).getPoints()))));
+                                                .replace("%PointsRed%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.RED)).getPoints()))
+                                                .replace("%PointsBlue%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.BLUE)).getPoints()))));
                                         int pointsToWin = this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.CONFIG).getInt("Options.Points");
-                                        for (Team team : Team.getMatchTeams(plugin.getGameInstance((Player) sender).getGame().getNumberOfTeams())) {
-                                            if ((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(team)).getPoints() >= pointsToWin) {
-                                                this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team);
+                                        for (Map.Entry<TeamColor, Team> team: plugin.getGameInstance((Player) sender).getGame().getTeams().getTeams().entrySet()) {
+                                            if (team.getValue().getPoints() >= pointsToWin) {
+                                                this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team.getKey());
                                                 GameState.setState(GameState.FINISH);
                                             }
                                         }
@@ -224,18 +226,18 @@ public class TowerCommand implements CommandExecutor
                         if (args.length >= 2) {
                             final Player player = (Player) sender;
                             if (args[1].equals("red")) {
-                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
-                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).removePlayer(player);
+                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
+                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.BLUE).removePlayer(player);
                                 }
-                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).addPlayer((OfflinePlayer) player);
+                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.RED).addPlayer((OfflinePlayer) player);
                                 Dar.darItemsJoinTeam(player);
                                 return false;
                             }
                             if (args[1].equals("blue")) {
-                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
-                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).removePlayer(player);
+                                if (this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
+                                    this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.RED).removePlayer(player);
                                 }
-                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).addPlayer((OfflinePlayer) player);
+                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.BLUE).addPlayer((OfflinePlayer) player);
                                 Dar.darItemsJoinTeam(player);
                                 return false;
                             }
@@ -534,7 +536,7 @@ public class TowerCommand implements CommandExecutor
                             sender.sendMessage("§cThe vault plugin don't exist");
                             return false;
                         }
-                        if (this.plugin.getConfig().getBoolean("Options.Rewards.vault")) {
+                        if (this.plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
                             final String format = ChatColor.GRAY + "%s: [%s]";
                             sender.sendMessage("§7*--------------*");
                             sender.sendMessage(" §f*Vault* ");

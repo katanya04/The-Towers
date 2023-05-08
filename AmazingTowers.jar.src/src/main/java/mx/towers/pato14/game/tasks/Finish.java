@@ -36,17 +36,17 @@ public class Finish {
         seconds = game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.timerEndSeconds") + 1;
         bungeecord = game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled");
     }
-    public void Fatality(final Team team) {
+    public void Fatality(final TeamColor teamColor) {
         if (!GameState.isState(GameState.FINISH)) {
             GameState.setState(GameState.FINISH);
         }
         for (String p: game.getStats().getPlayerStats().keySet()) {
             game.getStats().addOne(p, StatType.GAMES_PLAYED);
-            if (game.getTeams().getTeam(team).containsPlayer(p))
+            if (game.getTeams().getTeam(teamColor).containsPlayer(p))
                 game.getStats().addOne(p, StatType.WINS);
         }
         StatisticsPlayer stats = game.getStats();
-        sendTitle(team);
+        sendTitle(teamColor);
         (new BukkitRunnable() {
             public void run() {
                 if (Finish.this.seconds == 0) {
@@ -56,7 +56,7 @@ public class Finish {
                     cancel();
                     (new BukkitRunnable() {
                         public void run() {
-                            Bukkit.dispatchCommand((CommandSender) Bukkit.getConsoleSender(), AmazingTowers.getPlugin().getConfig().getString("Options.command"));
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.command"));
                         }
                     }).runTaskLater((Plugin) Finish.this.plugin, 60L);
                     return;
@@ -64,7 +64,7 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
-                            if (AmazingTowers.getPlugin().getConfig().getBoolean("Options.bungeecord-support.enabled")) {
+                            if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
                                 for (Player player : game.getPlayers()) {
                                     player.teleport(Locations.getLocationFromStringConfig(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
                                     Dar.bungeecordTeleport(player);
@@ -76,7 +76,7 @@ public class Finish {
                                 cancel();
                                 return;
                             }
-                            if (team == Team.RED) {
+                            if (teamColor == TeamColor.RED) {
                                 for (Player player : game.getPlayers()) {
                                     player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinishRed"))
                                             .replace("%newLine%", "\n"));
@@ -140,14 +140,14 @@ public class Finish {
                     }
                 }
                 for (Player player : game.getPlayers()) {
-                    if (team == Team.RED) {
-                        if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName()) &&
+                    if (teamColor == TeamColor.RED) {
+                        if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName()) &&
                                 player.getGameMode() != GameMode.SPECTATOR) {
                             Finish.this.fuegosArtificiales(player, Color.RED);
                         }
                         continue;
                     }
-                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()) &&
+                    if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) &&
                             player.getGameMode() != GameMode.SPECTATOR) {
                         Finish.this.fuegosArtificiales(player, Color.BLUE);
                     }
@@ -155,28 +155,28 @@ public class Finish {
                 Finish.this.seconds = Finish.this.seconds - 1;
             }
         }).runTaskTimer(this.plugin, 0L, 20L);
-        if (this.plugin.getConfig().getBoolean("Options.Rewards.vault") &&
+        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.Rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
             for (Player player : game.getPlayers()) {
-                if (team == Team.RED) {
-                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+                if (teamColor == TeamColor.RED) {
+                    if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
                         this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
                         continue;
                     }
-                    if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName()))
+                    if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()))
                         this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
                     continue;
                 }
-                if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
+                if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
                     continue;
                 }
-                if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+                if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
                 }
             }
         }
-        if (this.plugin.getConfig().getBoolean("Options.mysql.active")) {
+        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active")) {
             FindOneCallback.updatePlayersDataAsync(game.getStats().getPlayerStats(), this.plugin, result -> {});
         }
     }
@@ -196,9 +196,9 @@ public class Finish {
         f.setFireworkMeta(fm);
     }
 
-    private void sendTitle(Team team) {
+    private void sendTitle(TeamColor teamColor) {
         Config messages = game.getGameInstance().getConfig(ConfigType.MESSAGES);
-        String teamName = team.name().toLowerCase();
+        String teamName = teamColor.name().toLowerCase();
         if (messages.getBoolean("messages.Win-Messages.titles.enabled")) {
             String Title = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinTitle"));
             String Subtitle = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinSubTitle"));
@@ -219,9 +219,9 @@ public class Finish {
         int i;
         for (i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(current.getKey()))
+            if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(current.getKey()))
                 sb.append("§1");
-            else if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(current.getKey()))
+            else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(current.getKey()))
                 sb.append("§4");
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("§r");
@@ -239,9 +239,9 @@ public class Finish {
             current = listIterator.next();
             if (current.getKey().equals(p)) break;
         }
-        if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(p))
+        if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p))
             sb.append("§1");
-        else if (game.getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(p))
+        else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(p))
             sb.append("§4");
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");

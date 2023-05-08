@@ -2,24 +2,23 @@ package mx.towers.pato14.game.team;
 
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 
 
-public class TeamGame {
-    private final Map<mx.towers.pato14.utils.enums.Team, Team> teams;
-    private final int numberOfTeams;
+public class GameTeams {
+    private final Map<TeamColor, Team> teams;
 
-    public TeamGame(Game game) {
+    public GameTeams(Game game) {
         this.teams = new HashMap<>();
-        numberOfTeams = game.getNumberOfTeams();
-        for (mx.towers.pato14.utils.enums.Team team : mx.towers.pato14.utils.enums.Team.getMatchTeams(game.getNumberOfTeams())) {
-            String teamName = team.name().toLowerCase();
+        for (TeamColor teamColor : TeamColor.getMatchTeams(game.getNumberOfTeams())) {
+            String teamName = teamColor.name().toLowerCase();
             Team currentTeam = new Team(teamName);
             currentTeam.setPrefix(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.team." + teamName + ".prefix"));
 
-            teams.put(team, currentTeam);
+            teams.put(teamColor, currentTeam);
         }
     }
 
@@ -45,25 +44,37 @@ public class TeamGame {
         return containsTeamPlayer(player.getName());
     }
 
-    public Team getTeam(mx.towers.pato14.utils.enums.Team team) {
-        return this.teams.get(team);
+    public Team getTeam(TeamColor teamColor) {
+        return this.teams.get(teamColor);
     }
 
     public Team getTeamByPlayer(Player p) {
-        for (mx.towers.pato14.utils.enums.Team team : mx.towers.pato14.utils.enums.Team.getMatchTeams(numberOfTeams)) {
-            if (teams.get(team).containsPlayer(p.getName()))
-                return teams.get(team);
+        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
+            if (team.getValue().containsPlayer(p.getName()))
+                return team.getValue();
+        }
+        return null;
+    }
+
+    public TeamColor getTeamColorByPlayer(Player p) {
+        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
+            if (team.getValue().containsPlayer(p.getName()))
+                return team.getKey();
         }
         return null;
     }
 
     public int getLowestTeamPlayers() {
         int toret = Integer.MAX_VALUE;
-        for (mx.towers.pato14.utils.enums.Team team : mx.towers.pato14.utils.enums.Team.getMatchTeams(numberOfTeams)) {
-            if (teams.get(team).getSizePlayers() < toret)
-                toret = teams.get(team).getSizePlayers();
+        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
+            if (team.getValue().getSizePlayers() < toret)
+                toret = team.getValue().getSizePlayers();
         }
         return toret;
+    }
+
+    public Map<TeamColor, Team> getTeams() {
+        return this.teams;
     }
 
 }

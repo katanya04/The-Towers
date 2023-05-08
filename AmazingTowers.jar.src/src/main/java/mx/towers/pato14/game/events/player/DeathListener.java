@@ -3,10 +3,7 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.kits.KitDefault;
 import mx.towers.pato14.game.utils.Dar;
-import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.StatType;
-import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Locationshion;
+import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import org.bukkit.GameMode;
@@ -28,10 +25,10 @@ public class DeathListener implements Listener {
         Player player = e.getEntity().getPlayer();
         Player killer = e.getEntity().getKiller();
         if (killer == null) {
-            if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
+            if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
                 e.setDeathMessage(AmazingTowers.getColor(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.death-messages.unknownKillerBlue")
                         .replace("{Player}", player.getName())));
-            } else if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
+            } else if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
                 e.setDeathMessage(AmazingTowers.getColor(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.death-messages.unknownKillerRed")
                         .replace("{Player}", player.getName())));
             } else {
@@ -39,11 +36,11 @@ public class DeathListener implements Listener {
                         .replace("{Player}", player.getName())));
             }
         } else {
-            if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(killer.getName())) {
+            if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(killer.getName())) {
                 e.setDeathMessage(AmazingTowers.getColor(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.death-messages.killedByBlue")
                         .replace("{Player}", player.getName())
                         .replace("{Killer}", killer.getName())));
-            } else if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(killer.getName())) {
+            } else if (this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(killer.getName())) {
                 e.setDeathMessage(AmazingTowers.getColor(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.death-messages.killedByRed")
                         .replace("{Player}", player.getName())
                         .replace("{Killer}", killer.getName())));
@@ -52,14 +49,14 @@ public class DeathListener implements Listener {
         }
         this.plugin.getGameInstance(player).getGame().getStats().addOne(player.getName(), StatType.DEATHS);
         this.plugin.getGameInstance(player).getUpdates().updateScoreboard(player);
-        if (this.plugin.getConfig().getBoolean("Options.protect_leatherArmor")) {
+        if (this.plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.protect_leatherArmor")) {
             for (ItemStack i : e.getDrops()) {
                 if (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS) {
                     i.setType(Material.AIR);
                 }
             }
         }
-        if (this.plugin.getConfig().getBoolean("Options.instant_respawn")) {
+        if (this.plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.instant_respawn")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)AmazingTowers.getPlugin(), new Runnable() {
                 public void run() {
                     player.setCanPickupItems(false);
@@ -78,10 +75,10 @@ public class DeathListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         if (!GameState.isState(GameState.LOBBY)) {
-            if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(e.getPlayer().getName())) {
+            if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(e.getPlayer().getName())) {
                 e.setRespawnLocation(Locations.getLocationFromString(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getString(Locationshion.BLUE_SPAWN.getLocationString())));
                 KitDefault.KitDe(e.getPlayer());
-            } else if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(e.getPlayer().getName())) {
+            } else if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(e.getPlayer().getName())) {
                 e.setRespawnLocation(Locations.getLocationFromString(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getString(Locationshion.RED_SPAWN.getLocationString())));
                 KitDefault.KitDe(e.getPlayer());
             } else {

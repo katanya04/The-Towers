@@ -1,8 +1,9 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.game.team.TeamGame;
+import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.enums.GameState;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -33,9 +34,9 @@ public class DamageListener implements Listener {
     @EventHandler
     public void ondamage(EntityDamageByEntityEvent e) {
         if (e.getEntityType().equals(EntityType.PLAYER) && e.getDamager().getType().equals(EntityType.PLAYER)) {
-            if (getTeams(e.getEntity()).getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(e.getDamager().getName())) {
+            if (getTeams(e.getEntity()).getTeam(TeamColor.BLUE).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(TeamColor.BLUE).containsPlayer(e.getDamager().getName())) {
                 e.setCancelled(true);
-            } else if (getTeams(e.getEntity()).getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(e.getDamager().getName())) {
+            } else if (getTeams(e.getEntity()).getTeam(TeamColor.RED).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(TeamColor.RED).containsPlayer(e.getDamager().getName())) {
                 e.setCancelled(true);
             }
         }
@@ -48,10 +49,10 @@ public class DamageListener implements Listener {
             if (p.getShooter() instanceof Player) {
                 Player pl1 = (Player) p.getShooter();
                 Player pl2 = (Player) e.getEntity();
-                if (getTeams(pl1).getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(pl2.getName())) {
+                if (getTeams(pl1).getTeam(TeamColor.BLUE).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(TeamColor.BLUE).containsPlayer(pl2.getName())) {
                     e.setCancelled(true);
                     p.remove();
-                } else if (getTeams(pl1).getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(pl2.getName())) {
+                } else if (getTeams(pl1).getTeam(TeamColor.RED).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(TeamColor.RED).containsPlayer(pl2.getName())) {
                     e.setCancelled(true);
                     p.remove();
                 }
@@ -59,7 +60,7 @@ public class DamageListener implements Listener {
         }
     }
 
-    private TeamGame getTeams(Entity e) {
+    private GameTeams getTeams(Entity e) {
         return this.plugin.getGameInstance(e).getGame().getTeams();
     }
 }

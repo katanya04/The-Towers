@@ -51,7 +51,7 @@ public final class AmazingTowers extends JavaPlugin {
 
         if (!setupNMS()) {
             Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] Your server version is not compatible with this plugin!");
-            Bukkit.getPluginManager().disablePlugin((Plugin) this);
+            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
@@ -68,7 +68,7 @@ public final class AmazingTowers extends JavaPlugin {
         for (int i = 0; i < numberOfInstances; i++)
             games.put("TheTowers" + (i + 1), new GameInstance(this,"TheTowers" + (i + 1)));
 
-        if (getConfig().getBoolean("Options.mysql.active")) {
+        if (getGlobalConfig().getBoolean("Options.mysql.active")) {
             try {
                 this.con = new Conexion();
                 this.con.Conectar();
@@ -167,6 +167,10 @@ public final class AmazingTowers extends JavaPlugin {
 
     public static GameInstance getGameInstance(String worldName) {
         return games.get(worldName);
+    }
+
+    public Config getGlobalConfig() {
+        return globalConfig;
     }
 }
 

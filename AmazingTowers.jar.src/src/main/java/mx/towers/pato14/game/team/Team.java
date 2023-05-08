@@ -4,12 +4,13 @@ import com.nametagedit.plugin.NametagEdit;
 
 import java.util.ArrayList;
 
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class Team {
-    private final mx.towers.pato14.utils.enums.Team teamColor;
+    private final TeamColor teamColor;
     private String prefix;
     private final String nameTeam;
     private final ArrayList<String> players;
@@ -21,7 +22,7 @@ public class Team {
         this.nameTeam = nameTeam;
         this.players = new ArrayList<>();
         this.offlinePlayers = new ArrayList<>();
-        this.teamColor = mx.towers.pato14.utils.enums.Team.valueOf(nameTeam.toUpperCase());
+        this.teamColor = TeamColor.valueOf(nameTeam.toUpperCase());
     }
 
     public void addPlayer(OfflinePlayer player) {
@@ -47,7 +48,7 @@ public class Team {
     public boolean containsPlayer(String name) {
         return this.players.contains(name);
     }
-    public mx.towers.pato14.utils.enums.Team getTeamColor() {
+    public TeamColor getTeamColor() {
         return this.teamColor;
     }
     public String getNameTeam() {

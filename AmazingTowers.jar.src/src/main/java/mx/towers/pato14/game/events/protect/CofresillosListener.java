@@ -6,8 +6,8 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Locationshion;
+import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.plugin.PluginA;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -57,17 +57,17 @@ public class CofresillosListener implements Listener {
 
     @EventHandler
     public void onInteractChest(PlayerInteractEvent e) {
-        if (this.plugin.getConfig().getBoolean("Options.chestsTeam")) {
+        if (this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.CONFIG).getBoolean("Options.chestsTeam")) {
             if (e.getClickedBlock() == null || e.getClickedBlock().getType() != Material.CHEST) {
                 return;
             }
             if (e.getClickedBlock().getType() == Material.CHEST &&
                     protectedChest.contains(e.getClickedBlock().getLocation())) {
-                if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(e.getPlayer().getName())) {
+                if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(e.getPlayer().getName())) {
                     if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTRED2), e.getClickedBlock().getLocation())) {
                         this.chestPlayerProtect.add(e.getPlayer());
                     }
-                } else if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(e.getPlayer().getName()) &&
+                } else if (this.plugin.getGameInstance(e.getPlayer()).getGame().getTeams().getTeam(TeamColor.RED).containsPlayer(e.getPlayer().getName()) &&
                         Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS), Locationshion.CHESTPROTECTBLUE2), e.getClickedBlock().getLocation())) {
                     this.chestPlayerProtect.add(e.getPlayer());
                 }
@@ -77,7 +77,7 @@ public class CofresillosListener implements Listener {
 
     @EventHandler
     public void onOpenChest(InventoryOpenEvent e) {
-        if (this.plugin.getConfig().getBoolean("Options.chestsTeam") &&
+        if (this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.CONFIG).getBoolean("Options.chestsTeam") &&
                 this.chestPlayerProtect.contains(e.getPlayer())) {
             e.setCancelled(true);
             this.chestPlayerProtect.remove(e.getPlayer());

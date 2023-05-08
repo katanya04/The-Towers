@@ -12,24 +12,24 @@ public class Team {
     private final mx.towers.pato14.utils.enums.Team teamColor;
     private String prefix;
     private final String nameTeam;
-    private final ArrayList<String> team;
-    private final ArrayList<String> offlinePlayer;
+    private final ArrayList<String> players;
+    private final ArrayList<String> offlinePlayers;
     private int points;
 
     public Team(String nameTeam) {
         points = 0;
         this.nameTeam = nameTeam;
-        this.team = new ArrayList<>();
-        this.offlinePlayer = new ArrayList<>();
+        this.players = new ArrayList<>();
+        this.offlinePlayers = new ArrayList<>();
         this.teamColor = mx.towers.pato14.utils.enums.Team.valueOf(nameTeam.toUpperCase());
     }
 
     public void addPlayer(OfflinePlayer player) {
-        this.team.add(player.getName());
+        this.players.add(player.getName());
     }
 
     public void removePlayer(Player player) {
-        this.team.remove(player.getName());
+        this.players.remove(player.getName());
     }
 
     public void setNameTagPlayer(Player player) {
@@ -41,11 +41,11 @@ public class Team {
     }
 
     public int getSizePlayers() {
-        return this.team.size();
+        return this.players.size();
     }
 
     public boolean containsPlayer(String name) {
-        return this.team.contains(name);
+        return this.players.contains(name);
     }
     public mx.towers.pato14.utils.enums.Team getTeamColor() {
         return this.teamColor;
@@ -59,7 +59,7 @@ public class Team {
     }
 
     public ArrayList<String> getTeam() {
-        return this.team;
+        return this.players;
     }
 
     protected void setPrefix(String prefix) {
@@ -67,23 +67,23 @@ public class Team {
     }
 
     public ArrayList<String> getPlayersOfflineTeam() {
-        return this.offlinePlayer;
+        return this.offlinePlayers;
     }
 
     public boolean containsOffline(String namePlayer) {
-        return this.offlinePlayer.contains(namePlayer);
+        return this.offlinePlayers.contains(namePlayer);
     }
 
     public void addOfflinePlayer(String namePlayer) {
         if (!containsOffline(namePlayer)) {
-            this.offlinePlayer.add(namePlayer);
+            this.offlinePlayers.add(namePlayer);
         }
     }
 
     public void removeOfflinePlayer(String namePlayer) {
         if (containsOffline(namePlayer)) {
-            this.offlinePlayer.remove(namePlayer);
-            this.team.add(namePlayer);
+            this.offlinePlayers.remove(namePlayer);
+            this.players.add(namePlayer);
         }
     }
 

@@ -192,7 +192,7 @@ public class TowerCommand implements CommandExecutor
                                                 .replace("%PointsRed%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.RED)).getPoints()))
                                                 .replace("%PointsBlue%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(Team.BLUE)).getPoints()))));
                                         int pointsToWin = this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.CONFIG).getInt("Options.Points");
-                                        for (Team team : Team.values()) {
+                                        for (Team team : Team.getMatchTeams(plugin.getGameInstance((Player) sender).getGame().getNumberOfTeams())) {
                                             if ((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(team)).getPoints() >= pointsToWin) {
                                                 this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team);
                                                 GameState.setState(GameState.FINISH);

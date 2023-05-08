@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events.protect;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Team;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,9 +30,11 @@ public class LeatherProtectListener implements Listener {
             return;
         }
         Game game = this.plugin.getGameInstance(e.getPlayer()).getGame();
-        if (i.getItemMeta().getDisplayName().equals(game.getItem().getItemBlueTeam().getName()) || i.getItemMeta().getDisplayName().equals(game.getItem().getItemRedTeam().getName()) || i.getItemMeta().getDisplayName().equals(game.getItem().getItemSpectator().getName())) {
-            e.setCancelled(true);
-        } else if (game.getItemBook() != null && i.getItemMeta().getDisplayName().equals(game.getItemBook().getItem().getItemMeta().getDisplayName())) {
+        for (Team team : Team.values()) {
+            if (i.getItemMeta().getDisplayName().equals(game.getItem().getItem(team).getName()))
+                e.setCancelled(true);
+        }
+        if (game.getItemBook() != null && i.getItemMeta().getDisplayName().equals(game.getItemBook().getItem().getItemMeta().getDisplayName())) {
             e.setCancelled(true);
         } else if (game.getItem().getItemQuit() != null && i.getItemMeta().getDisplayName().equals(game.getItem().getItemQuit().getName())) {
             e.setCancelled(true);

@@ -7,16 +7,15 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.kits.KitDefault;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Locationshion;
+import mx.towers.pato14.utils.enums.Team;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.plugin.PluginA;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 
 public class Dar {
-    private static AmazingTowers p = AmazingTowers.getPlugin();
+    private static final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     public static void DarItemsJoin(Player player, GameMode gameMode) {
         player.setHealth(20.0D);
@@ -27,44 +26,36 @@ public class Dar {
         player.setGameMode(gameMode);
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
-        player.getInventory().setItem(p.getConfig().getInt("Items.itemRed.position"), p.getGameInstance(player).getGame().getItem().getItemRedTeam().getItem());
-        player.getInventory().setItem(p.getConfig().getInt("Items.itemBlue.position"), p.getGameInstance(player).getGame().getItem().getItemBlueTeam().getItem());
-        player.getInventory().setItem(p.getConfig().getInt("Items.itemSpectator.position"), p.getGameInstance(player).getGame().getItem().getItemSpectator().getItem());
-        if (p.getConfig().getBoolean("Options.bungeecord-support.enabled")) {
-            player.getInventory().setItem(p.getConfig().getInt("Items.itemQuit.position"), p.getGameInstance(player).getGame().getItem().getItemQuit().getItem());
+        for (Team team : Team.getTeams(plugin.getGameInstance(player).getGame().getNumberOfTeams())) {
+            player.getInventory().setItem(plugin.getConfig().getInt("Items.item" + team.toString().toLowerCase().replace(team.toString().toLowerCase().charAt(0), team.toString().charAt(0)) + ".position"), plugin.getGameInstance(player).getGame().getItem().getItem(team).getItem());
         }
-        if (p.getGameInstance(player).getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
-            player.getInventory().setItem(p.getGameInstance(player).getConfig(ConfigType.BOOK).getInt("book.position"), p.getGameInstance(player).getGame().getItemBook().getItem());
+        if (plugin.getConfig().getBoolean("Options.bungeecord-support.enabled")) {
+            player.getInventory().setItem(plugin.getConfig().getInt("Items.itemQuit.position"), plugin.getGameInstance(player).getGame().getItem().getItemQuit().getItem());
+        }
+        if (plugin.getGameInstance(player).getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
+            player.getInventory().setItem(plugin.getGameInstance(player).getConfig(ConfigType.BOOK).getInt("book.position"), plugin.getGameInstance(player).getGame().getItemBook().getItem());
         }
         removePotion(player);
-        NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(p.getConfig().getString("Options.team.default.prefix")));
-        player.teleport(Locations.getLocationFromStringConfig(p.getGameInstance(player).getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
+        NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(plugin.getConfig().getString("Options.team.default.prefix")));
+        player.teleport(Locations.getLocationFromStringConfig(plugin.getGameInstance(player).getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
     public static void darItemsJoinTeam(Player player) {
         removePotion(player);
-        if (p.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).containsPlayer(player.getName())) {
-            NametagEdit.getApi().clearNametag(player);
-            player.teleport(Locations.getLocationFromString(p.getGameInstance(player).getConfig(ConfigType.LOCATIONS).getString(Locationshion.BLUE_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
-            player.getInventory().clear();
-            player.getInventory().setArmorContents(null);
-            player.setFoodLevel(20);
-            player.setSaturation(5.f);
-            player.setGameMode(GameMode.SURVIVAL);
-            p.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.BLUE).setNameTagPlayer(player);
-            KitDefault.KitDe(player);
-            p.getGameInstance(player).getGame().getStats().setHashStats(player.getName());
-        } else if (p.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).containsPlayer(player.getName())) {
-            NametagEdit.getApi().clearNametag(player);
-            player.teleport(Locations.getLocationFromString(p.getGameInstance(player).getConfig(ConfigType.LOCATIONS).getString(Locationshion.RED_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
-            player.getInventory().clear();
-            player.getInventory().setArmorContents(null);
-            player.setFoodLevel(20);
-            player.setSaturation(5.f);
-            player.setGameMode(GameMode.SURVIVAL);
-            p.getGameInstance(player).getGame().getTeams().getTeam(mx.towers.pato14.utils.enums.Team.RED).setNameTagPlayer(player);
-            KitDefault.KitDe(player);
-            p.getGameInstance(player).getGame().getStats().setHashStats(player.getName());
+        for (Team team : Team.getMatchTeams(plugin.getGameInstance(player).getGame().getNumberOfTeams())) {
+            if (plugin.getGameInstance(player).getGame().getTeams().getTeam(team).containsPlayer(player.getName())) {
+                NametagEdit.getApi().clearNametag(player);
+                String location = team.name() + "_SPAWN";
+                player.teleport(Locations.getLocationFromString(plugin.getGameInstance(player).getConfig(ConfigType.LOCATIONS).getString(Locationshion.valueOf(location).getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
+                player.getInventory().clear();
+                player.getInventory().setArmorContents(null);
+                player.setFoodLevel(20);
+                player.setSaturation(5.f);
+                player.setGameMode(GameMode.SURVIVAL);
+                plugin.getGameInstance(player).getGame().getTeams().getTeam(team).setNameTagPlayer(player);
+                KitDefault.KitDe(player);
+                plugin.getGameInstance(player).getGame().getStats().setHashStats(player.getName());
+            }
         }
     }
 
@@ -77,11 +68,11 @@ public class Dar {
     }
 
     public static void bungeecordTeleport(Player player) {
-        if (p.getConfig().getBoolean("Options.bungeecord-support.enabled")) {
+        if (plugin.getConfig().getBoolean("Options.bungeecord-support.enabled")) {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(p.getConfig().getString("Options.bungeecord-support.server_name"));
-            player.sendPluginMessage(p, "BungeeCord", out.toByteArray());
+            out.writeUTF(plugin.getConfig().getString("Options.bungeecord-support.server_name"));
+            player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
     }
 }

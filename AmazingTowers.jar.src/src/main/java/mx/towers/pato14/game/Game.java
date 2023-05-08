@@ -12,6 +12,7 @@ import mx.towers.pato14.game.utils.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
+import mx.towers.pato14.utils.enums.Team;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -32,12 +33,15 @@ public class Game {
     private final Move detectionMove;
     private Book bookItem;
     private final GameInstance gameInstance;
+    private GameState gameState;
+    private final int numberOfTeams;
 
     public Game(GameInstance game) {
         this.gameInstance = game;
         this.plugin = game.getPlugin();
-        GameState.setState(GameState.LOBBY);
+        this.gameState = GameState.LOBBY;
         this.item = new Item(this);
+        this.numberOfTeams = game.getConfig(ConfigType.CONFIG).getInt("General.teams");;
         (new EventsManager(getPlugin())).registerEvents();
         getPlugin().getServer().getPluginManager().registerEvents(getItem(), getPlugin());
         this.teams = new TeamGame(this);
@@ -87,6 +91,16 @@ public class Game {
 
     public List<Player> getPlayers() {
         return Bukkit.getServer().getWorld(this.gameInstance.getName()).getPlayers();
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+    public int getNumberOfTeams() {
+        return numberOfTeams;
     }
 }
 

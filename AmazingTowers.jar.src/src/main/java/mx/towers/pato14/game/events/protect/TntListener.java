@@ -1,5 +1,6 @@
 package mx.towers.pato14.game.events.protect;
 
+import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -15,8 +16,16 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 
 public class TntListener implements Listener {
+    private final AmazingTowers plugin;
+    public TntListener(AmazingTowers plugin) {
+        this.plugin = plugin;
+    }
     @EventHandler
     public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException {
+        if (!plugin.getGameInstance(e.getEntity()).getRules().get(Rule.TNT)) {
+            e.setCancelled(true);
+            return;
+        }
         Class<Block> blockclass = Block.class;
         Field f = blockclass.getDeclaredField("durability");
         f.setAccessible(true);
@@ -34,7 +43,7 @@ public class TntListener implements Listener {
     @EventHandler
     public void onPlaceBlocks(BlockPlaceEvent e) {
         if (e.getBlockPlaced().getType().equals(Material.TNT)) {
-            if (!Rule.TNT.getCurrentState()) {
+            if (!plugin.getGameInstance(e.getPlayer()).getRules().get(Rule.TNT)) {
                 e.setCancelled(true);
                 return;
             }

@@ -5,7 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.team.Item;
+import mx.towers.pato14.game.team.LobbyItems;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.utils.Move;
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class Game {
     private final AmazingTowers plugin;
-    private final Item item;
+    private final LobbyItems lobbyItems;
     private final GameTeams teams;
     private final Start gameStart;
     private final Finish finish;
@@ -34,7 +34,7 @@ public class Game {
         this.gameInstance = game;
         this.plugin = game.getPlugin();
         this.gameState = GameState.LOBBY;
-        this.item = new Item(this);
+        this.lobbyItems = new LobbyItems(this);
         this.numberOfTeams = game.getConfig(ConfigType.CONFIG).getInt("General.teams");;
         (new EventsManager(getPlugin())).registerEvents();
         getPlugin().getServer().getPluginManager().registerEvents(getItem(), getPlugin());
@@ -68,8 +68,8 @@ public class Game {
         return this.finish;
     }
 
-    public Item getItem() {
-        return this.item;
+    public LobbyItems getItem() {
+        return this.lobbyItems;
     }
 
     public Move getDetectionMove() {

@@ -47,13 +47,15 @@ public class GameTeams {
     public Team getTeam(TeamColor teamColor) {
         return this.teams.get(teamColor);
     }
-
-    public Team getTeamByPlayer(Player p) {
+    public Team getTeamByPlayer(String p) {
         for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
-            if (team.getValue().containsPlayer(p.getName()))
+            if (team.getValue().containsPlayer(p))
                 return team.getValue();
         }
         return null;
+    }
+    public Team getTeamByPlayer(Player p) {
+        return getTeamByPlayer(p.getName());
     }
 
     public TeamColor getTeamColorByPlayer(Player p) {

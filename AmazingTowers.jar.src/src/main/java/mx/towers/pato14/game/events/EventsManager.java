@@ -29,7 +29,7 @@ public class EventsManager {
         pm.registerEvents(new TimeListener(this.plugin), this.plugin);
         pm.registerEvents(new AntiTrollTeamListener(this.plugin), this.plugin);
         pm.registerEvents(new AntiFallingSandTrollListener(this.plugin), this.plugin);
-        pm.registerEvents(new TntListener(), this.plugin);
+        pm.registerEvents(new TntListener(this.plugin), this.plugin);
         pm.registerEvents(new ProtectedAreasListener(this.plugin), this.plugin);
         pm.registerEvents(new OrePlacedListener(this.plugin), this.plugin);
         pm.registerEvents(new WaterListener(this.plugin), this.plugin);

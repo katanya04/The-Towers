@@ -32,7 +32,7 @@ public class Dar {
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
         for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getGame().getNumberOfTeams())) {
-            player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.item" + teamColor.toString().toLowerCase().replace(teamColor.toString().toLowerCase().charAt(0), teamColor.toString().charAt(0)) + ".position"), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
+            player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.item" + teamColor.firstCapitalized() + ".position"), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
         }
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
             player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.itemQuit.position"), plugin.getGameInstance(player).getGame().getItem().getItemQuit().getItem());

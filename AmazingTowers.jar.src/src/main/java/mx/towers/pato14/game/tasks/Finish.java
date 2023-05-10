@@ -58,7 +58,7 @@ public class Finish {
                         public void run() {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.command"));
                         }
-                    }).runTaskLater((Plugin) Finish.this.plugin, 60L);
+                    }).runTaskLater(Finish.this.plugin, 60L);
                     return;
                 }
                 if (Finish.this.seconds == 1) {
@@ -76,19 +76,12 @@ public class Finish {
                                 cancel();
                                 return;
                             }
-                            if (teamColor == TeamColor.RED) {
-                                for (Player player : game.getPlayers()) {
-                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinishRed"))
-                                            .replace("%newLine%", "\n"));
-                                }
-                            } else {
-                                for (Player player : game.getPlayers()) {
-                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinishBlue"))
-                                            .replace("%newLine%", "\n"));
-                                }
+                            for (Player player : game.getPlayers()) {
+                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinish" + teamColor.firstCapitalized()))
+                                        .replace("%newLine%", "\n"));
                             }
                         }
-                    }).runTaskLater((Plugin) Finish.this.plugin, 60L);
+                    }).runTaskLater(Finish.this.plugin, 60L);
                     if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.restart_server.enabled")) {
                         Bukkit.broadcastMessage(AmazingTowers.getColor(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.restart_server.message")));
                     }
@@ -140,16 +133,9 @@ public class Finish {
                     }
                 }
                 for (Player player : game.getPlayers()) {
-                    if (teamColor == TeamColor.RED) {
-                        if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName()) &&
-                                player.getGameMode() != GameMode.SPECTATOR) {
-                            Finish.this.fuegosArtificiales(player, Color.RED);
-                        }
-                        continue;
-                    }
-                    if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) &&
+                    if (game.getTeams().getTeam(teamColor).containsPlayer(player.getName()) &&
                             player.getGameMode() != GameMode.SPECTATOR) {
-                        Finish.this.fuegosArtificiales(player, Color.BLUE);
+                        Finish.this.fuegosArtificiales(player, teamColor.getColorEnum());
                     }
                 }
                 Finish.this.seconds = Finish.this.seconds - 1;
@@ -158,22 +144,10 @@ public class Finish {
         if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.Rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
             for (Player player : game.getPlayers()) {
-                if (teamColor == TeamColor.RED) {
-                    if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
-                        this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
-                        continue;
-                    }
-                    if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()))
-                        this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
-                    continue;
-                }
-                if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
+                if (game.getTeams().getTeam(teamColor).containsPlayer(player.getName())) {
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
-                    continue;
-                }
-                if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
+                } else if (game.getTeams().containsTeamPlayer(player))
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
-                }
             }
         }
         if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active")) {
@@ -182,7 +156,7 @@ public class Finish {
     }
 
     private void fuegosArtificiales(Player pl, Color color) {
-        Firework f = (Firework) pl.getLocation().getWorld().spawn(pl.getLocation(), Firework.class);
+        Firework f = pl.getLocation().getWorld().spawn(pl.getLocation(), Firework.class);
         f.detonate();
         FireworkMeta fm = f.getFireworkMeta();
         fm.addEffect(FireworkEffect.builder()
@@ -219,10 +193,7 @@ public class Finish {
         int i;
         for (i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(current.getKey()))
-                sb.append("§1");
-            else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(current.getKey()))
-                sb.append("§4");
+            sb.append("§").append(game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor().getColor());
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("§r");
         }
@@ -239,10 +210,7 @@ public class Finish {
             current = listIterator.next();
             if (current.getKey().equals(p)) break;
         }
-        if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p))
-            sb.append("§1");
-        else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(p))
-            sb.append("§4");
+        sb.append("§").append(game.getTeams().getTeamByPlayer(p).getTeamColor().getColor());
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");
         return sb.toString();

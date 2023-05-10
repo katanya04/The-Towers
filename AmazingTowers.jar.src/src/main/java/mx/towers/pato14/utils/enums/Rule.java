@@ -15,17 +15,13 @@ public enum Rule {
     ENDERPEARL(true),
     TNT(true),
     ENCHANTS(true);
-    private boolean booleano;
+    private final boolean defaultState;
 
-    Rule(boolean booleano) {
-        this.booleano = booleano;
+    Rule(boolean defaultState) {
+        this.defaultState = defaultState;
     }
-
     public boolean getCurrentState() {
-        return this.booleano;
-    }
-    public void setCurrentState(boolean bool) {
-        this.booleano = bool;
+        return this.defaultState;
     }
 }
 

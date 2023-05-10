@@ -28,7 +28,7 @@ public class PotionsAndAppleListener implements Listener {
     }
     @EventHandler
     public void potionDispensedEvent(BlockDispenseEvent e){
-        if (!Rule.POTS_AND_APPLE.getCurrentState() && e.getItem().getType().equals(Material.POTION))
+        if (!this.plugin.getGameInstance(e.getBlock()).getRules().get(Rule.POTS_AND_APPLE) && e.getItem().getType().equals(Material.POTION))
             e.setCancelled(true);
     }
 }

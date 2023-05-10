@@ -167,7 +167,7 @@ public class TowerCommand implements CommandExecutor
                             if (args.length >= 2 && isRule(args[1])) {
                                 if (args.length >= 3 && (args[2].equalsIgnoreCase("true") || args[2].equalsIgnoreCase("false")))
                                     this.plugin.getGameInstance((Player) sender).getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2]));
-                                sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + Rule.valueOf(args[1].toUpperCase()).getCurrentState());
+                                sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + this.plugin.getGameInstance((Player) sender).getRules().get(Rule.valueOf(args[1].toUpperCase())));
                             } else {
                                 StringBuilder sb = new StringBuilder();
                                 sb.append("Usage: §a/towers §frule §e<");

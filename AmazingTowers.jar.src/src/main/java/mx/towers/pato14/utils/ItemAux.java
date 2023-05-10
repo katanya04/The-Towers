@@ -6,24 +6,24 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-public class ItemBuilder {
+public class ItemAux {
     private final ItemStack item;
     private ItemMeta itemMeta;
     private String name;
 
-    public ItemBuilder(Material material) {
+    public ItemAux(Material material) {
         this.item = new ItemStack(material);
     }
 
-    public ItemBuilder(Material material, Short damage) {
+    public ItemAux(Material material, Short damage) {
         this.item = new ItemStack(material, 1, damage);
     }
 
-    public ItemBuilder(Integer type, short damage) {
+    public ItemAux(Integer type, short damage) {
         this.item = new ItemStack(type, 1, damage);
     }
 
-    public ItemBuilder setName(String name) {
+    public ItemAux setName(String name) {
         this.name = name;
         this.itemMeta = this.item.getItemMeta();
         this.itemMeta.setDisplayName(name);
@@ -31,12 +31,12 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setDurability(Short sh) {
+    public ItemAux setDurability(Short sh) {
         this.item.setDurability(sh);
         return this;
     }
 
-    public ItemBuilder setLore(List<String> listLore) {
+    public ItemAux setLore(List<String> listLore) {
         this.itemMeta = this.item.getItemMeta();
         this.itemMeta.setLore(listLore);
         this.item.setItemMeta(this.itemMeta);
@@ -50,6 +50,5 @@ public class ItemBuilder {
     public String getName() {
         return this.name;
     }
+
 }
-
-

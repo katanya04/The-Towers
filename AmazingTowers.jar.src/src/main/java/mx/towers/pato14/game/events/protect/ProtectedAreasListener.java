@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -27,7 +28,8 @@ public class ProtectedAreasListener implements Listener {
 
     @EventHandler
     public void blockBreak(BlockBreakEvent e) {
-        if (!GameState.isState(GameState.GAME) || Rule.GRIEF.getCurrentState()) {
+        GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
+        if (!GameState.isState(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
@@ -44,16 +46,17 @@ public class ProtectedAreasListener implements Listener {
             e.setCancelled(true);
         } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE2), blockLocation)) {
             e.setCancelled(true);
-        } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
+        } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
             e.setCancelled(true);
-        } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
+        } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
     public void Main(EntityExplodeEvent e) {
-        if (!GameState.isState(GameState.GAME) || Rule.GRIEF.getCurrentState()) {
+        GameInstance gameInstance = plugin.getGameInstance(e.getEntity());
+        if (!GameState.isState(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
         Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
@@ -72,9 +75,9 @@ public class ProtectedAreasListener implements Listener {
                 end.remove(bl);
             } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE2), blockLocation)) {
                 end.remove(bl);
-            } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
+            } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
                 end.remove(bl);
-            } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
+            } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
                 end.remove(bl);
             }
         }
@@ -84,7 +87,8 @@ public class ProtectedAreasListener implements Listener {
 
     @EventHandler
     public void blockPlace(BlockPlaceEvent e) {
-        if (!GameState.isState(GameState.GAME) || Rule.GRIEF.getCurrentState()) {
+        GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
+        if (!GameState.isState(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
@@ -101,9 +105,9 @@ public class ProtectedAreasListener implements Listener {
             e.setCancelled(true);
         } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.CHESTROOM2BLUE2), blockLocation)) {
             e.setCancelled(true);
-        } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
+        } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTRED2), blockLocation)) {
             e.setCancelled(true);
-        } else if (!Rule.PROTECT_POINT.getCurrentState() && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
+        } else if (!gameInstance.getRules().get(Rule.PROTECT_POINT) && Cuboide.InCuboide(Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE1), Locations.getLocationFromStringConfig(locations, Locationshion.POINTBLUE2), blockLocation)) {
             e.setCancelled(true);
         }
     }

@@ -34,11 +34,9 @@ public class DamageListener implements Listener {
     @EventHandler
     public void ondamage(EntityDamageByEntityEvent e) {
         if (e.getEntityType().equals(EntityType.PLAYER) && e.getDamager().getType().equals(EntityType.PLAYER)) {
-            if (getTeams(e.getEntity()).getTeam(TeamColor.BLUE).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(TeamColor.BLUE).containsPlayer(e.getDamager().getName())) {
+            GameTeams teams = plugin.getGameInstance(e.getEntity()).getGame().getTeams();
+            if (teams.getTeamByPlayer((Player) e.getEntity()).equals(teams.getTeamByPlayer((Player) e.getDamager())))
                 e.setCancelled(true);
-            } else if (getTeams(e.getEntity()).getTeam(TeamColor.RED).containsPlayer(e.getEntity().getName()) && getTeams(e.getEntity()).getTeam(TeamColor.RED).containsPlayer(e.getDamager().getName())) {
-                e.setCancelled(true);
-            }
         }
     }
 
@@ -49,10 +47,8 @@ public class DamageListener implements Listener {
             if (p.getShooter() instanceof Player) {
                 Player pl1 = (Player) p.getShooter();
                 Player pl2 = (Player) e.getEntity();
-                if (getTeams(pl1).getTeam(TeamColor.BLUE).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(TeamColor.BLUE).containsPlayer(pl2.getName())) {
-                    e.setCancelled(true);
-                    p.remove();
-                } else if (getTeams(pl1).getTeam(TeamColor.RED).containsPlayer(pl1.getName()) && getTeams(pl1).getTeam(TeamColor.RED).containsPlayer(pl2.getName())) {
+                GameTeams teams = plugin.getGameInstance(pl1).getGame().getTeams();
+                if (teams.getTeamByPlayer(pl1).equals(teams.getTeamByPlayer(pl2))) {
                     e.setCancelled(true);
                     p.remove();
                 }
@@ -60,9 +56,6 @@ public class DamageListener implements Listener {
         }
     }
 
-    private GameTeams getTeams(Entity e) {
-        return this.plugin.getGameInstance(e).getGame().getTeams();
-    }
 }
 
 

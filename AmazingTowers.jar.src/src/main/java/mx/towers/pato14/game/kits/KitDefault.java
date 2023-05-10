@@ -28,16 +28,12 @@ public class KitDefault {
         LeatherArmorMeta cmeta = (LeatherArmorMeta) chestplate.getItemMeta();
         LeatherArmorMeta lmeta = (LeatherArmorMeta) leggings.getItemMeta();
         LeatherArmorMeta bmeta = (LeatherArmorMeta) boots.getItemMeta();
-        if (plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
-            hmeta.setColor(Color.BLUE);
-            cmeta.setColor(Color.BLUE);
-            lmeta.setColor(Color.BLUE);
-            bmeta.setColor(Color.BLUE);
-        } else {
-            hmeta.setColor(Color.RED);
-            cmeta.setColor(Color.RED);
-            lmeta.setColor(Color.RED);
-            bmeta.setColor(Color.RED);
+        Color color = plugin.getGameInstance(player).getGame().getTeams().getTeamColorByPlayer(player).getColorEnum();
+        if (color != null) {
+            hmeta.setColor(color);
+            cmeta.setColor(color);
+            lmeta.setColor(color);
+            bmeta.setColor(color);
         }
         helmet.setItemMeta(hmeta);
         chestplate.setItemMeta(cmeta);

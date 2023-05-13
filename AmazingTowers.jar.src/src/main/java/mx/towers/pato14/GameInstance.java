@@ -23,12 +23,14 @@ public class GameInstance {
     private ScoreUpdate scoreUpdate;
     private VaultT vault;
     private final Map<Rule, Boolean> rules;
+    private int numPlayers;
 
     public GameInstance(AmazingTowers towers, String name) {
-        plugin = towers;
+        this.plugin = towers;
         this.name = name;
         this.configs = new HashMap<>();
-        rules = new HashMap<>();
+        this.rules = new HashMap<>();
+        this.numPlayers = 0;
         setRules();
         registerConfigs();
         createFolderBackup();
@@ -101,5 +103,14 @@ public class GameInstance {
 
     public AmazingTowers getPlugin() {
         return plugin;
+    }
+    public int getNumPlayers() {
+        return numPlayers;
+    }
+    public void addPlayer() {
+        numPlayers++;
+    }
+    public void removePlayer() {
+        numPlayers--;
     }
 }

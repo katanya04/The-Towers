@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.List;
 import java.util.Map;
 
 public class QuitListener implements Listener {
@@ -30,13 +31,14 @@ public class QuitListener implements Listener {
             ScoreHelper.removeScore(player);
         }
         this.plugin.getPermissions().remove(player.getName());
+        gameInstance.removePlayer();
 
         e.setQuitMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.quitMessage").replaceAll("&", "§")
                 .replace("{Player}", name));
         (new BukkitRunnable() {
             public void run() {
                 gameInstance.getUpdates().updateScoreboardAll();
-                Map<TeamColor, Team> teams = gameInstance.getGame().getTeams().getTeams();
+                List<Team> teams = gameInstance.getGame().getTeams().getTeams();
                 switch (GameState.getState()) {
                     case LOBBY:
                     case PREGAME:
@@ -53,10 +55,10 @@ public class QuitListener implements Listener {
                         playerTeam.removePlayer(player);
                         boolean makeATeamWin = true;
                         Team temp = null;
-                        for (Map.Entry<TeamColor, Team> team : teams.entrySet()) {
-                            if (team.getValue().getSizePlayers() > 0) {
+                        for (Team team : teams) {
+                            if (team.getSizePlayers() > 0) {
                                 if (temp == null)
-                                    temp = team.getValue();
+                                    temp = team;
                                 else
                                     makeATeamWin = false;
                             }

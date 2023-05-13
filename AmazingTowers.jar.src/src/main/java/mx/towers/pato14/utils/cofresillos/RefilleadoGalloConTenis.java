@@ -48,7 +48,7 @@ public class RefilleadoGalloConTenis {
                     }
                     RefilleadoGalloConTenis.this.regeneration = RefilleadoGalloConTenis.this.regeneration - 1;
                 }
-            }).runTaskTimerAsynchronously((Plugin) this.plugin, 0L, 20L);
+            }).runTaskTimerAsynchronously(this.plugin, 0L, 20L);
         }
     }
 

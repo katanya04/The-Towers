@@ -60,12 +60,16 @@ public class LobbyItems implements Listener {
                             } else {
                                 player.setGameMode(GameMode.SPECTATOR);
                             }
-                            player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.join" + teamColorToJoin.toString().toLowerCase())));
+                            player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.join")
+                                    .replace("{Color}", teamColorToJoin.getColor())
+                                    .replace("{Team}", teamColorToJoin.getName())));
                         } else {
                             player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.unbalancedTeam")));
                         }
                     } else {
-                        player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.alreadyJoined" + teamColorToJoin.firstCapitalized() + "Team")));
+                        player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.alreadyJoinedTeam")
+                                .replace("{Color}", teamColorToJoin.getColor())
+                                .replace("{Team}", teamColorToJoin.getName())));
                     }
                     e.setCancelled(true);
                     return;

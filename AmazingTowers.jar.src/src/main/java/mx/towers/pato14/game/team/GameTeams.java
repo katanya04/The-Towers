@@ -9,21 +9,20 @@ import java.util.*;
 
 
 public class GameTeams {
-    private final Map<TeamColor, Team> teams;
+    private final List<Team> teams;
 
     public GameTeams(Game game) {
-        this.teams = new HashMap<>();
+        this.teams = new LinkedList<>();
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getNumberOfTeams())) {
             String teamName = teamColor.name().toLowerCase();
             Team currentTeam = new Team(teamName);
             currentTeam.setPrefix(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.team." + teamName + ".prefix"));
-
-            teams.put(teamColor, currentTeam);
+            teams.add(currentTeam);
         }
     }
 
     public void removePlayer(Player player) {
-        for (Team team : teams.values()) {
+        for (Team team : teams) {
             if (team.containsPlayer(player.getName())) {
                 team.removePlayer(player);
                 return;
@@ -32,7 +31,7 @@ public class GameTeams {
     }
 
     public boolean containsTeamPlayer(String namePlayer) {
-        for (Team team : teams.values()) {
+        for (Team team : teams) {
             if (team.containsPlayer(namePlayer)) {
                 return true;
             }
@@ -45,38 +44,45 @@ public class GameTeams {
     }
 
     public Team getTeam(TeamColor teamColor) {
-        return this.teams.get(teamColor);
+        return this.teams.get(teamColor.ordinal());
     }
     public Team getTeamByPlayer(String p) {
-        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
-            if (team.getValue().containsPlayer(p))
-                return team.getValue();
+        for (Team team : teams) {
+            if (team.containsPlayer(p))
+                return team;
         }
         return null;
     }
     public Team getTeamByPlayer(Player p) {
         return getTeamByPlayer(p.getName());
     }
-
+    public TeamColor getTeamColorByPlayer(String p) {
+        Team team = getTeamByPlayer(p);
+        return team == null ? null : team.getTeamColor();
+    }
     public TeamColor getTeamColorByPlayer(Player p) {
-        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
-            if (team.getValue().containsPlayer(p.getName()))
-                return team.getKey();
-        }
-        return null;
+        return getTeamColorByPlayer(p.getName());
     }
 
     public int getLowestTeamPlayers() {
         int toret = Integer.MAX_VALUE;
-        for (Map.Entry<TeamColor, Team> team: this.teams.entrySet()) {
-            if (team.getValue().getSizePlayers() < toret)
-                toret = team.getValue().getSizePlayers();
+        for (Team team : teams) {
+            if (team.getSizePlayers() < toret)
+                toret = team.getSizePlayers();
         }
         return toret;
     }
 
-    public Map<TeamColor, Team> getTeams() {
+    public List<Team> getTeams() {
         return this.teams;
+    }
+
+    public String scores() {
+        StringBuilder sb = new StringBuilder();
+        for (Team t : this.teams) {
+            sb.append("&").append(t.getTeamColor().getColor()).append("&l").append(t.getPoints());
+        }
+        return sb.toString();
     }
 
 }

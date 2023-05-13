@@ -190,13 +190,12 @@ public class TowerCommand implements CommandExecutor
                                 if (args.length > 2) {
                                     if (isNumeric(args[2]) && (args[1].equals("red") || args[1].equals("blue"))) {
                                         this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
-                                        Bukkit.broadcastMessage(AmazingTowers.getColor(this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand")
-                                                .replace("%PointsRed%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.RED)).getPoints()))
-                                                .replace("%PointsBlue%", String.valueOf((this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.BLUE)).getPoints()))));
+                                        Bukkit.broadcastMessage(AmazingTowers.getColor(this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand") +
+                                                this.plugin.getGameInstance((Player) sender).getGame().getTeams().scores()));
                                         int pointsToWin = this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.CONFIG).getInt("Options.Points");
-                                        for (Map.Entry<TeamColor, Team> team: plugin.getGameInstance((Player) sender).getGame().getTeams().getTeams().entrySet()) {
-                                            if (team.getValue().getPoints() >= pointsToWin) {
-                                                this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team.getKey());
+                                        for (Team team: plugin.getGameInstance((Player) sender).getGame().getTeams().getTeams()) {
+                                            if (team.getPoints() >= pointsToWin) {
+                                                this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team.getTeamColor());
                                                 GameState.setState(GameState.FINISH);
                                             }
                                         }

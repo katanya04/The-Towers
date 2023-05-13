@@ -77,8 +77,10 @@ public class Finish {
                                 return;
                             }
                             for (Player player : game.getPlayers()) {
-                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinish" + teamColor.firstCapitalized()))
-                                        .replace("%newLine%", "\n"));
+                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinish")
+                                        .replace("{Color}", teamColor.getColor())
+                                        .replace("{Team}", teamColor.getName())
+                                        .replace("%newLine%", "\n")));
                             }
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
@@ -174,13 +176,17 @@ public class Finish {
         Config messages = game.getGameInstance().getConfig(ConfigType.MESSAGES);
         String teamName = teamColor.name().toLowerCase();
         if (messages.getBoolean("messages.Win-Messages.titles.enabled")) {
-            String Title = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinTitle"));
-            String Subtitle = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles." + teamName + "WinSubTitle"));
+            String Title = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles.WinTitle")
+                    .replace("{Color}", teamColor.getColor())
+                    .replace("{Team}", teamColor.getName().toUpperCase()));
+            String Subtitle = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles.WinSubTitle"));
             for (Player player : game.getPlayers()) {
                 this.plugin.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
         }
-        Bukkit.broadcastMessage(AmazingTowers.getColor(messages.getString("messages.Win-Messages." + teamName + "Win")));
+        Bukkit.broadcastMessage(AmazingTowers.getColor(messages.getString("messages.Win-Messages.Win")
+                .replace("{Color}", teamColor.getColor())
+                .replace("{Team}", teamColor.getName())));
     }
 
     public int getSeconds() {

@@ -24,6 +24,7 @@ public class JoinListener implements Listener {
         Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player);
         gameInstance.getUpdates().createScoreboard(player);
         gameInstance.getUpdates().updateScoreboardAll();
+        gameInstance.addPlayer();
         switch (GameState.getState()) {
             case LOBBY:
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
@@ -47,16 +48,17 @@ public class JoinListener implements Listener {
                 break;
             default:
         }
-        if (this.plugin.getGameInstance(player).getGame().getTeams().containsTeamPlayer(player)) {
-            e.setJoinMessage(this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) ? this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinBlueTeam").replaceAll("&", "§")
-                    .replace("{Player}", player.getName()) : this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinRedTeam").replaceAll("&", "§")
-                    .replace("{Player}", player.getName()));
+        if (gameInstance.getGame().getTeams().containsTeamPlayer(player)) {
+            e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.joinTeam")
+                    .replace("{Player}", player.getName())
+                    .replace("{Color}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getColor())
+                    .replace("{Team}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName()).replaceAll("&", "§"));
         } else {
-            e.setJoinMessage(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
-                    .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                    .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers())));
+            e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
+                    .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
+                    .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers())));
         }
-        if (this.plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
             this.plugin.con.CreateAcount(player.getName());
     }
 }

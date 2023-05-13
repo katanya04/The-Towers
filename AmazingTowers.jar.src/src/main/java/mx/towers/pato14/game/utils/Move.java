@@ -95,10 +95,11 @@ public class Move {
         if (Cuboide.InCuboide(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_1.getLocationString())), Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_2.getLocationString())), player.getLocation())) {
             (this.game.getTeams().getTeam(TeamColor.RED)).sumarPunto();
             player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.RED_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
-            Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.redPoint")
+            Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.Point")
                     .replace("{Player}", player.getName())
-                    .replace("%PointsRed%", String.valueOf((game.getTeams()).getTeam(TeamColor.RED).getPoints()))
-                    .replace("%PointsBlue%", String.valueOf((game.getTeams()).getTeam(TeamColor.BLUE).getPoints()))));
+                    .replace("{Color}", teamColor.getColor())
+                    .replace("{Team}", teamColor.getColor())
+                    ));
             this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
             for (Player p : game.getPlayers()) {
                 if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p.getDisplayName())) {

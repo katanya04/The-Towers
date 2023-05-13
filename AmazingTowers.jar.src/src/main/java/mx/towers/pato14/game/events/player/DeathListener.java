@@ -31,16 +31,18 @@ public class DeathListener implements Listener {
         final Player killer = e.getEntity().getKiller();
         final GameInstance gameInstance = this.plugin.getGameInstance(player);
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
+        final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
         if (killer == null) {
-            String team = "";
-            if (playerTeam != null)
-                team = playerTeam.getTeamColor().firstCapitalized();
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.unknownKiller" + team)
-                    .replace("{Player}", player.getName())));
-        } else {
-            Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer);
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.killedBy" + killerTeam) //to do, check colors
+            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.unknownKiller")
                     .replace("{Player}", player.getName())
+                    .replace("{Color}", playerColor)));
+        } else {
+            final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer);
+            final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
+            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.knownKiller") //to do, check colors
+                    .replace("{Player}", player.getName())
+                    .replace("{Color}", playerColor)
+                    .replace("{ColorKiller}", killerColor)
                     .replace("{Killer}", killer.getName())));
             addRewardsKiller(killer);
         }

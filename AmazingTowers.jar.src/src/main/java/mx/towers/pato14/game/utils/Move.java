@@ -2,11 +2,15 @@ package mx.towers.pato14.game.utils;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.locations.IntCoordinate;
 import mx.towers.pato14.utils.locations.Locations;
+import mx.towers.pato14.utils.locations.Pool;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -14,9 +18,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class Move {
     private final Game game;
+    private final Pool[] pools;
 
     public Move(Game game) {
         this.game = game;
+        this.pools = new Pool[game.getTeams().getTeams().size()];
+        setPools();
+    }
+
+    public void setPools() {
+        for (int i = 0; i < game.getTeams().getTeams().size(); i++) {
+            Team current = game.getTeams().getTeams().get(i);
+            pools[i] = new Pool(current,
+                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.POOL.getLocationString(current.getTeamColor())));
+        }
     }
 
     public void MoveDetect() {
@@ -27,13 +42,11 @@ public class Move {
                     return;
                 }
                 for (Player player : game.getPlayers()) {
-                    if (player.getHealth() > 0.0D) {
-                        if (Move.this.game.getTeams().getTeam(TeamColor.RED).containsPlayer(player.getName())) {
-                            Move.this.poolBlue(player);
-                            continue;
-                        }
-                        if (Move.this.game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName())) {
-                            Move.this.poolRed(player);
+                    if (player.getHealth() > 0.0D && !player.getGameMode().equals(GameMode.SPECTATOR)) {
+                        for (Pool pool : pools) {
+                            if (pool.getTeam().containsPlayer(player.getName()))
+                                return;
+                            checkPool(pool, player);
                         }
                     }
                 }
@@ -41,74 +54,25 @@ public class Move {
         }).runTaskTimer(this.game.getGameInstance().getPlugin(), 0L, this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.detection_playerinPool"));
     }
 
-    private void poolRed(Player player) {
-        if (Cuboide.InCuboide(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_RED_1.getLocationString())), Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_RED_2.getLocationString())), player.getLocation())) {
-            (this.game.getTeams().getTeam(TeamColor.BLUE)).sumarPunto();
-            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.BLUE_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
-            Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.bluePoint")
-                    .replace("{Player}", player.getName())
-                    .replace("%PointsRed%", String.valueOf((game.getTeams()).getTeam(TeamColor.RED).getPoints()))
-                    .replace("%PointsBlue%", String.valueOf((game.getTeams()).getTeam(TeamColor.BLUE).getPoints()))));
-            this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
-            for (Player p : game.getPlayers()) {
-                if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p.getDisplayName())) {
-                    p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
-                } else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(p.getDisplayName())) {
-                    p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
-                }
-            }
-            if ((game.getTeams().getTeam(TeamColor.BLUE)).getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
-                game.getFinish().Fatality(TeamColor.BLUE);
-                GameState.setState(GameState.FINISH);
-            }
-            this.game.getGameInstance().getUpdates().updateScoreboardAll();
-            this.game.getStats().addOne(player.getName(), StatType.POINTS);
-        }
-    }
-
-    private void poolBlue(Player player) {
-        if (Cuboide.InCuboide(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_1.getLocationString())), Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_2.getLocationString())), player.getLocation())) {
-            (this.game.getTeams().getTeam(TeamColor.RED)).sumarPunto();
-            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.RED_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
-            Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.redPoint")
-                    .replace("{Player}", player.getName())
-                    .replace("%PointsRed%", String.valueOf((game.getTeams()).getTeam(TeamColor.RED).getPoints()))
-                    .replace("%PointsBlue%", String.valueOf((game.getTeams()).getTeam(TeamColor.BLUE).getPoints()))));
-            this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
-            for (Player p : game.getPlayers()) {
-                if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p.getDisplayName())) {
-                    p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
-                } else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(p.getDisplayName())) {
-                    p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
-                }
-            }
-            if ((this.game.getTeams().getTeam(TeamColor.RED)).getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
-                this.game.getFinish().Fatality(TeamColor.RED);
-                GameState.setState(GameState.FINISH);
-            }
-            this.game.getGameInstance().getUpdates().updateScoreboardAll();
-            this.game.getStats().addOne(player.getName(), StatType.POINTS);
-        }
-    }
-
-    private void checkPool(TeamColor teamColor, Player player) {
-        if (Cuboide.InCuboide(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_1.getLocationString())), Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.POOL_BLUE_2.getLocationString())), player.getLocation())) {
-            (this.game.getTeams().getTeam(TeamColor.RED)).sumarPunto();
-            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.RED_SPAWN.getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
+    private void checkPool(Pool pool, Player player) {
+        if (Cuboide.InCuboide(pool, player.getLocation())) {
+            Team team = this.game.getTeams().getTeamByPlayer(player);
+            team.sumarPunto();
+            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getLocationString(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.Point")
                     .replace("{Player}", player.getName())
-                    .replace("{Color}", teamColor.getColor())
-                    .replace("{Team}", teamColor.getColor())
+                    .replace("{Color}", team.getTeamColor().getColor())
+                    .replace("{Team}", team.getTeamColor().getColor())
                     ));
             this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
             for (Player p : game.getPlayers()) {
-                if (game.getTeams().getTeam(TeamColor.BLUE).containsPlayer(p.getDisplayName())) {
-                    p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
-                } else if (game.getTeams().getTeam(TeamColor.RED).containsPlayer(p.getDisplayName())) {
+                if (team.containsPlayer(p.getName())) {
                     p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
+                } else {
+                    p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
                 }
             }
-            if ((this.game.getTeams().getTeam(TeamColor.RED)).getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
+            if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
                 this.game.getFinish().Fatality(TeamColor.RED);
                 GameState.setState(GameState.FINISH);
             }

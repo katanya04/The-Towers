@@ -1,5 +1,7 @@
 package mx.towers.pato14.utils;
 
+import mx.towers.pato14.utils.locations.IntCoordinate;
+import mx.towers.pato14.utils.locations.Pool;
 import org.bukkit.Location;
 
 public class Cuboide {
@@ -24,6 +26,29 @@ public class Cuboide {
             return false;
         }
         return true;
+    }
+    public static boolean InCuboide(Pool pool, Location loc) {
+        return InCuboide(pool.getCorner1(), pool.getCorner2(),
+                new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
+    }
+
+    public static boolean InCuboide(IntCoordinate corner1, IntCoordinate corner2, IntCoordinate loc) {
+        final int x1 = corner1.getX(), x2 = corner2.getX(), lx = loc.getX();
+        final int y1 = corner1.getY(), y2 = corner2.getY(), ly = loc.getY();
+        final int z1 = corner1.getZ(), z2 = corner2.getZ(), lz = loc.getZ();
+        if ( x1 <= x2) {
+            if ( x1 >  lx || x2 <  lx) return false;
+        } else if ( x1 <  lx || x2 >  lx) {
+            return false;
+        }
+        if ( y1 <= y2) {
+            if ( y1 > ly || y2 < ly) return false;
+        } else if ( y1 < ly || y2 > ly) {
+            return false;
+        }
+        if ( z1 <= z2) {
+            return z1 <= lz && z2 >= lz;
+        } else return z1 >= lz && z2 <= lz;
     }
 
     public static boolean InCuboideExtraHeight(Location corner1, Location corner2, Location loc, int ExtraHeight) {

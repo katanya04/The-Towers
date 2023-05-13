@@ -69,7 +69,7 @@ public class Detectoreishon {
         for (int i = arrayOfLocationshion.length, b = 0; b < i; ) {
             //loc = "LOBBY" por ejemplo
             Locationshion loc = arrayOfLocationshion[b];
-            //Si esta en la lista de localizaciones ya asignadas (?)
+            //Si está en la lista de localizaciones ya asignadas (?)
             if (getLocations().contains(loc.getLocationString())) {
                 //Si tiene coordenadas asignadas
                 if (getLocationString(getLocations().getString(loc.getLocationString()))) {

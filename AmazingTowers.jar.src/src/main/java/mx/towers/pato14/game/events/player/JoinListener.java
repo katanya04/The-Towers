@@ -1,6 +1,8 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
@@ -13,32 +15,29 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
-    private final AmazingTowers p = AmazingTowers.getPlugin();
+    private final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        this.p.getGameInstance(player).getUpdates().createScoreboard(player);
-        this.p.getGameInstance(player).getUpdates().updateScoreboardAll();
+        GameInstance gameInstance = plugin.getGameInstance(player);
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player);
+        gameInstance.getUpdates().createScoreboard(player);
+        gameInstance.getUpdates().updateScoreboardAll();
         switch (GameState.getState()) {
             case LOBBY:
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-                if (Bukkit.getOnlinePlayers().size() >= this.p.getGameInstance(player).getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
+                if (Bukkit.getOnlinePlayers().size() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
                     GameState.setState(GameState.PREGAME);
-                    this.p.getGameInstance(player).getGame().getStart().gameStart();
+                    gameInstance.getGame().getStart().gameStart();
                 }
                 break;
             case PREGAME:
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
                 break;
             case GAME:
-                if (this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsOffline(player.getName())) {
-                    this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).removeOfflinePlayer(player.getName());
-                    Dar.darItemsJoinTeam(player);
-                    break;
-                }
-                if (this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).containsOffline(player.getName())) {
-                    this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).removeOfflinePlayer(player.getName());
+                if (team != null && team.containsOffline(player.getName())) {
+                    team.removeOfflinePlayer(player.getName());
                     Dar.darItemsJoinTeam(player);
                     break;
                 }
@@ -47,32 +46,18 @@ public class JoinListener implements Listener {
             case FINISH:
                 break;
             default:
-                if (this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsOffline(player.getName())) {
-                    this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).removeOfflinePlayer(player.getName());
-                    Dar.darItemsJoinTeam(player);
-                    player.setGameMode(GameMode.SPECTATOR);
-                    break;
-                }
-                if (this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).containsOffline(player.getName())) {
-                    this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.RED).removeOfflinePlayer(player.getName());
-                    Dar.darItemsJoinTeam(player);
-                    player.setGameMode(GameMode.SPECTATOR);
-                    break;
-                }
-                Dar.DarItemsJoin(player, GameMode.SPECTATOR);
-                break;
         }
-        if (this.p.getGameInstance(player).getGame().getTeams().containsTeamPlayer(player)) {
-            e.setJoinMessage(this.p.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) ? this.p.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinBlueTeam").replaceAll("&", "§")
-                    .replace("{Player}", player.getName()) : this.p.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinRedTeam").replaceAll("&", "§")
+        if (this.plugin.getGameInstance(player).getGame().getTeams().containsTeamPlayer(player)) {
+            e.setJoinMessage(this.plugin.getGameInstance(player).getGame().getTeams().getTeam(TeamColor.BLUE).containsPlayer(player.getName()) ? this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinBlueTeam").replaceAll("&", "§")
+                    .replace("{Player}", player.getName()) : this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinRedTeam").replaceAll("&", "§")
                     .replace("{Player}", player.getName()));
         } else {
-            e.setJoinMessage(this.p.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
+            e.setJoinMessage(this.plugin.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
                     .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                     .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers())));
         }
-        if (this.p.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
-            this.p.con.CreateAcount(player.getName());
+        if (this.plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
+            this.plugin.con.CreateAcount(player.getName());
     }
 }
 

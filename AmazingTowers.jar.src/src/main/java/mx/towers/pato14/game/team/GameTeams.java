@@ -10,8 +10,10 @@ import java.util.*;
 
 public class GameTeams {
     private final List<Team> teams;
+    private final Game game;
 
     public GameTeams(Game game) {
+        this.game = game;
         this.teams = new LinkedList<>();
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getNumberOfTeams())) {
             String teamName = teamColor.name().toLowerCase();
@@ -85,6 +87,9 @@ public class GameTeams {
         return sb.toString();
     }
 
+    public Game getGame() {
+        return game;
+    }
 }
 
 

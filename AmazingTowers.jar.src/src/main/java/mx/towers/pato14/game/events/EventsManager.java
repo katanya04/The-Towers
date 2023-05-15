@@ -20,11 +20,8 @@ public class EventsManager {
         pm.registerEvents(new DamageListener(), this.plugin);
         pm.registerEvents(new TeamChatListener(this.plugin), this.plugin);
         pm.registerEvents(new LobbyListener(this.plugin), this.plugin);
-        pm.registerEvents(new SpawnsTeams(this.plugin), this.plugin);
         pm.registerEvents(new CofresillosListener(this.plugin), this.plugin);
-        pm.registerEvents(new BorderListener(this.plugin), this.plugin);
         pm.registerEvents(new PistonsillosListener(this.plugin), this.plugin);
-        pm.registerEvents(new PoolsListener(this.plugin), this.plugin);
         pm.registerEvents(new LeatherProtectListener(this.plugin), this.plugin);
         pm.registerEvents(new TimeListener(this.plugin), this.plugin);
         pm.registerEvents(new AntiTrollTeamListener(this.plugin), this.plugin);

@@ -10,6 +10,7 @@ import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 public class GameInstance {
     private final AmazingTowers plugin;
-    private final String name;
+    private final World world;
     private Game game;
     private final Map<ConfigType, Config> configs;
     private ScoreUpdate scoreUpdate;
@@ -27,12 +28,12 @@ public class GameInstance {
 
     public GameInstance(AmazingTowers towers, String name) {
         this.plugin = towers;
-        this.name = name;
+        this.world = Bukkit.getWorld(name);
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
         setRules();
-        registerConfigs();
+        registerConfigs(name);
         createFolderBackup();
         Detectoreishon.detectoreishonLocations();
 
@@ -40,7 +41,7 @@ public class GameInstance {
             if (getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
-            loadWorld(this.name);
+            loadWorld(name);
             SetupVault.setupVault();
             this.vault = new VaultT(this);
             this.game = new Game(this);
@@ -51,10 +52,10 @@ public class GameInstance {
         }
     }
 
-    private void registerConfigs() {
+    private void registerConfigs(String worldName) {
         for (ConfigType config : ConfigType.values())
             this.configs.put(config, new Config(plugin,
-                    config.toString().toLowerCase() + ".yml", true, name));
+                    config.toString().toLowerCase() + ".yml", true, worldName));
     }
 
     public void loadWorld(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
@@ -62,7 +63,7 @@ public class GameInstance {
         if (towers.getFileSource().exists()) {
             towers.loadWorld();
         } else {
-            Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] There is no backup for " + name + "!");
+            Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] There is no backup for " + worldName + "!");
         }
     }
 
@@ -77,9 +78,6 @@ public class GameInstance {
     private void setRules() {   //Sets rules to default values
         for (Rule rule : Rule.values())
             this.rules.put(rule, rule.getCurrentState());
-    }
-    public String getName() {
-        return this.name;
     }
     public VaultT getVault() {
         return this.vault;
@@ -112,5 +110,9 @@ public class GameInstance {
     }
     public void removePlayer() {
         numPlayers--;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

@@ -8,6 +8,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.kits.KitDefault;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
@@ -43,7 +44,7 @@ public class Dar {
         }
         removePotion(player);
         NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("Options.team.default.prefix")));
-        player.teleport(Locations.getLocationFromStringConfig(gameInstance.getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
+        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
     public static void darItemsJoinTeam(Player player) {

@@ -37,8 +37,8 @@ public class Finish {
         bungeecord = game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled");
     }
     public void Fatality(final TeamColor teamColor) {
-        if (!GameState.isState(GameState.FINISH)) {
-            GameState.setState(GameState.FINISH);
+        if (!game.getGameState().equals(GameState.FINISH)) {
+            game.setGameState(GameState.FINISH);
         }
         for (String p: game.getStats().getPlayerStats().keySet()) {
             game.getStats().addOne(p, StatType.GAMES_PLAYED);
@@ -66,7 +66,7 @@ public class Finish {
                         public void run() {
                             if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
                                 for (Player player : game.getPlayers()) {
-                                    player.teleport(Locations.getLocationFromStringConfig(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.LOCATIONS), Locationshion.LOBBY), PlayerTeleportEvent.TeleportCause.COMMAND);
+                                    player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
                                     Dar.bungeecordTeleport(player);
                                     if (game.getPlayers().size() == 0) {
                                         run();

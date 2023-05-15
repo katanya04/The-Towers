@@ -78,7 +78,7 @@ public class DeathListener implements Listener {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Locationshion.valueOf(teamColor + "_SPAWN").getLocationString())));
             KitDefault.KitDe(e.getPlayer());
         } else {
-            e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Locationshion.LOBBY.getLocationString())));
+            e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
             Dar.DarItemsJoin(e.getPlayer(), GameMode.ADVENTURE);
         }
         e.getPlayer().setCanPickupItems(true);

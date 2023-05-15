@@ -1,9 +1,12 @@
 package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Locationshion;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
@@ -23,11 +26,14 @@ public class AntiFallingSandTrollListener implements Listener {
     public void onFallingSand(EntityChangeBlockEvent e) {
         if (e.getEntityType().equals(EntityType.FALLING_BLOCK)) {
             FallingBlock flbl = (FallingBlock) e.getEntity();
-            if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.SPAWNRED_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.SPAWNRED_PROTECT_2), e.getBlock().getLocation())) {
-                e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(flbl.getMaterial()));
-                flbl.remove();
-                e.setCancelled(true);
-            } else if (Cuboide.InCuboide(Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.SPAWNBLUE_PROTECT_1), Locations.getLocationFromStringConfig(this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS), Locationshion.SPAWNBLUE_PROTECT_2), e.getBlock().getLocation())) {
+            GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+            Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
+            if (Locations.isValidLocation(locations,
+                    e.getBlock().getLocation(),
+                    gameInstance.getGame().getDetectionMove().getPools(),
+                    gameInstance.getRules().get(Rule.PROTECT_POINT),
+                    gameInstance.getRules().get(Rule.GRIEF),
+                    0)) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(flbl.getMaterial()));
                 flbl.remove();
                 e.setCancelled(true);

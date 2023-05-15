@@ -84,7 +84,7 @@ public class Game {
     }
 
     public List<Player> getPlayers() {
-        return Bukkit.getServer().getWorld(this.gameInstance.getName()).getPlayers();
+        return this.getGameInstance().getWorld().getPlayers();
     }
 
     public GameState getGameState() {

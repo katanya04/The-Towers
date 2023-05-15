@@ -32,6 +32,16 @@ public class Cuboide {
                 new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
     }
 
+    public static boolean InCuboideExtraHeight(Pool pool, Location loc, int extraHeight) {
+        return InCuboideExtraHeight(pool.getCorner1(), pool.getCorner2(),
+                new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())),
+                extraHeight);
+    }
+
+    public static boolean InCuboide(IntCoordinate corner1, IntCoordinate corner2, Location loc) {
+        return InCuboide(corner1, corner2, new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
+    }
+
     public static boolean InCuboide(IntCoordinate corner1, IntCoordinate corner2, IntCoordinate loc) {
         final int x1 = corner1.getX(), x2 = corner2.getX(), lx = loc.getX();
         final int y1 = corner1.getY(), y2 = corner2.getY(), ly = loc.getY();
@@ -49,6 +59,26 @@ public class Cuboide {
         if ( z1 <= z2) {
             return z1 <= lz && z2 >= lz;
         } else return z1 >= lz && z2 <= lz;
+    }
+    public static boolean InCuboideExtraHeight(IntCoordinate corner1, IntCoordinate corner2, IntCoordinate loc, int ExtraHeight) {
+        final int x1 = corner1.getX(), x2 = corner2.getX(), lx = loc.getX();
+        final int y1 = corner1.getY(), y2 = corner2.getY(), ly = loc.getY();
+        final int z1 = corner1.getZ(), z2 = corner2.getZ(), lz = loc.getZ();
+        if (x1 <= x2) {
+            if (x1 > lx + ExtraHeight || x2 + ExtraHeight < lx)
+                return false;
+        } else if (x1 + ExtraHeight < lx || x2 > lx + ExtraHeight) {
+            return false;
+        }
+        if (y1 <= y2) {
+            if (y1 > ly + ExtraHeight || y2 + ExtraHeight < ly)
+                return false;
+        } else if (y1 + ExtraHeight < ly || y2 > ly + ExtraHeight) {
+            return false;
+        }
+        if (z1 <= z2) {
+            return z1 <= lz + ExtraHeight && z2 + ExtraHeight >= lz;
+        } else return z1 + ExtraHeight >= lz && z2 <= lz + ExtraHeight;
     }
 
     public static boolean InCuboideExtraHeight(Location corner1, Location corner2, Location loc, int ExtraHeight) {
@@ -69,12 +99,16 @@ public class Cuboide {
             return false;
         }
         if (z1 <= z2) {
-            if (z1 > lz + ExtraHeight || z2 + ExtraHeight < lz)
-                return false;
-        } else if (z1 + ExtraHeight < lz || z2 > lz + ExtraHeight) {
-            return false;
-        }
-        return true;
+            return z1 <= lz + ExtraHeight && z2 + ExtraHeight >= lz;
+        } else return z1 + ExtraHeight >= lz && z2 <= lz + ExtraHeight;
+    }
+
+    public static boolean InCuboideExtraHeight(String string, Location loc, int extraHeight) {
+        return InCuboideExtraHeight(IntCoordinate.getFromString(string + ".1"), IntCoordinate.getFromString(string + ".2"), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())), extraHeight);
+    }
+
+    public static boolean InCuboide(String string, Location loc) {
+        return InCuboide(IntCoordinate.getFromString(string + ".1"), IntCoordinate.getFromString(string + ".2"), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
     }
 }
 

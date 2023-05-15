@@ -2,6 +2,7 @@ package mx.towers.pato14.game.utils;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.*;
@@ -30,14 +31,14 @@ public class Move {
         for (int i = 0; i < game.getTeams().getTeams().size(); i++) {
             Team current = game.getTeams().getTeams().get(i);
             pools[i] = new Pool(current,
-                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.POOL.getLocationString(current.getTeamColor())));
+                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.POOL.getPath(current.getTeamColor())));
         }
     }
 
     public void MoveDetect() {
         (new BukkitRunnable() {
             public void run() {
-                if (!GameState.isState(GameState.GAME)) {
+                if (!Move.this.game.getGameState().equals(GameState.GAME)) {
                     cancel();
                     return;
                 }
@@ -58,7 +59,7 @@ public class Move {
         if (Cuboide.InCuboide(pool, player.getLocation())) {
             Team team = this.game.getTeams().getTeamByPlayer(player);
             team.sumarPunto();
-            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getLocationString(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.Point")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", team.getTeamColor().getColor())
@@ -80,6 +81,11 @@ public class Move {
             this.game.getStats().addOne(player.getName(), StatType.POINTS);
         }
     }
+
+    public Pool[] getPools() {
+        return pools;
+    }
+
 }
 
 

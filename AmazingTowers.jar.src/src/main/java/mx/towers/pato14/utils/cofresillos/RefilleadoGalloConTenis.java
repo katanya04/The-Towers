@@ -5,12 +5,10 @@ import java.util.Map;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RefilleadoGalloConTenis {
@@ -36,7 +34,7 @@ public class RefilleadoGalloConTenis {
                         cancel();
                         return;
                     }
-                    RefilleadoGalloConTenis.this.gameInstance.getUpdates().updateScoreboardAll();
+                    RefilleadoGalloConTenis.this.gameInstance.getUpdates().updateScoreboardGame(gameInstance.getGame());
                     if (RefilleadoGalloConTenis.this.regeneration == 0) {
                         String[] timer = RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.timer_refill").split(";");
                         RefilleadoGalloConTenis.this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);

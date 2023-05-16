@@ -47,7 +47,7 @@ public class Start {
                     Start.this.startGenerators();
                     CofresillosListener.getChests(Start.this.game.getGameInstance());
                     Start.this.game.getGameInstance().getUpdates().getRefill().iniciarRefill();
-                    Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
+                    Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
                     Start.this.game.getDetectionMove().MoveDetect();
                     return;
                 }
@@ -57,7 +57,7 @@ public class Start {
                     for (Player p : world.getPlayers()) {
                         p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.necessaryPlayers")));
                     }
-                    Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
+                    Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
                     return;
                 }
                 if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
@@ -75,7 +75,7 @@ public class Start {
                         Start.this.plugin.getNms().sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
-                Start.this.game.getGameInstance().getUpdates().updateScoreboardAll();
+                Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
                 if (!Start.this.stop) Start.this.seconds = Start.this.seconds - 1;
             }
         }).runTaskTimer(this.plugin, 0L, 20L);

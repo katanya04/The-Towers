@@ -77,7 +77,7 @@ public class Move {
                 this.game.getFinish().Fatality(TeamColor.RED);
                 GameState.setState(GameState.FINISH);
             }
-            this.game.getGameInstance().getUpdates().updateScoreboardAll();
+            this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
             this.game.getStats().addOne(player.getName(), StatType.POINTS);
         }
     }

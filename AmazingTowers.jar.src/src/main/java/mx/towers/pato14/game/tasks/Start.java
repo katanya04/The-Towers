@@ -41,7 +41,7 @@ public class Start {
         (new BukkitRunnable() {
             public void run() {
                 if (Start.this.seconds == 0) {
-                    GameState.setState(GameState.GAME);
+                    game.setGameState(GameState.GAME);
                     cancel();
                     Start.this.teleportPlayers();
                     Start.this.startGenerators();
@@ -53,7 +53,7 @@ public class Start {
                 }
                 if (!runFromCommand && game.getGameInstance().getNumPlayers() < Start.this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
                     cancel();
-                    GameState.setState(GameState.LOBBY);
+                    game.setGameState(GameState.LOBBY);
                     for (Player p : world.getPlayers()) {
                         p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.necessaryPlayers")));
                     }

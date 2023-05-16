@@ -39,7 +39,7 @@ public class QuitListener implements Listener {
             public void run() {
                 gameInstance.getUpdates().updateScoreboardAll();
                 List<Team> teams = gameInstance.getGame().getTeams().getTeams();
-                switch (GameState.getState()) {
+                switch (gameInstance.getGame().getGameState()) {
                     case LOBBY:
                     case PREGAME:
                         if (playerTeam != null) {

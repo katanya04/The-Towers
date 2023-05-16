@@ -75,7 +75,7 @@ public class Move {
             }
             if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
                 this.game.getFinish().Fatality(TeamColor.RED);
-                GameState.setState(GameState.FINISH);
+                game.setGameState(GameState.FINISH);
             }
             this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
             this.game.getStats().addOne(player.getName(), StatType.POINTS);

@@ -1,12 +1,11 @@
 
 package mx.towers.pato14.commands;
 
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Rule;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import org.bukkit.*;
 import mx.towers.pato14.utils.world.WorldReset;
@@ -23,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.bukkit.inventory.ItemStack;
 import mx.towers.pato14.AmazingTowers;
@@ -33,11 +31,11 @@ import org.bukkit.permissions.PermissionAttachment;
 public class TowerCommand implements CommandExecutor
 {
     private final AmazingTowers plugin;
-    private ItemStack itemChestRefill;
-    private ArrayList<Player> senderPlayer;
+    private final ItemStack itemChestRefill;
+    private final ArrayList<Player> senderPlayer;
     private final HashMap<String, Long> cooldown;
     public TowerCommand(final AmazingTowers plugin) {
-        this.senderPlayer = new ArrayList<Player>();
+        this.senderPlayer = new ArrayList<>();
         this.plugin = plugin;
         this.itemChestRefill = new ItemStack(Material.IRON_SPADE);
         final ItemMeta metaItem = this.itemChestRefill.getItemMeta();
@@ -69,6 +67,288 @@ public class TowerCommand implements CommandExecutor
             return false;
         }
     }
+    public static boolean isLocation(String str) {
+        try {
+            Location.valueOf(str.toUpperCase());
+            return true;
+        } catch(IllegalArgumentException e){
+            return false;
+        }
+    }
+
+    public static boolean isTeamColor(String str) {
+        try {
+            TeamColor.valueOf(str.toUpperCase());
+            return true;
+        } catch(IllegalArgumentException e){
+            return false;
+        }
+    }
+
+    public int checkArgs(Subcommand subcommand, String[] args) {
+        int i = 0;
+        for (String currentArg : subcommand.getArguments()) {
+            String[] currentArgSeparated = currentArg.split("\\|");
+            boolean matches = false;
+            for (String currentSubArg : currentArgSeparated) {
+                if (!(currentSubArg.charAt(0) == '<')) {
+                    if (currentSubArg.equalsIgnoreCase(args[i])) {
+                        matches = true;
+                        break;
+                    }
+                } else {
+                    switch (currentSubArg) {
+                        case "<number>":
+                            if (isNumericInt(args[i])) {
+                                matches = true;
+                            }
+                            break;
+                        case "<onlinePlayer>":
+                            break;
+                        case "<worldName>":
+                            break;
+                        default:
+                            matches = true;
+                    }
+                    if (matches)
+                        break;
+                }
+            }
+            if (matches)
+                i++;
+            else
+                return i; //Position of incorrect argument
+        }
+        return -1; //All arguments are correct
+    }
+    public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
+        if (args.length < 1  || Subcommand.isValidSubcommand(args[0]) == null || args[0].equalsIgnoreCase(Subcommand.HELP.name())) {
+            sender.sendMessage(Subcommand.listOfCommands());
+            return true;
+        }
+        Subcommand arg0 = Subcommand.isValidSubcommand(args[0]);
+        assert arg0 != null;
+        if (!arg0.hasPermission(sender)) {
+            sender.sendMessage("You don't have permission to run this command.");
+            return true;
+        }
+        if (!arg0.checkCorrectSender(sender)) {
+            sender.sendMessage("Only a player can run this command.");
+            return true;
+        }
+        if (!arg0.correctNumberOfArguments(args)) {
+            sender.sendMessage(arg0.getCorrectUse());
+            return true;
+        }
+        GameInstance gameInstance = null;
+        Player player = null;
+        if (sender instanceof Player) {
+            player = (Player) sender;
+            gameInstance = this.plugin.getGameInstance(player);
+        }
+        switch (arg0) {
+            case STATS:
+                if (this.plugin.getGlobalConfig().getBoolean("Options.mysql.active")) {
+                    if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
+                        FindOneCallback.findPlayerAsync(args[1], this.plugin, result -> {
+                            if (result == null) {
+                                sender.sendMessage("§4No se ha encontrado ese jugador");
+                                return;
+                            } else {
+                                sender.sendMessage("§7§lEstadisticas:");
+                                sender.sendMessage("§7Kills: " + "§3§l" + result[0]);
+                                sender.sendMessage("§7Muertes: " + "§4§l" + result[1]);
+                                sender.sendMessage("§7Puntos: " + "§6§l" + result[2]);
+                                sender.sendMessage("§7Partidas jugadas: " + "§a§l" + result[3]);
+                                sender.sendMessage("§7Partidas ganadas: " + "§b§l" + result[4]);
+                                sender.sendMessage("§7Bloques rotos: " + "§d§l" + result[5]);
+                                sender.sendMessage("§7Bloques colocados: " + "§2§l" + result[6]);
+                            }
+                        });
+                    } else {
+                        sender.sendMessage("§4Tienes que esperar " + "§6" + (3000 - (System.currentTimeMillis() - cooldown.get(sender.getName())))/1000 + " §4segundos antes de poder ejecutar este comando.");
+                    }
+                } else {
+                    sender.sendMessage("MySQL is turned off in the plugin configuration");
+                }
+                break;
+            case SPECTATOR:
+                if (sender instanceof Player && ((Player) sender).getGameMode().equals(GameMode.SPECTATOR))
+                    Dar.DarItemsJoin((Player) sender, GameMode.ADVENTURE);
+                else
+                    sender.sendMessage("§4Solo puedes ejecutar este comando estando en modo espectador");
+                break;
+            case ORGANIZER:
+                if (args[1].equals(this.plugin.getGlobalConfig().getString("Permissions.password.organizer"))) {
+                    PermissionAttachment organizer;
+                    organizer = sender.addAttachment(this.plugin);
+                    this.plugin.getPermissions().put(sender.getName(), organizer);
+                    organizer.setPermission("towers.organizer", true);
+                }
+                break;
+            case COUNT:
+                assert gameInstance != null;
+                if (gameInstance.getGame().getGameState().ordinal() < 2) {
+                    Start start = gameInstance.getGame().getStart();
+                    if (args[1].equals("stop"))
+                        start.stopCount();
+                    else if (args[1].equals("start")) {
+                        if (!start.hasStarted()) {
+                            gameInstance.getGame().setGameState(GameState.PREGAME);
+                            start.setRunFromCommand(true);
+                            start.setHasStarted(true);
+                            start.gameStart();
+                        }
+                        start.continueCount();
+                    } else if (isNumericInt(args[1]))
+                        start.setSeconds(Integer.parseInt(args[1]));
+                    else
+                        sender.sendMessage(arg0.getCorrectUse());
+                } else
+                    sender.sendMessage("§4Este comando solo se puede usar antes de empezar la partida");
+                break;
+            case RULE:
+                assert gameInstance != null;
+                if (isRule(args[1]) && (args[2].equalsIgnoreCase("true") || args[2].equalsIgnoreCase("false"))) {
+                    gameInstance.getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2]));
+                    sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + args[2].toLowerCase());
+                } else {
+                    sender.sendMessage(arg0.getCorrectUse());
+                }
+                break;
+            case SETPOINTS:
+                assert gameInstance != null;
+                if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
+                    if (isTeamColor(args[1]) && isNumeric(args[2])) {
+                        gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
+                        Bukkit.broadcastMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand") +
+                                gameInstance.getGame().getTeams().scores()));
+                        int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points");
+                        for (Team team: gameInstance.getGame().getTeams().getTeams()) {
+                            if (team.getPoints() >= pointsToWin) {
+                                gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
+                                gameInstance.getGame().setGameState(GameState.FINISH);
+                            }
+                        }
+                    } else
+                        sender.sendMessage(arg0.getCorrectUse());
+                } else
+                    sender.sendMessage("§4You can only execute this command during a match.");
+                break;
+            case JOINTEAM:
+                assert gameInstance != null;
+                Player p = Bukkit.getPlayer(args[2]);
+                if (isTeamColor(args[1]) && p != null && gameInstance.getGame().getPlayers().contains(p)) {
+                    Team pTeam = gameInstance.getGame().getTeams().getTeamByPlayer(p);
+                    if (pTeam != null)
+                       pTeam.removePlayer(p);
+                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1])).addPlayer(p);
+                    Dar.darItemsJoinTeam(p);
+                } else
+                    sender.sendMessage(arg0.getCorrectUse());
+                break;
+            case TPWORLD:
+                assert player != null;
+                if (Bukkit.getWorld(args[1]) != null) {
+                    player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                    player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
+                }
+                player.sendMessage("§fThe world §a" + args[1] + " §fdoesn't exist");
+                break;
+            case CREATEWORLD:
+                assert player != null;
+                if (Bukkit.getWorld(args[1]) != null)
+                    player.sendMessage("§fThe world §c" + args[1] + " §falready exists!");
+                else if (args[2].equals("emptyWorld")) {
+                    player.sendMessage("Creating world §a" + args[1] + "§f...");
+                    final WorldCreator wc = new WorldCreator(args[1]);
+                    wc.type(WorldType.FLAT);
+                    wc.generateStructures(false);
+                    wc.generatorSettings("2;0;1;");
+                    final World world = Bukkit.createWorld(wc);
+                    world.setAutoSave(false);
+                    world.setSpawnLocation(0, 0, 0);
+                    world.setDifficulty(Difficulty.PEACEFUL);
+                    world.setGameRuleValue("doMobSpawning", "false");
+                    world.setGameRuleValue("mobGriefing", "false");
+                    world.setGameRuleValue("doDaylightCycle", "false");
+                    player.sendMessage("The world §a" + args[1] + " §fwas created §asuccesfully...");
+                } else
+                    sender.sendMessage(arg0.getCorrectUse());
+                break;
+            case BACKUPWORLD:
+                assert gameInstance != null;
+                final File backup = new File(this.plugin.getDataFolder().getAbsolutePath() + "/backup", gameInstance.getWorld().getName());
+                if (backup.exists())
+                    player.sendMessage("§fThe folder §a'" + gameInstance.getWorld().getName() + "' §falready exists in the backup folder!");
+                else if (!this.senderPlayer.contains(player)) {
+                    this.senderPlayer.add(player);
+                    player.sendMessage("§fDo you want to save the world §aTheTowers §fin the backup folder? ");
+                    player.sendMessage("§fIf you want to save it, execute again the command §a/towers backupWorld");
+                }
+                else {
+                    final File world3 = new File(Bukkit.getWorldContainer().getAbsolutePath(), gameInstance.getWorld().getName());
+                    if (!world3.exists())
+                        player.sendMessage("§fThe folder of the world §c" + gameInstance.getWorld().getName() + " §fdoesn't exist");
+                    gameInstance.getWorld().save();
+                    WorldReset.copyWorld(world3, backup);
+                    final File[] ficheros = backup.listFiles();
+                    for (File fichero : ficheros) {
+                        if (fichero.getName().equals("session.lock") || fichero.getName().equals("uid.dat")) {
+                            fichero.delete();
+                        }
+                    }
+                    player.sendMessage("§fThe folder §a" + gameInstance.getWorld().getName() + " §fcopied to the backup folder §asuccessfully");
+                    this.senderPlayer.remove(player);
+                }
+                break;
+            case LOADWORLD:
+                assert player != null;
+                final File world2 = new File(Bukkit.getWorldContainer().getAbsolutePath(), args[1]);
+                if (!world2.exists())
+                    player.sendMessage("§fThe folder of the world §c" + args[1] + " §fdoesn't exist");
+                else if (Bukkit.getWorld(args[1]) == null) {
+                    player.sendMessage("Loading the world §a" + args[1] + "§f...");
+                    new WorldCreator(args[1]).createWorld();
+                    player.sendMessage("The world §a" + args[1] + " §floaded §asuccesfully...");
+                } else
+                    player.sendMessage("§fThe world §a" + args[1] + " §fis already loaded!");
+                break;
+            case SETREGION:
+                assert player != null;
+                if (args.length < 2 || !isLocation(args[1]))
+                    player.sendMessage(arg0.getCorrectUse());
+                Location loc = Location.valueOf(args[1]);
+                TeamColor teamColor = args.length < 3 || !isTeamColor(args[2]) ? null : TeamColor.valueOf(args[2].toUpperCase());
+                if (loc.isArea()) {
+                    if (this.plugin.getWand().getPos1() != null && this.plugin.getWand().getPos2() != null) {
+                        if (!loc.isList()) {
+                            gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor) + ".1", this.plugin.getWand().getPos1());
+                            gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor) + ".2", this.plugin.getWand().getPos2());
+                        } else {
+                            gameInstance.getConfig(ConfigType.LOCATIONS).
+                        }
+                        gameInstance.getConfig(ConfigType.LOCATIONS).saveConfig();
+                    }
+                } else
+                    gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor), Locations.getLocationStringCenter(player.getLocation(), true));
+                else if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
+
+                    if (this.plugin.getWand().getPos1() != null) {
+                        gameInstance.getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".1", (Object)this.plugin.getWand().getPos1());
+                        gameInstance.getConfig(ConfigType.LOCATIONS).saveConfig();
+                    }
+                    if (this.plugin.getWand().getPos2() != null) {
+                        this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".2", (Object)this.plugin.getWand().getPos2());
+                        this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
+                    }
+                    this.plugin.getWand().clearStrings();
+                    player.sendMessage("§7Defined protection corner §a1 §7and §a2 §7of §a" + args[1]);
+                    return false;
+                }
+                return false;
+        }
+    }
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         PermissionAttachment organizer;
         if (args.length > 0) {
@@ -97,7 +377,7 @@ public class TowerCommand implements CommandExecutor
                             }
                         });
                     } else {
-                        sender.sendMessage("MySQL is turn off in the plugin configuration");
+                        sender.sendMessage("MySQL is turned off in the plugin configuration");
                     }
                     cooldown.put(sender.getName(), System.currentTimeMillis());
                 } else {
@@ -137,13 +417,13 @@ public class TowerCommand implements CommandExecutor
                 switch (s = st) {
                     case "count": {
                         if (sender instanceof Player) {
-                            if (GameState.isState(GameState.LOBBY) || GameState.isState(GameState.PREGAME)) {
+                            if (plugin.getGameInstance((Player) sender).getGame().getGameState().equals(GameState.LOBBY) || plugin.getGameInstance((Player) sender).getGame().getGameState().equals(GameState.PREGAME)) {
                                 Start start = this.plugin.getGameInstance((Player) sender).getGame().getStart();
                                 if (args.length >= 2 && args[1].equals("stop")) {
                                     start.stopCount();
                                 } else if (args.length >= 2 && args[1].equals("start")) {
                                     if (!start.hasStarted()) {
-                                        GameState.setState(GameState.PREGAME);
+                                        plugin.getGameInstance((Player) sender).getGame().setGameState(GameState.PREGAME);
                                         start.setRunFromCommand(true);
                                         start.setHasStarted(true);
                                         start.gameStart();
@@ -186,7 +466,7 @@ public class TowerCommand implements CommandExecutor
                     }
                     case "setPoints": {
                         if (sender instanceof Player) {
-                            if (GameState.isState(GameState.GAME)) {
+                            if (plugin.getGameInstance((Player) sender).getGame().getGameState().equals(GameState.GAME)) {
                                 if (args.length > 2) {
                                     if (isNumeric(args[2]) && (args[1].equals("red") || args[1].equals("blue"))) {
                                         this.plugin.getGameInstance((Player) sender).getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
@@ -196,7 +476,7 @@ public class TowerCommand implements CommandExecutor
                                         for (Team team: plugin.getGameInstance((Player) sender).getGame().getTeams().getTeams()) {
                                             if (team.getPoints() >= pointsToWin) {
                                                 this.plugin.getGameInstance((Player) sender).getGame().getFinish().Fatality(team.getTeamColor());
-                                                GameState.setState(GameState.FINISH);
+                                                plugin.getGameInstance((Player) sender).getGame().setGameState(GameState.FINISH);
                                             }
                                         }
                                     } else {
@@ -586,7 +866,7 @@ public class TowerCommand implements CommandExecutor
                     player.sendMessage("§a/towers §fbackupWorld");
                     return false;
                 }
-                final File backup = new File(String.valueOf(this.plugin.getDataFolder().getAbsolutePath()) + "/backup", "TheTowers");
+                final File backup = new File(this.plugin.getDataFolder().getAbsolutePath() + "/backup", "TheTowers");
                 if (backup.exists()) {
                     player.sendMessage("§fThe folder §a'TheTowers' §falready exists in backup folder!");
                     return false;

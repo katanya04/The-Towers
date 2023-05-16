@@ -25,11 +25,11 @@ public class JoinListener implements Listener {
         gameInstance.getUpdates().createScoreboard(player);
         gameInstance.getUpdates().updateScoreboardAll();
         gameInstance.addPlayer();
-        switch (GameState.getState()) {
+        switch (gameInstance.getGame().getGameState()) {
             case LOBBY:
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
                 if (Bukkit.getOnlinePlayers().size() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
-                    GameState.setState(GameState.PREGAME);
+                    gameInstance.getGame().setGameState(GameState.PREGAME);
                     gameInstance.getGame().getStart().gameStart();
                 }
                 break;

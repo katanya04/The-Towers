@@ -54,7 +54,7 @@ public class ScoreUpdate {
     }
 
     private void getScores(ScoreHelper helper, Player player) {
-        if (GameState.isState(GameState.LOBBY)) {
+        if (gameInstance.getGame().getGameState().equals(GameState.LOBBY)) {
             List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.lobby.scores");
             int i = l.size();
             for (String st : l) {
@@ -64,7 +64,7 @@ public class ScoreUpdate {
                         .replace("%date%", this.date));
                 i--;
             }
-        } else if (GameState.isState(GameState.PREGAME)) {
+        } else if (gameInstance.getGame().getGameState().equals(GameState.PREGAME)) {
             List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.pre-game.scores");
             int i = l.size();
             for (String st : l) {

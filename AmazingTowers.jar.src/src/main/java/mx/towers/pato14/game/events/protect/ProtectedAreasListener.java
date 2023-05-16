@@ -11,6 +11,7 @@ import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -47,7 +48,7 @@ public class ProtectedAreasListener implements Listener {
     @EventHandler
     public void Main(EntityExplodeEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getEntity());
-        if (!GameState.isState(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
+        if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
         Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
@@ -70,7 +71,7 @@ public class ProtectedAreasListener implements Listener {
     @EventHandler
     public void blockPlace(BlockPlaceEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
-        if (!GameState.isState(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
+        if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);

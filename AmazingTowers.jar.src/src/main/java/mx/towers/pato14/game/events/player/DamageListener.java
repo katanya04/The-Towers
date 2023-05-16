@@ -18,7 +18,7 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void voidDamage(EntityDamageEvent e) {
-        if (!GameState.isState(GameState.GAME)) {
+        if (plugin.getGameInstance(e.getEntity()).getGame().getGameState().equals(GameState.GAME)) {
             e.setCancelled(true);
             return;
         }

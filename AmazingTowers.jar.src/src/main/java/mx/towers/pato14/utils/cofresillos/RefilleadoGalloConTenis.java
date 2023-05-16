@@ -9,6 +9,7 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RefilleadoGalloConTenis {
@@ -30,7 +31,7 @@ public class RefilleadoGalloConTenis {
             refileadoProaso = SelectCofresillos.makelist(this.gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             (new BukkitRunnable() {
                 public void run() {
-                    if (GameState.isState(GameState.FINISH)) {
+                    if (gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
                         cancel();
                         return;
                     }

@@ -11,7 +11,7 @@ public enum Subcommand {
     ORGANIZER(0, 1, true, true, "<password>"),
     COUNT(1, 1, true, true, "stop|start|<number>"),
     RULE(1, 2, true, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false"),
-    SETPOINTS(1, 2, true, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<number>"),
+    SETSCORE(1, 2, true, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<number>"),
     JOINTEAM(1, 2, true, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<onlinePlayer>"),
     LOCATIONS(2, 0, true, true),
     TPWORLD(2, 1, true, true, "<worldName>"),

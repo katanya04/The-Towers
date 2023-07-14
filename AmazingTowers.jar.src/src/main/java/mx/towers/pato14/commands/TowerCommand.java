@@ -4,6 +4,7 @@ package mx.towers.pato14.commands;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
@@ -18,10 +19,15 @@ import mx.towers.pato14.utils.locations.Detectoreishon;
 import mx.towers.pato14.game.utils.Dar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.inventory.ItemStack;
 import mx.towers.pato14.AmazingTowers;
@@ -129,11 +135,11 @@ public class TowerCommand implements CommandExecutor
         Subcommand arg0 = Subcommand.isValidSubcommand(args[0]);
         assert arg0 != null;
         if (!arg0.hasPermission(sender)) {
-            sender.sendMessage("You don't have permission to run this command.");
+            sender.sendMessage("No tienes permiso para ejecutar este comando.");
             return true;
         }
         if (!arg0.checkCorrectSender(sender)) {
-            sender.sendMessage("Only a player can run this command.");
+            sender.sendMessage("Solo un jugador puede ejecutar este comando.");
             return true;
         }
         if (!arg0.correctNumberOfArguments(args)) {
@@ -153,7 +159,6 @@ public class TowerCommand implements CommandExecutor
                         FindOneCallback.findPlayerAsync(args[1], this.plugin, result -> {
                             if (result == null) {
                                 sender.sendMessage("§4No se ha encontrado ese jugador");
-                                return;
                             } else {
                                 sender.sendMessage("§7§lEstadisticas:");
                                 sender.sendMessage("§7Kills: " + "§3§l" + result[0]);
@@ -169,7 +174,7 @@ public class TowerCommand implements CommandExecutor
                         sender.sendMessage("§4Tienes que esperar " + "§6" + (3000 - (System.currentTimeMillis() - cooldown.get(sender.getName())))/1000 + " §4segundos antes de poder ejecutar este comando.");
                     }
                 } else {
-                    sender.sendMessage("MySQL is turned off in the plugin configuration");
+                    sender.sendMessage("La base de datos está desactivada en la configuración del plugin");
                 }
                 break;
             case SPECTATOR:
@@ -210,13 +215,13 @@ public class TowerCommand implements CommandExecutor
             case RULE:
                 assert gameInstance != null;
                 if (isRule(args[1]) && (args[2].equalsIgnoreCase("true") || args[2].equalsIgnoreCase("false"))) {
-                    gameInstance.getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2]));
+                    gameInstance.getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
                     sender.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + args[2].toLowerCase());
                 } else {
                     sender.sendMessage(arg0.getCorrectUse());
                 }
                 break;
-            case SETPOINTS:
+            case SETSCORE:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
                     if (isTeamColor(args[1]) && isNumeric(args[2])) {
@@ -318,33 +323,42 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 if (args.length < 2 || !isLocation(args[1]))
                     player.sendMessage(arg0.getCorrectUse());
-                Location loc = Location.valueOf(args[1]);
+                Location loc = Location.valueOf(args[1].toUpperCase());
                 TeamColor teamColor = args.length < 3 || !isTeamColor(args[2]) ? null : TeamColor.valueOf(args[2].toUpperCase());
-                if (loc.isArea()) {
-                    if (this.plugin.getWand().getPos1() != null && this.plugin.getWand().getPos2() != null) {
-                        if (!loc.isList()) {
-                            gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor) + ".1", this.plugin.getWand().getPos1());
-                            gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor) + ".2", this.plugin.getWand().getPos2());
+                Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
+                String path = loc.getPath(teamColor);
+                if (!loc.getLocationType().equals(LocationType.GENERATOR)) {
+                    if (loc.getLocationType().equals(LocationType.POINT)) {
+                        if (loc.isList()) {
+                            List<String> list = locations.getStringList(path);
+                            list.add(Locations.getLocationStringCenter(player.getLocation(), true));
+                            locations.set(path, list);
                         } else {
-                            gameInstance.getConfig(ConfigType.LOCATIONS).
+                            locations.set(path, Locations.getLocationStringCenter(player.getLocation(), true));
                         }
-                        gameInstance.getConfig(ConfigType.LOCATIONS).saveConfig();
+                        player.sendMessage("§7Defined point of §a" + args[1]);
+                    } else {
+                        List<String> corners = new ArrayList<>();
+                        corners.add(this.plugin.getWand().getPos1());
+                        corners.add(this.plugin.getWand().getPos2());
+                        if (loc.isList()) {
+                            List<List<String>> list = locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o).collect(Collectors.toList());
+                            list.add(corners);
+                            locations.set(path, list);
+                        } else {
+                            locations.set(path, corners);
+                        }
+                        player.sendMessage("§7Defined area corner §a1 §7and §a2 §7of §a" + args[1]);
                     }
-                } else
-                    gameInstance.getConfig(ConfigType.LOCATIONS).set(loc.getPath(teamColor), Locations.getLocationStringCenter(player.getLocation(), true));
-                else if (!this.plugin.getWand().equalsPos1("") && !this.plugin.getWand().equalsPos2("")) {
-
-                    if (this.plugin.getWand().getPos1() != null) {
-                        gameInstance.getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".1", (Object)this.plugin.getWand().getPos1());
-                        gameInstance.getConfig(ConfigType.LOCATIONS).saveConfig();
-                    }
-                    if (this.plugin.getWand().getPos2() != null) {
-                        this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.PROTECT." + args[1].toUpperCase() + ".2", (Object)this.plugin.getWand().getPos2());
-                        this.plugin.getGameInstance((Player) sender).getConfig(ConfigType.LOCATIONS).saveConfig();
-                    }
-                    this.plugin.getWand().clearStrings();
-                    player.sendMessage("§7Defined protection corner §a1 §7and §a2 §7of §a" + args[1]);
-                    return false;
+                } else {
+                    List<HashMap<String, String>> generators = locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (HashMap<String, String>) o).collect(Collectors.toList());
+                    HashMap<String, String> newGenerator = new HashMap<>();
+                    YamlConfiguration config = new YamlConfiguration();
+                    config.set("i", player.getItemInHand());
+                    newGenerator.put("coords", config.saveToString());
+                    generators.add(newGenerator);
+                    locations.set(path, generators);
+                    player.sendMessage("§7Defined generator");
                 }
                 return false;
         }

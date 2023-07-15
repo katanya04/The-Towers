@@ -5,36 +5,34 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-public enum Subcommand {
-    STATS(0, 1, false, true, "<player>"),
-    SPECTATOR(0, 0, true, true),
-    ORGANIZER(0, 1, true, true, "<password>"),
-    COUNT(1, 1, true, true, "stop|start|<number>"),
-    RULE(1, 2, true, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false"),
-    SETSCORE(1, 2, true, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<number>"),
-    JOINTEAM(1, 2, true, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<onlinePlayer>"),
-    LOCATIONS(2, 0, true, true),
-    TPWORLD(2, 1, true, true, "<worldName>"),
-    CREATEWORLD(2, 2, true, true, "<worldName>", "emptyWorld"),
-    BACKUPWORLD(2, 0, true, true),
-    LOADWORLD(2, 1, true, true, "<worldName>"),
-    SETREGION(2, 1, true, false, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
-    HELP(2, 0, true, true),
-    VAULTINFO(2, 0, true, true),
-    RELOADCONFIG(2, 1, true, true, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
-    TOOL(2, 1, true, true, "wand|refillChest");
+public enum Subcommand { //* = optional argument, always at the end if it exists
+    STATS(0, 0, false, "<player>"),
+    SPECTATOR(0, 0, true),
+    ORGANIZER(0, 1, true, "<password>"),
+    COUNT(1, 1, true, "stop|start|<number>"),
+    RULE(1, 2, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false"),
+    SETSCORE(1, 2, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<number>"),
+    JOINTEAM(1, 2, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<onlinePlayer>"),
+    LOCATIONS(2, 0, true),
+    TPWORLD(2, 1, true, "<worldName>"),
+    CREATEWORLD(2, 2, true, "<worldName>", "emptyWorld"),
+    BACKUPWORLD(2, 0, true),
+    LOADWORLD(2, 1, true, "<worldName>"),
+    SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*" + argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
+    HELP(2, 0, true),
+    VAULTINFO(2, 0, true),
+    RELOADCONFIG(2, 1, true, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
+    TOOL(2, 1, true, "wand|refillChest");
 
     private final int permissionLevel;
-    private final int numberOfArguments;
+    private final int numberOfNeededArguments;
     private final boolean playerExecutorOnly;
-    private final boolean needAllArgs;
     private final String[] arguments;
 
-    Subcommand(int permissionLevel, int numberOfArguments, boolean playerExecutorOnly, boolean needAllArgs, String... arguments) {
+    Subcommand(int permissionLevel, int numberOfNeededArguments, boolean playerExecutorOnly, String... arguments) {
         this.permissionLevel = permissionLevel;
-        this.numberOfArguments = numberOfArguments;
+        this.numberOfNeededArguments = numberOfNeededArguments;
         this.playerExecutorOnly = playerExecutorOnly;
-        this.needAllArgs = needAllArgs;
         this.arguments = arguments;
     }
 
@@ -66,7 +64,7 @@ public enum Subcommand {
     }
 
     public boolean correctNumberOfArguments(String[] args) {
-        return !needAllArgs || args.length == this.numberOfArguments;
+        return numberOfNeededArguments <= args.length - 1 && arguments.length >= args.length - 1;
     }
 
     public boolean checkCorrectSender(CommandSender sender) {
@@ -93,6 +91,46 @@ public enum Subcommand {
             toret.append("\n");
         }
         return toret.toString();
+    }
+
+    public static boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+    public static int checkArgs(Subcommand subcommand, String[] args) {
+        int i = 1;
+        for (String currentArg : subcommand.getArguments()) {
+            if (currentArg.charAt(0) == '*') //Optional argument is always at the end
+                return 0;
+            String[] currentArgSeparated = currentArg.split("\\|");
+            boolean matches = false;
+            for (String currentSubArg : currentArgSeparated) {
+                if (!(currentSubArg.charAt(0) == '<')) {
+                    if (currentSubArg.equalsIgnoreCase(args[i])) {
+                        matches = true;
+                        break;
+                    }
+                } else {
+                    if (currentSubArg.equals("<number>")) {
+                        if (isInteger(args[i]))
+                            matches = true;
+                    } else
+                        matches = true;
+                    if (matches)
+                        break;
+                }
+            }
+            if (matches)
+                i++;
+            else
+                return i; //Position of incorrect argument
+        }
+        return 0; //All arguments are correct
     }
 
 }

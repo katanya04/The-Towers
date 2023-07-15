@@ -55,6 +55,15 @@ public enum TeamColor {
     public String getName() {
         return name;
     }
+
+    public static boolean isTeamColor(String teamColor) {
+        try {
+            TeamColor.valueOf(teamColor.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
 }
 
 

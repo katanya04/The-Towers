@@ -15,7 +15,7 @@ public class GameTeams {
     public GameTeams(Game game) {
         this.game = game;
         this.teams = new LinkedList<>();
-        for (TeamColor teamColor : TeamColor.getMatchTeams(game.getNumberOfTeams())) {
+        for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
             String teamName = teamColor.name().toLowerCase();
             Team currentTeam = new Team(teamName);
             currentTeam.setPrefix(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.team." + teamName + ".prefix"));

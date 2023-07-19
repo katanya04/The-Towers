@@ -9,16 +9,12 @@ import mx.towers.pato14.game.kits.KitDefault;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Location;
-import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffect;
-
-import java.util.List;
-import java.util.Map;
 
 public class Dar {
     private static final AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -33,7 +29,7 @@ public class Dar {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
-        for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getGame().getNumberOfTeams())) {
+        for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getNumberOfTeams())) {
             player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.item" + teamColor.firstCapitalized() + ".position"), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
         }
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
@@ -49,11 +45,11 @@ public class Dar {
 
     public static void darItemsJoinTeam(Player player) {
         removePotion(player);
-        for (Team team: plugin.getGameInstance(player).getGame().getTeams().getTeams()) {
+        GameInstance gameInstance = plugin.getGameInstance(player);
+        for (Team team: gameInstance.getGame().getTeams().getTeams()) {
             if (team.containsPlayer(player.getName())) {
                 NametagEdit.getApi().clearNametag(player);
-                String location = team.getTeamColor().name() + "_SPAWN";
-                player.teleport(Locations.getLocationFromString(plugin.getGameInstance(player).getConfig(ConfigType.LOCATIONS).getString(Locationshion.valueOf(location).getLocationString())), PlayerTeleportEvent.TeleportCause.COMMAND);
+                player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
                 player.getInventory().clear();
                 player.getInventory().setArmorContents(null);
                 player.setFoodLevel(20);
@@ -61,7 +57,7 @@ public class Dar {
                 player.setGameMode(GameMode.SURVIVAL);
                 team.setNameTagPlayer(player);
                 KitDefault.KitDe(player);
-                plugin.getGameInstance(player).getGame().getStats().setHashStats(player.getName());
+                gameInstance.getGame().getStats().setHashStats(player.getName());
             }
         }
     }

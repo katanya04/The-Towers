@@ -5,8 +5,6 @@ import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.Locationshion;
-import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -30,39 +28,6 @@ public class Locations {
                 ";" + (int) loc.getX() +
                 ";" + (int) loc.getY() +
                 ";" + (int) loc.getZ();
-    }
-
-    public static Location getLocationFromStringConfig(Config config, Locationshion locations) {
-        Location loc;
-        String[] a = config.getString(locations.getLocationString()).split(";");
-        if (a.length >= 6) {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
-        } else {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
-        }
-        return loc;
-    }
-
-    public static Location getLocationFromStringConfig(Config config, mx.towers.pato14.utils.enums.Location locations) {
-        Location loc;
-        String[] a = config.getString(locations.getPath()).split(";");
-        if (a.length >= 6) {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
-        } else {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
-        }
-        return loc;
-    }
-
-    public static Location getLocationFromStringConfig(Config config, mx.towers.pato14.utils.enums.Location locations, TeamColor teamColor) {
-        Location loc;
-        String[] a = config.getString(locations.getPath(teamColor)).split(";");
-        if (a.length >= 6) {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
-        } else {
-            loc = new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
-        }
-        return loc;
     }
 
     public static Location getLocationFromString(String st) {

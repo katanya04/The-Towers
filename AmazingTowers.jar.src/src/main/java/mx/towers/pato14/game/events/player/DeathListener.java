@@ -74,8 +74,7 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
         if (!gameInstance.getGame().getGameState().equals(GameState.LOBBY) && playerTeam != null) {
-            String teamColor = playerTeam.getTeamColor().toString().toUpperCase();
-            e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Locationshion.valueOf(teamColor + "_SPAWN").getLocationString())));
+            e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
             KitDefault.KitDe(e.getPlayer());
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));

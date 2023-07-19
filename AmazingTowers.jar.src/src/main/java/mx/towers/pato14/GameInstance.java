@@ -12,7 +12,6 @@ import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +24,8 @@ public class GameInstance {
     private VaultT vault;
     private final Map<Rule, Boolean> rules;
     private int numPlayers;
+    private final int numberOfTeams;
+    private final Detectoreishon detectoreishon;
 
     public GameInstance(AmazingTowers towers, String name) {
         this.plugin = towers;
@@ -32,12 +33,13 @@ public class GameInstance {
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
+        this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("General.teams");
+        this.detectoreishon = new Detectoreishon(this);
+        this.detectoreishon.checkNeededLocationsExistence(numberOfTeams);
         setRules();
         registerConfigs(name);
-        createFolderBackup();
-        Detectoreishon.detectoreishonLocations();
 
-        if (Detectoreishon.getLocationsObligatory()) {
+        if (this.detectoreishon.neededLocationsExist()) {
             if (getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
@@ -64,14 +66,6 @@ public class GameInstance {
             towers.loadWorld();
         } else {
             Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] There is no backup for " + worldName + "!");
-        }
-    }
-
-    public void createFolderBackup() {  //Crear la carpeta "backup"
-        File folder = new File(plugin.getDataFolder(), "backup");
-        if (!folder.exists() &&
-                folder.mkdirs()) {
-            System.out.println("[AmazingTowers] The backup folder was created successfully");
         }
     }
 
@@ -114,5 +108,12 @@ public class GameInstance {
 
     public World getWorld() {
         return world;
+    }
+    public int getNumberOfTeams() {
+        return numberOfTeams;
+    }
+
+    public Detectoreishon getDetectoreishon() {
+        return detectoreishon;
     }
 }

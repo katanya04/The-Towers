@@ -5,9 +5,9 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 
 public class Kit {
-    private String name;
-    private ItemStack[] armor;
-    private ItemStack[] itemsHotbar;
+    private final String name;
+    private final ItemStack[] armor;
+    private final ItemStack[] itemsHotbar;
 
     public Kit(String name) {
         this.name = name;

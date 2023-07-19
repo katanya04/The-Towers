@@ -52,7 +52,7 @@ public class JoinListener implements Listener {
             e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.joinTeam")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getColor())
-                    .replace("{Team}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName()).replaceAll("&", "§"));
+                    .replace("{Team}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName(gameInstance)).replaceAll("&", "§"));
         } else {
             e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
                     .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))

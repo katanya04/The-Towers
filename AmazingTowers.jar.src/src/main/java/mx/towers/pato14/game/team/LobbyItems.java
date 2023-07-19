@@ -28,7 +28,7 @@ public class LobbyItems implements Listener {
         this.game = game;
         this.at = game.getGameInstance().getPlugin();
         this.teams = new HashMap<>();
-        for (TeamColor teamColor : TeamColor.getTeams(game.getNumberOfTeams())) {
+        for (TeamColor teamColor : TeamColor.getTeams(game.getGameInstance().getNumberOfTeams())) {
             teams.put(teamColor, (new ItemAux(Material.WOOL, teamColor.getWoolColor())).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.item" + teamColor.firstCapitalized() + ".name"))));
         }
         if (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled"))
@@ -62,14 +62,14 @@ public class LobbyItems implements Listener {
                             }
                             player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.join")
                                     .replace("{Color}", teamColorToJoin.getColor())
-                                    .replace("{Team}", teamColorToJoin.getName())));
+                                    .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
                         } else {
                             player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.unbalancedTeam")));
                         }
                     } else {
                         player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.alreadyJoinedTeam")
                                 .replace("{Color}", teamColorToJoin.getColor())
-                                .replace("{Team}", teamColorToJoin.getName())));
+                                .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
                     }
                     e.setCancelled(true);
                     return;

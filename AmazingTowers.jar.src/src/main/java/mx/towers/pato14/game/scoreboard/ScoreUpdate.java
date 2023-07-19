@@ -7,11 +7,11 @@ import java.util.List;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.cofresillos.RefilleadoGalloConTenis;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -35,7 +35,7 @@ public class ScoreUpdate {
     }
 
     public void updateScoreboardAll() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : this.gameInstance.getGame().getPlayers()) {
             updateScoreboard(player);
         }
     }
@@ -76,20 +76,28 @@ public class ScoreUpdate {
                 i--;
             }
         } else {
-            List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.game.scores");
+            int currentTeam = -1;
+            List<Team> teams = gameInstance.getGame().getTeams().getTeams();
+            List<String> l = teams.size() < 5 ? gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.gameFourTeamsOrLess.scores") :
+                    gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.gameUpToEightTeams.scores");
             int i = l.size();
             for (String st : l) {
-                helper.setSlot(i, AmazingTowers.getColor(st)
-                        .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                        .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
-                        .replace("%date%", this.date)
-                        .replace("%points_blue%", String.valueOf((gameInstance.getGame().getTeams().getTeam(TeamColor.BLUE)).getPoints()))
-                        .replace("%points_red%", String.valueOf((gameInstance.getGame().getTeams().getTeam(TeamColor.RED)).getPoints()))
-                        .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
-                        .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
-                        .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
-                        .replace("%refill_time%", convertirTimeXd((int) this.refill.getTimeRegeneration())));
-                i--;
+                if (!st.contains("%team_points%") || ++currentTeam < teams.size()) {
+                    helper.setSlot(i, AmazingTowers.getColor(st)
+                            .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
+                            .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
+                            .replace("%date%", this.date)
+                            .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
+                            .replace("%team_points%", String.valueOf(teams.get(currentTeam).getPoints()))
+                            .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
+                            .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getName(gameInstance)))
+                            .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
+                            .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
+                            .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
+                            .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
+                            .replace("%refill_time%", convertirTimeXd((int) this.refill.getTimeRegeneration())));
+                    i--;
+                }
             }
         }
     }

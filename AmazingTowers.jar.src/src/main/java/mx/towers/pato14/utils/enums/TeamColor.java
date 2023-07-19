@@ -1,6 +1,7 @@
 package mx.towers.pato14.utils.enums;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import org.bukkit.Color;
 
 import java.util.Arrays;
@@ -19,13 +20,11 @@ public enum TeamColor {
     private final boolean matchTeam;
     private final short woolColor;
     private final String color;
-    private final String name;
     private final static Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK, Color.ORANGE, Color.PURPLE};
     TeamColor(boolean matchTeam, short woolColor, String color) {
         this.matchTeam = matchTeam;
         this.woolColor = woolColor;
         this.color = color;
-        this.name = AmazingTowers.getPlugin().getGlobalConfig().getString("Teams.teamNames." + this.name().toLowerCase());
     }
     public short getWoolColor() {
         return woolColor;
@@ -52,8 +51,8 @@ public enum TeamColor {
             return null;
     }
 
-    public String getName() {
-        return name;
+    public String getName(GameInstance gameInstance) {
+        return gameInstance.getConfig(ConfigType.CONFIG).getString("Teams.teamNames." + this.name().toLowerCase());
     }
 
     public static boolean isTeamColor(String teamColor) {

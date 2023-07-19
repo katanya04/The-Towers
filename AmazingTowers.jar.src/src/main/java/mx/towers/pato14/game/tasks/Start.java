@@ -8,7 +8,6 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Location;
-import mx.towers.pato14.utils.enums.Locationshion;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,10 +15,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.List;
 
 public class Start {
     private final AmazingTowers plugin = AmazingTowers.getPlugin();

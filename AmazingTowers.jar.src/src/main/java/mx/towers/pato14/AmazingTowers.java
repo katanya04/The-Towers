@@ -4,35 +4,25 @@ import java.io.File;
 import java.util.*;
 
 import mx.towers.pato14.commands.TowerCommand;
-import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
-import mx.towers.pato14.utils.locations.Detectoreishon;
 import mx.towers.pato14.utils.mysql.Conexion;
 import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
-import mx.towers.pato14.utils.rewards.SetupVault;
-import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.wand.Wand;
 import mx.towers.pato14.utils.wand.WandListener;
-import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AmazingTowers extends JavaPlugin {
 
     private static AmazingTowers plugin;
-    private static Map<String, GameInstance> games;
+    private static HashMap<String, GameInstance> games;
     private NMS nms;
     private Wand wand;
     private Config globalConfig;
@@ -57,9 +47,10 @@ public final class AmazingTowers extends JavaPlugin {
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
             Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] Not detected the 'NameTagEdit' plugin, disabling AmazingTowers");
-            Bukkit.getPluginManager().disablePlugin((Plugin) this);
+            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+        createFolderBackup();
 
         getCommand("towers").setExecutor(new TowerCommand(this));
 
@@ -86,8 +77,6 @@ public final class AmazingTowers extends JavaPlugin {
         enabledPlugin();
     }
 
-
-
     private void enabledPlugin() {
         String prefix = "§f[§aAmazingTowers§f]";
         this.wand = new Wand();
@@ -106,8 +95,11 @@ public final class AmazingTowers extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(prefix + " §aVersion§f: §f" + getDescription().getVersion());
         getServer().getConsoleSender().sendMessage(prefix + " §aAuthor§f: §f[§aPato14§f, §aMarco2124§f]");
         getServer().getConsoleSender().sendMessage(prefix + " §a-----§f-§a-----§f-§a------§f-§a-----");
-        Bukkit.getConsoleSender().sendMessage(Detectoreishon.getLocatioshionsTruee(true));
-        Bukkit.getConsoleSender().sendMessage("");
+        for (GameInstance gameInstance : games.values()) {
+            Bukkit.getConsoleSender().sendMessage(gameInstance.getWorld().getName() + " locations needed to be set: ");
+            Bukkit.getConsoleSender().sendMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
+            Bukkit.getConsoleSender().sendMessage("");
+        }
     }
 
     private boolean setupNMS() {
@@ -118,12 +110,10 @@ public final class AmazingTowers extends JavaPlugin {
             a.printStackTrace();
         }
         String str1;
-        switch ((str1 = version).hashCode()) {
-            case -1156422964:
-                if (!str1.equals("v1_8_R3"))
-                    break;
-                this.nms = (NMS) new V1_8_R3();
-                break;
+        if ((str1 = version).hashCode() == -1156422964) {
+            if (!str1.equals("v1_8_R3"))
+                return (this.nms != null);
+            this.nms = new V1_8_R3();
         }
         return (this.nms != null);
     }
@@ -171,6 +161,14 @@ public final class AmazingTowers extends JavaPlugin {
 
     public Config getGlobalConfig() {
         return globalConfig;
+    }
+
+    public void createFolderBackup() {  //Crear la carpeta "backup"
+        File folder = new File(plugin.getDataFolder(), "backup");
+        if (!folder.exists() &&
+                folder.mkdirs()) {
+            System.out.println("[AmazingTowers] The backup folder was created successfully");
+        }
     }
 }
 

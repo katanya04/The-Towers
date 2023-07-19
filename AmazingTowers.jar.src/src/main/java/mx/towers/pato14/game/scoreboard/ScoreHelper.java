@@ -57,7 +57,7 @@ public class ScoreHelper {
             this.sidebar.getScore(entry).setScore(slot);
         }
         String pre = getFirstSplit(text);
-        String suf = getFirstSplit(String.valueOf(ChatColor.getLastColors(pre)) + ChatColor.translateAlternateColorCodes('&', getSecondSplit(text)));
+        String suf = getFirstSplit(ChatColor.getLastColors(pre) + ChatColor.translateAlternateColorCodes('&', getSecondSplit(text)));
         team.setPrefix(pre);
         team.setSuffix(suf);
     }

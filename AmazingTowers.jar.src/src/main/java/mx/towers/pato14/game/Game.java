@@ -28,14 +28,12 @@ public class Game {
     private Book bookItem;
     private final GameInstance gameInstance;
     private GameState gameState;
-    private final int numberOfTeams;
 
     public Game(GameInstance game) {
         this.gameInstance = game;
         this.plugin = game.getPlugin();
         this.gameState = GameState.LOBBY;
         this.lobbyItems = new LobbyItems(this);
-        this.numberOfTeams = game.getConfig(ConfigType.CONFIG).getInt("General.teams");;
         (new EventsManager(getPlugin())).registerEvents();
         getPlugin().getServer().getPluginManager().registerEvents(getItem(), getPlugin());
         this.teams = new GameTeams(this);
@@ -93,9 +91,4 @@ public class Game {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
-    public int getNumberOfTeams() {
-        return numberOfTeams;
-    }
 }
-
-

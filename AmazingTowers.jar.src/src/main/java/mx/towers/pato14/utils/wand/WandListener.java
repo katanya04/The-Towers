@@ -1,6 +1,7 @@
 package mx.towers.pato14.utils.wand;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.Tool;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ public class WandListener implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         if (e.getItem() == null)
             return;
-        if (e.getItem().getType() == Material.IRON_AXE && e.getItem().getItemMeta().getDisplayName() == "§aRegion Selector") {
+        if (e.getItem().getType().equals(Tool.WAND.getItem().getType()) && e.getItem().getItemMeta().getDisplayName().equals(Tool.WAND.getItem().getItemMeta().getDisplayName())) {
             e.setCancelled(true);
             Block block = e.getClickedBlock().getState().getBlock();
             Location loc = block.getLocation();

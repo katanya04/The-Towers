@@ -33,7 +33,7 @@ public class GameInstance {
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
-        this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("General.teams");
+        this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("Teams.numberOfTeams");
         this.detectoreishon = new Detectoreishon(this);
         this.detectoreishon.checkNeededLocationsExistence(numberOfTeams);
         setRules();

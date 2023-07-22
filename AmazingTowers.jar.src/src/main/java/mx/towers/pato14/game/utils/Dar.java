@@ -30,16 +30,17 @@ public class Dar {
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
         for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getNumberOfTeams())) {
-            player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.item" + teamColor.firstCapitalized() + ".position"), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
+            player.getInventory().setItem(teamColor.ordinal(), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
         }
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
-            player.getInventory().setItem(gameInstance.getConfig(ConfigType.CONFIG).getInt("Items.itemQuit.position"), plugin.getGameInstance(player).getGame().getItem().getItemQuit().getItem());
+            player.getInventory().setItem(gameInstance.getNumberOfTeams(), plugin.getGameInstance(player).getGame().getItem().getItemQuit().getItem());
         }
         if (gameInstance.getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
-            player.getInventory().setItem(gameInstance.getConfig(ConfigType.BOOK).getInt("book.position"), plugin.getGameInstance(player).getGame().getItemBook().getItem());
+            int position = gameInstance.getConfig(ConfigType.BOOK).getInt("book.position");
+            player.getInventory().setItem(position > gameInstance.getNumberOfTeams() ? position : gameInstance.getNumberOfTeams() + 1, plugin.getGameInstance(player).getGame().getItemBook().getItem());
         }
         removePotion(player);
-        NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("Options.team.default.prefix")));
+        NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 

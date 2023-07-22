@@ -2,11 +2,9 @@ package mx.towers.pato14.game.utils;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.locations.IntCoordinate;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.locations.Pool;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
@@ -74,7 +72,7 @@ public class Move {
                 }
             }
             if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
-                this.game.getFinish().Fatality(TeamColor.RED);
+                this.game.getFinish().Fatality(team.getTeamColor());
                 game.setGameState(GameState.FINISH);
             }
             this.game.getGameInstance().getUpdates().updateScoreboardGame(game);

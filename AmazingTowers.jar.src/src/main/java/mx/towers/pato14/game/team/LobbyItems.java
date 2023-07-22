@@ -29,10 +29,10 @@ public class LobbyItems implements Listener {
         this.at = game.getGameInstance().getPlugin();
         this.teams = new HashMap<>();
         for (TeamColor teamColor : TeamColor.getTeams(game.getGameInstance().getNumberOfTeams())) {
-            teams.put(teamColor, (new ItemAux(Material.WOOL, teamColor.getWoolColor())).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.item" + teamColor.firstCapitalized() + ".name"))));
+            teams.put(teamColor, (new ItemAux(Material.WOOL, teamColor.getWoolColor())).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.joinTeam").replace("%team_color%", teamColor.getColor()).replace("%team_name%", teamColor.getName(game.getGameInstance())))));
         }
         if (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled"))
-            this.quit = (new ItemAux(Material.BED)).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.itemQuit.name")));
+            this.quit = (new ItemAux(Material.BED)).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.quit")));
     }
 
     private ItemAux quit;

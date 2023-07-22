@@ -38,10 +38,6 @@ public class Cuboide {
                 extraHeight);
     }
 
-    public static boolean InCuboide(IntCoordinate corner1, IntCoordinate corner2, Location loc) {
-        return InCuboide(corner1, corner2, new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
-    }
-
     public static boolean InCuboide(IntCoordinate corner1, IntCoordinate corner2, IntCoordinate loc) {
         final int x1 = corner1.getX(), x2 = corner2.getX(), lx = loc.getX();
         final int y1 = corner1.getY(), y2 = corner2.getY(), ly = loc.getY();
@@ -111,5 +107,3 @@ public class Cuboide {
         return InCuboide(IntCoordinate.getFromString(string + ".1"), IntCoordinate.getFromString(string + ".2"), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
     }
 }
-
-

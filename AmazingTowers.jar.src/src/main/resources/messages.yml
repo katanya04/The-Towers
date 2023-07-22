@@ -11,75 +11,59 @@ messages:
   joinMessage: '&a{Player} &7entro a la partida &7(&a%online_players%&7/&a%max_players%&7)'
   quitMessage: '&c{Player} &7dejo la partida'
   
-  joinRedTeam: '&c{Player} &7entro al equipo &c&lROJO!'
-  joinBlueTeam: '&9{Player} &7entro al equipo &9&lAZUL!'
-  
+  joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}!'
+
   ###Message in Bungeecord Disabled#####
-  kickPlayerinFinishRed: '&c&lGANA EL ROJO! %newLine%  &7Gracias por jugar!'
-  kickPlayerinFinishBlue: '&9&lGANA EL AZUL! %newLine%  &7Gracias por jugar!'
-  
+  kickPlayerinFinish: '{Color}&lGANA EL {Team}! %newLine%  &7Gracias por jugar!'
+
   ##MESSAGES INVENTORY##
-  joinred: '&7Te uniste al &c&lEQUIPO ROJO!'
-  joinblue: '&7Te uniste al &9&lEQUIPO AZUL!'
-  joinspectator: '&7Modo espectador activado'
-  leavered: '&7Abandonaste el &c&lEQUIPO ROJO!'
-  leaveblue: '&7Abandonaste el &9&lEQUIPO AZUL!'
-    
-  alreadyJoinedRedTeam: '&7Ya estas en el &c&lEQUIPO ROJO!'
-  alreadyJoinedBlueTeam: '&7Ya estas en el &9&lEQUIPO AZUL!'
-  alreadySpectator: '&7Ya eres un espectador!'
-  
+  join: '&7Te uniste al {Color}&lEQUIPO {Team}!'
+  joinspectator: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers &fspect'
+  leave: '&7Abandonaste el {Color}&lEQUIPO {Team}!'
+
+  alreadyJoinedTeam: '&7Ya estas en el {Color}&lEQUIPO {Team}!'
+
   unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
-  
-  #No open chest team rival
+
+  #Don't open rival team's chests
   open_chest: '&cNo puedes abrir los cofres del equipo enemigo'
-  
-  noTrollBreakBlock: '&cEstabas rompiendo un bloque debajo de alguien de tu equipo. &lEstas intentando hacer una broma?'
-  
+
+  noTrollBreakBlock: '&c&lNo fastidies a tus compañeros!'
+
   restart_server:
     enabled: true
     message: '&aEnviando al lobby...'
-    
-  #######  
-  gameStart: 
-    title: 
+
+  #######
+  gameStart:
+    title:
       enabled: true
       title-5seconds: '&e&l{count}'
       subtitle-5seconds: 'Preparate para combatir!'
-    
+
     start: '&7La partida comenzara en &a{count} &7{seconds}'
     seconds: 'segundos'
     second: 'segundo'
-   
+
     necessaryPlayers: '&cHacen falta mas jugadores para comenzar'
-  
+
   death-messages:
-    killedByRed: '&9{Player} &7fue asesinado por &c{Killer}'
-    killedByBlue: '&c{Player} &7fue asesinado por &9{Killer}'
-    
-    unknownKillerRed: '&c{Player} &7murio'
-    unknownKillerBlue: '&9{Player} &7murio'
-    unknownKiller: '{Player} &7murio'
-  
-  
+    knownKiller: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}'
+
+    unknownKiller: '{Color}{Player} &7murio'
+
   PointsScored-Messages:
-    redPoint: '&c{Player} &7anoto un punto para el &c&lROJO! &c%PointsRed% &r- &9%PointsBlue%'
-    bluePoint: '&9{Player} &7anoto un punto para el &9&lAZUL! &9%PointsBlue% &r- &c%PointsRed%'
-    setpointsCommand: 'La puntuacion fue modificada por un admin a &c%PointsRed% &r- &9%PointsBlue%'
-    
+    point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}! '
+    setpointsCommand: 'La puntuacion fue modificada por un admin a '
+
   Win-Messages:
 
-    titles: 
+    titles:
       enabled: true
-      
-      redWinTitle: '&c&lROJO'
-      redWinSubTitle: '&7gana el juego!'
-      
-      blueWinTitle: '&9&lAZUL'
-      blueWinSubTitle: '&7gana el juego!'
-    
-    redWin: '&7El equipo &c&lROJO &7gana el juego!'
-  
-    blueWin: '&7El equipo &9&lBLUE &7gana el juego!'
+
+      WinTitle: '{Color}&l{Team}'
+      WinSubTitle: '&7gana el juego!'
+
+    Win: '&7El equipo {Color}&l{Team} &7gana el juego!'
     
     

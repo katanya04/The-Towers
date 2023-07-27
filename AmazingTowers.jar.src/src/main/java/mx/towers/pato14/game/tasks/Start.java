@@ -9,13 +9,16 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.locations.Locations;
+import net.minecraft.server.v1_8_R3.MojangsonParseException;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Start {
     private final AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -25,6 +28,7 @@ public class Start {
     private boolean hasStarted = false;
     private boolean runFromCommand = false;
     private final World world;
+    private List<Map<String, String>> generators;
 
     public Start(Game game) {
         this.game = game;
@@ -110,23 +114,24 @@ public class Start {
 
     private void startGenerators() {
         Config locations = Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS);
-        ConfigurationSection sec = locations.getConfigurationSection(Location.GENERATOR.getPath());
+        String path = Location.GENERATOR.getPath();
+        this.generators = locations.getList(path) == null ? new ArrayList<>() : locations.getMapList(path).stream()
+                .map(o -> (Map<String, String>) o).collect(Collectors.toList());
         (new BukkitRunnable() {
             public void run() {
                 if (Start.this.game.getGameState().equals(GameState.FINISH)) {
                     cancel();
                     return;
                 }
-
-                for (String key : sec.getKeys(false)){
-                    String path = Location.GENERATOR.getPath() + "." + key;
-                    world.dropItemNaturally(Locations.getLocationFromString(locations.getString(path + ".coords")),
-                            new ItemStack(Material.valueOf(locations.getString(path + ".type").toUpperCase()),
-                                    Integer.parseInt(locations.getString(path + ".amount"))));
+                try {
+                    for (Map<String, String> item : generators) {
+                        world.dropItemNaturally(Locations.getLocationFromString(item.get("coords")),
+                                plugin.getNms().deserializeItemStack(item.get("item")));
+                    }
+                } catch (MojangsonParseException exception) {
+                    Bukkit.getConsoleSender().sendMessage("Error while parsing the generator items!");
+                    cancel();
                 }
-                //world.dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.IRON_GENERATOR.getLocationString())), new ItemStack(Material.IRON_INGOT, 1));
-                //world.dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.XPBOTTLES_GENERATOR.getLocationString())), new ItemStack(Material.EXP_BOTTLE, 1));
-                //world.dropItemNaturally(Locations.getLocationFromString(Start.this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Locationshion.LAPISLAZULI_GENERATOR.getLocationString())), new ItemStack(Material.INK_SACK, 1, (short) 4));
             }
         }).runTaskTimer(this.plugin, 0L, (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.generator_timePerSecond") * 20L));
     }

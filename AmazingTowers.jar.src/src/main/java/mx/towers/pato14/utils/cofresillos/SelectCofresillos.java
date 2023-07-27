@@ -7,6 +7,7 @@ import java.util.Map;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Tool;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,10 +17,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class SelectCofresillos implements Listener {
-    private AmazingTowers plugin;
+    private final AmazingTowers plugin;
 
     public SelectCofresillos(AmazingTowers plugin) {
         this.plugin = plugin;
@@ -27,36 +27,35 @@ public class SelectCofresillos implements Listener {
 
     @EventHandler
     public void onSelectorCofressillos(PlayerInteractEvent e) {
-        if (e.getItem() != null && e.getItem().getType() == Material.IRON_SPADE && e.getItem().getItemMeta().getDisplayName() == "§aSelect and Remove Chest Refill") {
-            Block block = e.getClickedBlock().getState().getBlock();
-            Location loc = block.getLocation();
-            if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-                if (block.getType() == Material.CHEST) {
-                    e.setCancelled(true);
-                    List<String> locConfig = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST");
-                    String locString = Locations.getLocationStringBlock(loc);
-                    if (locConfig.contains(locString)) {
-                        e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block already exist in Config!");
-                    } else {
-                        locConfig.add(locString);
-                        this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.REFILLCHEST", locConfig);
-                        this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).saveConfig();
-                        e.getPlayer().sendMessage("§7(§aAT§7) §fSelected position the chest set to §a(x:" + loc.getX() + " y:" + loc.getY() + " z:" + loc.getZ() + ")");
-                    }
-                }
-            } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) &&
-                    block.getType() == Material.CHEST) {
-                e.setCancelled(true);
-                List<String> locConfig = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST");
-                String locString = Locations.getLocationStringBlock(loc);
-                if (locConfig.contains(locString)) {
-                    locConfig.remove(locString);
-                    this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).set("LOCATIONS.REFILLCHEST", locConfig);
-                    this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS).saveConfig();
-                    e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block removed in Config successfully!");
-                } else {
-                    e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block not exist in Config!");
-                }
+        if (!Tool.REFILLCHEST.checkIfItemIsTool(e.getItem()))
+            return;
+        if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR))
+            return;
+        Block block = e.getClickedBlock().getState().getBlock();
+        if (!block.getType().equals(Material.CHEST))
+            return;
+        Location loc = block.getLocation();
+        Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
+        e.setCancelled(true);
+        List<String> locConfig = locations.getStringList("LOCATIONS.REFILLCHEST");
+        String locString = Locations.getLocationStringBlock(loc);
+        if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+            if (locConfig.contains(locString)) {
+                e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block already exist in Config!");
+            } else {
+                locConfig.add(locString);
+                locations.set("LOCATIONS.REFILLCHEST", locConfig);
+                locations.saveConfig();
+                e.getPlayer().sendMessage("§7(§aAT§7) §fSelected position of the chest set to §a(x:" + loc.getX() + " y:" + loc.getY() + " z:" + loc.getZ() + ")");
+            }
+        } else if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            if (locConfig.contains(locString)) {
+                locConfig.remove(locString);
+                locations.set("LOCATIONS.REFILLCHEST", locConfig);
+                locations.saveConfig();
+                e.getPlayer().sendMessage("§7(§cAT§7) §cThe location of this block was removed in Config successfully!");
+            } else {
+                e.getPlayer().sendMessage("§7(§cAT§7) §cThe location of this block doesn't exist in Config!");
             }
         }
     }
@@ -69,7 +68,7 @@ public class SelectCofresillos implements Listener {
             Location locBlock = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
             if (locBlock.getBlock().getType() == Material.CHEST) {
                 Chest ch = (Chest) locBlock.getBlock().getState();
-                FixedItem[] i = FixedItem.getArrayoBobin(ch.getInventory().getContents().clone());
+                FixedItem[] i = FixedItem.itemStackToFixedItem(ch.getInventory().getContents().clone());
                 chs.put(locBlock, i);
             }
         }
@@ -80,7 +79,7 @@ public class SelectCofresillos implements Listener {
         for (Location ch : Chests.keySet()) {
             if (ch.getBlock().getType() == Material.CHEST) {
                 Chest cht = (Chest) ch.getBlock().getState();
-                cht.getInventory().setContents(FixedItem.getAGalloConTennis(Chests.get(ch)));
+                cht.getInventory().setContents(FixedItem.fixedItemToItemStack(Chests.get(ch)));
             }
         }
     }

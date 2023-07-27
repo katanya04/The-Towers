@@ -3,122 +3,88 @@
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
- 
+
 Options:
 
-  #MySQL settings#
-  mysql:
-    active: true
-    hostname: na02-db.cus.mc-panel.net
-    port: 3306
-    database: db_664092
-    user: db_664092
-    password: '54008e05e8'
+  Rewards:
 
-  #Bungeecord-support#
-  bungeecord-support: 
-    enabled: false
-    server_name: 'LobbyTowers'
-  
-  Rewards: 
-  # SUPPORT PLUGIN: Vault#
-  # The next permissions are to gave a multiple coins of the reward, for example if to a normal user are gave 4 coins to a user with the permission to x5, the user receive 20 coins
-  # PERMISSION MULTIPLICATOR COINS X2 : towers.vip.coinx2 , COINS X3 towers.vip.coinsx3 ,  COINS X4 towers.vip.coinsx4,  COINS X5 towers.vip.coinsx5, COINS X6 towers.vip.coinsx6
     vault: true
-    
     reward:
       kill: 2
       win: 20
       point: 10
-      #this reward only are gaved to the loser team  
       forplay: 5
-  
-    messages: 
+    messages:
       kill: '&a+%coins% &7monedas'
       win: '&a+%coins% &7monedas'
       point: '&a+%coins% &7monedas'
       forplay: '&a+%coins% &7monedas'
-  
-  chat: 
+
+  chat:
     enabled: true
     format:
-      normalChat: '%prefix% &f%player% &8: &f%msg%'
-    
-      redGlobal: '&c&l[GLOBAL] &f%player% &7: &f%msg%'
-      blueGlobal: '&9&l[GLOBAL] &f%player% &7: &f%msg%' 
-    
-      red: '&c&l[ROJO] &f%player% &8: &f%msg%'
-      blue: '&9&l[AZUL] &f%player% &8: &f%msg%'
-     
+      defaultChat: '%vault_prefix% &f%player% &8: &f%msg%'
+      teamChat: '%team_color%&l%team_prefix% &f%player% &8: &f%msg%'
+      globalChat: '%team_color%&l[GLOBAL] &f%player% &7: &f%msg%'
+
   instant_respawn: true
-  
+
   refill_chests:
     enabled: true
     message_scoreboard: '&cCofres rellenados!'
-    #Examples -> Minutes;Seconds == 1;50 , this value it's a minute whit fifty seconds
-    # Good: 0;30  2;50  1;0
-    # Bad: ;10 1; ;
     timer_refill: 0;50
     message_refill: true
-    
-  #this option is to can't throw the leather armor
+
   protect_leatherArmor: true
-  
-  #this option is so that it can not rain automatically and can only be done with commands
+
   weather_cancel: true
-  
-  #this option deactivates the players so that they do not interact with the chests of the other team
+
   chestsTeam: true
-  
-  #Command fisnih game #
-  #Recommended use the command stop#
+
   command: stop
-  
-  #20 = 1 seconds, 5 = 0.5 seconds
+
   detection_playerinPool: 5
-  
+
   gameStart:
-  # minium players online to start#
-    min-players: 1
-  # start game#
-    timer-start: 30
-  
-  # Max points to win #
+    min-players: 2
+    timer-start: 20
+
   Points: 10
-      
-  timerEndSeconds: 10   
-    
-  generator_timePerSecond: 5  
-      
-  generator_lapislazuli: true 
- 
-  team: 
-    red: 
-      prefix: '&c[ROJO] '
-    blue: 
-      prefix: '&9[AZUL] '
-    default:
-      prefix: '&7'  
-            
+
+  timerEndSeconds: 10
+
+  generator_timePerSecond: 5
+
+
 Items:
-  #RED#
-  itemRed: 
-    name: '&c&lUnirse al equipo rojo &7(Click Derecho)'
-    position: 0
 
-  #BLUE#
-  itemBlue:
-    name: '&9&lUnirse al equipo azul &7(Click Derecho)'
-    position: 1
+  joinTeam: '%team_color%&lUnirse al equipo %team_name% &7(Click Derecho)'
+  spectator: '&7&lEspectar partida &7(Click Derecho)'
+  quit: '&c&lVolver al lobby &7(Click Derecho)'
 
-  #SPECTATOR#
-  itemSpectator:
-    name: '&7&lEspectar partida &7(Click Derecho)'
-    position: 2
 
-  #BED BUNGEECORD#
-  #This item appears when the bungeecord-support option is true
-  itemQuit:
-    name: '&c&lVolver al lobby &7(Click Derecho)'
-    position: 8 
-    
+Teams:
+
+  numberOfTeams: 2
+
+  teamNames:
+    red: 'rojo'
+    blue: 'azul'
+    green: 'verde'
+    yellow: 'amarillo'
+    white: 'blanco'
+    black: 'negro'
+    orange: 'naranja'
+    purple: 'morado'
+    spectator: 'espectador'
+
+  prefixes:
+    red: '[ROJO]'
+    blue: '[AZUL]'
+    green: '[VERDE]'
+    yellow: '[AMARILLO]'
+    white: '[BLANCO]'
+    black: '[NEGRO]'
+    orange: '[NARANJA]'
+    purple: '[MORADO]'
+    default: ''

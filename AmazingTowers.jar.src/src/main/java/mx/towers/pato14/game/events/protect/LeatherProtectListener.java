@@ -31,12 +31,12 @@ public class LeatherProtectListener implements Listener {
         }
         Game game = this.plugin.getGameInstance(e.getPlayer()).getGame();
         for (TeamColor teamColor : TeamColor.values()) {
-            if (i.getItemMeta().getDisplayName().equals(game.getItem().getItem(teamColor).getName()))
+            if (game.getLobbyItems().checkIfItemIsJoinTeamItem(i, teamColor))
                 e.setCancelled(true);
         }
         if (game.getItemBook() != null && i.getItemMeta().getDisplayName().equals(game.getItemBook().getItem().getItemMeta().getDisplayName())) {
             e.setCancelled(true);
-        } else if (game.getItem().getItemQuit() != null && i.getItemMeta().getDisplayName().equals(game.getItem().getItemQuit().getName())) {
+        } else if (game.getLobbyItems().getItemQuit() != null && i.getItemMeta().getDisplayName().equals(game.getLobbyItems().getItemQuit().getItemMeta().getDisplayName())) {
             e.setCancelled(true);
         }
     }

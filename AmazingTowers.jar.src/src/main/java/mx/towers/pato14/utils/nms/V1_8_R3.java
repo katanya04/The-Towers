@@ -1,14 +1,13 @@
 
 package mx.towers.pato14.utils.nms;
 
-import net.minecraft.server.v1_8_R3.PacketPlayInClientCommand;
+import net.minecraft.server.v1_8_R3.*;
 import mx.towers.pato14.utils.plugin.PluginA;
 import org.bukkit.Bukkit;
-import net.minecraft.server.v1_8_R3.Packet;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
-import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
-import net.minecraft.server.v1_8_R3.IChatBaseComponent;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class V1_8_R3 implements NMS
 {
@@ -26,5 +25,20 @@ public class V1_8_R3 implements NMS
     private void ticks(final Player player, final int entrada, final int mantener, final int salida) {
         final PacketPlayOutTitle times = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TIMES, null, entrada, mantener, salida);
         ((CraftPlayer)player).getHandle().playerConnection.sendPacket(times);
+    }
+
+    public String serializeItemStack(ItemStack itemStack) {
+        net.minecraft.server.v1_8_R3.ItemStack netItemStack = CraftItemStack.asNMSCopy(itemStack);
+        NBTTagCompound tag = new NBTTagCompound();
+        netItemStack.save(tag);
+        return tag.toString();
+    }
+
+    public ItemStack deserializeItemStack(String rawItem) throws MojangsonParseException {
+        if (rawItem == null || rawItem.equals("empty"))
+            return null;
+        NBTTagCompound compound = MojangsonParser.parse(rawItem);
+        net.minecraft.server.v1_8_R3.ItemStack netItemStack = net.minecraft.server.v1_8_R3.ItemStack.createStack(compound);
+        return CraftItemStack.asBukkitCopy(netItemStack);
     }
 }

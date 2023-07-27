@@ -13,7 +13,7 @@ public enum Location {
     POOL("LOCATIONS.{TEAMCOLOR}.POOL", LocationType.AREA, false, true, true), //1, 2
     PROTECTED("LOCATIONS.PROTECTED", LocationType.AREA, true, false, false), //List [1, 2]
     MAP_BORDER("LOCATIONS.GENERAL.MAP_BORDER", LocationType.AREA, false, false, false), //1, 2
-    CHEST_PROTECT("LOCATIONS.{TEAMCOLOR}.CHEST_PROTECT", LocationType.AREA, true, true, false), //List [1, 2]
+    CHEST_PROTECT("LOCATIONS.{TEAMCOLOR}.CHEST_PROTECT", LocationType.AREA, false, true, false), //1, 2
     POOL_ROOM("LOCATIONS.{TEAMCOLOR}.POOL_ROOM", LocationType.AREA, false, true, false); //1, 2
     private final String path;
     private final LocationType locationType;
@@ -60,8 +60,20 @@ public enum Location {
     }
 
     public boolean exists(GameInstance gameInstance, TeamColor teamColor) {
-        String pos = gameInstance.getConfig(ConfigType.LOCATIONS).getString(this.getPath(teamColor));
-        return !pos.isEmpty() && isValid(pos);
+        if (getLocationType().equals(LocationType.POINT)) {
+            String pos = gameInstance.getConfig(ConfigType.LOCATIONS).getString(this.getPath(teamColor));
+            return pos != null && isValid(pos);
+        } else if (getLocationType().equals(LocationType.AREA)) {
+            List<String> pos = gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(this.getPath(teamColor));
+            try {
+                String pos1 = pos.get(0);
+                String pos2 = pos.get(1);
+                return pos1 != null && pos2 != null && isValid(pos1) && isValid(pos2);
+            } catch (IndexOutOfBoundsException exception) {
+                return false;
+            }
+        } else
+            return true;
     }
 
     public static boolean isValid(String st) {

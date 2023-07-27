@@ -2,7 +2,10 @@ package mx.towers.pato14.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -24,7 +27,7 @@ public class Config extends YamlConfiguration {
         }
         this.file = new File(path.toString(), getNameFile());
         if (defaults)
-            saveDefaultConfig();
+            saveDefaultConfig(path.toString());
         else
             saveConfig();
     }
@@ -33,9 +36,14 @@ public class Config extends YamlConfiguration {
         this(plugin, nameFile, defaults, "");
     }
 
-    private void saveDefaultConfig() {
+    private void saveDefaultConfig(String path) {
         if (!this.file.exists()) {
-            getPlugin().saveResource(this.name, false);
+            try {
+                Files.createDirectories(Paths.get(path));
+                FileUtils.copyInputStreamToFile(getPlugin().getResource(getNameFile()), new File(path + "/" + getNameFile()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         loadConfig();
     }

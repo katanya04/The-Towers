@@ -5,9 +5,14 @@ import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Locations {
     public static String getLocationStringCenter(Location loc, boolean yawPitch) {
@@ -42,24 +47,28 @@ public class Locations {
     }
 
     public static boolean isInsideProtectedArea(Config locations, Location loc, int extraHeight) {
-        ConfigurationSection protectedAreas = locations.getConfigurationSection(mx.towers.pato14.utils.enums.Location.PROTECTED.getPath());
-        for (String key : protectedAreas.getKeys(false)){
-            String path = mx.towers.pato14.utils.enums.Location.PROTECTED.getPath() + "." + key;
-            if (Cuboide.InCuboideExtraHeight(locations.getString(path), loc, extraHeight)) {
+        String path = mx.towers.pato14.utils.enums.Location.PROTECTED.getPath();
+        @SuppressWarnings("unchecked")
+        List<List<String>> protectedAreas = locations.getList(path) == null ? new ArrayList<>() :
+                locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o)
+                        .collect(Collectors.toList());
+        for (List<String> area : protectedAreas) {
+            if (Cuboide.InCuboideExtraHeight(area, loc, extraHeight))
                 return true;
-            }
         }
         return false;
     }
 
-    public static boolean isInsidePoolRoom(Config locations, Location loc, int extraHeight) {
-        ConfigurationSection protectedAreas = locations.getConfigurationSection("LOCATIONS");
-        for (String key : protectedAreas.getKeys(false)){
-            if (key.equals("GENERAL"))
-                continue;
-            String path = "LOCATIONS" + "." + key + ".POOL_ROOM";
-            if (Cuboide.InCuboideExtraHeight(locations.getString(path), loc, extraHeight)) {
-                return true;
+    public static boolean isInsidePoolRoom(Config locations, Location loc, int extraHeight, int numTeams) {
+        for (TeamColor teamColor : TeamColor.getMatchTeams(numTeams)) {
+            String path = mx.towers.pato14.utils.enums.Location.POOL.getPath(teamColor);
+            @SuppressWarnings("unchecked")
+            List<List<String>> poolRooms = locations.getList(path) == null ? new ArrayList<>() :
+                    locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o)
+                            .collect(Collectors.toList());
+            for (List<String> area : poolRooms) {
+                if (Cuboide.InCuboideExtraHeight(area, loc, extraHeight))
+                    return true;
             }
         }
         return false;
@@ -73,15 +82,16 @@ public class Locations {
         return false;
     }
 
-    public static boolean isValidLocation(Config locations, Location loc, Pool[] pools, boolean protectPointAllowed, boolean griefingAllowed, int extraHeight) {
+    public static boolean isValidLocation(Config locations, Location loc, Pool[] pools, boolean protectPointAllowed, boolean griefingAllowed, int extraHeight, int numTeams) {
         return (griefingAllowed || !isInsideProtectedArea(locations, loc, extraHeight))
-                && Cuboide.InCuboideExtraHeight(locations.getString(mx.towers.pato14.utils.enums.Location.MAP_BORDER.getPath()), loc, extraHeight)
-                && !isInsidePool(loc, pools, extraHeight + 1) && (protectPointAllowed || !isInsidePoolRoom(locations, loc, extraHeight));
+                && Cuboide.InCuboideExtraHeight(locations.getStringList(mx.towers.pato14.utils.enums.Location.MAP_BORDER.getPath()), loc, extraHeight)
+                && !isInsidePool(loc, pools, extraHeight + 1) && (protectPointAllowed || !isInsidePoolRoom(locations, loc, extraHeight, numTeams));
     }
 
     public static boolean isInsideBase(Location loc, GameTeams gameTeams) {
+        final Config locations = gameTeams.getGame().getGameInstance().getConfig(ConfigType.LOCATIONS);
         for (Team team : gameTeams.getTeams()) {
-            if (Cuboide.InCuboide(gameTeams.getGame().getGameInstance().getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(team.getTeamColor())), loc))
+            if (Cuboide.InCuboide(locations.getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(team.getTeamColor())), loc))
                 return true;
         }
         return false;

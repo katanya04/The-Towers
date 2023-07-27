@@ -3,7 +3,6 @@ package mx.towers.pato14.game.team;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.utils.Dar;
-import mx.towers.pato14.utils.ItemAux;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
@@ -16,27 +15,39 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LobbyItems implements Listener {
-    private final Map<TeamColor, ItemAux> teams;
+    private final Map<TeamColor, ItemStack> teams;
     private final Game game;
+    private ItemStack quit;
+    private final AmazingTowers plugin;
 
     public LobbyItems(Game game) {
         this.game = game;
-        this.at = game.getGameInstance().getPlugin();
+        this.plugin = game.getGameInstance().getPlugin();
         this.teams = new HashMap<>();
         for (TeamColor teamColor : TeamColor.getTeams(game.getGameInstance().getNumberOfTeams())) {
-            teams.put(teamColor, (new ItemAux(Material.WOOL, teamColor.getWoolColor())).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.joinTeam").replace("%team_color%", teamColor.getColor()).replace("%team_name%", teamColor.getName(game.getGameInstance())))));
+            teams.put(teamColor, teamColor.getTeamItem(game.getGameInstance()));
         }
-        if (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled"))
-            this.quit = (new ItemAux(Material.BED)).setName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.quit")));
+        teams.put(TeamColor.SPECTATOR, TeamColor.SPECTATOR.getTeamItem(game.getGameInstance()));
+        if (getPlugin().getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
+            this.quit = new ItemStack(Material.BED);
+            ItemMeta itemMeta = this.quit.getItemMeta();
+            itemMeta.setDisplayName(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.quit")));
+            this.quit.setItemMeta(itemMeta);
+        }
     }
 
-    private ItemAux quit;
-    private final AmazingTowers at;
+    public boolean checkIfItemIsJoinTeamItem(ItemStack item, TeamColor teamColor) {
+        return item != null &&
+                item.getType().equals(teams.get(teamColor).getType()) &&
+                item.getItemMeta().getDisplayName().equals(teams.get(teamColor).getItemMeta().getDisplayName());
+    }
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
@@ -44,37 +55,37 @@ public class LobbyItems implements Listener {
             return;
         }
         Player player = e.getPlayer();
-        if (e.getItem() != null && (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))) {
-            for (TeamColor teamColorToJoin : TeamColor.values()) {
-                if (e.getItem().getType().equals(this.teams.get(teamColorToJoin).getItem().getType()) && e.getItem().getItemMeta().getDisplayName().equals(this.teams.get(teamColorToJoin).getItem().getItemMeta().getDisplayName())) {
-                    if (!getTeams().getTeam(teamColorToJoin).containsPlayer(player.getName())) { //Si no está ya en ese equipo
-                        mx.towers.pato14.game.team.Team currentTeam = game.getTeams().getTeamByPlayer(player); //Equipo actual
-                        if (!teamColorToJoin.isMatchTeam()
-                                || !game.getGameInstance().getRules().get(Rule.BALANCED_TEAMS)
-                                || getTeams().getTeam(teamColorToJoin).getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
-                            if (currentTeam != null) currentTeam.removePlayer(player);
-                            if (teamColorToJoin.isMatchTeam()) {
-                                getTeams().getTeam(teamColorToJoin).addPlayer(player);
-                                if (game.getGameState().equals(GameState.GAME))
-                                    Dar.darItemsJoinTeam(player);
-                            } else {
-                                player.setGameMode(GameMode.SPECTATOR);
-                            }
-                            player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.join")
-                                    .replace("{Color}", teamColorToJoin.getColor())
-                                    .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
-                        } else {
-                            player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.unbalancedTeam")));
-                        }
+        if (e.getItem() == null || !(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
+            return;
+        for (TeamColor teamColorToJoin : teams.keySet()) {
+            if (!checkIfItemIsJoinTeamItem(e.getItem(), teamColorToJoin))
+                continue;
+            if (!getTeams().getTeam(teamColorToJoin).containsPlayer(player.getName())) { //Si no está ya en ese equipo
+                Team currentTeam = game.getTeams().getTeamByPlayer(player); //Equipo actual
+                if (!teamColorToJoin.isMatchTeam()
+                        || !game.getGameInstance().getRules().get(Rule.BALANCED_TEAMS)
+                        || getTeams().getTeam(teamColorToJoin).getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
+                    if (currentTeam != null) currentTeam.removePlayer(player);
+                    if (teamColorToJoin.isMatchTeam()) {
+                        getTeams().getTeam(teamColorToJoin).addPlayer(player);
+                        if (game.getGameState().equals(GameState.GAME))
+                            Dar.darItemsJoinTeam(player);
                     } else {
-                        player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.alreadyJoinedTeam")
-                                .replace("{Color}", teamColorToJoin.getColor())
-                                .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
+                        player.setGameMode(GameMode.SPECTATOR);
                     }
-                    e.setCancelled(true);
-                    return;
+                    player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.join")
+                            .replace("{Color}", teamColorToJoin.getColor())
+                            .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
+                } else {
+                    player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.unbalancedTeam")));
                 }
+            } else {
+                player.sendMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.alreadyJoinedTeam")
+                        .replace("{Color}", teamColorToJoin.getColor())
+                        .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
             }
+            e.setCancelled(true);
+            return;
         }
     }
 
@@ -83,14 +94,14 @@ public class LobbyItems implements Listener {
         if (e.getInventory() == null || e.getClickedInventory() == null || e.getCurrentItem().getType() == null) {
             return;
         }
-        if (this.quit != null && e.getCurrentItem().getType().equals(this.quit.getItem().getType()) && e.getCurrentItem().getItemMeta().getDisplayName().equals(this.quit.getItem().getItemMeta().getDisplayName())) {
+        if (this.quit != null && e.getCurrentItem().getType().equals(this.quit.getType()) && e.getCurrentItem().getItemMeta().getDisplayName().equals(this.quit.getItemMeta().getDisplayName())) {
             e.setCancelled(true);
         } else if (this.game.getItemBook() != null && e.getCurrentItem().getType().equals(this.game.getItemBook().getItem().getType()) && e.getCurrentItem().getItemMeta().getDisplayName().equals(this.game.getItemBook().getItem().getItemMeta().getDisplayName())) {
             e.setCancelled(true);
         }
     }
 
-    public ItemAux getItemQuit() {
+    public ItemStack getItemQuit() {
         return this.quit;
     }
 
@@ -99,10 +110,10 @@ public class LobbyItems implements Listener {
     }
 
     private AmazingTowers getPlugin() {
-        return this.at;
+        return this.plugin;
     }
 
-    public ItemAux getItem(TeamColor teamColor) {
+    public ItemStack getItem(TeamColor teamColor) {
         return this.teams.get(teamColor);
     }
 }

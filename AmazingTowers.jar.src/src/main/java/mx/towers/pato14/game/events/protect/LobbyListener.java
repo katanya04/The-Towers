@@ -26,8 +26,8 @@ public class LobbyListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
         if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) ||
-                Cuboide.InCuboide(locations.getString(Location.LOBBY.getPath()), e.getEntity().getLocation())) {
-            e.setCancelled(true);
+                Cuboide.InCuboide(locations.getStringList(Location.LOBBY.getPath()), e.getEntity().getLocation())) {
+            e.setCancelled(true); //to do: it isn't "lobby" location, lobby area is actually "protected" location
             if (e.getEntity() instanceof Player) {
                 Player p = (Player) e.getEntity();
                 p.setFoodLevel(20);
@@ -39,7 +39,7 @@ public class LobbyListener implements Listener {
     public void onDamage(EntityDamageEvent e) {
         Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
         if (e.getEntityType().equals(EntityType.PLAYER) &&
-                Cuboide.InCuboide(locations.getString(Location.LOBBY.getPath()), e.getEntity().getLocation()))
+                Cuboide.InCuboide(locations.getStringList(Location.LOBBY.getPath()), e.getEntity().getLocation()))
             e.setCancelled(true);
     }
 }

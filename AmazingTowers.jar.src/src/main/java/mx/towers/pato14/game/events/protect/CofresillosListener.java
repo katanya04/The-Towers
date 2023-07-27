@@ -54,12 +54,14 @@ public class CofresillosListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(player);
         Block block = e.getClickedBlock();
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.chestsTeam")) {
-            if (block == null || block.getType() != Material.CHEST) {
+            if (block == null || !block.getType().equals(Material.CHEST)) {
                 return;
             }
-            if (block.getType() == Material.CHEST && protectedChest.contains(block.getLocation())) {
+            System.out.println("Interact chest");
+            System.out.println(protectedChest.contains(block.getLocation()));
+            if (protectedChest.contains(block.getLocation())) {
                 TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player);
-                if (!Cuboide.InCuboide(gameInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
+                if (!Cuboide.InCuboide(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
                     e.setCancelled(true);
                     player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.open_chest")));
                 }
@@ -70,7 +72,7 @@ public class CofresillosListener implements Listener {
     public static void getChests(GameInstance gameInstance) {
         for (Chunk ch : gameInstance.getWorld().getLoadedChunks()) {
             for (BlockState bls : ch.getTileEntities()) {
-                if (bls.getType() == Material.CHEST && Locations.isInsideBase(bls.getLocation(), gameInstance.getGame().getTeams()))
+                if (bls.getType().equals(Material.CHEST) && Locations.isInsideBase(bls.getLocation(), gameInstance.getGame().getTeams()))
                         protectedChest.add(bls.getLocation());
             }
         }

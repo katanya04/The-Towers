@@ -1,5 +1,6 @@
 package mx.towers.pato14;
 
+import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.Config;
@@ -12,12 +13,13 @@ import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GameInstance {
     private final AmazingTowers plugin;
-    private final World world;
+    private World world;
     private Game game;
     private final Map<ConfigType, Config> configs;
     private ScoreUpdate scoreUpdate;
@@ -26,24 +28,26 @@ public class GameInstance {
     private int numPlayers;
     private final int numberOfTeams;
     private final Detectoreishon detectoreishon;
+    private final String name;
 
     public GameInstance(AmazingTowers towers, String name) {
         this.plugin = towers;
-        this.world = Bukkit.getWorld(name);
+        this.name = name;
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
+        registerConfigs(name);
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("Teams.numberOfTeams");
         this.detectoreishon = new Detectoreishon(this);
         this.detectoreishon.checkNeededLocationsExistence(numberOfTeams);
         setRules();
-        registerConfigs(name);
 
         if (this.detectoreishon.neededLocationsExist()) {
-            if (getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
+            if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
-            loadWorld(name);
+            if (!loadWorld(name))
+                return;
             SetupVault.setupVault();
             this.vault = new VaultT(this);
             this.game = new Game(this);
@@ -54,18 +58,28 @@ public class GameInstance {
         }
     }
 
+    private World checkWorld() {
+        File potentialWorld = new File(Bukkit.getServer().getWorldContainer(), getName());
+        if (potentialWorld.exists())
+            return TowerCommand.createWorld(getName());
+        else
+            return null;
+    }
+
     private void registerConfigs(String worldName) {
         for (ConfigType config : ConfigType.values())
             this.configs.put(config, new Config(plugin,
                     config.toString().toLowerCase() + ".yml", true, worldName));
     }
 
-    public void loadWorld(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
+    public boolean loadWorld(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
         WorldLoad towers = new WorldLoad(worldName, plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName, Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName);
         if (towers.getFileSource().exists()) {
-            towers.loadWorld();
+            setWorld(towers.loadWorld());
+            return true;
         } else {
             Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] There is no backup for " + worldName + "!");
+            return false;
         }
     }
 
@@ -105,6 +119,9 @@ public class GameInstance {
     public void removePlayer() {
         numPlayers--;
     }
+    public void setWorld(World world) {
+        this.world = world;
+    }
 
     public World getWorld() {
         return world;
@@ -115,5 +132,13 @@ public class GameInstance {
 
     public Detectoreishon getDetectoreishon() {
         return detectoreishon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void linkWorld(World worldToLink) {
+        this.world = worldToLink;
     }
 }

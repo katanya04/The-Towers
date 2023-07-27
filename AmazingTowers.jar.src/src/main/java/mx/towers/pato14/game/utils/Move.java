@@ -29,7 +29,7 @@ public class Move {
         for (int i = 0; i < game.getTeams().getTeams().size(); i++) {
             Team current = game.getTeams().getTeams().get(i);
             pools[i] = new Pool(current,
-                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.POOL.getPath(current.getTeamColor())));
+                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(current.getTeamColor())));
         }
     }
 

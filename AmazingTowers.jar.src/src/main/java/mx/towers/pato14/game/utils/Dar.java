@@ -30,10 +30,10 @@ public class Dar {
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
         for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getNumberOfTeams())) {
-            player.getInventory().setItem(teamColor.ordinal(), plugin.getGameInstance(player).getGame().getItem().getItem(teamColor).getItem());
+            player.getInventory().setItem(teamColor.ordinal(), plugin.getGameInstance(player).getGame().getLobbyItems().getItem(teamColor));
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
-            player.getInventory().setItem(gameInstance.getNumberOfTeams(), plugin.getGameInstance(player).getGame().getItem().getItemQuit().getItem());
+        if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
+            player.getInventory().setItem(gameInstance.getNumberOfTeams(), plugin.getGameInstance(player).getGame().getLobbyItems().getItemQuit());
         }
         if (gameInstance.getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
             int position = gameInstance.getConfig(ConfigType.BOOK).getInt("book.position");
@@ -72,10 +72,10 @@ public class Dar {
     }
 
     public static void bungeecordTeleport(Player player) {
-        if (plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
+        if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(plugin.getGameInstance(player).getConfig(ConfigType.CONFIG).getString("Options.bungeecord-support.server_name"));
+            out.writeUTF(plugin.getGlobalConfig().getString("Options.bungeecord-support.server_name"));
             player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
     }

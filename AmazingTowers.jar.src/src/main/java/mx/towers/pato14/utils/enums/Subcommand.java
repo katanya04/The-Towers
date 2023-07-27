@@ -15,7 +15,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     JOINTEAM(1, 2, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<onlinePlayer>"),
     LOCATIONS(2, 0, true),
     TPWORLD(2, 1, true, "<worldName>"),
-    CREATEWORLD(2, 2, true, "<worldName>", "emptyWorld"),
+    CREATEWORLD(2, 1, false, "<instanceName>|all"),
     BACKUPWORLD(2, 0, true),
     LOADWORLD(2, 1, true, "<worldName>"),
     SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*" + argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),

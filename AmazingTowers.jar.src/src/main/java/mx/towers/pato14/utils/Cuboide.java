@@ -4,6 +4,8 @@ import mx.towers.pato14.utils.locations.IntCoordinate;
 import mx.towers.pato14.utils.locations.Pool;
 import org.bukkit.Location;
 
+import java.util.List;
+
 public class Cuboide {
     public static boolean InCuboide(Location corner1, Location corner2, Location loc) {
         final int x1 = (int) corner1.getX(), x2 = (int) corner2.getX();
@@ -99,11 +101,11 @@ public class Cuboide {
         } else return z1 + ExtraHeight >= lz && z2 <= lz + ExtraHeight;
     }
 
-    public static boolean InCuboideExtraHeight(String string, Location loc, int extraHeight) {
-        return InCuboideExtraHeight(IntCoordinate.getFromString(string + ".1"), IntCoordinate.getFromString(string + ".2"), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())), extraHeight);
+    public static boolean InCuboideExtraHeight(List<String> area, Location loc, int extraHeight) {
+        return InCuboideExtraHeight(IntCoordinate.getFromString(area.get(0)), IntCoordinate.getFromString(area.get(1)), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())), extraHeight);
     }
 
-    public static boolean InCuboide(String string, Location loc) {
-        return InCuboide(IntCoordinate.getFromString(string + ".1"), IntCoordinate.getFromString(string + ".2"), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
+    public static boolean InCuboide(List<String> area, Location loc) {
+        return InCuboide(IntCoordinate.getFromString(area.get(0)), IntCoordinate.getFromString(area.get(1)), new IntCoordinate((int) Math.floor(loc.getX()),(int) Math.floor(loc.getY()),(int) Math.floor(loc.getZ())));
     }
 }

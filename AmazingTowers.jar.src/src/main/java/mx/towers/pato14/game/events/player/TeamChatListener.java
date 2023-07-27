@@ -29,6 +29,8 @@ public class TeamChatListener implements Listener {
             String name = e.getPlayer().getName();
             String msg = e.getMessage();
             List<Player> players = currentInstance.getGame().getPlayers();
+            System.out.println("Chat");
+            System.out.println(players.toString());
             if (currentInstance.getGame().getGameState().equals(GameState.LOBBY) || currentInstance.getGame().getGameState().equals(GameState.PREGAME) || !(currentInstance.getGame().getTeams().containsTeamPlayer(name))) {
                 for (Player player : players) {
                     player.sendMessage(AmazingTowers.getColor(currentInstance.getConfig(ConfigType.CONFIG)

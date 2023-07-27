@@ -56,6 +56,7 @@ public final class AmazingTowers extends JavaPlugin {
 
         this.globalConfig = new Config(this, "globalConfig.yml", true);
         int numberOfInstances = this.globalConfig.getInt("Options.Instances.amount");
+
         for (int i = 0; i < numberOfInstances; i++)
             games.put("TheTowers" + (i + 1), new GameInstance(this,"TheTowers" + (i + 1)));
 
@@ -77,6 +78,14 @@ public final class AmazingTowers extends JavaPlugin {
         enabledPlugin();
     }
 
+    public void onDisable() {
+        for (GameInstance gameInstance : games.values()) {
+            World world = gameInstance.getWorld();
+            if (world != null)
+                world.save();
+        }
+    }
+
     private void enabledPlugin() {
         String prefix = "§f[§aAmazingTowers§f]";
         this.wand = new Wand();
@@ -95,10 +104,22 @@ public final class AmazingTowers extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(prefix + " §aVersion§f: §f" + getDescription().getVersion());
         getServer().getConsoleSender().sendMessage(prefix + " §aAuthor§f: §f[§aPato14§f, §aMarco2124§f]");
         getServer().getConsoleSender().sendMessage(prefix + " §a-----§f-§a-----§f-§a------§f-§a-----");
+        boolean worldUnset = false;
         for (GameInstance gameInstance : games.values()) {
-            Bukkit.getConsoleSender().sendMessage(gameInstance.getWorld().getName() + " locations needed to be set: ");
-            Bukkit.getConsoleSender().sendMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
-            Bukkit.getConsoleSender().sendMessage("");
+            if (gameInstance.getWorld() != null) {
+                Bukkit.getConsoleSender().sendMessage(prefix + "§f§l " + gameInstance.getName() + "§f locations needed to be set: ");
+                Bukkit.getConsoleSender().sendMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
+                Bukkit.getConsoleSender().sendMessage("");
+            } else {
+                worldUnset = true;
+                Bukkit.getConsoleSender().sendMessage(prefix + "§f§l " + gameInstance.getName() + "§f world doesn't exist yet.");
+                Bukkit.getConsoleSender().sendMessage(prefix + " To create it, run /tt createWorld " + gameInstance.getName());
+                Bukkit.getConsoleSender().sendMessage("");
+            }
+            if (worldUnset) {
+                Bukkit.getConsoleSender().sendMessage(prefix + " To create all missing worlds, run /tt createWorld all");
+                Bukkit.getConsoleSender().sendMessage("");
+            }
         }
     }
 
@@ -109,9 +130,8 @@ public final class AmazingTowers extends JavaPlugin {
         } catch (ArrayIndexOutOfBoundsException a) {
             a.printStackTrace();
         }
-        String str1;
-        if ((str1 = version).hashCode() == -1156422964) {
-            if (!str1.equals("v1_8_R3"))
+        if (version.hashCode() == -1156422964) {
+            if (!version.equals("v1_8_R3"))
                 return (this.nms != null);
             this.nms = new V1_8_R3();
         }
@@ -169,6 +189,10 @@ public final class AmazingTowers extends JavaPlugin {
                 folder.mkdirs()) {
             System.out.println("[AmazingTowers] The backup folder was created successfully");
         }
+    }
+
+    public static HashMap<String, GameInstance> getGameInstances() {
+        return games;
     }
 }
 

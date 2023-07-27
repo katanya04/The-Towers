@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class AntiFallingSandTrollListener implements Listener {
-    private AmazingTowers plugin;
+    private final AmazingTowers plugin;
 
     public AntiFallingSandTrollListener(AmazingTowers plugin) {
         this.plugin = plugin;
@@ -26,12 +26,12 @@ public class AntiFallingSandTrollListener implements Listener {
             FallingBlock flbl = (FallingBlock) e.getEntity();
             GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
             Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
-            if (Locations.isValidLocation(locations,
+            if (!Locations.isValidLocation(locations,
                     e.getBlock().getLocation(),
                     gameInstance.getGame().getDetectionMove().getPools(),
                     gameInstance.getRules().get(Rule.PROTECT_POINT),
                     gameInstance.getRules().get(Rule.GRIEF),
-                    0)) {
+                    0, gameInstance.getNumberOfTeams())) {
                 e.getBlock().getWorld().dropItemNaturally(e.getBlock().getLocation(), new ItemStack(flbl.getMaterial()));
                 flbl.remove();
                 e.setCancelled(true);

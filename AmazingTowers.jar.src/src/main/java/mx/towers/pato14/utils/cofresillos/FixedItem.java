@@ -22,34 +22,24 @@ public class FixedItem {
         this.durability = i.getDurability();
     }
 
-    public static FixedItem[] getArrayoBobin(ItemStack[] i) {
-        int in = 0;
-        FixedItem[] end = new FixedItem[i.length];
-        byte b;
-        int j;
-        ItemStack[] arrayOfItemStack;
-        for (j = (arrayOfItemStack = i).length, b = 0; b < j; ) {
-            ItemStack is = arrayOfItemStack[b];
-            end[in] = (is != null) ? new FixedItem(is) : null;
-            in++;
-            b++;
+    public static FixedItem[] itemStackToFixedItem(ItemStack[] chestContents) {
+        int i = 0;
+        FixedItem[] toret = new FixedItem[chestContents.length];
+        for (ItemStack item : chestContents) {
+            toret[i] = item == null ? null : new FixedItem(item);
+            i++;
         }
-        return end;
+        return toret;
     }
 
-    public static ItemStack[] getAGalloConTennis(FixedItem[] f) {
-        int in = 0;
-        ItemStack[] end = new ItemStack[f.length];
-        byte b;
-        int i;
-        FixedItem[] arrayOfFixedItem;
-        for (i = (arrayOfFixedItem = f).length, b = 0; b < i; ) {
-            FixedItem is = arrayOfFixedItem[b];
-            end[in] = (is != null) ? is.getItemStack() : null;
-            in++;
-            b++;
+    public static ItemStack[] fixedItemToItemStack(FixedItem[] fixedItems) {
+        int i = 0;
+        ItemStack[] toret = new ItemStack[fixedItems.length];
+        for (FixedItem item : fixedItems) {
+            toret[i] = item == null ? null : item.getItemStack();
+            i++;
         }
-        return end;
+        return toret;
     }
 
     public ItemStack getItemStack() {

@@ -32,18 +32,18 @@ public class ProtectedAreasListener implements Listener {
         }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         Location blockLocation = e.getBlock().getLocation();
-        if (Locations.isValidLocation(locations,
+        if (!Locations.isValidLocation(locations,
                 blockLocation,
                 gameInstance.getGame().getDetectionMove().getPools(),
                 gameInstance.getRules().get(Rule.PROTECT_POINT),
                 gameInstance.getRules().get(Rule.GRIEF),
-                0)) {
+                0, gameInstance.getNumberOfTeams())) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void Main(EntityExplodeEvent e) {
+    public void onExplode(EntityExplodeEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getEntity());
         if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
@@ -52,12 +52,12 @@ public class ProtectedAreasListener implements Listener {
         ArrayList<Block> end = new ArrayList<>(e.blockList());
         for (Block bl : e.blockList()) {
             Location blockLocation = bl.getLocation();
-            if (Locations.isValidLocation(locations,
+            if (!Locations.isValidLocation(locations,
                     blockLocation,
                     gameInstance.getGame().getDetectionMove().getPools(),
                     gameInstance.getRules().get(Rule.PROTECT_POINT),
                     gameInstance.getRules().get(Rule.GRIEF),
-                    0)) {
+                    0, gameInstance.getNumberOfTeams())) {
                 end.remove(bl);
             }
         }
@@ -71,14 +71,15 @@ public class ProtectedAreasListener implements Listener {
         if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
+        System.out.println("Block place");
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         Location blockLocation = e.getBlock().getLocation();
-        if (Locations.isValidLocation(locations,
+        if (!Locations.isValidLocation(locations,
                 blockLocation,
                 gameInstance.getGame().getDetectionMove().getPools(),
                 gameInstance.getRules().get(Rule.PROTECT_POINT),
                 gameInstance.getRules().get(Rule.GRIEF),
-                0)) {
+                0, gameInstance.getNumberOfTeams())) {
             e.setCancelled(true);
         }
     }

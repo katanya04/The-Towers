@@ -34,10 +34,10 @@ public class Book {
                 if (i < Integer.parseInt(s)) i = Integer.parseInt(s);
                 pages.put(Integer.valueOf(s), getStringPage(this.game.getGameInstance().getConfig(ConfigType.BOOK).getStringList("book.pages." + s)));
             } catch (NumberFormatException e) {
-                Bukkit.getConsoleSender().sendMessage("§cThe page " + s + " don't are a numeric identifier");
+                Bukkit.getConsoleSender().sendMessage("§cThe page " + s + " isn't a numeric identifier");
             }
         }
-        for (int j = 0; j < (int) i; j = j + 1) {
+        for (int j = 0; j < i; j = j + 1) {
             metaBook.addPage(pages.get(j + 1));
         }
         this.book.setItemMeta(metaBook);

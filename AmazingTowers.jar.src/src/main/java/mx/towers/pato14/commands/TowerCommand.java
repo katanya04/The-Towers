@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import mx.towers.pato14.AmazingTowers;
@@ -37,6 +38,21 @@ public class TowerCommand implements CommandExecutor
         this.senderPlayer = new ArrayList<>();
         this.plugin = plugin;
         this.cooldown = new HashMap<>();
+    }
+
+    public static World createWorld(String name) {
+        final WorldCreator wc = new WorldCreator(name);
+        wc.type(WorldType.FLAT);
+        wc.generateStructures(false);
+        wc.generatorSettings("2;0;1;");
+        final World world = Bukkit.createWorld(wc);
+        world.setAutoSave(false);
+        world.setSpawnLocation(0, 0, 0);
+        world.setDifficulty(Difficulty.PEACEFUL);
+        world.setGameRuleValue("doMobSpawning", "false");
+        world.setGameRuleValue("mobGriefing", "false");
+        world.setGameRuleValue("doDaylightCycle", "false");
+        return world;
     }
 
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
@@ -165,28 +181,29 @@ public class TowerCommand implements CommandExecutor
                     player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
                     player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
                 }
-                player.sendMessage("§fThe world §a" + args[1] + " §fdoesn't exist");
+                player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");
                 break;
             case CREATEWORLD:
-                assert player != null;
+                boolean success = false;
+                boolean setAll = args[1].equalsIgnoreCase("all");
                 if (Bukkit.getWorld(args[1]) != null)
-                    player.sendMessage("§fThe world §c" + args[1] + " §falready exists!");
-                else if (args[2].equals("emptyWorld")) {
-                    player.sendMessage("Creating world §a" + args[1] + "§f...");
-                    final WorldCreator wc = new WorldCreator(args[1]);
-                    wc.type(WorldType.FLAT);
-                    wc.generateStructures(false);
-                    wc.generatorSettings("2;0;1;");
-                    final World world = Bukkit.createWorld(wc);
-                    world.setAutoSave(false);
-                    world.setSpawnLocation(0, 0, 0);
-                    world.setDifficulty(Difficulty.PEACEFUL);
-                    world.setGameRuleValue("doMobSpawning", "false");
-                    world.setGameRuleValue("mobGriefing", "false");
-                    world.setGameRuleValue("doDaylightCycle", "false");
-                    player.sendMessage("The world §a" + args[1] + " §fwas created §asuccesfully...");
+                    sender.sendMessage("§fThe world §c" + args[1] + "§f already exists!");
+                else {
+                    for (GameInstance gameInstance1 : AmazingTowers.getGameInstances().values()) {
+                        if (gameInstance1.getWorld() != null || !(setAll || args[1].equals(gameInstance1.getName())))
+                            continue;
+                        gameInstance1.linkWorld(createWorld(gameInstance1.getName()));
+                        sender.sendMessage("The world §a" + gameInstance1.getName() + "§f was created§a successfully...");
+                        success = true;
+                    }
+                }
+                if (!success) {
+                    if (setAll)
+                        sender.sendMessage("All instances already have a world linked to them.");
+                    else
+                        sender.sendMessage("That instance doesn't exist.");
                 } else
-                    sender.sendMessage(arg0.getCorrectUse());
+                    sender.sendMessage("To go to another world, use /tt tpWorld <worldName>");
                 break;
             case BACKUPWORLD:
                 assert gameInstance != null;
@@ -259,8 +276,9 @@ public class TowerCommand implements CommandExecutor
                         corners.add(this.plugin.getWand().getPos2());
                         if (loc.isList()) {
                             @SuppressWarnings("unchecked")
-                            List<List<String>> list = locations.getList(path).stream().filter(o -> o instanceof List)
-                                    .map(o -> (List<String>) o).collect(Collectors.toList());
+                            List<List<String>> list = locations.getList(path) == null ? new ArrayList<>() :
+                                    locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o)
+                                            .collect(Collectors.toList());
                             list.add(corners);
                             locations.set(path, list);
                         } else {
@@ -270,16 +288,16 @@ public class TowerCommand implements CommandExecutor
                     }
                 } else {
                     @SuppressWarnings("unchecked")
-                    List<HashMap<String, String>> generators = locations.getList(path).stream().filter(o -> o instanceof List)
-                            .map(o -> (HashMap<String, String>) o).collect(Collectors.toList());
+                    List<Map<String, String>> generators = locations.getList(path) == null ? new ArrayList<>() : locations
+                            .getMapList(path).stream().map(o -> (Map<String, String>) o).collect(Collectors.toList());
                     HashMap<String, String> newGenerator = new HashMap<>();
-                    YamlConfiguration config = new YamlConfiguration();
-                    config.set("i", player.getItemInHand());
-                    newGenerator.put("coords", config.saveToString());
+                    newGenerator.put("item", plugin.getNms().serializeItemStack(player.getItemInHand()));
+                    newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), true));
                     generators.add(newGenerator);
                     locations.set(path, generators);
                     player.sendMessage("§7Defined generator");
                 }
+                locations.saveConfig();
                 break;
             case HELP:
                 sender.sendMessage(Subcommand.listOfCommands());

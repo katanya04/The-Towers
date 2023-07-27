@@ -3,8 +3,13 @@ package mx.towers.pato14.utils.enums;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum TeamColor {
     RED(true, (short) 14, "&c"),
@@ -35,11 +40,11 @@ public enum TeamColor {
     public String getColor() {
         return this.color;
     }
-    public static TeamColor[] getMatchTeams(int numberOfTeams) {
-        return (TeamColor[]) Arrays.stream(TeamColor.values()).filter(o -> o.matchTeam).limit(numberOfTeams).toArray();
+    public static List<TeamColor> getMatchTeams(int numberOfTeams) {
+        return Arrays.stream(TeamColor.values()).filter(o -> o.matchTeam).limit(numberOfTeams).collect(Collectors.toList());
     }
-    public static TeamColor[] getTeams(int numberOfTeams) {
-        return (TeamColor[]) Arrays.stream(TeamColor.values()).limit(numberOfTeams).toArray();
+    public static List<TeamColor> getTeams(int numberOfTeams) {
+        return Arrays.stream(TeamColor.values()).limit(numberOfTeams).collect(Collectors.toList());
     }
     public String firstCapitalized() {
         return this.toString().toLowerCase().replace(this.toString().toLowerCase().charAt(0), this.toString().charAt(0));
@@ -62,6 +67,16 @@ public enum TeamColor {
         } catch (IllegalArgumentException ex) {
             return false;
         }
+    }
+
+    public ItemStack getTeamItem(GameInstance gameInstance) {
+        ItemStack toret = new ItemStack(Material.WOOL, 1, this.woolColor);
+        ItemMeta itemMeta = toret.getItemMeta();
+        itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                .getString("Items.joinTeam").replace("%team_color%", this.color)
+                .replace("%team_name%", this.getName(gameInstance))));
+        toret.setItemMeta(itemMeta);
+        return toret;
     }
 }
 

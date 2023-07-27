@@ -24,4 +24,10 @@ public enum Tool {
     public ItemStack getItem() {
         return item;
     }
+
+    public boolean checkIfItemIsTool(ItemStack item) {
+        return item != null &&
+                item.getType().equals(this.getItem().getType()) &&
+                item.getItemMeta().getDisplayName().equals(this.getItem().getItemMeta().getDisplayName());
+    }
 }

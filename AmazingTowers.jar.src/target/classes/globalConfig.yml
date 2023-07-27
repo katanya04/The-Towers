@@ -1,0 +1,23 @@
+# +###----------------------------------------------###+ #
+# <#               AmazingTowers - v2.3b              #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+Options:
+  Instances:
+    amount: 1
+  mysql:
+    active: false
+    hostname:
+    port:
+    database:
+    user:
+    password:
+  bungeecord-support:
+    enabled: false
+    server_name: LobbyTowers
+  Rewards:
+    vault: false
+Permissions:
+  password:
+    organizer:

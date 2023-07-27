@@ -3,8 +3,6 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.TeamColor;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -32,7 +30,7 @@ public class DamageListener implements Listener {
     }
 
     @EventHandler
-    public void ondamage(EntityDamageByEntityEvent e) {
+    public void onDamage(EntityDamageByEntityEvent e) {
         if (e.getEntityType().equals(EntityType.PLAYER) && e.getDamager().getType().equals(EntityType.PLAYER)) {
             GameTeams teams = plugin.getGameInstance(e.getEntity()).getGame().getTeams();
             if (teams.getTeamByPlayer((Player) e.getEntity()).equals(teams.getTeamByPlayer((Player) e.getDamager())))

@@ -24,22 +24,22 @@ public class PistonsillosListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
 
-        if (Locations.isValidLocation(locations,
+        if (!Locations.isValidLocation(locations,
                 e.getBlock().getRelative(e.getDirection()).getLocation(),
                 gameInstance.getGame().getDetectionMove().getPools(),
                 gameInstance.getRules().get(Rule.PROTECT_POINT),
                 gameInstance.getRules().get(Rule.GRIEF),
-                1)) {
+                1, gameInstance.getNumberOfTeams())) {
             e.setCancelled(true);
             return;
         }
         for (Block bl : e.getBlocks()) {
-            if (Locations.isValidLocation(locations,
+            if (!Locations.isValidLocation(locations,
                     bl.getLocation(),
                     gameInstance.getGame().getDetectionMove().getPools(),
                     gameInstance.getRules().get(Rule.PROTECT_POINT),
                     gameInstance.getRules().get(Rule.GRIEF),
-                    1)) {
+                    1, gameInstance.getNumberOfTeams())) {
                 e.setCancelled(true);
                 return;
             }
@@ -52,12 +52,12 @@ public class PistonsillosListener implements Listener {
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
         if (e.isSticky())
             for (Block bl : e.getBlocks()) {
-                if (Locations.isValidLocation(locations,
+                if (!Locations.isValidLocation(locations,
                         bl.getLocation(),
                         gameInstance.getGame().getDetectionMove().getPools(),
                         gameInstance.getRules().get(Rule.PROTECT_POINT),
                         gameInstance.getRules().get(Rule.GRIEF),
-                        1)) {
+                        1, gameInstance.getNumberOfTeams())) {
                     e.setCancelled(true);
                     return;
                 }

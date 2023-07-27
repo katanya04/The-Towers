@@ -34,7 +34,7 @@ public class Finish {
     public Finish(Game game) {
         this.game = game;
         seconds = game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.timerEndSeconds") + 1;
-        bungeecord = game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled");
+        bungeecord = plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled");
     }
     public void Fatality(final TeamColor teamColor) {
         if (!game.getGameState().equals(GameState.FINISH)) {
@@ -64,7 +64,7 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
-                            if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.bungeecord-support.enabled")) {
+                            if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
                                 for (Player player : game.getPlayers()) {
                                     player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
                                     Dar.bungeecordTeleport(player);

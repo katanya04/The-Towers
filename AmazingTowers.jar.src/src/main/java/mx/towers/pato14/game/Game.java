@@ -12,7 +12,6 @@ import mx.towers.pato14.game.utils.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class Game {
         this.gameState = GameState.LOBBY;
         this.lobbyItems = new LobbyItems(this);
         (new EventsManager(getPlugin())).registerEvents();
-        getPlugin().getServer().getPluginManager().registerEvents(getItem(), getPlugin());
+        getPlugin().getServer().getPluginManager().registerEvents(getLobbyItems(), getPlugin());
         this.teams = new GameTeams(this);
         this.gameStart = new Start(this);
         this.finish = new Finish(this);
@@ -66,7 +65,7 @@ public class Game {
         return this.finish;
     }
 
-    public LobbyItems getItem() {
+    public LobbyItems getLobbyItems() {
         return this.lobbyItems;
     }
 

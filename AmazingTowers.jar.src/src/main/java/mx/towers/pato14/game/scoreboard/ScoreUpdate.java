@@ -76,28 +76,38 @@ public class ScoreUpdate {
                 i--;
             }
         } else {
-            int currentTeam = -1;
+            int currentTeam = 0;
             List<Team> teams = gameInstance.getGame().getTeams().getTeams();
             List<String> l = teams.size() < 5 ? gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.gameFourTeamsOrLess.scores") :
                     gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("Scoreboard.gameUpToEightTeams.scores");
-            int i = l.size();
+            int i = 15;
             for (String st : l) {
-                if (!st.contains("%team_points%") || ++currentTeam < teams.size()) {
-                    helper.setSlot(i, AmazingTowers.getColor(st)
-                            .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                            .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
-                            .replace("%date%", this.date)
-                            .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
-                            .replace("%team_points%", String.valueOf(teams.get(currentTeam).getPoints()))
-                            .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
-                            .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getName(gameInstance)))
-                            .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
-                            .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
-                            .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
-                            .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
-                            .replace("%refill_time%", convertirTimeXd((int) this.refill.getTimeRegeneration())));
-                    i--;
+                String text = AmazingTowers.getColor(st)
+                        .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
+                        .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
+                        .replace("%date%", this.date)
+                        .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
+                        .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
+                        .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
+                        .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
+                        .replace("%refill_time%", convertirTimeXd((int) this.refill.getTimeRegeneration()));
+                if (st.contains("%team_points%")) {
+                    if (currentTeam < teams.size()) {
+                        text = AmazingTowers.getColor(text
+                                .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
+                                .replace("%team_points%", String.valueOf(teams.get(currentTeam).getPoints()))
+                                .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
+                                .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getName(gameInstance))));
+                        currentTeam++;
+                    } else
+                        continue;
                 }
+                helper.setSlot(i, text);
+                i--;
+            }
+            while (i > 0) {
+                helper.setSlot(i, "");
+                i--;
             }
         }
     }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
 public class Team {
@@ -25,11 +26,11 @@ public class Team {
         this.teamColor = TeamColor.valueOf(nameTeam.toUpperCase());
     }
 
-    public void addPlayer(OfflinePlayer player) {
+    public void addPlayer(HumanEntity player) {
         this.players.add(player.getName());
     }
 
-    public void removePlayer(Player player) {
+    public void removePlayer(HumanEntity player) {
         this.players.remove(player.getName());
     }
 

@@ -26,10 +26,10 @@ public class Move {
     }
 
     public void setPools() {
-        for (int i = 0; i < game.getTeams().getTeams().size(); i++) {
-            Team current = game.getTeams().getTeams().get(i);
-            pools[i] = new Pool(current,
-                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(current.getTeamColor())));
+        int i = 0;
+        for (Team team : this.game.getTeams().getTeams()) {
+            pools[i++] = new Pool(team,
+                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(team.getTeamColor())));
         }
     }
 
@@ -40,11 +40,11 @@ public class Move {
                     cancel();
                     return;
                 }
-                for (Player player : game.getPlayers()) {
+                for (Player player : Move.this.game.getPlayers()) {
                     if (player.getHealth() > 0.0D && !player.getGameMode().equals(GameMode.SPECTATOR)) {
-                        for (Pool pool : pools) {
+                        for (Pool pool : Move.this.pools) {
                             if (pool.getTeam().containsPlayer(player.getName()))
-                                return;
+                                continue;
                             checkPool(pool, player);
                         }
                     }
@@ -58,13 +58,13 @@ public class Move {
             Team team = this.game.getTeams().getTeamByPlayer(player);
             team.sumarPunto();
             player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
-            Bukkit.broadcastMessage(AmazingTowers.getColor(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.Point")
+            game.getGameInstance().broadcastMessage(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.point")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", team.getTeamColor().getColor())
-                    .replace("{Team}", team.getTeamColor().getColor())
-                    ));
+                    .replace("{Team}", team.getTeamColor().getName(this.game.getGameInstance()))
+                    , true);
             this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
-            for (Player p : game.getPlayers()) {
+            for (Player p : this.game.getPlayers()) {
                 if (team.containsPlayer(p.getName())) {
                     p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
                 } else {
@@ -73,9 +73,9 @@ public class Move {
             }
             if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
                 this.game.getFinish().Fatality(team.getTeamColor());
-                game.setGameState(GameState.FINISH);
+                this.game.setGameState(GameState.FINISH);
             }
-            this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
+            this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
             this.game.getStats().addOne(player.getName(), StatType.POINTS);
         }
     }

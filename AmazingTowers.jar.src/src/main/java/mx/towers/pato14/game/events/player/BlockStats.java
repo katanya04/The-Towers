@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.StatType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,12 +17,18 @@ public class BlockStats implements Listener {
     }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlaced(BlockPlaceEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!e.isCancelled())
-            this.plugin.getGameInstance(e.getPlayer()).getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_PLACED);
+            gameInstance.getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_PLACED);
     }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!e.isCancelled())
-            this.plugin.getGameInstance(e.getPlayer()).getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_BROKEN);
+            gameInstance.getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_BROKEN);
     }
 }

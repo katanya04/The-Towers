@@ -29,6 +29,8 @@ public class CofresillosListener implements Listener {
     public void onExplode(EntityExplodeEvent e) {
         ArrayList<Block> end = new ArrayList<>(e.blockList());
         GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         for (Block bl : e.blockList()) {
             if (bl.getType() == Material.CHEST) {
                 if (Locations.isInsideBase(bl.getLocation(), gameInstance.getGame().getTeams()))
@@ -41,6 +43,9 @@ public class CofresillosListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         Block bl = e.getBlock();
         if (bl.getType() == Material.CHEST &&
                 protectedChest.contains(bl.getLocation())) {
@@ -52,13 +57,13 @@ public class CofresillosListener implements Listener {
     public void onInteractChest(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         GameInstance gameInstance = this.plugin.getGameInstance(player);
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         Block block = e.getClickedBlock();
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.chestsTeam")) {
             if (block == null || !block.getType().equals(Material.CHEST)) {
                 return;
             }
-            System.out.println("Interact chest");
-            System.out.println(protectedChest.contains(block.getLocation()));
             if (protectedChest.contains(block.getLocation())) {
                 TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player);
                 if (!Cuboide.InCuboide(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {

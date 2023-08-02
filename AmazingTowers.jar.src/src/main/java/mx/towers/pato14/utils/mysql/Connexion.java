@@ -13,7 +13,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.stats.Stats;
 
-public class Conexion {
+public class Connexion {
     AmazingTowers plugin = AmazingTowers.getPlugin();
 
     public Connection connection;
@@ -28,18 +28,15 @@ public class Conexion {
 
     String password = this.plugin.getGlobalConfig().getString("Options.mysql.password");
 
-    public void Conectar() {
+    public void Connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
                     "/" + this.database + "?autoReconnect=true", this.user, this.password);
-            if (this.connection != null)
-                this.plugin.message("Connection of MYSQL set successfully");
         } catch (SQLException e) {
-            this.plugin.message("Error MySql: Error connecting of MYSQL (Disabling in config); " + e);
             this.plugin.getGlobalConfig().set("Options.mysql.active", false);
             this.plugin.saveConfig();
-        } catch (ClassNotFoundException classNotFoundException) {}
+        } catch (ClassNotFoundException ignored) {}
     }
 
     public void CreateTable() {
@@ -51,22 +48,22 @@ public class Conexion {
                 ps.close();
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Conectar();
+                this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                this.plugin.message("Error MySql: " + e);
+                plugin.sendConsoleMessage("§cError while creating the database table: " + e);
             }
         } while (repeat);
     }
 
-    public void CreateAcount(String playername) {
+    public void CreateAccount(String player) {
         boolean repeat = false;
         do {
             try {
-                if (!hasAccount(playername)) {
+                if (!hasAccount(player)) {
                     PreparedStatement ps = this.connection.prepareStatement("INSERT INTO towers(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,?,?,?,?,?,?,?)");
-                    ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername).getBytes(StandardCharsets.UTF_8)).toString());
-                    ps.setString(2, playername);
+                    ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString());
+                    ps.setString(2, player);
                     ps.setInt(3, 0);
                     ps.setInt(4, 0);
                     ps.setInt(5, 0);
@@ -79,14 +76,14 @@ public class Conexion {
                 }
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Conectar();
+                this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                System.out.println("Error mysql: " + e);
+                plugin.sendConsoleMessage("§cError while adding an entry to the database: " + e);
             }
         } while (repeat);
     }
-    public void UpdateData(String playername, Stats stats) {
+    public void UpdateData(String player, Stats stats) {
         boolean repeat = false;
         do {
             try {
@@ -97,66 +94,65 @@ public class Conexion {
                             .append(stats.getStat(st)).append(",");
                 }
                 sb.deleteCharAt(sb.length() - 1);
-                sb.append(" WHERE UUID='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername)
-                        .getBytes(StandardCharsets.UTF_8)).toString()).append("'");
+                sb.append(" WHERE UUID='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player)
+                        .getBytes(StandardCharsets.UTF_8))).append("'");
                 PreparedStatement ps = this.connection.prepareStatement(sb.toString());
                 ps.executeUpdate();
                 ps.close();
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Conectar();
+                this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                this.plugin.message("Error MySql: " + e);
+                plugin.sendConsoleMessage("§cError while updating the database: " + e);
             }
         } while (repeat);
     }
 
-    public int[] getData(String playername) {
+    public int[] getData(String player) {
         boolean repeat = false;
-        int i[];
+        int[] data;
         do {
-            i = new int[7];
+            data = new int[7];
             try {
-                if (hasAccount(playername)) {
-                    PreparedStatement ps = this.connection.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + playername).getBytes(StandardCharsets.UTF_8)).toString() + "'");
+                if (hasAccount(player)) {
+                    PreparedStatement ps = this.connection.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString() + "'");
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         for (int j = 0; j < 7; j++) {
-                            i[j] = rs.getInt(3 + j);
+                            data[j] = rs.getInt(3 + j);
                         }
                     }
                 } else {
-                    i = null;
+                    data = null;
                 }
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Conectar();
+                this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                this.plugin.message("Error MySql: " + e);
+                plugin.sendConsoleMessage("§cError while getting data of the database: " + e);
             }
         } while (repeat);
-        return i;
+        return data;
     }
 
-    public boolean hasAccount(String playername) {
+    public boolean hasAccount(String player) {
         boolean repeat = false;
         do {
             try {
-                PreparedStatement ps = this.connection.prepareStatement("Select PlayerName From towers WHERE PlayerName ='" + playername + "'");
+                PreparedStatement ps = this.connection.prepareStatement("Select PlayerName From towers WHERE PlayerName ='" + player + "'");
                 ResultSet rs = ps.executeQuery();
                 if (rs.next())
                     return true;
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Conectar();
+                this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                this.plugin.message("Error MySql: " + e);
+                plugin.sendConsoleMessage("§cError while checking the database: " + e);
             }
         } while (repeat);
         return false;
     }
 }
-

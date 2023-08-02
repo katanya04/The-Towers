@@ -4,10 +4,8 @@ import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
-import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +14,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.Map;
 
 public class QuitListener implements Listener {
     private final AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -26,6 +23,8 @@ public class QuitListener implements Listener {
         final Player player = e.getPlayer();
         final String name = player.getName();
         final GameInstance gameInstance = plugin.getGameInstance(player);
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
         if (ScoreHelper.hasScore(player)) {
             ScoreHelper.removeScore(player);
@@ -37,7 +36,7 @@ public class QuitListener implements Listener {
                 .replace("{Player}", name));
         (new BukkitRunnable() {
             public void run() {
-                gameInstance.getUpdates().updateScoreboardAll();
+                gameInstance.getScoreUpdates().updateScoreboardAll();
                 List<Team> teams = gameInstance.getGame().getTeams().getTeams();
                 switch (gameInstance.getGame().getGameState()) {
                     case LOBBY:
@@ -70,7 +69,7 @@ public class QuitListener implements Listener {
                                 int numberOfTeams = teams.size();
                                 int numero = (int) Math.floor(Math.random() * numberOfTeams);
                                 gameInstance.getGame().getFinish().Fatality(TeamColor.values()[numero]);
-                                System.out.println(numero);
+                                plugin.sendConsoleMessage("(Randomly chosen as there were no players in the match)");
                             }
                         }
                         break;

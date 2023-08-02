@@ -12,6 +12,7 @@ import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.HashMap;
@@ -53,17 +54,8 @@ public class GameInstance {
             this.game = new Game(this);
             this.scoreUpdate = new ScoreUpdate(this);
         } else {
-            Bukkit.getConsoleSender().sendMessage("Not all the locations have been set in "
-                    + name + ". Please set them first.");
+            plugin.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.");
         }
-    }
-
-    private World checkWorld() {
-        File potentialWorld = new File(Bukkit.getServer().getWorldContainer(), getName());
-        if (potentialWorld.exists())
-            return TowerCommand.createWorld(getName());
-        else
-            return null;
     }
 
     private void registerConfigs(String worldName) {
@@ -78,7 +70,7 @@ public class GameInstance {
             setWorld(towers.loadWorld());
             return true;
         } else {
-            Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] There is no backup for " + worldName + "!");
+            plugin.sendConsoleMessage("There is no backup for " + worldName + "!");
             return false;
         }
     }
@@ -98,8 +90,7 @@ public class GameInstance {
     public Config getConfig(ConfigType config) {
         return this.configs.get(config);
     }
-
-    public ScoreUpdate getUpdates() {
+    public ScoreUpdate getScoreUpdates() {
         return this.scoreUpdate;
     }
 
@@ -113,11 +104,14 @@ public class GameInstance {
     public int getNumPlayers() {
         return numPlayers;
     }
+    public int getMaxPlayers() {
+        return Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + numPlayers;
+    }
     public void addPlayer() {
-        numPlayers++;
+        ++numPlayers;
     }
     public void removePlayer() {
-        numPlayers--;
+        --numPlayers;
     }
     public void setWorld(World world) {
         this.world = world;
@@ -129,7 +123,6 @@ public class GameInstance {
     public int getNumberOfTeams() {
         return numberOfTeams;
     }
-
     public Detectoreishon getDetectoreishon() {
         return detectoreishon;
     }
@@ -137,8 +130,15 @@ public class GameInstance {
     public String getName() {
         return name;
     }
-
     public void linkWorld(World worldToLink) {
         this.world = worldToLink;
+    }
+
+    public void broadcastMessage(String msg, boolean colorMessage) {
+        if (colorMessage)
+            msg = AmazingTowers.getColor(msg);
+        for (Player player : world.getPlayers()) {
+            player.sendMessage(msg);
+        }
     }
 }

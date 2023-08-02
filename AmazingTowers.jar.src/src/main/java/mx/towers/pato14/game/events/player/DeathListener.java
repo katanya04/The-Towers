@@ -2,8 +2,6 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.kits.KitDefault;
-import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.enums.*;
@@ -18,9 +16,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
-import java.util.Map;
 
 public class DeathListener implements Listener {
     private final AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -30,6 +25,8 @@ public class DeathListener implements Listener {
         final Player player = e.getEntity().getPlayer();
         final Player killer = e.getEntity().getKiller();
         final GameInstance gameInstance = this.plugin.getGameInstance(player);
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
         if (killer == null) {
@@ -47,7 +44,7 @@ public class DeathListener implements Listener {
             addRewardsKiller(killer);
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
-        gameInstance.getUpdates().updateScoreboard(player);
+        gameInstance.getScoreUpdates().updateScoreboard(player);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.protect_leatherArmor")) {
             for (ItemStack i : e.getDrops()) {
                 if (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS) {
@@ -65,17 +62,19 @@ public class DeathListener implements Listener {
 
     private void addRewardsKiller(Player killer) {
         this.plugin.getGameInstance(killer).getGame().getStats().addOne(killer.getName(), StatType.KILLS);
-        this.plugin.getGameInstance(killer).getUpdates().updateScoreboard(killer);
+        this.plugin.getGameInstance(killer).getScoreUpdates().updateScoreboard(killer);
         this.plugin.getGameInstance(killer).getVault().setReward(killer, RewardsEnum.KILL);
     }
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
         final GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
-        if (!gameInstance.getGame().getGameState().equals(GameState.LOBBY) && playerTeam != null) {
+        if (gameInstance.getGame().getGameState().equals(GameState.GAME) && playerTeam != null) {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
-            KitDefault.KitDe(e.getPlayer());
+            gameInstance.getGame().applyKitToPlayer(e.getPlayer());
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
             Dar.DarItemsJoin(e.getPlayer(), GameMode.ADVENTURE);

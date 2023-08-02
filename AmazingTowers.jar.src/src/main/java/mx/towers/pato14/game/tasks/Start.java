@@ -40,14 +40,14 @@ public class Start {
         hasStarted = true;
         (new BukkitRunnable() {
             public void run() {
-                if (Start.this.seconds == 0) {
+                if (Start.this.seconds <= 0) {
                     game.setGameState(GameState.GAME);
                     cancel();
                     Start.this.teleportPlayers();
                     Start.this.startGenerators();
                     CofresillosListener.getChests(Start.this.game.getGameInstance());
-                    Start.this.game.getGameInstance().getUpdates().getRefill().iniciarRefill();
-                    Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
+                    Start.this.game.getGameInstance().getScoreUpdates().getRefill().iniciarRefill();
+                    Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     Start.this.game.getDetectionMove().MoveDetect();
                     return;
                 }
@@ -57,7 +57,7 @@ public class Start {
                     for (Player p : world.getPlayers()) {
                         p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.necessaryPlayers")));
                     }
-                    Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
+                    Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     return;
                 }
                 if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
@@ -75,14 +75,14 @@ public class Start {
                         Start.this.plugin.getNms().sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
-                Start.this.game.getGameInstance().getUpdates().updateScoreboardGame(game);
+                Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                 if (!Start.this.stop) Start.this.seconds = Start.this.seconds - 1;
             }
         }).runTaskTimer(this.plugin, 0L, 20L);
     }
 
     private void teleportPlayers() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : game.getPlayers()) {
             Dar.darItemsJoinTeam(player);
         }
     }
@@ -129,7 +129,7 @@ public class Start {
                                 plugin.getNms().deserializeItemStack(item.get("item")));
                     }
                 } catch (MojangsonParseException exception) {
-                    Bukkit.getConsoleSender().sendMessage("Error while parsing the generator items!");
+                    plugin.sendConsoleMessage("§cError while parsing the generator items!");
                     cancel();
                 }
             }

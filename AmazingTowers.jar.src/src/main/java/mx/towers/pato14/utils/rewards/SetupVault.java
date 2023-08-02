@@ -30,17 +30,16 @@ public class SetupVault {
 
     public static void setupVault() {
         if (plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
-            Bukkit.getConsoleSender().sendMessage("");
-            Bukkit.getConsoleSender().sendMessage("[AmazingTowers] Detecting if you have the vault plugin...");
+            plugin.sendConsoleMessage("");
+            plugin.sendConsoleMessage("Detecting if you have the vault plugin...");
             if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
-                Bukkit.getConsoleSender().sendMessage("[AmazingTowers] It has been detected that you have the Vault plugin, loading Chat and Economy...");
+                plugin.sendConsoleMessage("It has been detected that you have the Vault plugin, loading Chat and Economy...");
             } else {
-                Bukkit.getConsoleSender().sendMessage("[AmazingTowers] Apparently you do not have the Vault plugin, so the compatibility of this will be disabled");
+                plugin.sendConsoleMessage("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled");
             }
             if (Bukkit.getServer().getPluginManager().getPlugin("Vault") != null) {
-                String format = "[AmazingTowers] %s: [%s]";
-                Bukkit.getConsoleSender().sendMessage(setupEconomy() ? String.format(format, "Economy", economy.getName()) : String.format(format, "Economy", "NONE"));
-                Bukkit.getConsoleSender().sendMessage(setupChat() ? String.format(format, "Chat", chat.getName()) : String.format(format, "Chat", "NONE"));
+                plugin.sendConsoleMessage(setupEconomy() ? "Economy" + economy.getName() : "Economy NONE");
+                plugin.sendConsoleMessage(setupChat() ? "Chat" + chat.getName() : "Chat NONE");
             }
         }
     }

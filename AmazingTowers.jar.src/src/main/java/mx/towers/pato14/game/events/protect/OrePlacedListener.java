@@ -19,6 +19,8 @@ public class OrePlacedListener implements Listener {
     @EventHandler
     public void onOrePlaced(BlockPlaceEvent e) {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
         if (!gameInstance.getRules().get(Rule.EMERALD) && e.getBlock().getType().equals(Material.EMERALD_BLOCK)) {
             if (Locations.isInsidePoolRoom(locations, e.getBlock().getLocation(), 0, gameInstance.getNumberOfTeams()))

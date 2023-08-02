@@ -22,9 +22,11 @@ public class AntiFallingSandTrollListener implements Listener {
 
     @EventHandler
     public void onFallingSand(EntityChangeBlockEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (e.getEntityType().equals(EntityType.FALLING_BLOCK)) {
             FallingBlock flbl = (FallingBlock) e.getEntity();
-            GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
             Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
             if (!Locations.isValidLocation(locations,
                     e.getBlock().getLocation(),

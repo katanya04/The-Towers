@@ -3,6 +3,8 @@ package mx.towers.pato14.game;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.events.EventsManager;
+import mx.towers.pato14.game.kits.Kit;
+import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.LobbyItems;
@@ -12,8 +14,11 @@ import mx.towers.pato14.game.utils.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Game {
@@ -27,11 +32,15 @@ public class Game {
     private Book bookItem;
     private final GameInstance gameInstance;
     private GameState gameState;
+    private final Kits kits;
+    private final HashMap<HumanEntity, Kit> playersSelectedKit;
 
     public Game(GameInstance game) {
         this.gameInstance = game;
         this.plugin = game.getPlugin();
         this.gameState = GameState.LOBBY;
+        this.kits = new Kits(game.getConfig(ConfigType.KITS));
+        this.playersSelectedKit = new HashMap<>();
         this.lobbyItems = new LobbyItems(this);
         (new EventsManager(getPlugin())).registerEvents();
         getPlugin().getServer().getPluginManager().registerEvents(getLobbyItems(), getPlugin());
@@ -89,5 +98,21 @@ public class Game {
     }
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public Kits getKits() {
+        return kits;
+    }
+
+    public HashMap<HumanEntity, Kit> getPlayersSelectedKit() {
+        return playersSelectedKit;
+    }
+
+    public void applyKitToPlayer(HumanEntity player) {
+        Kit kit = this.getPlayersSelectedKit().get(player);
+        if (kit == null)
+            getKits().getDefaultKit().applyKitToPlayer(player);
+        else
+            kit.applyKitToPlayer(player);
     }
 }

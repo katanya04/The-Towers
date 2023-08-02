@@ -1,29 +1,45 @@
 package mx.towers.pato14.game.kits;
 
-import java.util.List;
-
+import mx.towers.pato14.AmazingTowers;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Kit {
     private final String name;
     private final ItemStack[] armor;
-    private final ItemStack[] itemsHotbar;
+    private final ItemStack[] hotbar;
+    private final int price;
+    private final boolean permanent;
+    private final ItemStack iconInMenu;
 
-    public Kit(String name) {
-        this.name = name;
-        this.armor = new ItemStack[4];
-        this.itemsHotbar = new ItemStack[9];
+    public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, int price, boolean permanent, ItemStack iconInMenu) {
+        this.name = name.trim();
+        this.armor = armor;
+        this.hotbar = hotbar;
+        this.price = price;
+        this.permanent = permanent;
+        this.iconInMenu = setIcon(iconInMenu);
     }
 
-    public void setArmor(List<String> armor) {
-        if (armor.size() < 5) {
-            for (String st : armor) {
-                int i = st.length();
-            }
-        }
+    private ItemStack setIcon(ItemStack item) {
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(AmazingTowers.getColor("§r&l" + this.name));
+        List<String> lore = new ArrayList<>();
+        lore.add(this.price + " coins");
+        lore.add(permanent ? "Usos ilimitados" : "Comprar 1 uso");
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
     }
 
-    public String getNameKit() {
+    public String getName() {
         return this.name;
     }
 
@@ -31,8 +47,41 @@ public class Kit {
         return this.armor;
     }
 
-    public ItemStack[] getItemsHotbar() {
-        return this.itemsHotbar;
+    public ItemStack[] getHotbar() {
+        return this.hotbar;
+    }
+
+    public ItemStack getIconInMenu() {
+        return iconInMenu;
+    }
+
+    public void applyKitToPlayer(HumanEntity player) {
+        for (int i = 0; i < hotbar.length; i++) {
+            player.getInventory().setItem(i, hotbar[i]);
+        }
+        Color color = AmazingTowers.getPlugin().getGameInstance(player).getGame().getTeams()
+                .getTeamColorByPlayer(player).getColorEnum();
+        for (ItemStack itemStack : armor) {
+            if (isLeatherArmor(itemStack.getType()) && color != null) {
+                LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
+                meta.setColor(color);
+                itemStack.setItemMeta(meta);
+            }
+        }
+        player.getInventory().setArmorContents(armor);
+    }
+
+    private boolean isLeatherArmor(Material material) {
+        return material.equals(Material.LEATHER_HELMET) || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS) || material.equals(Material.LEATHER_BOOTS);
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public boolean isPermanent() {
+        return permanent;
     }
 }
 

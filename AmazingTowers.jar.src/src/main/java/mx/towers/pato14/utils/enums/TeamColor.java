@@ -60,6 +60,11 @@ public enum TeamColor {
         return gameInstance.getConfig(ConfigType.CONFIG).getString("Teams.teamNames." + this.name().toLowerCase());
     }
 
+    public String getNameFirstCapitalized(GameInstance gameInstance) {
+        String toret = getName(gameInstance);
+        return toret.length() == 0 ? toret : toret.substring(0, 1).toUpperCase() + toret.substring(1);
+    }
+
     public static boolean isTeamColor(String teamColor) {
         try {
             TeamColor.valueOf(teamColor.toUpperCase());
@@ -72,9 +77,14 @@ public enum TeamColor {
     public ItemStack getTeamItem(GameInstance gameInstance) {
         ItemStack toret = new ItemStack(Material.WOOL, 1, this.woolColor);
         ItemMeta itemMeta = toret.getItemMeta();
-        itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                .getString("Items.joinTeam").replace("%team_color%", this.color)
-                .replace("%team_name%", this.getName(gameInstance))));
+        if (this.matchTeam)
+            itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                    .getString("Items.menuItems.joinTeam").replace("%team_color%", this.color)
+                    .replace("%team_name%", this.getName(gameInstance))));
+        else if (this == SPECTATOR)
+            itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                    .getString("Items.menuItems.spectator")));
+
         toret.setItemMeta(itemMeta);
         return toret;
     }

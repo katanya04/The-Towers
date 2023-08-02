@@ -22,8 +22,9 @@ public class PistonsillosListener implements Listener {
     @EventHandler
     public void onPiston(BlockPistonExtendEvent e) {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
-
         if (!Locations.isValidLocation(locations,
                 e.getBlock().getRelative(e.getDirection()).getLocation(),
                 gameInstance.getGame().getDetectionMove().getPools(),
@@ -49,6 +50,8 @@ public class PistonsillosListener implements Listener {
     @EventHandler
     public void onSticky(BlockPistonRetractEvent e) {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
         if (e.isSticky())
             for (Block bl : e.getBlocks()) {

@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -22,7 +23,10 @@ public class TntListener implements Listener {
     }
     @EventHandler
     public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException {
-        if (!plugin.getGameInstance(e.getEntity()).getRules().get(Rule.TNT)) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getRules().get(Rule.TNT)) {
             e.setCancelled(true);
             return;
         }
@@ -42,8 +46,11 @@ public class TntListener implements Listener {
     }
     @EventHandler
     public void onPlaceBlocks(BlockPlaceEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (e.getBlockPlaced().getType().equals(Material.TNT)) {
-            if (!plugin.getGameInstance(e.getPlayer()).getRules().get(Rule.TNT)) {
+            if (!gameInstance.getRules().get(Rule.TNT)) {
                 e.setCancelled(true);
                 return;
             }

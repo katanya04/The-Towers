@@ -55,6 +55,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>C:\Minecraft_Server_1_8_8 tt nuevo\plugins</outputDirectory>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>

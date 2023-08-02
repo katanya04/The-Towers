@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,9 @@ public class BowListener implements Listener {
     }
     @EventHandler
     public void onBowShoot(EntityShootBowEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!this.plugin.getGameInstance(e.getEntity()).getRules().get(Rule.BOW))
             e.setCancelled(true);
     }

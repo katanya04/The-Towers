@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,8 +16,10 @@ public class TimeListener implements Listener {
 
     @EventHandler
     public void onTime(WeatherChangeEvent e) {
-        if (this.plugin.getGameInstance(e.getWorld()).getConfig(ConfigType.CONFIG).getBoolean("Options.weather_cancel") &&
-                e.toWeatherState())
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getWorld());
+        if (gameInstance == null)
+            return;
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.weather_cancel") && e.toWeatherState())
             e.setCancelled(true);
     }
 }

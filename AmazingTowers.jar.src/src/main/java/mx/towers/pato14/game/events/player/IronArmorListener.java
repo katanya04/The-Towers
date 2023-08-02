@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,10 @@ public class IronArmorListener implements Listener {
     }
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
-        if(!this.plugin.getGameInstance(e.getWhoClicked()).getRules().get(Rule.IRON_ARMOR) && e.getSlotType() == InventoryType.SlotType.ARMOR){
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getWhoClicked());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if(!gameInstance.getRules().get(Rule.IRON_ARMOR) && e.getSlotType() == InventoryType.SlotType.ARMOR){
             e.setCancelled(true);
         }
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 public class ProtectedAreasListener implements Listener {
     private final AmazingTowers plugin;
-
     public ProtectedAreasListener(AmazingTowers plugin) {
         this.plugin = plugin;
     }
@@ -27,6 +26,8 @@ public class ProtectedAreasListener implements Listener {
     @EventHandler
     public void blockBreak(BlockBreakEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
@@ -45,6 +46,8 @@ public class ProtectedAreasListener implements Listener {
     @EventHandler
     public void onExplode(EntityExplodeEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
@@ -68,10 +71,11 @@ public class ProtectedAreasListener implements Listener {
     @EventHandler
     public void blockPlace(BlockPlaceEvent e) {
         GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
         if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
             return;
         }
-        System.out.println("Block place");
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         Location blockLocation = e.getBlock().getLocation();
         if (!Locations.isValidLocation(locations,

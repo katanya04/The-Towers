@@ -1,6 +1,7 @@
 package mx.towers.pato14.utils.wand;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Tool;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Location;

@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,18 +18,27 @@ public class PotionsAndAppleListener implements Listener {
     }
     @EventHandler
     public void onPlayerConsume(PlayerItemConsumeEvent e) {
-        if (!this.plugin.getGameInstance(e.getPlayer()).getRules().get(Rule.POTS_AND_APPLE)
-                && (e.getItem().getType().equals(Material.GOLDEN_APPLE) || e.getItem().getType().equals(Material.POTION)))
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE) && (e.getItem().getType().equals(Material.GOLDEN_APPLE)
+                || e.getItem().getType().equals(Material.POTION)))
             e.setCancelled(true);
     }
     @EventHandler
     public void onPlayerThrowPotion(PotionSplashEvent e) {
-        if (!this.plugin.getGameInstance(e.getEntity()).getRules().get(Rule.POTS_AND_APPLE))
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE))
             e.setCancelled(true);
     }
     @EventHandler
-    public void potionDispensedEvent(BlockDispenseEvent e){
-        if (!this.plugin.getGameInstance(e.getBlock()).getRules().get(Rule.POTS_AND_APPLE) && e.getItem().getType().equals(Material.POTION))
+    public void potionDispensedEvent(BlockDispenseEvent e) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE) && e.getItem().getType().equals(Material.POTION))
             e.setCancelled(true);
     }
 }

@@ -11,14 +11,14 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     ORGANIZER(0, 1, true, "<password>"),
     COUNT(1, 1, true, "stop|start|<number>"),
     RULE(1, 2, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false"),
-    SETSCORE(1, 2, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<number>"),
-    JOINTEAM(1, 2, true, argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "<onlinePlayer>"),
+    SETSCORE(1, 2, true, "%team_colors%", "<number>"),
+    JOINTEAM(1, 2, true, "%team_colors%", "<onlinePlayer>"),
     LOCATIONS(2, 0, true),
     TPWORLD(2, 1, true, "<worldName>"),
     CREATEWORLD(2, 1, false, "<instanceName>|all"),
     BACKUPWORLD(2, 0, true),
     LOADWORLD(2, 1, true, "<worldName>"),
-    SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*" + argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
+    SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
     HELP(2, 0, true),
     VAULTINFO(2, 0, true),
     RELOADCONFIG(2, 1, true, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
@@ -75,19 +75,20 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         return argsBuilder(this.arguments, ' ');
     }
 
-    public String getCorrectUse() {
+    public String getCorrectUse(int numberOfTeams) {
         StringBuilder toret = new StringBuilder();
         toret.append("§f/towers §a").append(this.name().toLowerCase());
-        String arguments = this.getArgs();
+        String arguments = this.getArgs().replace("%team_colors%",
+                argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).limit(numberOfTeams).toArray(String[]::new), '|'));
         if (!arguments.isEmpty())
             toret.append(" §e").append(arguments);
         return toret.toString();
     }
 
-    public static String listOfCommands() {
+    public static String listOfCommands(int numberOfTeams) {
         StringBuilder toret = new StringBuilder();
         for (Subcommand subcommand : Subcommand.values()) {
-            toret.append(subcommand.getCorrectUse());
+            toret.append(subcommand.getCorrectUse(numberOfTeams));
             toret.append("\n");
         }
         return toret.toString();
@@ -102,9 +103,11 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         }
     }
 
-    public static int checkArgs(Subcommand subcommand, String[] args) {
+    public static int checkArgs(Subcommand subcommand, String[] args, int numberOfTeams) {
         int i = 1;
         for (String currentArg : subcommand.getArguments()) {
+            currentArg = currentArg.replace("%team_colors%",
+                argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).limit(numberOfTeams).toArray(String[]::new), '|'));
             if (currentArg.charAt(0) == '*') //Optional argument is always at the end
                 return 0;
             String[] currentArgSeparated = currentArg.split("\\|");

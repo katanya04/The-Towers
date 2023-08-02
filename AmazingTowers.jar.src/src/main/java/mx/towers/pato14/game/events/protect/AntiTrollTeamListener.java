@@ -24,11 +24,13 @@ public class AntiTrollTeamListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
-        if (!plugin.getGameInstance(e.getPlayer()).getGame().getGameState().equals(GameState.GAME))
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getGame().getGameState().equals(GameState.GAME))
             return;
         if (!e.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() || e.getBlock().getRelative(BlockFace.DOWN).getDrops().contains(new ItemStack(Material.SIGN))) {
             Player pl = e.getPlayer();
-            GameInstance gameInstance = this.plugin.getGameInstance(pl);
             Team plTeam = gameInstance.getGame().getTeams().getTeamByPlayer(pl);
             byte b;
             int i;

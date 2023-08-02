@@ -15,12 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.GameMode;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -85,7 +83,7 @@ public class Finish {
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
                     if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.restart_server.enabled")) {
-                        Bukkit.broadcastMessage(AmazingTowers.getColor(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.restart_server.message")));
+                        Finish.this.game.getGameInstance().broadcastMessage(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.restart_server.message"), true);
                     }
                 }
                 if (Finish.this.seconds == 9) {
@@ -93,12 +91,12 @@ public class Finish {
                     List<Map.Entry<String, Stats>> killsSorted =
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byKills))).collect(Collectors.toList());
-                    String topFiveKills = getTopFive(killsSorted, StatType.KILLS);
+                    String topFiveKills = AmazingTowers.getColor(getTopFive(killsSorted, StatType.KILLS));
                     for (Player player : game.getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFiveKills);
                         if (!topFiveKills.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = getPosition(killsSorted, player.getName(), StatType.KILLS);
+                            String msg = AmazingTowers.getColor(getPosition(killsSorted, player.getName(), StatType.KILLS));
                             player.sendMessage(msg);
                         }
                     }
@@ -107,12 +105,12 @@ public class Finish {
                     List<Map.Entry<String, Stats>> pointsSorted =
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byPoints))).collect(Collectors.toList());
-                    String topFivePoints = getTopFive(pointsSorted, StatType.POINTS);
+                    String topFivePoints = AmazingTowers.getColor(getTopFive(pointsSorted, StatType.POINTS));
                     for (Player player : game.getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFivePoints);
                         if (!topFivePoints.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = getPosition(pointsSorted, player.getName(), StatType.POINTS);
+                            String msg = AmazingTowers.getColor(getPosition(pointsSorted, player.getName(), StatType.POINTS));
                             player.sendMessage(msg);
                         }
                     }
@@ -183,9 +181,9 @@ public class Finish {
                 this.plugin.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
         }
-        Bukkit.broadcastMessage(AmazingTowers.getColor(messages.getString("messages.Win-Messages.Win")
+        game.getGameInstance().broadcastMessage(messages.getString("messages.Win-Messages.Win")
                 .replace("{Color}", teamColor.getColor())
-                .replace("{Team}", teamColor.getName(game.getGameInstance()))));
+                .replace("{Team}", teamColor.getName(game.getGameInstance())), true);
     }
 
     public int getSeconds() {
@@ -194,13 +192,13 @@ public class Finish {
     private String getTopFive(List<Map.Entry<String, Stats>> list, StatType stat) {
         Iterator <Map.Entry<String, Stats>> listIterator = list.iterator();
         StringBuilder sb = new StringBuilder();
-        sb.append("§lTop ").append(stat.getText()).append("\n§r");
+        sb.append("&lTop ").append(stat.getText()).append("\n&r");
         int i;
         for (i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            sb.append("§").append(game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor().getColor());
+            sb.append(game.getTeams().getTeamByPlayerIncludingOffline(current.getKey()).getTeamColor().getColor());
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
-            sb.append("§r");
+            sb.append("&r");
         }
         return sb.toString();
     }
@@ -215,7 +213,7 @@ public class Finish {
             current = listIterator.next();
             if (current.getKey().equals(p)) break;
         }
-        sb.append("§").append(game.getTeams().getTeamByPlayer(p).getTeamColor().getColor());
+        sb.append(game.getTeams().getTeamByPlayerIncludingOffline(p).getTeamColor().getColor());
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");
         return sb.toString();

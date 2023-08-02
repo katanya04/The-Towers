@@ -6,8 +6,6 @@ import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.TeamColor;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,23 +19,23 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         GameInstance gameInstance = plugin.getGameInstance(player);
-        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player);
-        gameInstance.getUpdates().createScoreboard(player);
-        gameInstance.getUpdates().updateScoreboardAll();
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayerIncludingOffline(player.getName());
         gameInstance.addPlayer();
+        gameInstance.getScoreUpdates().createScoreboard(player);
+        gameInstance.getScoreUpdates().updateScoreboardAll();
         switch (gameInstance.getGame().getGameState()) {
             case LOBBY:
-                Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-                if (Bukkit.getOnlinePlayers().size() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
+                if (gameInstance.getNumPlayers() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
                     gameInstance.getGame().setGameState(GameState.PREGAME);
                     gameInstance.getGame().getStart().gameStart();
                 }
-                break;
             case PREGAME:
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
                 break;
             case GAME:
-                if (team != null && team.containsOffline(player.getName())) {
+                if (team != null) {
                     team.removeOfflinePlayer(player.getName());
                     Dar.darItemsJoinTeam(player);
                     break;
@@ -56,10 +54,10 @@ public class JoinListener implements Listener {
         } else {
             e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.joinMessage").replaceAll("&", "§")
                     .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                    .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers())));
+                    .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers())));
         }
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
-            this.plugin.con.CreateAcount(player.getName());
+            this.plugin.con.CreateAccount(player.getName());
     }
 }
 

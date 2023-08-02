@@ -58,9 +58,25 @@ Options:
 
 Items:
 
-  joinTeam: '%team_color%&lUnirse al equipo %team_name% &7(Click Derecho)'
-  spectator: '&7&lEspectar partida &7(Click Derecho)'
-  quit: '&c&lVolver al lobby &7(Click Derecho)'
+  hotbarItems:
+    joinTeams:
+      name: '&3&lEscoger equipo'
+      position: 0
+    kits:
+      name: '&3&lEscoger kit'
+      position: 1
+    quit:
+      name: '&c&lVolver al lobby'
+      position: 8
+
+  menuItems:
+    joinTeam: '%team_color%&lUnirse al equipo %team_name%'
+    spectator: '&7&lModo espectador'
+
+  buyKitMenuName: '&a&lComprar kit'
+  acceptBuy: '&a&lComprar'
+  denyBuy: '&c&lNo comprar'
+
 
 
 Teams:

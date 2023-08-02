@@ -3,6 +3,7 @@ package mx.towers.pato14.game.team;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -23,7 +24,7 @@ public class GameTeams {
         }
     }
 
-    public void removePlayer(Player player) {
+    public void removePlayer(HumanEntity player) {
         for (Team team : teams) {
             if (team.containsPlayer(player.getName())) {
                 team.removePlayer(player);
@@ -55,14 +56,21 @@ public class GameTeams {
         }
         return null;
     }
-    public Team getTeamByPlayer(Player p) {
+    public Team getTeamByPlayerIncludingOffline(String p) {
+        for (Team team : teams) {
+            if (team.containsPlayer(p) || team.containsOffline(p))
+                return team;
+        }
+        return null;
+    }
+    public Team getTeamByPlayer(HumanEntity p) {
         return getTeamByPlayer(p.getName());
     }
     public TeamColor getTeamColorByPlayer(String p) {
         Team team = getTeamByPlayer(p);
         return team == null ? null : team.getTeamColor();
     }
-    public TeamColor getTeamColorByPlayer(Player p) {
+    public TeamColor getTeamColorByPlayer(HumanEntity p) {
         return getTeamColorByPlayer(p.getName());
     }
 
@@ -81,8 +89,12 @@ public class GameTeams {
 
     public String scores() {
         StringBuilder sb = new StringBuilder();
-        for (Team t : this.teams) {
-            sb.append("&").append(t.getTeamColor().getColor()).append("&l").append(t.getPoints());
+        Iterator<Team> teamIterator = this.teams.listIterator();
+        while (teamIterator.hasNext()) {
+            Team t = teamIterator.next();
+            sb.append(t.getTeamColor().getColor()).append("&l").append(t.getPoints());
+            if (teamIterator.hasNext())
+                sb.append("&r - ");
         }
         return sb.toString();
     }

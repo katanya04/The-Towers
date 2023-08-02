@@ -18,12 +18,16 @@ messages:
 
   ##MESSAGES INVENTORY##
   join: '&7Te uniste al{Color}&l equipo {Team}!'
-  joinspectator: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers &fspect'
+  joinSpectator: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers&f spectator'
   leave: '&7Abandonaste el{Color}&l equipo {Team}!'
 
-  alreadyJoinedTeam: '&7Ya estas en el {Color}&lEQUIPO {Team}!'
+  alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}!'
 
   unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
+
+  selectKit: '&7Kit %kitName% seleccionado'
+  buyKit: '&7Has comprado el kit %kitName%'
+  notEnoughMoney: '&cNo tienes suficiente dinero'
 
   #Don't open rival team's chests
   open_chest: '&cNo puedes abrir los cofres del equipo enemigo'

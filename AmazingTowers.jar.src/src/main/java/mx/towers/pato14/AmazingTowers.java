@@ -6,7 +6,7 @@ import java.util.*;
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
-import mx.towers.pato14.utils.mysql.Conexion;
+import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
 import mx.towers.pato14.utils.wand.Wand;
@@ -26,8 +26,8 @@ public final class AmazingTowers extends JavaPlugin {
     private NMS nms;
     private Wand wand;
     private Config globalConfig;
-    public Conexion con;
-    private final HashMap<String, PermissionAttachment> perms = new HashMap<String, PermissionAttachment>();
+    public Connexion con;
+    private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
 
     public void onLoad() {
         if (!getDescription().getAuthors().contains("Pato14")) {
@@ -40,13 +40,13 @@ public final class AmazingTowers extends JavaPlugin {
         games = new HashMap<>();
 
         if (!setupNMS()) {
-            Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] Your server version is not compatible with this plugin!");
+            sendConsoleMessage("§cYour server version is not compatible with this plugin!");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
-            Bukkit.getConsoleSender().sendMessage("§c[AmazingTowers] Not detected the 'NameTagEdit' plugin, disabling AmazingTowers");
+            sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -62,17 +62,15 @@ public final class AmazingTowers extends JavaPlugin {
 
         if (getGlobalConfig().getBoolean("Options.mysql.active")) {
             try {
-                this.con = new Conexion();
-                this.con.Conectar();
+                this.con = new Connexion();
+                this.con.Connect();
                 this.con.CreateTable();
-                message("Mysql stats is enabled");
+                sendConsoleMessage("§aSuccessfully connected to the database");
             } catch (Exception e) {
-                message("connecting to MySql");
+                sendConsoleMessage("§cCouldn't connect to the database");
             }
-        } else {
-            message("Mysql stats is disabled");
         }
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new Expansion(this).register();
         }
         enabledPlugin();
@@ -87,48 +85,44 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     private void enabledPlugin() {
-        String prefix = "§f[§aAmazingTowers§f]";
         this.wand = new Wand();
         getServer().getPluginManager().registerEvents(new WandListener(this), this);
         getServer().getPluginManager().registerEvents(new SelectCofresillos(this), this);
-        String version = null;
-        getServer().getConsoleSender().sendMessage("");
+        String version;
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            Bukkit.getConsoleSender().sendMessage("§a[AmazingTowers] §aServer§f: §f" + version);
+            sendConsoleMessage("§aServer§f: §f" + version);
         } catch (ArrayIndexOutOfBoundsException a) {
             a.printStackTrace();
         }
-        getServer().getConsoleSender().sendMessage(prefix + " §a-----§f-§a-----§f-§a------§f-§a-----");
-        getServer().getConsoleSender().sendMessage(prefix + " §aPlugin§f: §aEnabled §asuccessfully§f!");
-        getServer().getConsoleSender().sendMessage(prefix + " §aVersion§f: §f" + getDescription().getVersion());
-        getServer().getConsoleSender().sendMessage(prefix + " §aAuthor§f: §f[§aPato14§f, §aMarco2124§f]");
-        getServer().getConsoleSender().sendMessage(prefix + " §a-----§f-§a-----§f-§a------§f-§a-----");
+        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
+        sendConsoleMessage("§aPlugin§f: §aEnabled§a successfully§f!");
+        sendConsoleMessage("§aVersion§f: §f" + getDescription().getVersion());
+        sendConsoleMessage("§aAuthor§f: §f[§aPato14§f, §aMarco2124§f]");
+        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
         boolean worldUnset = false;
         for (GameInstance gameInstance : games.values()) {
             if (gameInstance.getWorld() != null) {
-                Bukkit.getConsoleSender().sendMessage(prefix + "§f§l " + gameInstance.getName() + "§f locations needed to be set: ");
-                Bukkit.getConsoleSender().sendMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
-                Bukkit.getConsoleSender().sendMessage("");
+                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ");
+                sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
             } else {
                 worldUnset = true;
-                Bukkit.getConsoleSender().sendMessage(prefix + "§f§l " + gameInstance.getName() + "§f world doesn't exist yet.");
-                Bukkit.getConsoleSender().sendMessage(prefix + " To create it, run /tt createWorld " + gameInstance.getName());
-                Bukkit.getConsoleSender().sendMessage("");
+                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f world doesn't exist yet.");
+                sendConsoleMessage("To create it, run /tt createWorld " + gameInstance.getName());
             }
             if (worldUnset) {
-                Bukkit.getConsoleSender().sendMessage(prefix + " To create all missing worlds, run /tt createWorld all");
-                Bukkit.getConsoleSender().sendMessage("");
+                sendConsoleMessage("To create all missing worlds, run /tt createWorld all");
             }
         }
     }
 
     private boolean setupNMS() {
-        String version = null;
+        String version;
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         } catch (ArrayIndexOutOfBoundsException a) {
             a.printStackTrace();
+            return false;
         }
         if (version.hashCode() == -1156422964) {
             if (!version.equals("v1_8_R3"))
@@ -153,9 +147,7 @@ public final class AmazingTowers extends JavaPlugin {
     public static AmazingTowers getPlugin() {
         return plugin;
     }
-    public void message(String message) {
-        Bukkit.getConsoleSender().sendMessage(message);
-    }
+
     public HashMap<String, PermissionAttachment> getPermissions() {
         return this.perms;
     }
@@ -187,12 +179,17 @@ public final class AmazingTowers extends JavaPlugin {
         File folder = new File(plugin.getDataFolder(), "backup");
         if (!folder.exists() &&
                 folder.mkdirs()) {
-            System.out.println("[AmazingTowers] The backup folder was created successfully");
+            sendConsoleMessage("The backup folder was created successfully");
         }
     }
 
     public static HashMap<String, GameInstance> getGameInstances() {
         return games;
+    }
+
+    public void sendConsoleMessage(String msg) {
+        String prefix = "§f[§aAmazingTowers§f] ";
+        getServer().getConsoleSender().sendMessage(prefix + msg);
     }
 }
 

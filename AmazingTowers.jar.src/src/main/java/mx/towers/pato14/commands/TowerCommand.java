@@ -17,7 +17,6 @@ import java.io.File;
 import mx.towers.pato14.game.utils.Dar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,8 +34,8 @@ public class TowerCommand implements CommandExecutor
     private final ArrayList<Player> senderPlayer;
     private final HashMap<String, Long> cooldown;
     public TowerCommand(final AmazingTowers plugin) {
-        this.senderPlayer = new ArrayList<>();
         this.plugin = plugin;
+        this.senderPlayer = new ArrayList<>();
         this.cooldown = new HashMap<>();
     }
 
@@ -56,39 +55,39 @@ public class TowerCommand implements CommandExecutor
     }
 
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
-        if (args.length < 1  || Subcommand.isValidSubcommand(args[0]) == null || args[0].equalsIgnoreCase(Subcommand.HELP.name())) {
-            sender.sendMessage(Subcommand.listOfCommands());
-            return true;
-        }
-        Subcommand arg0 = Subcommand.isValidSubcommand(args[0]);
-        assert arg0 != null;
-        if (!arg0.hasPermission(sender)) {
-            sender.sendMessage("No tienes permiso para ejecutar este comando.");
-            return true;
-        }
-        if (!arg0.checkCorrectSender(sender)) {
-            sender.sendMessage("Solo un jugador puede ejecutar este comando.");
-            return true;
-        }
-        if (!arg0.correctNumberOfArguments(args)) {
-            sender.sendMessage(arg0.getCorrectUse());
-            return true;
-        }
-        if (args.length > 1) {
-            int argError = Subcommand.checkArgs(arg0, args);
-            if (argError > 0) {
-                sender.sendMessage("Error en el argumento " + argError);
-                sender.sendMessage(arg0.getCorrectUse());
-                return true;
-            }
-        }
         GameInstance gameInstance = null;
         Player player = null;
         if (sender instanceof Player) {
             player = (Player) sender;
             gameInstance = this.plugin.getGameInstance(player);
         }
-        switch (arg0) {
+        int numberOfTeams = gameInstance == null ? TeamColor.getMatchTeams(TeamColor.values().length).size() : gameInstance.getNumberOfTeams();
+        Subcommand subcommand;
+        if (args.length < 1  || (subcommand = Subcommand.isValidSubcommand(args[0])) == null || args[0].equalsIgnoreCase(Subcommand.HELP.name())) {
+            sender.sendMessage(Subcommand.listOfCommands(numberOfTeams));
+            return true;
+        }
+        if (!subcommand.hasPermission(sender)) {
+            sender.sendMessage("No tienes permiso para ejecutar este comando.");
+            return true;
+        }
+        if (!subcommand.checkCorrectSender(sender)) {
+            sender.sendMessage("Solo un jugador puede ejecutar este comando.");
+            return true;
+        }
+        if (!subcommand.correctNumberOfArguments(args)) {
+            sender.sendMessage(subcommand.getCorrectUse(numberOfTeams));
+            return true;
+        }
+        if (args.length > 1) {
+            int argError = Subcommand.checkArgs(subcommand, args, numberOfTeams);
+            if (argError > 0) {
+                sender.sendMessage("Error en el argumento " + argError);
+                sender.sendMessage(subcommand.getCorrectUse(numberOfTeams));
+                return true;
+            }
+        }
+        switch (subcommand) {
             case STATS:
                 if (this.plugin.getGlobalConfig().getBoolean("Options.mysql.active")) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
@@ -116,7 +115,8 @@ public class TowerCommand implements CommandExecutor
                     sender.sendMessage("§4Solo puedes ejecutar este comando estando en modo espectador");
                 break;
             case ORGANIZER:
-                if (args[1].equals(this.plugin.getGlobalConfig().getString("Permissions.password.organizer"))) {
+                String password = this.plugin.getGlobalConfig().getString("Permissions.password.organizer");
+                if (password != null && !password.isEmpty() && args[1].equals(password)) {
                     PermissionAttachment organizer;
                     organizer = sender.addAttachment(this.plugin);
                     this.plugin.getPermissions().put(sender.getName(), organizer);
@@ -150,15 +150,14 @@ public class TowerCommand implements CommandExecutor
             case SETSCORE:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
-                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPoints(Integer.parseInt(args[2]));
-                    Bukkit.broadcastMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand") +
-                            gameInstance.getGame().getTeams().scores()));
+                    Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
+                    team.setPoints(Integer.parseInt(args[2]));
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand") +
+                            gameInstance.getGame().getTeams().scores(), true);
                     int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points");
-                    for (Team team: gameInstance.getGame().getTeams().getTeams()) {
-                        if (team.getPoints() >= pointsToWin) {
-                            gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
-                            gameInstance.getGame().setGameState(GameState.FINISH);
-                        }
+                    if (team.getPoints() >= pointsToWin) {
+                        gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
+                        gameInstance.getGame().setGameState(GameState.FINISH);
                     }
                 } else
                     sender.sendMessage("§4You can only execute this command during a match.");
@@ -170,7 +169,7 @@ public class TowerCommand implements CommandExecutor
                     Team pTeam = gameInstance.getGame().getTeams().getTeamByPlayer(p);
                     if (pTeam != null)
                        pTeam.removePlayer(p);
-                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1])).addPlayer(p);
+                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p);
                     Dar.darItemsJoinTeam(p);
                 } else
                     sender.sendMessage("Ese jugador no está en esta partida.");
@@ -180,8 +179,8 @@ public class TowerCommand implements CommandExecutor
                 if (Bukkit.getWorld(args[1]) != null) {
                     player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
                     player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
-                }
-                player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");
+                } else
+                    player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");
                 break;
             case CREATEWORLD:
                 boolean success = false;
@@ -234,7 +233,7 @@ public class TowerCommand implements CommandExecutor
                             }
                         }
                     }
-                    player.sendMessage("§fThe folder §a" + gameInstance.getWorld().getName() + " §fcopied to the backup folder §asuccessfully");
+                    player.sendMessage("§fThe folder §a" + gameInstance.getWorld().getName() + "§f copied to the backup folder§a successfully");
                     this.senderPlayer.remove(player);
                 }
                 break;
@@ -242,16 +241,17 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 final File world2 = new File(Bukkit.getWorldContainer().getAbsolutePath(), args[1]);
                 if (!world2.exists())
-                    player.sendMessage("§fThe folder of the world §c" + args[1] + " §fdoesn't exist");
+                    player.sendMessage("§fThe folder of the world §c" + args[1] + "§f doesn't exist");
                 else if (Bukkit.getWorld(args[1]) == null) {
                     player.sendMessage("Loading the world §a" + args[1] + "§f...");
                     new WorldCreator(args[1]).createWorld();
-                    player.sendMessage("The world §a" + args[1] + " §floaded §asuccesfully...");
+                    player.sendMessage("The world §a" + args[1] + "§f loaded§a successfully...");
                 } else
                     player.sendMessage("§fThe world §a" + args[1] + " §fis already loaded!");
                 break;
             case SETREGION:
                 assert player != null;
+                assert gameInstance != null;
                 final Location loc = Location.valueOf(args[1].toUpperCase());
                 final TeamColor teamColor = args.length < 3 || !TeamColor.isTeamColor(args[2]) ? null : TeamColor.valueOf(args[2].toUpperCase());
                 if (loc.needsTeamColor() && teamColor == null) {
@@ -300,10 +300,10 @@ public class TowerCommand implements CommandExecutor
                 locations.saveConfig();
                 break;
             case HELP:
-                sender.sendMessage(Subcommand.listOfCommands());
+                sender.sendMessage(Subcommand.listOfCommands(numberOfTeams));
             case VAULTINFO:
                 if (Bukkit.getPluginManager().getPlugin("Vault") == null)
-                    sender.sendMessage("§cThe vault plugin don't exist");
+                    sender.sendMessage("§cThe vault plugin doesn't exist");
                 else if (this.plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
                     final String format = ChatColor.GRAY + "%s: [%s]";
                     sender.sendMessage("§7*--------------*");

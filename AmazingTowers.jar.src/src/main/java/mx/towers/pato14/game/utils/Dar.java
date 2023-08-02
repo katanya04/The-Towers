@@ -5,7 +5,6 @@ import com.google.common.io.ByteStreams;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.kits.KitDefault;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Location;
@@ -29,16 +28,7 @@ public class Dar {
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
-        for (TeamColor teamColor : TeamColor.getTeams(gameInstance.getNumberOfTeams())) {
-            player.getInventory().setItem(teamColor.ordinal(), plugin.getGameInstance(player).getGame().getLobbyItems().getItem(teamColor));
-        }
-        if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
-            player.getInventory().setItem(gameInstance.getNumberOfTeams(), plugin.getGameInstance(player).getGame().getLobbyItems().getItemQuit());
-        }
-        if (gameInstance.getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
-            int position = gameInstance.getConfig(ConfigType.BOOK).getInt("book.position");
-            player.getInventory().setItem(position > gameInstance.getNumberOfTeams() ? position : gameInstance.getNumberOfTeams() + 1, plugin.getGameInstance(player).getGame().getItemBook().getItem());
-        }
+        gameInstance.getGame().getLobbyItems().giveHotbarItems(player);
         removePotion(player);
         NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
@@ -47,20 +37,20 @@ public class Dar {
     public static void darItemsJoinTeam(Player player) {
         removePotion(player);
         GameInstance gameInstance = plugin.getGameInstance(player);
-        for (Team team: gameInstance.getGame().getTeams().getTeams()) {
-            if (team.containsPlayer(player.getName())) {
-                NametagEdit.getApi().clearNametag(player);
-                player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
-                player.getInventory().clear();
-                player.getInventory().setArmorContents(null);
-                player.setFoodLevel(20);
-                player.setSaturation(5.f);
-                player.setGameMode(GameMode.SURVIVAL);
-                team.setNameTagPlayer(player);
-                KitDefault.KitDe(player);
-                gameInstance.getGame().getStats().setHashStats(player.getName());
-            }
-        }
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        if (team == null)
+            return;
+        NametagEdit.getApi().clearNametag(player);
+        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.setFoodLevel(20);
+        player.setSaturation(5.f);
+        player.setGameMode(GameMode.SURVIVAL);
+        team.setNameTagPlayer(player);
+        gameInstance.getGame().applyKitToPlayer(player);
+        gameInstance.getGame().getStats().setHashStats(player.getName());
+
     }
 
     private static void removePotion(Player player) {

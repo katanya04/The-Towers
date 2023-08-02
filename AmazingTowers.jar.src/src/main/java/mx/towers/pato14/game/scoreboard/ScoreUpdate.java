@@ -6,13 +6,11 @@ import java.util.List;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.cofresillos.RefilleadoGalloConTenis;
 import mx.towers.pato14.utils.enums.GameState;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ScoreUpdate {
@@ -40,12 +38,6 @@ public class ScoreUpdate {
         }
     }
 
-    public void updateScoreboardGame(Game game) {
-        for (Player player : game.getPlayers()) {
-            updateScoreboard(player);
-        }
-    }
-
     public void updateScoreboard(Player player) {
         if (ScoreHelper.hasScore(player)) {
             ScoreHelper helper = ScoreHelper.getByPlayer(player);
@@ -60,7 +52,7 @@ public class ScoreUpdate {
             for (String st : l) {
                 helper.setSlot(i, AmazingTowers.getColor(st)
                         .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                        .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
+                        .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers()))
                         .replace("%date%", this.date));
                 i--;
             }
@@ -70,7 +62,7 @@ public class ScoreUpdate {
             for (String st : l) {
                 helper.setSlot(i, AmazingTowers.getColor(st)
                         .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                        .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
+                        .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers()))
                         .replace("%date%", this.date)
                         .replace("%seconds%", String.valueOf(gameInstance.getGame().getStart().getIntSeconds())));
                 i--;
@@ -84,7 +76,7 @@ public class ScoreUpdate {
             for (String st : l) {
                 String text = AmazingTowers.getColor(st)
                         .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                        .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size() + gameInstance.getNumPlayers()))
+                        .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers()))
                         .replace("%date%", this.date)
                         .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
                         .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
@@ -97,7 +89,7 @@ public class ScoreUpdate {
                                 .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
                                 .replace("%team_points%", String.valueOf(teams.get(currentTeam).getPoints()))
                                 .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
-                                .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getName(gameInstance))));
+                                .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getNameFirstCapitalized(gameInstance))));
                         currentTeam++;
                     } else
                         continue;

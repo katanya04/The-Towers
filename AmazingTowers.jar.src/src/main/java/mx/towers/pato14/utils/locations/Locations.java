@@ -8,7 +8,6 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,16 +59,11 @@ public class Locations {
     }
 
     public static boolean isInsidePoolRoom(Config locations, Location loc, int extraHeight, int numTeams) {
+        List<String> poolRoom;
         for (TeamColor teamColor : TeamColor.getMatchTeams(numTeams)) {
-            String path = mx.towers.pato14.utils.enums.Location.POOL.getPath(teamColor);
-            @SuppressWarnings("unchecked")
-            List<List<String>> poolRooms = locations.getList(path) == null ? new ArrayList<>() :
-                    locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o)
-                            .collect(Collectors.toList());
-            for (List<String> area : poolRooms) {
-                if (Cuboide.InCuboideExtraHeight(area, loc, extraHeight))
-                    return true;
-            }
+            poolRoom = locations.getStringList(mx.towers.pato14.utils.enums.Location.POOL_ROOM.getPath(teamColor));
+            if (Cuboide.InCuboideExtraHeight(poolRoom, loc, extraHeight))
+                return true;
         }
         return false;
     }

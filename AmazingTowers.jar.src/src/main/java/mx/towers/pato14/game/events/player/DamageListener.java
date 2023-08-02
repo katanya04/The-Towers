@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.entity.EntityType;
@@ -16,7 +17,10 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void voidDamage(EntityDamageEvent e) {
-        if (plugin.getGameInstance(e.getEntity()).getGame().getGameState().equals(GameState.GAME)) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (!gameInstance.getGame().getGameState().equals(GameState.GAME)) {
             e.setCancelled(true);
             return;
         }
@@ -31,29 +35,19 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
-        if (e.getEntityType().equals(EntityType.PLAYER) && e.getDamager().getType().equals(EntityType.PLAYER)) {
-            GameTeams teams = plugin.getGameInstance(e.getEntity()).getGame().getTeams();
-            if (teams.getTeamByPlayer((Player) e.getEntity()).equals(teams.getTeamByPlayer((Player) e.getDamager())))
-                e.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onSnowball(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Projectile && e.getEntity() instanceof Player) {
-            Projectile p = (Projectile) e.getDamager();
-            if (p.getShooter() instanceof Player) {
-                Player pl1 = (Player) p.getShooter();
-                Player pl2 = (Player) e.getEntity();
-                GameTeams teams = plugin.getGameInstance(pl1).getGame().getTeams();
-                if (teams.getTeamByPlayer(pl1).equals(teams.getTeamByPlayer(pl2))) {
+        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (e.getEntityType().equals(EntityType.PLAYER)) {
+            GameTeams teams = gameInstance.getGame().getTeams();
+            if (e.getDamager().getType().equals(EntityType.PLAYER)) { // Player attacks player
+                if (teams.getTeamByPlayer((Player) e.getEntity()).equals(teams.getTeamByPlayer((Player) e.getDamager())))
                     e.setCancelled(true);
-                    p.remove();
-                }
+            // Player shoots player
+            } else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
+                if (teams.getTeamByPlayer((Player) e.getEntity()).equals(teams.getTeamByPlayer((Player) ((Projectile) e.getDamager()).getShooter())))
+                    e.setCancelled(true);
             }
         }
     }
-
 }
-
-

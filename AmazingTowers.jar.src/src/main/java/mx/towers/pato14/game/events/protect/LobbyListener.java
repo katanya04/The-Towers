@@ -7,6 +7,7 @@ import mx.towers.pato14.utils.Cuboide;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Location;
+import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,32 +16,31 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 public class LobbyListener implements Listener {
-    private final AmazingTowers plugin;
-
-    public LobbyListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void Food(FoodLevelChangeEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
-        Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
-        if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) ||
-                Cuboide.InCuboide(locations.getStringList(Location.LOBBY.getPath()), e.getEntity().getLocation())) {
-            e.setCancelled(true); //to do: it isn't "lobby" location, lobby area is actually "protected" location
-            if (e.getEntity() instanceof Player) {
-                Player p = (Player) e.getEntity();
+        GameInstance gameInstance = AmazingTowers.getPlugin().getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            if (p.getGameMode().equals(GameMode.ADVENTURE)) {
                 p.setFoodLevel(20);
+                e.setCancelled(true);
             }
         }
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
-        Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
-        if (e.getEntityType().equals(EntityType.PLAYER) &&
-                Cuboide.InCuboide(locations.getStringList(Location.LOBBY.getPath()), e.getEntity().getLocation()))
-            e.setCancelled(true);
+        GameInstance gameInstance = AmazingTowers.getPlugin().getGameInstance(e.getEntity());
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            if (p.getGameMode().equals(GameMode.ADVENTURE))
+                e.setCancelled(true);
+        }
     }
 }
 

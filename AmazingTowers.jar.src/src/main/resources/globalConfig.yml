@@ -3,9 +3,11 @@
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
-Options:
-  Instances:
+options:
+
+  instances:
     amount: 1
+
   mysql:
     active: false
     hostname:
@@ -13,11 +15,16 @@ Options:
     database:
     user:
     password:
-  bungeecord-support:
+
+  bungeecord:
     enabled: false
     server_name: LobbyTowers
-  Rewards:
+
+  rewards:
     vault: false
-Permissions:
+
+
+permissions:
+
   password:
     organizer:

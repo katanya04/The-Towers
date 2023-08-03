@@ -3,7 +3,7 @@ package mx.towers.pato14.utils.locations;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
-import mx.towers.pato14.utils.Cuboide;
+import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.Bukkit;
@@ -52,7 +52,7 @@ public class Locations {
                 locations.getList(path).stream().filter(o -> o instanceof List).map(o -> (List<String>) o)
                         .collect(Collectors.toList());
         for (List<String> area : protectedAreas) {
-            if (Cuboide.InCuboideExtraHeight(area, loc, extraHeight))
+            if (AreaUtil.isInsideArea(area, loc, extraHeight))
                 return true;
         }
         return false;
@@ -62,7 +62,7 @@ public class Locations {
         List<String> poolRoom;
         for (TeamColor teamColor : TeamColor.getMatchTeams(numTeams)) {
             poolRoom = locations.getStringList(mx.towers.pato14.utils.enums.Location.POOL_ROOM.getPath(teamColor));
-            if (Cuboide.InCuboideExtraHeight(poolRoom, loc, extraHeight))
+            if (AreaUtil.isInsideArea(poolRoom, loc, extraHeight))
                 return true;
         }
         return false;
@@ -70,7 +70,7 @@ public class Locations {
 
     public static boolean isInsidePool(Location loc, Pool[] pools, int extraHeight) {
         for (Pool pool : pools) {
-            if (Cuboide.InCuboideExtraHeight(pool, loc, extraHeight))
+            if (AreaUtil.isInsideArea(pool, loc, extraHeight))
                 return true;
         }
         return false;
@@ -78,14 +78,14 @@ public class Locations {
 
     public static boolean isValidLocation(Config locations, Location loc, Pool[] pools, boolean protectPointAllowed, boolean griefingAllowed, int extraHeight, int numTeams) {
         return (griefingAllowed || !isInsideProtectedArea(locations, loc, extraHeight))
-                && Cuboide.InCuboideExtraHeight(locations.getStringList(mx.towers.pato14.utils.enums.Location.MAP_BORDER.getPath()), loc, extraHeight)
+                && AreaUtil.isInsideArea(locations.getStringList(mx.towers.pato14.utils.enums.Location.MAP_BORDER.getPath()), loc, extraHeight)
                 && !isInsidePool(loc, pools, extraHeight + 1) && (protectPointAllowed || !isInsidePoolRoom(locations, loc, extraHeight, numTeams));
     }
 
     public static boolean isInsideBase(Location loc, GameTeams gameTeams) {
         final Config locations = gameTeams.getGame().getGameInstance().getConfig(ConfigType.LOCATIONS);
         for (Team team : gameTeams.getTeams()) {
-            if (Cuboide.InCuboide(locations.getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(team.getTeamColor())), loc))
+            if (AreaUtil.isInsideArea(locations.getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(team.getTeamColor())), loc))
                 return true;
         }
         return false;

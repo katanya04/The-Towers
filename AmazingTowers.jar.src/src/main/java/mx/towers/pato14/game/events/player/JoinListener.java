@@ -27,7 +27,7 @@ public class JoinListener implements Listener {
         gameInstance.getScoreUpdates().updateScoreboardAll();
         switch (gameInstance.getGame().getGameState()) {
             case LOBBY:
-                if (gameInstance.getNumPlayers() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
+                if (gameInstance.getNumPlayers() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
                     gameInstance.getGame().setGameState(GameState.PREGAME);
                     gameInstance.getGame().getStart().gameStart();
                 }
@@ -56,7 +56,7 @@ public class JoinListener implements Listener {
                     .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                     .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers())));
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active"))
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active"))
             this.plugin.con.CreateAccount(player.getName());
     }
 }

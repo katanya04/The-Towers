@@ -1,14 +1,12 @@
 package mx.towers.pato14.game.utils;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.Cuboide;
+import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.locations.Pool;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,11 +48,11 @@ public class Move {
                     }
                 }
             }
-        }).runTaskTimer(this.game.getGameInstance().getPlugin(), 0L, this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.detection_playerinPool"));
+        }).runTaskTimer(this.game.getGameInstance().getPlugin(), 0L, this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
     }
 
     private void checkPool(Pool pool, Player player) {
-        if (Cuboide.InCuboide(pool, player.getLocation())) {
+        if (AreaUtil.isInsideArea(pool, player.getLocation())) {
             Team team = this.game.getTeams().getTeamByPlayer(player);
             team.sumarPunto();
             player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
@@ -71,12 +69,13 @@ public class Move {
                     p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
                 }
             }
-            if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.Points")) {
+            if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin")) {
                 this.game.getFinish().Fatality(team.getTeamColor());
                 this.game.setGameState(GameState.FINISH);
             }
             this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
             this.game.getStats().addOne(player.getName(), StatType.POINTS);
+            this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
         }
     }
 

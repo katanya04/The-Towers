@@ -20,12 +20,12 @@ public class RefilleadoGalloConTenis {
     public RefilleadoGalloConTenis(GameInstance gameInstance) {
         this.gameInstance = gameInstance;
         this.plugin = gameInstance.getPlugin();
-        String[] timer = gameInstance.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.timer_refill").split(";");
+        String[] timer = gameInstance.getConfig(ConfigType.CONFIG).getString("options.chests.refillChests.refillTime").split(";");
         this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);
     }
 
     public void iniciarRefill() {
-        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.refill_chests.enabled") &&
+        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.enabled") &&
                 this.gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
             refileadoProaso = SelectCofresillos.makelist(this.gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             (new BukkitRunnable() {
@@ -36,10 +36,10 @@ public class RefilleadoGalloConTenis {
                     }
                     RefilleadoGalloConTenis.this.gameInstance.getScoreUpdates().updateScoreboardAll();
                     if (RefilleadoGalloConTenis.this.regeneration == 0) {
-                        String[] timer = RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.timer_refill").split(";");
+                        String[] timer = RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getString("options.chests.refillChests.refillTime").split(";");
                         RefilleadoGalloConTenis.this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);
                         SelectCofresillos.refill(RefilleadoGalloConTenis.refileadoProaso);
-                        if (RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.refill_chests.message_refill")) {
+                        if (RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill")) {
                             gameInstance.broadcastMessage(RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.filledChest"), true);
                         }
                         return;

@@ -19,7 +19,7 @@ public class TimeListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getWorld());
         if (gameInstance == null)
             return;
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.weather_cancel") && e.toWeatherState())
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.cancelWeatherUpdates") && e.toWeatherState())
             e.setCancelled(true);
     }
 }

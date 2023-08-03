@@ -15,16 +15,20 @@ public class Kits {
     private final List<Kit> kits = new ArrayList<>();
     private final HashMap<String, List<Kit>> temporalBoughtKits;
 
-    public Kits(Config kitsConfig) {
+    public Kits(Config kitsConfig, boolean capitalismExists) {
         this.kitsConfig = kitsConfig;
         for (Map<String, String> kit : kitsConfig.getMapList("Kits").stream().map(o -> (Map<String, String>) o).collect(Collectors.toList())) {
             ItemStack[] armor = getItems(kit, "armor", 4);
             ItemStack[] hotbar = getItems(kit, "hotbar", 9);
             try {
-                kits.add(new Kit(kit.get("name"), armor, hotbar, Integer.parseInt(kit.get("price")),
-                        Boolean.parseBoolean(kit.get("permanent")), plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
+                if (capitalismExists) {
+                    kits.add(new Kit(kit.get("name"), armor, hotbar, Integer.parseInt(kit.get("price")),
+                            Boolean.parseBoolean(kit.get("permanent")), plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
+                } else {
+                    kits.add(new Kit(kit.get("name"), armor, hotbar, plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
+                }
             } catch (MojangsonParseException e) {
-                throw new RuntimeException(e);
+                plugin.sendConsoleError("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"");
             }
         }
         this.temporalBoughtKits = new HashMap<>();
@@ -38,11 +42,11 @@ public class Kits {
                 try {
                     toret[i] = plugin.getNms().deserializeItemStack(itemsArray[i]);
                 } catch (MojangsonParseException e) {
-                    System.err.println("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i);
+                    plugin.sendConsoleError("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i);
                 }
             }
         } else
-            System.err.println("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size");
+            plugin.sendConsoleError("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size");
         return toret;
     }
 

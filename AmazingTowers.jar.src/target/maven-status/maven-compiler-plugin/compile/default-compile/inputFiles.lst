@@ -2,6 +2,7 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\GameInstance.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\TeamColor.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\cofresillos\SelectCofresillos.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\AreaUtil.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\EventsManager.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\Tool.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\mysql\FindOneCallback.java
@@ -72,4 +73,3 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ut
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\locations\Locations.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\TntListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\CofresillosListener.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\Cuboide.java

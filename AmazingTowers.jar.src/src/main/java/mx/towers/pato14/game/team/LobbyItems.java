@@ -41,7 +41,7 @@ public class LobbyItems implements Listener {
     public LobbyItems(Game game) {
         this.game = game;
         this.plugin = game.getGameInstance().getPlugin();
-        ItemStack selectTeamIcon = setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.hotbarItems.joinTeams.name")));
+        ItemStack selectTeamIcon = setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.joinTeams.name")));
         this.teams = new HashMap<>();
         List<ItemStack> teamItems = new ArrayList<>();
         for (TeamColor teamColor : TeamColor.getTeams(game.getGameInstance().getNumberOfTeams())) {
@@ -50,16 +50,16 @@ public class LobbyItems implements Listener {
         }
         teamItems.add(TeamColor.SPECTATOR.getTeamItem(game.getGameInstance()));
         teams.put(teamItems.get(teamItems.size() - 1), TeamColor.SPECTATOR);
-        this.selectTeam = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.hotbarItems.joinTeams.name")), 9, selectTeamIcon, teamItems.toArray(new ItemStack[0]));
-        ItemStack selectKitIcon = setName(new ItemStack(Material.IRON_SWORD), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.hotbarItems.kits.name")));
-        this.selectKit = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.hotbarItems.kits.name")), 9, selectKitIcon, game.getKits().getIcons());
+        this.selectTeam = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.joinTeams.name")), 9, selectTeamIcon, teamItems.toArray(new ItemStack[0]));
+        ItemStack selectKitIcon = setName(new ItemStack(Material.IRON_SWORD), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.kits.name")));
+        this.selectKit = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.kits.name")), 9, selectKitIcon, game.getKits().getIcons());
         this.hotbarItems = new HashMap<>();
-        if (getPlugin().getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
-            this.quit = setName(new ItemStack(Material.BED), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.hotbarItems.quit.name")));
-            this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Items.hotbarItems.quit.position"), this.quit);
+        if (getPlugin().getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+            this.quit = setName(new ItemStack(Material.BED), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.quit.name")));
+            this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("lobbyItems.hotbarItems.quit.position"), this.quit);
         }
-        this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Items.hotbarItems.joinTeams.position"), this.selectTeam);
-        this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Items.hotbarItems.kits.position"), this.selectKit);
+        this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("lobbyItems.hotbarItems.joinTeams.position"), this.selectTeam);
+        this.hotbarItems.put(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("lobbyItems.hotbarItems.kits.position"), this.selectKit);
     }
 
     public void giveHotbarItems(HumanEntity player) {
@@ -144,16 +144,16 @@ public class LobbyItems implements Listener {
             Kit selectedKit = game.getKits().get(clickedItem);
             if (selectedKit == null)
                 return;
-            if (selectedKit.getPrice() == 0 || game.getKits().playerHasKit(player.getName(), selectedKit)) {
+            if (!plugin.capitalismExists() || selectedKit.getPrice() == 0 || game.getKits().playerHasKit(player.getName(), selectedKit)) {
                 game.getPlayersSelectedKit().put(player, selectedKit);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("messages.selectKit")
                         .replace("%kitName%", selectedKit.getName())));
-            } else if (1000 > selectedKit.getPrice()) {
-                player.openInventory(openMenuBuyKit(selectedKit, AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.buyKitMenuName"))));
+            } else if (game.getGameInstance().getVault().getCoins((Player) player) >= selectedKit.getPrice()) {
+                player.openInventory(openMenuBuyKit(selectedKit, AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName"))));
             } else
                 player.sendMessage(AmazingTowers.getColor(messages.getString("messages.notEnoughMoney")));
-        } else if (e.getClickedInventory().getName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.buyKitMenuName")))) {
-            if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.acceptBuy")))) {
+        } else if (e.getClickedInventory().getName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName")))) {
+            if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.acceptBuy")))) {
                 Kit kit = game.getKits().get(e.getClickedInventory().getItem(4));
                 if (kit.isPermanent())
                     game.getKits().addKitToPlayer(player.getName(), kit);
@@ -161,7 +161,7 @@ public class LobbyItems implements Listener {
                     game.getKits().addTemporalBoughtKitToPlayer(player.getName(), kit);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("messages.buyKit").replace("%kitName%", kit.getName())));
                 player.openInventory(selectKit.getMenu());
-            } else if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.denyBuy")))) {
+            } else if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy")))) {
                 player.openInventory(selectKit.getMenu());
             }
         }
@@ -170,8 +170,8 @@ public class LobbyItems implements Listener {
     private Inventory openMenuBuyKit(Kit kit, String name) {
         Inventory menu = Bukkit.createInventory(null, 27, name);
         menu.setItem(4, kit.getIconInMenu());
-        menu.setItem(21, setName(new ItemStack(Material.WOOL, 1, (short) 5), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.acceptBuy"))));
-        menu.setItem(23, setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Items.denyBuy"))));
+        menu.setItem(21, setName(new ItemStack(Material.WOOL, 1, (short) 5), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.acceptBuy"))));
+        menu.setItem(23, setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy"))));
         return menu;
     }
 

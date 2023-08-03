@@ -25,7 +25,7 @@ public class TeamChatListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.chat.enabled")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chat.enabled")) {
             e.setCancelled(true);
             String name = e.getPlayer().getName();
             String msg = e.getMessage();
@@ -33,7 +33,7 @@ public class TeamChatListener implements Listener {
             if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) || gameInstance.getGame().getGameState().equals(GameState.PREGAME) || !(gameInstance.getGame().getTeams().containsTeamPlayer(name))) {
                 for (Player player : players) {
                     player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                            .getString("Options.chat.format.defaultChat").replace("%vault_prefix%", gameInstance.getVault()
+                            .getString("options.chat.format.defaultChat").replace("%vault_prefix%", gameInstance.getVault()
                                     .getPrefixRank(e.getPlayer())).replace("%player%", name))
                             .replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
                                     ChatColor.translateAlternateColorCodes('&', msg) : msg));
@@ -42,7 +42,7 @@ public class TeamChatListener implements Listener {
                 Team team = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
                 for (Player player : players) {
                     player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                            .getString("Options.chat.format.globalChat").replace("%team_color%", team.getTeamColor().getColor())
+                            .getString("options.chat.format.globalChat").replace("%team_color%", team.getTeamColor().getColor())
                             .replace("%player%", name).replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
                                     ChatColor.translateAlternateColorCodes('&', msg) : msg).replaceFirst("!", "")));
                 }
@@ -51,7 +51,7 @@ public class TeamChatListener implements Listener {
                 for (Player player : players) {
                     if (team.containsPlayer(player.getName()))
                         player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                                .getString("Options.chat.format.teamChat").replace("%team_color%", team.getTeamColor().getColor())
+                                .getString("options.chat.format.teamChat").replace("%team_color%", team.getTeamColor().getColor())
                                 .replace("%team_prefix%", team.getPrefixTeam()).replace("%player%", name)
                                 .replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
                                         ChatColor.translateAlternateColorCodes('&', msg) : msg)));

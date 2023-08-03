@@ -11,17 +11,17 @@ messages:
   joinMessage: '&a{Player} &7entro a la partida &7(&a%online_players%&7/&a%max_players%&7)'
   quitMessage: '&c{Player} &7dejo la partida'
   
-  joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}!'
+  joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}&7!'
 
   ###Message in Bungeecord Disabled#####
-  kickPlayerinFinish: '{Color}&lGANA EL {Team}! %newLine%  &7Gracias por jugar!'
+  kickPlayerinFinish: '{Color}&lGana el {Team}! %newLine%  &7Gracias por jugar!'
 
   ##MESSAGES INVENTORY##
-  join: '&7Te uniste al{Color}&l equipo {Team}!'
+  join: '&7Te uniste al{Color}&l equipo {Team}&7!'
   joinSpectator: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers&f spectator'
-  leave: '&7Abandonaste el{Color}&l equipo {Team}!'
+  leave: '&7Abandonaste el{Color}&l equipo {Team}&7!'
 
-  alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}!'
+  alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}&7!'
 
   unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
 
@@ -57,8 +57,8 @@ messages:
     unknownKiller: '{Color}{Player} &7murio'
 
   PointsScored-Messages:
-    point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}! '
-    setpointsCommand: 'La puntuacion fue modificada por un admin a '
+    point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}&7! '
+    setScoresCommand: 'La puntuacion fue modificada por un admin a {Scores}'
 
   Win-Messages:
 

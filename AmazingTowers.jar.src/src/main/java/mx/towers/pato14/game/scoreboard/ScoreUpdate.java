@@ -78,7 +78,7 @@ public class ScoreUpdate {
                         .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                         .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers()))
                         .replace("%date%", this.date)
-                        .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points")))
+                        .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin")))
                         .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
                         .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
                         .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
@@ -105,7 +105,7 @@ public class ScoreUpdate {
     }
 
     private String convertirTimeXd(int pTime) {
-        return this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.refill_chests.enabled") ? ((this.refill.getTimeRegeneration() == 0.0F) ? AmazingTowers.getColor(this.gameInstance.getConfig(ConfigType.CONFIG).getString("Options.refill_chests.message_scoreboard")) : String.format("%02d:%02d", pTime / 60, pTime % 60)) : "00:00";
+        return this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.enabled") ? ((this.refill.getTimeRegeneration() == 0.0F) ? AmazingTowers.getColor(this.gameInstance.getConfig(ConfigType.CONFIG).getString("options.chests.refillChests.messageOnScoreboard")) : String.format("%02d:%02d", pTime / 60, pTime % 60)) : "00:00";
     }
 
     public RefilleadoGalloConTenis getRefill() {

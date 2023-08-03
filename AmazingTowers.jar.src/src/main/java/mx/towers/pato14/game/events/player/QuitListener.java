@@ -69,7 +69,6 @@ public class QuitListener implements Listener {
                                 int numberOfTeams = teams.size();
                                 int numero = (int) Math.floor(Math.random() * numberOfTeams);
                                 gameInstance.getGame().getFinish().Fatality(TeamColor.values()[numero]);
-                                plugin.sendConsoleMessage("(Randomly chosen as there were no players in the match)");
                             }
                         }
                         break;

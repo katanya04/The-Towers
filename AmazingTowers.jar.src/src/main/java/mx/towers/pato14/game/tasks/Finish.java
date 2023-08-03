@@ -31,8 +31,8 @@ public class Finish {
     private final Game game;
     public Finish(Game game) {
         this.game = game;
-        seconds = game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.timerEndSeconds") + 1;
-        bungeecord = plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled");
+        seconds = game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1;
+        bungeecord = plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled");
     }
     public void Fatality(final TeamColor teamColor) {
         if (!game.getGameState().equals(GameState.FINISH)) {
@@ -54,7 +54,7 @@ public class Finish {
                     cancel();
                     (new BukkitRunnable() {
                         public void run() {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Options.command"));
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), game.getGameInstance().getConfig(ConfigType.CONFIG).getString("options.commandRunAtTheEnd"));
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
                     return;
@@ -62,7 +62,7 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
-                            if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
+                            if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
                                 for (Player player : game.getPlayers()) {
                                     player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
                                     Dar.bungeecordTeleport(player);
@@ -141,7 +141,7 @@ public class Finish {
                 Finish.this.seconds = Finish.this.seconds - 1;
             }
         }).runTaskTimer(this.plugin, 0L, 20L);
-        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.Rewards.vault") &&
+        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
             for (Player player : game.getPlayers()) {
                 if (game.getTeams().getTeam(teamColor).containsPlayer(player.getName())) {
@@ -150,7 +150,7 @@ public class Finish {
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
             }
         }
-        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("Options.mysql.active")) {
+        if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active")) {
             FindOneCallback.updatePlayersDataAsync(game.getStats().getPlayerStats(), this.plugin, result -> {});
         }
     }

@@ -45,14 +45,14 @@ public class DeathListener implements Listener {
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
         gameInstance.getScoreUpdates().updateScoreboard(player);
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.protect_leatherArmor")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
             for (ItemStack i : e.getDrops()) {
                 if (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS) {
                     i.setType(Material.AIR);
                 }
             }
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.instant_respawn")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.instantRespawn")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
                 player.setCanPickupItems(false);
                 player.spigot().respawn();

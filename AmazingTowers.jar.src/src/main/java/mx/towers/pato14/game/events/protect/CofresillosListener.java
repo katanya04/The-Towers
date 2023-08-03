@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.Cuboide;
+import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
@@ -60,16 +60,15 @@ public class CofresillosListener implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Block block = e.getClickedBlock();
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.chestsTeam")) {
-            if (block == null || !block.getType().equals(Material.CHEST)) {
-                return;
-            }
-            if (protectedChest.contains(block.getLocation())) {
-                TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player);
-                if (!Cuboide.InCuboide(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
-                    e.setCancelled(true);
-                    player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.open_chest")));
-                }
+        if (!gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.lockChestsToOtherTeams"))
+            return;
+        if (block == null || !block.getType().equals(Material.CHEST))
+            return;
+        if (protectedChest.contains(block.getLocation())) {
+            TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player);
+            if (!AreaUtil.isInsideArea(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
+                e.setCancelled(true);
+                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.open_chest")));
             }
         }
     }

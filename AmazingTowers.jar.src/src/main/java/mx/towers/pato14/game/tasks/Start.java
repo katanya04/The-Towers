@@ -33,7 +33,7 @@ public class Start {
     public Start(Game game) {
         this.game = game;
         this.world = game.getGameInstance().getWorld();
-        this.seconds = this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.gameStart.timer-start");
+        this.seconds = this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart");
     }
 
     public void gameStart() {
@@ -51,7 +51,7 @@ public class Start {
                     Start.this.game.getDetectionMove().MoveDetect();
                     return;
                 }
-                if (!runFromCommand && game.getGameInstance().getNumPlayers() < Start.this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.gameStart.min-players")) {
+                if (!runFromCommand && game.getGameInstance().getNumPlayers() < Start.this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.min-players")) {
                     cancel();
                     game.setGameState(GameState.LOBBY);
                     for (Player p : world.getPlayers()) {
@@ -129,11 +129,11 @@ public class Start {
                                 plugin.getNms().deserializeItemStack(item.get("item")));
                     }
                 } catch (MojangsonParseException exception) {
-                    plugin.sendConsoleMessage("§cError while parsing the generator items!");
+                    plugin.sendConsoleError("§cError while parsing the generator items!");
                     cancel();
                 }
             }
-        }).runTaskTimer(this.plugin, 0L, (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("Options.generator_timePerSecond") * 20L));
+        }).runTaskTimer(this.plugin, 0L, (this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.generatorSpeedInSeconds") * 20L));
     }
 }
 

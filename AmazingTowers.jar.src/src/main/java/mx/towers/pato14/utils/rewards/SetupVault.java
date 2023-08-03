@@ -29,17 +29,15 @@ public class SetupVault {
     }
 
     public static void setupVault() {
-        if (plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
-            plugin.sendConsoleMessage("");
-            plugin.sendConsoleMessage("Detecting if you have the vault plugin...");
-            if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+        if (plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
+            plugin.sendConsoleMessage("Looking for the vault plugin...");
+            if (plugin.getServer().getPluginManager().getPlugin("Vault") != null) {
                 plugin.sendConsoleMessage("It has been detected that you have the Vault plugin, loading Chat and Economy...");
+                plugin.sendConsoleMessage(setupEconomy() ? "§aEconomy§f: " + economy.getName() : "§aEconomy§f: [NONE]");
+                plugin.sendConsoleMessage(setupChat() ? "§aChat§f: " + chat.getName() : "§aChat§f: [NONE]");
             } else {
-                plugin.sendConsoleMessage("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled");
-            }
-            if (Bukkit.getServer().getPluginManager().getPlugin("Vault") != null) {
-                plugin.sendConsoleMessage(setupEconomy() ? "Economy" + economy.getName() : "Economy NONE");
-                plugin.sendConsoleMessage(setupChat() ? "Chat" + chat.getName() : "Chat NONE");
+                plugin.sendConsoleWarning("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled");
+                plugin.getGlobalConfig().set("options.rewards.vault", false);
             }
         }
     }

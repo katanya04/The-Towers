@@ -9,6 +9,7 @@ import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
+import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.wand.Wand;
 import mx.towers.pato14.utils.wand.WandListener;
 import org.bukkit.Bukkit;
@@ -40,13 +41,13 @@ public final class AmazingTowers extends JavaPlugin {
         games = new HashMap<>();
 
         if (!setupNMS()) {
-            sendConsoleMessage("§cYour server version is not compatible with this plugin!");
+            sendConsoleError("§cYour server version is not compatible with this plugin!");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
-            sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers");
+            sendConsoleError("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -55,19 +56,19 @@ public final class AmazingTowers extends JavaPlugin {
         getCommand("towers").setExecutor(new TowerCommand(this));
 
         this.globalConfig = new Config(this, "globalConfig.yml", true);
-        int numberOfInstances = this.globalConfig.getInt("Options.Instances.amount");
+        int numberOfInstances = this.globalConfig.getInt("options.instances.amount");
 
         for (int i = 0; i < numberOfInstances; i++)
             games.put("TheTowers" + (i + 1), new GameInstance(this,"TheTowers" + (i + 1)));
 
-        if (getGlobalConfig().getBoolean("Options.mysql.active")) {
+        if (getGlobalConfig().getBoolean("options.mysql.active")) {
             try {
                 this.con = new Connexion();
                 this.con.Connect();
                 this.con.CreateTable();
                 sendConsoleMessage("§aSuccessfully connected to the database");
             } catch (Exception e) {
-                sendConsoleMessage("§cCouldn't connect to the database");
+                sendConsoleError("§cCouldn't connect to the database");
             }
         }
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -188,8 +189,22 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     public void sendConsoleMessage(String msg) {
-        String prefix = "§f[§aAmazingTowers§f] ";
+        String prefix = "§f[§aAmazingTowers/Info§f] ";
         getServer().getConsoleSender().sendMessage(prefix + msg);
+    }
+
+    public void sendConsoleError(String msg) {
+        String prefix = "§f[§cAmazingTowers/Error§f]§4 ";
+        getServer().getConsoleSender().sendMessage(prefix + msg);
+    }
+
+    public void sendConsoleWarning(String msg) {
+        String prefix = "§f[§eAmazingTowers/Warning§f]§6 ";
+        getServer().getConsoleSender().sendMessage(prefix + msg);
+    }
+
+    public boolean capitalismExists() {
+        return SetupVault.getVaultEconomy() != null;
     }
 }
 

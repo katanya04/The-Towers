@@ -13,6 +13,7 @@ import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.utils.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
+import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -39,7 +40,7 @@ public class Game {
         this.gameInstance = game;
         this.plugin = game.getPlugin();
         this.gameState = GameState.LOBBY;
-        this.kits = new Kits(game.getConfig(ConfigType.KITS));
+        this.kits = new Kits(game.getConfig(ConfigType.KITS), plugin.capitalismExists());
         this.playersSelectedKit = new HashMap<>();
         this.lobbyItems = new LobbyItems(this);
         (new EventsManager(getPlugin())).registerEvents();

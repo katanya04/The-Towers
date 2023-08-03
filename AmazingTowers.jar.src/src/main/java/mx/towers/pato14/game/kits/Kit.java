@@ -25,17 +25,29 @@ public class Kit {
         this.hotbar = hotbar;
         this.price = price;
         this.permanent = permanent;
-        this.iconInMenu = setIcon(iconInMenu);
+        this.iconInMenu = setIcon(iconInMenu, true);
     }
 
-    private ItemStack setIcon(ItemStack item) {
+    public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, ItemStack iconInMenu) {
+        this.name = name.trim();
+        this.armor = armor;
+        this.hotbar = hotbar;
+        this.iconInMenu = setIcon(iconInMenu, false);
+
+        this.price = 0;
+        this.permanent = true;
+    }
+
+    private ItemStack setIcon(ItemStack item, boolean addLore) {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(AmazingTowers.getColor("§r&l" + this.name));
-        List<String> lore = new ArrayList<>();
-        lore.add(this.price + " coins");
-        lore.add(permanent ? "Usos ilimitados" : "Comprar 1 uso");
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if (addLore) {
+            List<String> lore = new ArrayList<>();
+            lore.add(this.price + " coins");
+            lore.add(permanent ? "Usos ilimitados" : "Comprar 1 uso");
+            meta.setLore(lore);
+        }
+            item.setItemMeta(meta);
         return item;
     }
 

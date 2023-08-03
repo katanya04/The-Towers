@@ -26,7 +26,7 @@ public class LeatherProtectListener implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         ItemStack i = e.getItemDrop().getItemStack();
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.protect_leatherArmor") &&
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor") &&
                 (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS)) {
             e.getItemDrop().remove();
         }
@@ -51,7 +51,7 @@ public class LeatherProtectListener implements Listener {
         if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR) {
             return;
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("Options.protect_leatherArmor")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
             Material i = e.getCurrentItem().getType();
             if (!InventoryType.CRAFTING.equals(e.getInventory().getType()) && !InventoryType.CREATIVE.equals(e.getInventory().getType()) && !InventoryType.PLAYER.equals(e.getInventory().getType()) && (i == Material.LEATHER_HELMET || i == Material.LEATHER_CHESTPLATE || i == Material.LEATHER_LEGGINGS || i == Material.LEATHER_BOOTS))
                 e.setCancelled(true);

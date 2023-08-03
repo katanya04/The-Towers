@@ -18,15 +18,15 @@ public class Connexion {
 
     public Connection connection;
 
-    String hostname = this.plugin.getGlobalConfig().getString("Options.mysql.hostname");
+    String hostname = this.plugin.getGlobalConfig().getString("options.mysql.hostname");
 
-    //String port = this.t.getGlobalConfig().getString("Options.mysql.port");
+    //String port = this.t.getGlobalConfig().getString("options.mysql.port");
 
-    String database = this.plugin.getGlobalConfig().getString("Options.mysql.database");
+    String database = this.plugin.getGlobalConfig().getString("options.mysql.database");
 
-    String user = this.plugin.getGlobalConfig().getString("Options.mysql.user");
+    String user = this.plugin.getGlobalConfig().getString("options.mysql.user");
 
-    String password = this.plugin.getGlobalConfig().getString("Options.mysql.password");
+    String password = this.plugin.getGlobalConfig().getString("options.mysql.password");
 
     public void Connect() {
         try {
@@ -34,7 +34,7 @@ public class Connexion {
             this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
                     "/" + this.database + "?autoReconnect=true", this.user, this.password);
         } catch (SQLException e) {
-            this.plugin.getGlobalConfig().set("Options.mysql.active", false);
+            this.plugin.getGlobalConfig().set("options.mysql.active", false);
             this.plugin.saveConfig();
         } catch (ClassNotFoundException ignored) {}
     }
@@ -51,7 +51,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleMessage("§cError while creating the database table: " + e);
+                plugin.sendConsoleError("§cError while creating the database table: " + e);
             }
         } while (repeat);
     }
@@ -79,7 +79,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleMessage("§cError while adding an entry to the database: " + e);
+                plugin.sendConsoleError("§cError while adding an entry to the database: " + e);
             }
         } while (repeat);
     }
@@ -104,7 +104,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleMessage("§cError while updating the database: " + e);
+                plugin.sendConsoleError("§cError while updating the database: " + e);
             }
         } while (repeat);
     }
@@ -131,7 +131,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleMessage("§cError while getting data of the database: " + e);
+                plugin.sendConsoleError("§cError while getting data of the database: " + e);
             }
         } while (repeat);
         return data;
@@ -150,7 +150,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleMessage("§cError while checking the database: " + e);
+                plugin.sendConsoleError("§cError while checking the database: " + e);
             }
         } while (repeat);
         return false;

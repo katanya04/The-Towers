@@ -19,7 +19,7 @@ public class GameTeams {
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
             String teamName = teamColor.name().toLowerCase();
             Team currentTeam = new Team(teamName);
-            currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG).getString("Teams.prefixes." + teamName) + " ");
+            currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG).getString("teams.prefixes." + teamName) + " ");
             teams.add(currentTeam);
         }
     }

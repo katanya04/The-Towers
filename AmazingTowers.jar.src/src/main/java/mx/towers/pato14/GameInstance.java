@@ -38,13 +38,13 @@ public class GameInstance {
         this.rules = new HashMap<>();
         this.numPlayers = 0;
         registerConfigs(name);
-        this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("Teams.numberOfTeams");
+        this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
         this.detectoreishon = new Detectoreishon(this);
         this.detectoreishon.checkNeededLocationsExistence(numberOfTeams);
         setRules();
 
         if (this.detectoreishon.neededLocationsExist()) {
-            if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
+            if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
             if (!loadWorld(name))
@@ -54,7 +54,7 @@ public class GameInstance {
             this.game = new Game(this);
             this.scoreUpdate = new ScoreUpdate(this);
         } else {
-            plugin.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.");
+            plugin.sendConsoleWarning("Not all the locations have been set in " + name + ". Please set them first.");
         }
     }
 
@@ -70,7 +70,7 @@ public class GameInstance {
             setWorld(towers.loadWorld());
             return true;
         } else {
-            plugin.sendConsoleMessage("There is no backup for " + worldName + "!");
+            plugin.sendConsoleError("There is no backup for " + worldName);
             return false;
         }
     }

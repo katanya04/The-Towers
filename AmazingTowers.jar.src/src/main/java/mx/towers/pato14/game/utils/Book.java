@@ -34,7 +34,7 @@ public class Book {
                 if (i < Integer.parseInt(s)) i = Integer.parseInt(s);
                 pages.put(Integer.valueOf(s), getStringPage(this.game.getGameInstance().getConfig(ConfigType.BOOK).getStringList("book.pages." + s)));
             } catch (NumberFormatException e) {
-                game.getGameInstance().getPlugin().sendConsoleMessage("§cThe page " + s + " isn't a numeric identifier");
+                game.getGameInstance().getPlugin().sendConsoleError("§cThe page " + s + " isn't a numeric identifier");
             }
         }
         for (int j = 0; j < i; j = j + 1) {

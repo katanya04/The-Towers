@@ -62,10 +62,10 @@ public class Dar {
     }
 
     public static void bungeecordTeleport(Player player) {
-        if (plugin.getGlobalConfig().getBoolean("Options.bungeecord-support.enabled")) {
+        if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(plugin.getGlobalConfig().getString("Options.bungeecord-support.server_name"));
+            out.writeUTF(plugin.getGlobalConfig().getString("options.bungeecord.server_name"));
             player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
     }

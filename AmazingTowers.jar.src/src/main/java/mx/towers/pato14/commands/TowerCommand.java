@@ -89,7 +89,7 @@ public class TowerCommand implements CommandExecutor
         }
         switch (subcommand) {
             case STATS:
-                if (this.plugin.getGlobalConfig().getBoolean("Options.mysql.active")) {
+                if (this.plugin.getGlobalConfig().getBoolean("options.mysql.active")) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
                         FindOneCallback.findPlayerAsync(args[1], this.plugin, result -> {
                             if (result == null) {
@@ -115,7 +115,7 @@ public class TowerCommand implements CommandExecutor
                     sender.sendMessage("§4Solo puedes ejecutar este comando estando en modo espectador");
                 break;
             case ORGANIZER:
-                String password = this.plugin.getGlobalConfig().getString("Permissions.password.organizer");
+                String password = this.plugin.getGlobalConfig().getString("permissions.password.organizer");
                 if (password != null && !password.isEmpty() && args[1].equals(password)) {
                     PermissionAttachment organizer;
                     organizer = sender.addAttachment(this.plugin);
@@ -152,9 +152,9 @@ public class TowerCommand implements CommandExecutor
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
                     Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
                     team.setPoints(Integer.parseInt(args[2]));
-                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setpointsCommand") +
-                            gameInstance.getGame().getTeams().scores(), true);
-                    int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("Options.Points");
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setScoresCommand")
+                            .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
+                    int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin");
                     if (team.getPoints() >= pointsToWin) {
                         gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
                         gameInstance.getGame().setGameState(GameState.FINISH);
@@ -304,7 +304,7 @@ public class TowerCommand implements CommandExecutor
             case VAULTINFO:
                 if (Bukkit.getPluginManager().getPlugin("Vault") == null)
                     sender.sendMessage("§cThe vault plugin doesn't exist");
-                else if (this.plugin.getGlobalConfig().getBoolean("Options.Rewards.vault")) {
+                else if (this.plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
                     final String format = ChatColor.GRAY + "%s: [%s]";
                     sender.sendMessage("§7*--------------*");
                     sender.sendMessage(" §f*Vault* ");

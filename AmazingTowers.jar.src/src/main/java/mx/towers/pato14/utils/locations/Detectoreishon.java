@@ -24,7 +24,7 @@ public class Detectoreishon {
                 names.append(", ");
         }
         if (console) {
-            return this.nonExistentLocations.isEmpty() ? "§a[AmazingTowers] §aLocations§f: §f[NONE]" : ("§a[AmazingTowers] §aLocations§f: §f" + names.toString().toUpperCase());
+            return this.nonExistentLocations.isEmpty() ? "§aLocations§f: §f[NONE]" : ("§aLocations§f: §f" + names.toString().toUpperCase());
         }
         return this.nonExistentLocations.isEmpty() ? "§aLocations§f: §f[NONE]" : ("§aLocations§f: §f" + names.toString().toLowerCase());
     }

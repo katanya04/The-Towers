@@ -75,15 +75,15 @@ public class Finish {
                                 return;
                             }
                             for (Player player : game.getPlayers()) {
-                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("messages.kickPlayerinFinish")
+                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
                                         .replace("{Color}", teamColor.getColor())
                                         .replace("{Team}", teamColor.getName(game.getGameInstance()))
                                         .replace("%newLine%", "\n")));
                             }
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
-                    if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.restart_server.enabled")) {
-                        Finish.this.game.getGameInstance().broadcastMessage(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.restart_server.message"), true);
+                    if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("serverRestart.enabled")) {
+                        Finish.this.game.getGameInstance().broadcastMessage(Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("serverRestart.message"), true);
                     }
                 }
                 if (Finish.this.seconds == 9) {
@@ -172,16 +172,16 @@ public class Finish {
 
     private void sendTitle(TeamColor teamColor) {
         Config messages = game.getGameInstance().getConfig(ConfigType.MESSAGES);
-        if (messages.getBoolean("messages.Win-Messages.titles.enabled")) {
-            String Title = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles.WinTitle")
+        if (messages.getBoolean("win.titles.enabled")) {
+            String Title = AmazingTowers.getColor(messages.getString("win.titles.winTitle")
                     .replace("{Color}", teamColor.getColor())
                     .replace("{Team}", teamColor.getName(game.getGameInstance()).toUpperCase()));
-            String Subtitle = AmazingTowers.getColor(messages.getString("messages.Win-Messages.titles.WinSubTitle"));
+            String Subtitle = AmazingTowers.getColor(messages.getString("win.titles.winSubTitle"));
             for (Player player : game.getPlayers()) {
                 this.plugin.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
         }
-        game.getGameInstance().broadcastMessage(messages.getString("messages.Win-Messages.Win")
+        game.getGameInstance().broadcastMessage(messages.getString("win.chatMessage")
                 .replace("{Color}", teamColor.getColor())
                 .replace("{Team}", teamColor.getName(game.getGameInstance())), true);
     }

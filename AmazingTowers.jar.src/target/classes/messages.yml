@@ -1,73 +1,59 @@
 # +###----------------------------------------------###+ #
-# <#               AmazingTowers - v2.3b              #> #
+# <#               AmazingTowers - v3.0_alpha1              #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
-messages:
-  
-  filledChest: '&eLos cofres han sido rellenados'
-  
-  #JoinPlayerTheServer
-  joinMessage: '&a{Player} &7entro a la partida &7(&a%online_players%&7/&a%max_players%&7)'
-  quitMessage: '&c{Player} &7dejo la partida'
-  
-  joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}!'
 
-  ###Message in Bungeecord Disabled#####
-  kickPlayerinFinish: '{Color}&lGANA EL {Team}! %newLine%  &7Gracias por jugar!'
+joinMessage: '&a{Player} &7entro a la partida &7(&a%online_players%&7/&a%max_players%&7)'
+quitMessage: '&c{Player} &7dejo la partida'
+joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}&7!'
 
-  ##MESSAGES INVENTORY##
-  join: '&7Te uniste al{Color}&l equipo {Team}!'
-  joinSpectator: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers&f spectator'
-  leave: '&7Abandonaste el{Color}&l equipo {Team}!'
+###Inventory Items###
+selectTeam: '&7Te uniste al{Color}&l equipo {Team}&7!'
+enterSpectatorMode: '&7Modo espectador activado %newLine%&7Para volver usa &a/towers&f spectator'
+leave: '&7Abandonaste el{Color}&l equipo {Team}&7!'
+alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}&7!'
+unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
 
-  alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}!'
+selectKit: '&7Kit %kitName% seleccionado'
+buyKit: '&7Has comprado el kit %kitName%'
+notEnoughMoney: '&cNo tienes suficiente dinero'
 
-  unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
+filledChest: '&eLos cofres han sido rellenados'
+openingEnemyChest: '&cNo puedes abrir los cofres del equipo enemigo'
 
-  selectKit: '&7Kit %kitName% seleccionado'
-  buyKit: '&7Has comprado el kit %kitName%'
-  notEnoughMoney: '&cNo tienes suficiente dinero'
+trollingTeammates: '&c&lNo fastidies a tus compañeros!'
 
-  #Don't open rival team's chests
-  open_chest: '&cNo puedes abrir los cofres del equipo enemigo'
+serverRestart:
+  enabled: true
+  message: '&aEnviando al lobby...'
 
-  noTrollBreakBlock: '&c&lNo fastidies a tus compañeros!'
-
-  restart_server:
+gameStart:
+  title:
     enabled: true
-    message: '&aEnviando al lobby...'
+    titleFiveOrLessSec: '&e&l{count}'
+    subtitleFiveOrLessSec: 'Preparate para combatir!'
+  start: '&7La partida comenzara en &a{count} &7{seconds}'
+  seconds: 'segundos'
+  second: 'segundo'
+  notEnoughPlayers: '&cHacen falta mas jugadores para comenzar'
 
-  #######
-  gameStart:
-    title:
-      enabled: true
-      title-5seconds: '&e&l{count}'
-      subtitle-5seconds: 'Preparate para combatir!'
+deathMessages:
+  knownKiller: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}'
+  unknownKiller: '{Color}{Player} &7murio'
 
-    start: '&7La partida comenzara en &a{count} &7{seconds}'
-    seconds: 'segundos'
-    second: 'segundo'
+scorePoint:
+  point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}&7! '
+  setScoresCommand: 'La puntuacion fue modificada por un admin a {Scores}'
 
-    necessaryPlayers: '&cHacen falta mas jugadores para comenzar'
+win:
 
-  death-messages:
-    knownKiller: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}'
+  titles:
+    enabled: true
+    winTitle: '{Color}&l{Team}'
+    winSubTitle: '&7gana el juego!'
 
-    unknownKiller: '{Color}{Player} &7murio'
+  chatMessage: '&7El equipo {Color}&l{Team} &7gana el juego!'
 
-  PointsScored-Messages:
-    point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}! '
-    setpointsCommand: 'La puntuacion fue modificada por un admin a '
-
-  Win-Messages:
-
-    titles:
-      enabled: true
-
-      WinTitle: '{Color}&l{Team}'
-      WinSubTitle: '&7gana el juego!'
-
-    Win: '&7El equipo {Color}&l{Team} &7gana el juego!'
-    
-    
+###Message when Bungeecord is disabled###
+kickPlayersAtEndOfMatch: '{Color}&lGana el {Team}! %newLine%  &7Gracias por jugar!'

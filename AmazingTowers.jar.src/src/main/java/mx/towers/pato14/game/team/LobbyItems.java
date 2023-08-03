@@ -9,9 +9,11 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -123,19 +125,19 @@ public class LobbyItems implements Listener {
                         getTeams().getTeam(teamColorToJoin).addPlayer(player);
                         if (game.getGameState().equals(GameState.GAME))
                             Dar.darItemsJoinTeam((Player) player);
-                        player.sendMessage(AmazingTowers.getColor(messages.getString("messages.join")
+                        player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")
                                 .replace("{Color}", teamColorToJoin.getColor())
                                 .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
                     } else if (teamColorToJoin == TeamColor.SPECTATOR) {
                         player.setGameMode(GameMode.SPECTATOR);
-                        player.sendMessage(AmazingTowers.getColor(messages.getString("messages.joinSpectator")
+                        player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode")
                                 .replace("%newLine%", "\n")));
                     }
                 } else {
-                    player.sendMessage(AmazingTowers.getColor(messages.getString("messages.unbalancedTeam")));
+                    player.sendMessage(AmazingTowers.getColor(messages.getString("unbalancedTeam")));
                 }
             } else {
-                player.sendMessage(AmazingTowers.getColor(messages.getString("messages.alreadyJoinedTeam")
+                player.sendMessage(AmazingTowers.getColor(messages.getString("alreadyJoinedTeam")
                         .replace("{Color}", teamColorToJoin.getColor())
                         .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
             }
@@ -146,12 +148,12 @@ public class LobbyItems implements Listener {
                 return;
             if (!plugin.capitalismExists() || selectedKit.getPrice() == 0 || game.getKits().playerHasKit(player.getName(), selectedKit)) {
                 game.getPlayersSelectedKit().put(player, selectedKit);
-                player.sendMessage(AmazingTowers.getColor(messages.getString("messages.selectKit")
+                player.sendMessage(AmazingTowers.getColor(messages.getString("selectKit")
                         .replace("%kitName%", selectedKit.getName())));
             } else if (game.getGameInstance().getVault().getCoins((Player) player) >= selectedKit.getPrice()) {
                 player.openInventory(openMenuBuyKit(selectedKit, AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName"))));
             } else
-                player.sendMessage(AmazingTowers.getColor(messages.getString("messages.notEnoughMoney")));
+                player.sendMessage(AmazingTowers.getColor(messages.getString("notEnoughMoney")));
         } else if (e.getClickedInventory().getName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName")))) {
             if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.acceptBuy")))) {
                 Kit kit = game.getKits().get(e.getClickedInventory().getItem(4));
@@ -159,7 +161,8 @@ public class LobbyItems implements Listener {
                     game.getKits().addKitToPlayer(player.getName(), kit);
                 else
                     game.getKits().addTemporalBoughtKitToPlayer(player.getName(), kit);
-                player.sendMessage(AmazingTowers.getColor(messages.getString("messages.buyKit").replace("%kitName%", kit.getName())));
+                player.sendMessage(AmazingTowers.getColor(messages.getString("buyKit").replace("%kitName%", kit.getName())));
+                SetupVault.getVaultEconomy().withdrawPlayer((OfflinePlayer) player, kit.getPrice());
                 player.openInventory(selectKit.getMenu());
             } else if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy")))) {
                 player.openInventory(selectKit.getMenu());

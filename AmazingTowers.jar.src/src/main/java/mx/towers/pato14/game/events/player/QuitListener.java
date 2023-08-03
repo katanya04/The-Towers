@@ -32,7 +32,7 @@ public class QuitListener implements Listener {
         this.plugin.getPermissions().remove(player.getName());
         gameInstance.removePlayer();
 
-        e.setQuitMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.quitMessage").replaceAll("&", "§")
+        e.setQuitMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
                 .replace("{Player}", name));
         (new BukkitRunnable() {
             public void run() {

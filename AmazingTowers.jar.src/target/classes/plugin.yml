@@ -2,7 +2,7 @@ name: AmazingTowers
 
 author: Pato14, Marco2124
 
-version: 2.3b
+version: 3.0_alpha1
 depend: [NametagEdit]
 softdepend: [Vault,PlaceholderAPI]
 

@@ -30,6 +30,7 @@ public class GameInstance {
     private final int numberOfTeams;
     private final Detectoreishon detectoreishon;
     private final String name;
+    private final boolean hasWorldAssociated;
 
     public GameInstance(AmazingTowers towers, String name) {
         this.plugin = towers;
@@ -47,15 +48,30 @@ public class GameInstance {
             if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
-            if (!loadWorld(name))
-                return;
-            SetupVault.setupVault();
-            this.vault = new VaultT(this);
-            this.game = new Game(this);
-            this.scoreUpdate = new ScoreUpdate(this);
+            if (!overwriteWithBackup(name)) {
+                this.hasWorldAssociated = false;
+                this.world = loadWorld();
+            } else {
+                this.hasWorldAssociated = true;
+                SetupVault.setupVault();
+                this.vault = new VaultT(this);
+                this.game = new Game(this);
+                this.scoreUpdate = new ScoreUpdate(this);
+            }
         } else {
+            this.hasWorldAssociated = checkWorld();
+            this.world = loadWorld();
             plugin.sendConsoleWarning("Not all the locations have been set in " + name + ". Please set them first.");
         }
+    }
+
+    private boolean checkWorld() {
+        File potentialWorld = new File(Bukkit.getServer().getWorldContainer(), name);
+        return potentialWorld.exists();
+    }
+
+    private World loadWorld() {
+        return TowerCommand.createWorld(name);
     }
 
     private void registerConfigs(String worldName) {
@@ -64,7 +80,7 @@ public class GameInstance {
                     config.toString().toLowerCase() + ".yml", true, worldName));
     }
 
-    public boolean loadWorld(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
+    public boolean overwriteWithBackup(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
         WorldLoad towers = new WorldLoad(worldName, plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName, Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName);
         if (towers.getFileSource().exists()) {
             setWorld(towers.loadWorld());
@@ -140,5 +156,9 @@ public class GameInstance {
         for (Player player : world.getPlayers()) {
             player.sendMessage(msg);
         }
+    }
+
+    public boolean hasWorldAssociated() {
+        return hasWorldAssociated;
     }
 }

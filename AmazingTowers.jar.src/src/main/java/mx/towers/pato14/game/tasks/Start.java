@@ -55,22 +55,22 @@ public class Start {
                     cancel();
                     game.setGameState(GameState.LOBBY);
                     for (Player p : world.getPlayers()) {
-                        p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.necessaryPlayers")));
+                        p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.notEnoughPlayers")));
                     }
                     Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     return;
                 }
                 if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
                     for (Player p : world.getPlayers()) {
-                        p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.start")
+                        p.sendMessage(AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.start")
                                 .replace("{count}", String.valueOf(Start.this.seconds))
                                 .replace("{seconds}", Start.this.getSeconds())));
                     }
                 }
                 if (Start.this.seconds <= 5 &&
-                        Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("messages.gameStart.title.enabled")) {
-                    String title = AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.title.title-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
-                    String subtitle = AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.title.subtitle-5seconds").replace("{count}", String.valueOf(Start.this.seconds)));
+                        Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("gameStart.title.enabled")) {
+                    String title = AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.title.titleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
+                    String subtitle = AmazingTowers.getColor(Start.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.title.subtitleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
                     for (Player player : world.getPlayers()) {
                         Start.this.plugin.getNms().sendTitle(player, title, subtitle, 0, 50, 20);
                     }
@@ -88,7 +88,7 @@ public class Start {
     }
 
     private String getSeconds() {
-        return (this.seconds == 1) ? this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.second") : this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.gameStart.seconds");
+        return (this.seconds == 1) ? this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.second") : this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.seconds");
     }
     public void setSeconds(int seconds) {
         this.seconds = seconds;

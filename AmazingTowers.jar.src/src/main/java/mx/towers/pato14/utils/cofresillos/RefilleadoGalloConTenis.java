@@ -40,7 +40,7 @@ public class RefilleadoGalloConTenis {
                         RefilleadoGalloConTenis.this.regeneration = Integer.parseInt(timer[0]) * 60 + Integer.parseInt(timer[1]);
                         SelectCofresillos.refill(RefilleadoGalloConTenis.refileadoProaso);
                         if (RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill")) {
-                            gameInstance.broadcastMessage(RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.filledChest"), true);
+                            gameInstance.broadcastMessage(RefilleadoGalloConTenis.this.gameInstance.getConfig(ConfigType.MESSAGES).getString("filledChest"), true);
                         }
                         return;
                     }

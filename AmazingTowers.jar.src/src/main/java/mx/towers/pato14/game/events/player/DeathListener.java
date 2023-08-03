@@ -30,13 +30,13 @@ public class DeathListener implements Listener {
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
         if (killer == null) {
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.unknownKiller")
+            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)));
         } else {
             final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer);
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.death-messages.knownKiller") //to do, check colors
+            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller") //to do, check colors
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)

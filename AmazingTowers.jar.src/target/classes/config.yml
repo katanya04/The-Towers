@@ -1,24 +1,23 @@
 # +###----------------------------------------------###+ #
-# <#               AmazingTowers - v2.3b              #> #
+# <#               AmazingTowers - v3.0_alpha1              #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
 
-Options:
+options:
 
-  Rewards:
-
+  rewards:
     vault: true
     reward:
       kill: 2
       win: 20
       point: 10
-      forplay: 5
+      match: 5
     messages:
       kill: '&a+%coins% &7monedas'
       win: '&a+%coins% &7monedas'
       point: '&a+%coins% &7monedas'
-      forplay: '&a+%coins% &7monedas'
+      match: '&a+%coins% &7monedas'
 
   chat:
     enabled: true
@@ -27,36 +26,36 @@ Options:
       teamChat: '%team_color%&l%team_prefix% &f%player% &8: &f%msg%'
       globalChat: '%team_color%&l[GLOBAL] &f%player% &7: &f%msg%'
 
-  instant_respawn: true
+  instantRespawn: true
 
-  refill_chests:
-    enabled: true
-    message_scoreboard: '&cCofres rellenados!'
-    timer_refill: 0;50
-    message_refill: true
+  chests:
+    lockChestsToOtherTeams: true
+    refillChests:
+      enabled: true
+      messageOnScoreboard: '&cCofres rellenados!'
+      refillTime: 0;50
+      sendMessageOnRefill: true
 
-  protect_leatherArmor: true
+  canNotDropLeatherArmor: true
 
-  weather_cancel: true
+  cancelWeatherUpdates: true
 
-  chestsTeam: true
+  commandRunAtTheEnd: stop
 
-  command: stop
-
-  detection_playerinPool: 5
+  ticksPerPoolsCheck: 5
 
   gameStart:
-    min-players: 2
-    timer-start: 20
+    minPlayers: 2
+    timerStart: 20
 
-  Points: 10
+  pointsToWin: 10
 
   timerEndSeconds: 10
 
-  generator_timePerSecond: 5
+  generatorSpeedInSeconds: 5
 
 
-Items:
+lobbyItems:
 
   hotbarItems:
     joinTeams:
@@ -79,7 +78,7 @@ Items:
 
 
 
-Teams:
+teams:
 
   numberOfTeams: 2
 

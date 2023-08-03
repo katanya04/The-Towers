@@ -56,7 +56,7 @@ public class Move {
             Team team = this.game.getTeams().getTeamByPlayer(player);
             team.sumarPunto();
             player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
-            game.getGameInstance().broadcastMessage(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.point")
+            game.getGameInstance().broadcastMessage(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("scorePoint.point")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", team.getTeamColor().getColor())
                     .replace("{Team}", team.getTeamColor().getName(this.game.getGameInstance()))

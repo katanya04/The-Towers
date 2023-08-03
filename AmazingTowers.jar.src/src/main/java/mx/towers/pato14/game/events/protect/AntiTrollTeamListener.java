@@ -43,7 +43,7 @@ public class AntiTrollTeamListener implements Listener {
                         Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
                         if (playerTeam.equals(plTeam) && e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
                             e.setCancelled(true);
-                            pl.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.noTrollBreakBlock")));
+                            pl.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("trollingTeammates")));
                             return;
                         }
                     }

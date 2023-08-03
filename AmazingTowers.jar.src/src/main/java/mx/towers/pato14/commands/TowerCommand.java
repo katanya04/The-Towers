@@ -152,7 +152,7 @@ public class TowerCommand implements CommandExecutor
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
                     Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
                     team.setPoints(Integer.parseInt(args[2]));
-                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.PointsScored-Messages.setScoresCommand")
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
                     int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin");
                     if (team.getPoints() >= pointsToWin) {
@@ -176,8 +176,16 @@ public class TowerCommand implements CommandExecutor
                 break;
             case TPWORLD:
                 assert player != null;
-                if (Bukkit.getWorld(args[1]) != null) {
-                    player.teleport(Bukkit.getWorld(args[1]).getSpawnLocation());
+                World worldDestination = Bukkit.getWorld(args[1]);
+                if (worldDestination != null) {
+                    org.bukkit.Location destination;
+                    GameInstance worldGameInstance = plugin.getGameInstance(worldDestination);
+                    String lobby;
+                    if (worldGameInstance != null && (lobby = worldGameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())) != null)
+                        destination = Locations.getLocationFromString(lobby);
+                    else
+                        destination = worldDestination.getSpawnLocation();
+                    player.teleport(destination);
                     player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
                 } else
                     player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");

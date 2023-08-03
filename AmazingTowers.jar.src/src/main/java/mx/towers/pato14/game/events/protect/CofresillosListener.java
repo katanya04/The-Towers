@@ -68,7 +68,7 @@ public class CofresillosListener implements Listener {
             TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player);
             if (!AreaUtil.isInsideArea(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
                 e.setCancelled(true);
-                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("messages.open_chest")));
+                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("openingEnemyChest")));
             }
         }
     }

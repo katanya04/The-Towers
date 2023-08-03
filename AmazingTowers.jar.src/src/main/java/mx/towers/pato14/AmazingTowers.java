@@ -79,9 +79,11 @@ public final class AmazingTowers extends JavaPlugin {
 
     public void onDisable() {
         for (GameInstance gameInstance : games.values()) {
-            World world = gameInstance.getWorld();
-            if (world != null)
-                world.save();
+            if (gameInstance.getGame() == null) {
+                World world = gameInstance.getWorld();
+                if (world != null)
+                    world.save();
+            }
         }
     }
 
@@ -103,7 +105,7 @@ public final class AmazingTowers extends JavaPlugin {
         sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
         boolean worldUnset = false;
         for (GameInstance gameInstance : games.values()) {
-            if (gameInstance.getWorld() != null) {
+            if (gameInstance.hasWorldAssociated()) {
                 sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ");
                 sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
             } else {

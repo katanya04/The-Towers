@@ -2,14 +2,11 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
@@ -21,31 +18,7 @@ public class JoinListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        Team team = gameInstance.getGame().getTeams().getTeamByPlayerIncludingOffline(player.getName());
-        gameInstance.addPlayer();
-        gameInstance.getScoreUpdates().createScoreboard(player);
-        gameInstance.getScoreUpdates().updateScoreboardAll();
-        switch (gameInstance.getGame().getGameState()) {
-            case LOBBY:
-                if (gameInstance.getNumPlayers() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
-                    gameInstance.getGame().setGameState(GameState.PREGAME);
-                    gameInstance.getGame().getStart().gameStart();
-                }
-            case PREGAME:
-                Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-                break;
-            case GAME:
-                if (team != null) {
-                    team.removeOfflinePlayer(player.getName());
-                    Dar.darItemsJoinTeam(player);
-                    break;
-                }
-                Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-                break;
-            case FINISH:
-                break;
-            default:
-        }
+        gameInstance.playerJoinGame(player);
         if (gameInstance.getGame().getTeams().containsTeamPlayer(player)) {
             e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
                     .replace("{Player}", player.getName())
@@ -56,8 +29,28 @@ public class JoinListener implements Listener {
                     .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                     .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers())));
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active"))
-            this.plugin.con.CreateAccount(player.getName());
+    }
+
+    @EventHandler
+    public void onTpToNewGame(PlayerChangedWorldEvent e) {
+        Player player = e.getPlayer();
+        GameInstance oldGameInstance = plugin.getGameInstance(e.getFrom());
+        if (oldGameInstance != null && oldGameInstance.getGame() != null)
+            oldGameInstance.playerLeaveGame(player);
+        GameInstance newGameInstance = plugin.getGameInstance(player);
+        if (newGameInstance == null || newGameInstance.getGame() == null)
+            return;
+        newGameInstance.playerJoinGame(player);
+        if (newGameInstance.getGame().getTeams().containsTeamPlayer(player)) {
+            newGameInstance.broadcastMessage(newGameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
+                    .replace("{Player}", player.getName())
+                    .replace("{Color}", newGameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getColor())
+                    .replace("{Team}", newGameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName(newGameInstance)), true);
+        } else {
+            newGameInstance.broadcastMessage(newGameInstance.getConfig(ConfigType.MESSAGES).getString("joinMessage")
+                    .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(newGameInstance.getNumPlayers()))
+                    .replace("%max_players%", String.valueOf(newGameInstance.getMaxPlayers())), true);
+        }
     }
 }
 

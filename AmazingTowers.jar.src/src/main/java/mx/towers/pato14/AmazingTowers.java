@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.*;
 
 import mx.towers.pato14.commands.TowerCommand;
+import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
+import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
@@ -17,7 +19,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AmazingTowers extends JavaPlugin {
@@ -28,7 +29,6 @@ public final class AmazingTowers extends JavaPlugin {
     private Wand wand;
     private Config globalConfig;
     public Connexion con;
-    private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
 
     public void onLoad() {
         if (!getDescription().getAuthors().contains("Pato14")) {
@@ -88,6 +88,7 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     private void enabledPlugin() {
+        (new EventsManager(getPlugin())).registerEvents();
         this.wand = new Wand();
         getServer().getPluginManager().registerEvents(new WandListener(this), this);
         getServer().getPluginManager().registerEvents(new SelectCofresillos(this), this);
@@ -151,10 +152,6 @@ public final class AmazingTowers extends JavaPlugin {
         return plugin;
     }
 
-    public HashMap<String, PermissionAttachment> getPermissions() {
-        return this.perms;
-    }
-
     public GameInstance getGameInstance(Entity e) {
         String worldName = e.getWorld().getName();
         return games.get(worldName);
@@ -207,6 +204,25 @@ public final class AmazingTowers extends JavaPlugin {
 
     public boolean capitalismExists() {
         return SetupVault.getVaultEconomy() != null;
+    }
+
+    public GameInstance checkForInstanceToTp(GameInstance exclude) {
+        for (GameInstance gameInstance : games.values()) {
+            if (gameInstance.equals(exclude))
+                continue;
+            if (gameInstance.getGame() == null)
+                continue;
+            if (gameInstance.getGame().getGameState() == GameState.FINISH)
+                continue;
+            return gameInstance;
+        }
+        return null;
+    }
+
+    public void resetGameInstance(GameInstance gameInstance) {
+        String name = gameInstance.getName();
+        games.remove(name);
+        games.put(name, new GameInstance(this, name));
     }
 }
 

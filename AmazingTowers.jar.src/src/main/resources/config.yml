@@ -40,7 +40,7 @@ options:
 
   cancelWeatherUpdates: true
 
-  commandRunAtTheEnd: stop
+  sendPlayerToAnotherInstanceAtTheEnd: true
 
   ticksPerPoolsCheck: 5
 

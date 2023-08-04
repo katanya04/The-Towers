@@ -1,6 +1,8 @@
 package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.Config;
@@ -54,7 +56,7 @@ public class Finish {
                     cancel();
                     (new BukkitRunnable() {
                         public void run() {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), game.getGameInstance().getConfig(ConfigType.CONFIG).getString("options.commandRunAtTheEnd"));
+                            plugin.resetGameInstance(game.getGameInstance());
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
                     return;
@@ -62,23 +64,29 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
-                            if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
-                                for (Player player : game.getPlayers()) {
-                                    player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
-                                    Dar.bungeecordTeleport(player);
-                                    if (game.getPlayers().size() == 0) {
-                                        run();
-                                        return;
+                            GameInstance gameToTp;
+                            if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
+                            && (gameToTp = plugin.checkForInstanceToTp(game.getGameInstance())) != null && gameToTp.getWorld() != null) {
+                                TowerCommand.tpToWorld(gameToTp.getWorld(), true, game.getPlayers().toArray(new Player[0]));
+                            } else {
+                                if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+                                    for (Player player : game.getPlayers()) {
+                                        player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+                                        Dar.bungeecordTeleport(player);
+                                        if (game.getPlayers().size() == 0) {
+                                            run();
+                                            return;
+                                        }
                                     }
+                                    cancel();
+                                    return;
                                 }
-                                cancel();
-                                return;
-                            }
-                            for (Player player : game.getPlayers()) {
-                                player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
-                                        .replace("{Color}", teamColor.getColor())
-                                        .replace("{Team}", teamColor.getName(game.getGameInstance()))
-                                        .replace("%newLine%", "\n")));
+                                for (Player player : game.getPlayers()) {
+                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
+                                            .replace("{Color}", teamColor.getColor())
+                                            .replace("{Team}", teamColor.getName(game.getGameInstance()))
+                                            .replace("%newLine%", "\n")));
+                                }
                             }
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);

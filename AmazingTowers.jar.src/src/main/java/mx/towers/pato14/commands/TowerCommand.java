@@ -17,11 +17,10 @@ import java.io.File;
 import mx.towers.pato14.game.utils.Dar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 import mx.towers.pato14.AmazingTowers;
@@ -31,7 +30,7 @@ import org.bukkit.permissions.PermissionAttachment;
 public class TowerCommand implements CommandExecutor
 {
     private final AmazingTowers plugin;
-    private final ArrayList<Player> senderPlayer;
+    private final ArrayList<CommandSender> senderPlayer;
     private final HashMap<String, Long> cooldown;
     public TowerCommand(final AmazingTowers plugin) {
         this.plugin = plugin;
@@ -54,12 +53,29 @@ public class TowerCommand implements CommandExecutor
         return world;
     }
 
+    public static void tpToWorld(World world, boolean giveItemsIfNewGame, Player... players) {
+        org.bukkit.Location destination;
+        GameInstance worldGameInstance = AmazingTowers.getPlugin().getGameInstance(world);
+        String lobby;
+        if (worldGameInstance != null && (lobby = worldGameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())) != null) {
+            destination = Locations.getLocationFromString(lobby);
+            if (giveItemsIfNewGame) {
+                for (Player player : players)
+                    Dar.DarItemsJoin(player, GameMode.ADVENTURE);
+            }
+        } else
+            destination = world.getSpawnLocation();
+        for (Player player : players)
+            player.teleport(destination);
+    }
+
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         GameInstance gameInstance = null;
         Player player = null;
-        if (sender instanceof Player) {
-            player = (Player) sender;
-            gameInstance = this.plugin.getGameInstance(player);
+        if (sender instanceof Entity) {
+            gameInstance = this.plugin.getGameInstance((Entity) sender);
+            if (sender instanceof Player)
+                player = (Player) sender;
         }
         int numberOfTeams = gameInstance == null ? TeamColor.getMatchTeams(TeamColor.values().length).size() : gameInstance.getNumberOfTeams();
         Subcommand subcommand;
@@ -75,17 +91,19 @@ public class TowerCommand implements CommandExecutor
             sender.sendMessage("Solo un jugador puede ejecutar este comando.");
             return true;
         }
-        if (!subcommand.correctNumberOfArguments(args)) {
+        if (!subcommand.correctNumberOfArguments(args, sender)) {
             sender.sendMessage(subcommand.getCorrectUse(numberOfTeams));
             return true;
         }
         if (args.length > 1) {
-            int argError = Subcommand.checkArgs(subcommand, args, numberOfTeams);
-            if (argError > 0) {
-                sender.sendMessage("Error en el argumento " + argError);
+            Map.Entry<Integer, GameInstance> argErrorAndGameInstance = Subcommand.checkArgs(subcommand, args, numberOfTeams, sender);
+            if (argErrorAndGameInstance.getKey() > 0) {
+                sender.sendMessage("Error en el argumento " + argErrorAndGameInstance.getKey());
                 sender.sendMessage(subcommand.getCorrectUse(numberOfTeams));
                 return true;
             }
+            if (argErrorAndGameInstance.getValue() != null)
+                gameInstance = argErrorAndGameInstance.getValue();
         }
         switch (subcommand) {
             case STATS:
@@ -115,11 +133,12 @@ public class TowerCommand implements CommandExecutor
                     sender.sendMessage("§4Solo puedes ejecutar este comando estando en modo espectador");
                 break;
             case ORGANIZER:
+                assert gameInstance != null;
                 String password = this.plugin.getGlobalConfig().getString("permissions.password.organizer");
                 if (password != null && !password.isEmpty() && args[1].equals(password)) {
                     PermissionAttachment organizer;
                     organizer = sender.addAttachment(this.plugin);
-                    this.plugin.getPermissions().put(sender.getName(), organizer);
+                    gameInstance.getPermissions().put(sender.getName(), organizer);
                     organizer.setPermission("towers.organizer", true);
                 }
                 break;
@@ -178,14 +197,7 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 World worldDestination = Bukkit.getWorld(args[1]);
                 if (worldDestination != null) {
-                    org.bukkit.Location destination;
-                    GameInstance worldGameInstance = plugin.getGameInstance(worldDestination);
-                    String lobby;
-                    if (worldGameInstance != null && (lobby = worldGameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())) != null)
-                        destination = Locations.getLocationFromString(lobby);
-                    else
-                        destination = worldDestination.getSpawnLocation();
-                    player.teleport(destination);
+                    tpToWorld(worldDestination, false, player);
                     player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
                 } else
                     player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");
@@ -216,46 +228,45 @@ public class TowerCommand implements CommandExecutor
                 assert gameInstance != null;
                 final File backup = new File(this.plugin.getDataFolder().getAbsolutePath() + "/backup", gameInstance.getWorld().getName());
                 if (backup.exists())
-                    player.sendMessage("§fThe folder §a'" + gameInstance.getWorld().getName() + "' §falready exists in the backup folder!");
-                else if (!this.senderPlayer.contains(player)) {
-                    this.senderPlayer.add(player);
-                    player.sendMessage("§fDo you want to save the world §aTheTowers §fin the backup folder? ");
-                    player.sendMessage("§fIf you want to save it, execute again the command §a/towers backupWorld");
+                    sender.sendMessage("§fThe folder §a'" + gameInstance.getWorld().getName() + "' §falready exists in the backup folder!");
+                else if (!this.senderPlayer.contains(sender)) {
+                    this.senderPlayer.add(sender);
+                    sender.sendMessage("§fDo you want to save the world §a" + gameInstance.getName() + "§f in the backup folder? ");
+                    sender.sendMessage("§fIf you want to save it, execute again the command §a/towers backupWorld");
                 }
                 else {
                     final File world3 = new File(Bukkit.getWorldContainer().getAbsolutePath(), gameInstance.getWorld().getName());
                     if (!world3.exists())
-                        player.sendMessage("§fThe folder of the world §c" + gameInstance.getWorld().getName() + " §fdoesn't exist");
+                        sender.sendMessage("§fThe folder of the world §c" + gameInstance.getWorld().getName() + " §fdoesn't exist");
                     gameInstance.getWorld().save();
                     WorldReset.copyWorld(world3, backup);
                     final File[] ficheros = backup.listFiles();
                     if (ficheros == null) {
-                        player.sendMessage("Error while trying to do a backup of the world.");
+                        sender.sendMessage("Error while trying to do a backup of the world.");
                         break;
                     }
                     for (File fichero : ficheros) {
                         if (fichero.getName().equals("session.lock") || fichero.getName().equals("uid.dat")) {
                             if (!fichero.delete()) {
-                                player.sendMessage("Error while trying to do a backup of the world.");
+                                sender.sendMessage("Error while trying to do a backup of the world.");
                                 break;
                             }
                         }
                     }
-                    player.sendMessage("§fThe folder §a" + gameInstance.getWorld().getName() + "§f copied to the backup folder§a successfully");
-                    this.senderPlayer.remove(player);
+                    sender.sendMessage("§fThe folder §a" + gameInstance.getWorld().getName() + "§f copied to the backup folder§a successfully");
+                    this.senderPlayer.remove(sender);
                 }
                 break;
             case LOADWORLD:
-                assert player != null;
                 final File world2 = new File(Bukkit.getWorldContainer().getAbsolutePath(), args[1]);
                 if (!world2.exists())
-                    player.sendMessage("§fThe folder of the world §c" + args[1] + "§f doesn't exist");
+                    sender.sendMessage("§fThe folder of the world §c" + args[1] + "§f doesn't exist");
                 else if (Bukkit.getWorld(args[1]) == null) {
-                    player.sendMessage("Loading the world §a" + args[1] + "§f...");
+                    sender.sendMessage("Loading the world §a" + args[1] + "§f...");
                     new WorldCreator(args[1]).createWorld();
-                    player.sendMessage("The world §a" + args[1] + "§f loaded§a successfully...");
+                    sender.sendMessage("The world §a" + args[1] + "§f loaded§a successfully...");
                 } else
-                    player.sendMessage("§fThe world §a" + args[1] + " §fis already loaded!");
+                    sender.sendMessage("§fThe world §a" + args[1] + " §fis already loaded!");
                 break;
             case SETREGION:
                 assert player != null;

@@ -1,10 +1,10 @@
 # +###----------------------------------------------###+ #
-# <#               AmazingTowers - v3.0_alpha1              #> #
+# <#            AmazingTowers - v3.0_alpha1           #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
 Scoreboard:
-  name: '&e&lTHETOWERS'
+  name: '&e&lTHE TOWERS'
   formatDate: dd/MM/yy
   
   # LOBBY

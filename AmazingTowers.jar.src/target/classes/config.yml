@@ -1,5 +1,5 @@
 # +###----------------------------------------------###+ #
-# <#               AmazingTowers - v3.0_alpha1              #> #
+# <#            AmazingTowers - v3.0_alpha1           #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
@@ -40,7 +40,7 @@ options:
 
   cancelWeatherUpdates: true
 
-  commandRunAtTheEnd: stop
+  sendPlayerToAnotherInstanceAtTheEnd: true
 
   ticksPerPoolsCheck: 5
 

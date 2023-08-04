@@ -1,5 +1,6 @@
 mx\towers\pato14\utils\enums\LocationType.class
 mx\towers\pato14\utils\nms\NMS.class
+mx\towers\pato14\GameInstance$2.class
 mx\towers\pato14\utils\rewards\VaultT.class
 mx\towers\pato14\utils\rewards\RewardsEnum.class
 mx\towers\pato14\game\events\player\JoinListener.class
@@ -8,7 +9,6 @@ mx\towers\pato14\utils\enums\TeamColor.class
 mx\towers\pato14\game\events\protect\LeatherProtectListener.class
 mx\towers\pato14\game\events\protect\AntiFallingSandTrollListener.class
 mx\towers\pato14\utils\world\WorldReset.class
-mx\towers\pato14\game\events\player\QuitListener$1.class
 mx\towers\pato14\utils\rewards\SetupVault.class
 mx\towers\pato14\utils\locations\IntCoordinate.class
 mx\towers\pato14\utils\stats\StatisticsPlayer.class
@@ -32,7 +32,6 @@ mx\towers\pato14\game\events\protect\AntiTrollTeamListener.class
 mx\towers\pato14\game\utils\Move.class
 mx\towers\pato14\utils\wand\Wand.class
 mx\towers\pato14\game\events\player\DamageListener.class
-mx\towers\pato14\game\events\player\JoinListener$1.class
 mx\towers\pato14\game\tasks\Start$2.class
 mx\towers\pato14\game\tasks\Finish$1$1.class
 mx\towers\pato14\game\team\MenuItem.class
@@ -69,6 +68,7 @@ mx\towers\pato14\game\events\player\BlockStats.class
 mx\towers\pato14\utils\enums\Subcommand.class
 mx\towers\pato14\game\events\player\BowListener.class
 mx\towers\pato14\utils\enums\ConfigType.class
+mx\towers\pato14\GameInstance$1.class
 mx\towers\pato14\game\events\player\TeamChatListener.class
 mx\towers\pato14\game\events\protect\PistonsillosListener.class
 mx\towers\pato14\game\events\EventsManager.class
@@ -81,6 +81,5 @@ mx\towers\pato14\utils\enums\Rank.class
 mx\towers\pato14\utils\wand\WandListener.class
 mx\towers\pato14\game\events\protect\LobbyListener.class
 mx\towers\pato14\game\events\protect\WaterListener.class
-mx\towers\pato14\game\events\player\QuitListener$2.class
 mx\towers\pato14\utils\enums\Location.class
 mx\towers\pato14\utils\enums\Tool.class

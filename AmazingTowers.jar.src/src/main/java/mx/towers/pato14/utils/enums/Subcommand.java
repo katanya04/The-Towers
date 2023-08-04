@@ -1,27 +1,33 @@
 package mx.towers.pato14.utils.enums;
 
+import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
-public enum Subcommand { //* = optional argument, always at the end if it exists
+public enum Subcommand { //* = optional argument, always at the end if it exists. $ = argument needed if run from the console
     STATS(0, 0, false, "<player>"),
     SPECTATOR(0, 0, true),
     ORGANIZER(0, 1, true, "<password>"),
-    COUNT(1, 1, true, "stop|start|<number>"),
-    RULE(1, 2, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false"),
-    SETSCORE(1, 2, true, "%team_colors%", "<number>"),
-    JOINTEAM(1, 2, true, "%team_colors%", "<onlinePlayer>"),
+    COUNT(1, 1, false, "stop|start|<number>", "$<instanceName>"),
+    RULE(1, 2, false, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
+    SETSCORE(1, 2, false, "%team_colors%", "<number>", "$<instanceName>"),
+    JOINTEAM(1, 2, false, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
     LOCATIONS(2, 0, true),
     TPWORLD(2, 1, true, "<worldName>"),
     CREATEWORLD(2, 1, false, "<instanceName>|all"),
-    BACKUPWORLD(2, 0, true),
-    LOADWORLD(2, 1, true, "<worldName>"),
+    BACKUPWORLD(2, 0, false, "$<instanceName>"),
+    LOADWORLD(2, 1, false, "<worldName>"),
     SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
-    HELP(2, 0, true),
-    VAULTINFO(2, 0, true),
-    RELOADCONFIG(2, 1, true, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|')),
+    HELP(2, 0, false),
+    VAULTINFO(2, 0, false),
+    RELOADCONFIG(2, 1, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
     TOOL(2, 1, true, "wand|refillChest");
 
     private final int permissionLevel;
@@ -63,8 +69,20 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         return this.permissionLevel <= senderPermission;
     }
 
-    public boolean correctNumberOfArguments(String[] args) {
-        return numberOfNeededArguments <= args.length - 1 && arguments.length >= args.length - 1;
+    private int getNumberOfConsoleNeededArguments() {
+        int toret = 0;
+        for (String arg : arguments) {
+            if (arg.charAt(0) == '$')
+                toret++;
+        }
+        return toret;
+    }
+
+    public boolean correctNumberOfArguments(String[] args, CommandSender sender) {
+        if (sender instanceof Entity)
+            return numberOfNeededArguments <= args.length - 1 && arguments.length >= args.length - 1;
+        else
+            return numberOfNeededArguments + getNumberOfConsoleNeededArguments() <= args.length - 1 && arguments.length >= args.length - 1;
     }
 
     public boolean checkCorrectSender(CommandSender sender) {
@@ -103,16 +121,22 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         }
     }
 
-    public static int checkArgs(Subcommand subcommand, String[] args, int numberOfTeams) {
+    public static Map.Entry<Integer, GameInstance> checkArgs(Subcommand subcommand, String[] args, int numberOfTeams, CommandSender sender) {
+        GameInstance gameInstance = null;
         int i = 1;
         for (String currentArg : subcommand.getArguments()) {
             currentArg = currentArg.replace("%team_colors%",
                 argsBuilder(Arrays.stream(TeamColor.values()).map(x -> x.name().toLowerCase()).limit(numberOfTeams).toArray(String[]::new), '|'));
             if (currentArg.charAt(0) == '*') //Optional argument is always at the end
-                return 0;
+                return new AbstractMap.SimpleEntry<>(0, gameInstance);
+            if (currentArg.charAt(0) == '$') //Optional argument is always at the end
+                if (sender instanceof Entity)
+                    return new AbstractMap.SimpleEntry<>(0, gameInstance);
             String[] currentArgSeparated = currentArg.split("\\|");
             boolean matches = false;
             for (String currentSubArg : currentArgSeparated) {
+                if (currentArg.charAt(0) == '$')
+                    currentSubArg = currentSubArg.replace("$", "");
                 if (!(currentSubArg.charAt(0) == '<')) {
                     if (currentSubArg.equalsIgnoreCase(args[i])) {
                         matches = true;
@@ -121,6 +145,9 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                 } else {
                     if (currentSubArg.equals("<number>")) {
                         if (isInteger(args[i]))
+                            matches = true;
+                    } else if (currentSubArg.equals("<instanceName>")) {
+                        if ((gameInstance = AmazingTowers.getPlugin().getGameInstance(Bukkit.getWorld(args[i]))) != null)
                             matches = true;
                     } else
                         matches = true;
@@ -131,9 +158,9 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
             if (matches)
                 i++;
             else
-                return i; //Position of incorrect argument
+                return new AbstractMap.SimpleEntry<>(i, gameInstance); //Position of incorrect argument
         }
-        return 0; //All arguments are correct
+        return new AbstractMap.SimpleEntry<>(0, gameInstance); //All arguments are correct
     }
 
 }

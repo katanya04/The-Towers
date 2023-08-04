@@ -64,9 +64,10 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
+                            game.getGameInstance().setReadyToJoin(false);
                             GameInstance gameToTp;
                             if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
-                            && (gameToTp = plugin.checkForInstanceToTp(game.getGameInstance())) != null && gameToTp.getWorld() != null) {
+                            && (gameToTp = plugin.checkForInstanceToTp()) != null) {
                                 TowerCommand.tpToWorld(gameToTp.getWorld(), true, game.getPlayers().toArray(new Player[0]));
                             } else {
                                 if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {

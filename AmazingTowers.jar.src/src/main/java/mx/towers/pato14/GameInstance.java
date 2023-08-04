@@ -42,8 +42,10 @@ public class GameInstance {
     private final String name;
     private boolean hasWorldAssociated;
     private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
+    private boolean isReadyToJoin;
 
     public GameInstance(AmazingTowers towers, String name) {
+        isReadyToJoin = false;
         this.hasWorldAssociated = false;
         this.plugin = towers;
         this.name = name;
@@ -80,6 +82,7 @@ public class GameInstance {
                 this.world = loadWorld();
             plugin.sendConsoleWarning("Not all the locations have been set in " + name + ". Please set them first.");
         }
+        isReadyToJoin = true;
     }
 
     private boolean checkWorld() {
@@ -262,5 +265,13 @@ public class GameInstance {
                 }
             }
         }).runTaskLaterAsynchronously(this.plugin, 5L);
+    }
+
+    public boolean isReadyToJoin() {
+        return isReadyToJoin;
+    }
+
+    public void setReadyToJoin(boolean readyToJoin) {
+        isReadyToJoin = readyToJoin;
     }
 }

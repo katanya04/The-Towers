@@ -206,11 +206,13 @@ public final class AmazingTowers extends JavaPlugin {
         return SetupVault.getVaultEconomy() != null;
     }
 
-    public GameInstance checkForInstanceToTp(GameInstance exclude) {
+    public GameInstance checkForInstanceToTp() {
         for (GameInstance gameInstance : games.values()) {
-            if (gameInstance.equals(exclude))
+            if (!gameInstance.isReadyToJoin())
                 continue;
             if (gameInstance.getGame() == null)
+                continue;
+            if (gameInstance.getWorld() == null)
                 continue;
             if (gameInstance.getGame().getGameState() == GameState.FINISH)
                 continue;

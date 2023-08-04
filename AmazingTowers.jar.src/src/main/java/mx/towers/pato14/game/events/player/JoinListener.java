@@ -2,6 +2,7 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,13 @@ public class JoinListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
+        if (!gameInstance.isReadyToJoin()) {
+            GameInstance newGameInstance = plugin.checkForInstanceToTp();
+            if (newGameInstance != null) {
+                TowerCommand.tpToWorld(newGameInstance.getWorld(), true, player);
+            } else
+                player.kickPlayer("This world is still loading, try to enter again soon");
+        }
         gameInstance.playerJoinGame(player);
         if (gameInstance.getGame().getTeams().containsTeamPlayer(player)) {
             e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")

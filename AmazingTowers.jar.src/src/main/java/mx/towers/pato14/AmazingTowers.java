@@ -97,7 +97,7 @@ public final class AmazingTowers extends JavaPlugin {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
             sendConsoleMessage("§aServer§f: §f" + version);
         } catch (ArrayIndexOutOfBoundsException a) {
-            a.printStackTrace();
+            sendConsoleError("Unknown server version");
         }
         sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
         sendConsoleMessage("§aPlugin§f: §aEnabled§a successfully§f!");
@@ -125,7 +125,7 @@ public final class AmazingTowers extends JavaPlugin {
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         } catch (ArrayIndexOutOfBoundsException a) {
-            a.printStackTrace();
+            sendConsoleError("Unknown server version");
             return false;
         }
         if (version.hashCode() == -1156422964) {

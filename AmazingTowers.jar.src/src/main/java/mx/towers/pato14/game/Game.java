@@ -42,9 +42,9 @@ public class Game {
         this.gameState = GameState.LOBBY;
         this.kits = new Kits(game.getConfig(ConfigType.KITS), plugin.capitalismExists());
         this.playersSelectedKit = new HashMap<>();
+        this.teams = new GameTeams(this);
         this.lobbyItems = new LobbyItems(this);
         getPlugin().getServer().getPluginManager().registerEvents(getLobbyItems(), getPlugin());
-        this.teams = new GameTeams(this);
         this.gameStart = new Start(this);
         this.finish = new Finish(this);
         this.stats = new StatisticsPlayer();

@@ -1,12 +1,13 @@
 package mx.towers.pato14.game.team;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class MenuItem extends ItemStack {
     private final Inventory menu;
-    private final ItemStack[] contents;
+    private ItemStack[] contents;
 
     public MenuItem(String name, int size, ItemStack icon, ItemStack[] contents) {
         super(icon);
@@ -25,5 +26,10 @@ public class MenuItem extends ItemStack {
 
     public ItemStack[] getContents() {
         return contents;
+    }
+
+    public void setContents(ItemStack[] contents) {
+        menu.setContents(contents);
+        this.contents = contents;
     }
 }

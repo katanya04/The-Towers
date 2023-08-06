@@ -63,7 +63,6 @@ mx\towers\pato14\game\events\player\IronArmorListener.class
 mx\towers\pato14\game\scoreboard\ScoreUpdate.class
 mx\towers\pato14\game\team\Team.class
 mx\towers\pato14\game\events\protect\TimeListener.class
-mx\towers\pato14\game\tasks\Finish$1$2.class
 mx\towers\pato14\game\events\player\BlockStats.class
 mx\towers\pato14\utils\enums\Subcommand.class
 mx\towers\pato14\game\events\player\BowListener.class

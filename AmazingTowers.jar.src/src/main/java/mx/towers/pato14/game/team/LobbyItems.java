@@ -10,10 +10,7 @@ import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.rewards.SetupVault;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,15 +23,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LobbyItems implements Listener {
     private final HashMap<Integer, ItemStack> hotbarItems;
     private final MenuItem selectTeam;
-    private final HashMap<ItemStack, TeamColor> teams;
     private final MenuItem selectKit;
     private ItemStack quit;
     private final Game game;
@@ -44,15 +38,7 @@ public class LobbyItems implements Listener {
         this.game = game;
         this.plugin = game.getGameInstance().getPlugin();
         ItemStack selectTeamIcon = setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.joinTeams.name")));
-        this.teams = new HashMap<>();
-        List<ItemStack> teamItems = new ArrayList<>();
-        for (TeamColor teamColor : TeamColor.getTeams(game.getGameInstance().getNumberOfTeams())) {
-            teamItems.add(teamColor.getTeamItem(game.getGameInstance()));
-            teams.put(teamItems.get(teamItems.size() - 1), teamColor);
-        }
-        teamItems.add(TeamColor.SPECTATOR.getTeamItem(game.getGameInstance()));
-        teams.put(teamItems.get(teamItems.size() - 1), TeamColor.SPECTATOR);
-        this.selectTeam = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.joinTeams.name")), 9, selectTeamIcon, teamItems.toArray(new ItemStack[0]));
+        this.selectTeam = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.joinTeams.name")), 9, selectTeamIcon, game.getTeams().getLobbyItems());
         ItemStack selectKitIcon = setName(new ItemStack(Material.IRON_SWORD), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.kits.name")));
         this.selectKit = new MenuItem(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.kits.name")), 9, selectKitIcon, game.getKits().getIcons());
         this.hotbarItems = new HashMap<>();
@@ -87,9 +73,8 @@ public class LobbyItems implements Listener {
         Player player = e.getPlayer();
         if (!canUseLobbyItem(player))
             return;
-        if (game.getGameState().equals(GameState.FINISH)) {
+        if (game.getGameState().equals(GameState.FINISH))
             return;
-        }
         if (e.getItem() == null || !(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
             return;
         for (ItemStack item : hotbarItems.values()) {
@@ -98,7 +83,7 @@ public class LobbyItems implements Listener {
             if (item instanceof MenuItem && game.getGameState() != GameState.FINISH)
                 player.openInventory(((MenuItem) item).getMenu());
             else if (item.equals(this.quit))
-                System.out.println("todo");
+                Dar.bungeecordTeleport(player);
         }
         e.setCancelled(true);
     }
@@ -114,32 +99,38 @@ public class LobbyItems implements Listener {
         e.setCancelled(true);
         Config messages = this.game.getGameInstance().getConfig(ConfigType.MESSAGES);
         if (this.selectTeam.getMenu().equals(e.getClickedInventory()) && game.getGameState() != GameState.FINISH) {
-            TeamColor teamColorToJoin = this.teams.get(clickedItem);
-            if (!teamColorToJoin.isMatchTeam() || !getTeams().getTeam(teamColorToJoin).containsPlayer(player.getName())) { //Si no está ya en ese equipo
-                Team currentTeam = game.getTeams().getTeamByPlayer(player); //Equipo actual
-                if (!teamColorToJoin.isMatchTeam()
-                        || !game.getGameInstance().getRules().get(Rule.BALANCED_TEAMS)
-                        || getTeams().getTeam(teamColorToJoin).getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
-                    if (currentTeam != null) currentTeam.removePlayer(player);
-                    if (teamColorToJoin.isMatchTeam()) {
-                        getTeams().getTeam(teamColorToJoin).addPlayer(player);
-                        if (game.getGameState().equals(GameState.GAME))
-                            Dar.darItemsJoinTeam((Player) player);
-                        player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")
-                                .replace("{Color}", teamColorToJoin.getColor())
-                                .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
-                    } else if (teamColorToJoin == TeamColor.SPECTATOR) {
-                        player.setGameMode(GameMode.SPECTATOR);
-                        player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode")
-                                .replace("%newLine%", "\n")));
+            Team currentTeam = game.getTeams().getTeamByPlayer(player); //Equipo actual
+            Team teamToJoin = getTeams().getTeamFromLobbyItem(clickedItem);
+            if (teamToJoin == null) {
+                if (TeamColor.isSpectatorItem(clickedItem, game.getGameInstance())) {
+                    player.setGameMode(GameMode.SPECTATOR);
+                    player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
+                    if (currentTeam != null) {
+                        currentTeam.removePlayer(player);
                     }
+                    player.closeInventory();
+                }
+            } else if (!teamToJoin.containsPlayer(player.getName())) { //Si no está ya en ese equipo
+                if (!game.getGameInstance().getRules().get(Rule.BALANCED_TEAMS)
+                        || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
+                    if (currentTeam != null)
+                        currentTeam.removePlayer(player);
+                    teamToJoin.addPlayer(player);
+                    if (game.getGameState().equals(GameState.GAME))
+                        Dar.darItemsJoinTeam((Player) player);
+                    player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")
+                            .replace("{Color}", teamToJoin.getTeamColor().getColor())
+                            .replace("{Team}", teamToJoin.getTeamColor().getName(game.getGameInstance()))));
+                    ((Player) player).playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
+                    player.closeInventory();
                 } else {
                     player.sendMessage(AmazingTowers.getColor(messages.getString("unbalancedTeam")));
+                    ((Player) player).playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
                 }
             } else {
                 player.sendMessage(AmazingTowers.getColor(messages.getString("alreadyJoinedTeam")
-                        .replace("{Color}", teamColorToJoin.getColor())
-                        .replace("{Team}", teamColorToJoin.getName(game.getGameInstance()))));
+                        .replace("{Color}", teamToJoin.getTeamColor().getColor())
+                        .replace("{Team}", teamToJoin.getTeamColor().getName(game.getGameInstance()))));
             }
 
         } else if (this.selectKit.getMenu().equals(e.getClickedInventory())) {
@@ -150,10 +141,14 @@ public class LobbyItems implements Listener {
                 game.getPlayersSelectedKit().put(player, selectedKit);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("selectKit")
                         .replace("%kitName%", selectedKit.getName())));
+                ((Player) player).playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
+                player.closeInventory();
             } else if (game.getGameInstance().getVault().getCoins((Player) player) >= selectedKit.getPrice()) {
                 player.openInventory(openMenuBuyKit(selectedKit, AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName"))));
-            } else
+            } else {
                 player.sendMessage(AmazingTowers.getColor(messages.getString("notEnoughMoney")));
+                ((Player) player).playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
+            }
         } else if (e.getClickedInventory().getName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName")))) {
             if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.acceptBuy")))) {
                 Kit kit = game.getKits().get(e.getClickedInventory().getItem(4));
@@ -164,6 +159,7 @@ public class LobbyItems implements Listener {
                 player.sendMessage(AmazingTowers.getColor(messages.getString("buyKit").replace("%kitName%", kit.getName())));
                 SetupVault.getVaultEconomy().withdrawPlayer((OfflinePlayer) player, kit.getPrice());
                 player.openInventory(selectKit.getMenu());
+                ((Player) player).playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 2.0f);
             } else if (clickedItem.getItemMeta().getDisplayName().equals(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy")))) {
                 player.openInventory(selectKit.getMenu());
             }
@@ -203,5 +199,9 @@ public class LobbyItems implements Listener {
 
     public MenuItem getSelectKit() {
         return selectKit;
+    }
+
+    public void updateTeamsMenu() {
+        this.selectTeam.setContents(getTeams().getLobbyItems());
     }
 }

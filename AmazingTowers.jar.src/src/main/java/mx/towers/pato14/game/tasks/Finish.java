@@ -50,15 +50,7 @@ public class Finish {
         (new BukkitRunnable() {
             public void run() {
                 if (Finish.this.seconds == 0) {
-                    if (game.getPlayers().size() > 0) {
-                        return;
-                    }
                     cancel();
-                    (new BukkitRunnable() {
-                        public void run() {
-                            plugin.resetGameInstance(game.getGameInstance());
-                        }
-                    }).runTaskLater(Finish.this.plugin, 60L);
                     return;
                 }
                 if (Finish.this.seconds == 1) {
@@ -68,13 +60,13 @@ public class Finish {
                             GameInstance gameToTp;
                             if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
                             && (gameToTp = plugin.checkForInstanceToTp()) != null) {
-                                TowerCommand.tpToWorld(gameToTp.getWorld(), true, game.getPlayers().toArray(new Player[0]));
+                                TowerCommand.tpToWorld(gameToTp.getWorld(), game.getPlayers().toArray(new Player[0]));
                             } else {
-                                if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+                                if (bungeecord) {
                                     for (Player player : game.getPlayers()) {
                                         player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
                                         Dar.bungeecordTeleport(player);
-                                        if (game.getPlayers().size() == 0) {
+                                        if (game.getPlayers().isEmpty()) {
                                             run();
                                             return;
                                         }
@@ -89,6 +81,9 @@ public class Finish {
                                             .replace("%newLine%", "\n")));
                                 }
                             }
+                            System.out.println("Unloading and resetting");
+                            Bukkit.unloadWorld(game.getGameInstance().getName(), false);
+                            plugin.resetGameInstance(game.getGameInstance());
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
                     if (Finish.this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("serverRestart.enabled")) {

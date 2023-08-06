@@ -53,16 +53,12 @@ public class TowerCommand implements CommandExecutor
         return world;
     }
 
-    public static void tpToWorld(World world, boolean giveItemsIfNewGame, Player... players) {
+    public static void tpToWorld(World world, Player... players) {
         org.bukkit.Location destination;
         GameInstance worldGameInstance = AmazingTowers.getPlugin().getGameInstance(world);
         String lobby;
         if (worldGameInstance != null && (lobby = worldGameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())) != null) {
             destination = Locations.getLocationFromString(lobby);
-            if (giveItemsIfNewGame) {
-                for (Player player : players)
-                    Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-            }
         } else
             destination = world.getSpawnLocation();
         for (Player player : players)
@@ -197,7 +193,7 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 World worldDestination = Bukkit.getWorld(args[1]);
                 if (worldDestination != null) {
-                    tpToWorld(worldDestination, false, player);
+                    tpToWorld(worldDestination, player);
                     player.sendMessage("Teleportation to the world §a" + args[1] + " successfully...");
                 } else
                     player.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist");

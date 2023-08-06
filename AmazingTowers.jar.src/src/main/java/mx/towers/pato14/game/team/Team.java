@@ -3,12 +3,15 @@ package mx.towers.pato14.game.team;
 import com.nametagedit.plugin.NametagEdit;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class Team {
     private final TeamColor teamColor;
@@ -17,21 +20,27 @@ public class Team {
     private final ArrayList<String> players;
     private final ArrayList<String> offlinePlayers;
     private int points;
+    private final ItemStack lobbyItem;
+    private final GameInstance gameInstance;
 
-    public Team(String nameTeam) {
+    public Team(String nameTeam, GameInstance gameInstance) {
         points = 0;
         this.nameTeam = nameTeam;
         this.players = new ArrayList<>();
         this.offlinePlayers = new ArrayList<>();
         this.teamColor = TeamColor.valueOf(nameTeam.toUpperCase());
+        this.lobbyItem = teamColor.getTeamItem(gameInstance);
+        this.gameInstance = gameInstance;
     }
 
     public void addPlayer(HumanEntity player) {
         this.players.add(player.getName());
+        addPlayerNameToTeamItem(player.getName());
     }
 
     public void removePlayer(HumanEntity player) {
         this.players.remove(player.getName());
+        removePlayerNameToTeamItem(player.getName());
     }
 
     public void setNameTagPlayer(Player player) {
@@ -99,6 +108,30 @@ public class Team {
 
     public void sumarPunto() {
         this.points++;
+    }
+
+    public ItemStack getLobbyItem() {
+        return lobbyItem;
+    }
+
+    private void addPlayerNameToTeamItem(String playerName) {
+        ItemMeta itemMeta = lobbyItem.getItemMeta();
+        List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
+        lore.add("§r§7- " + playerName);
+        itemMeta.setLore(lore);
+        lobbyItem.setItemMeta(itemMeta);
+        this.gameInstance.getGame().getLobbyItems().updateTeamsMenu();
+    }
+
+    private void removePlayerNameToTeamItem(String playerName) {
+        ItemMeta itemMeta = lobbyItem.getItemMeta();
+        List<String> lore = itemMeta.getLore();
+        if (lore == null)
+            return;
+        lore.remove("§r§7- " + playerName);
+        itemMeta.setLore(lore);
+        lobbyItem.setItemMeta(itemMeta);
+        this.gameInstance.getGame().getLobbyItems().updateTeamsMenu();
     }
 }
 

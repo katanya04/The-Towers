@@ -1,24 +1,30 @@
 package mx.towers.pato14.game.team;
 
+import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class GameTeams {
     private final List<Team> teams;
     private final Game game;
+    private final ItemStack spectator;
 
     public GameTeams(Game game) {
         this.game = game;
         this.teams = new LinkedList<>();
+        this.spectator = TeamColor.SPECTATOR.getTeamItem(game.getGameInstance());
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
             String teamName = teamColor.name().toLowerCase();
-            Team currentTeam = new Team(teamName);
+            Team currentTeam = new Team(teamName, game.getGameInstance());
             currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG).getString("teams.prefixes." + teamName) + " ");
             teams.add(currentTeam);
         }
@@ -101,6 +107,22 @@ public class GameTeams {
 
     public Game getGame() {
         return game;
+    }
+
+    public ItemStack[] getLobbyItems() {
+        ItemStack[] toret = new ItemStack[getTeams().size() + 1];
+        for (int i = 0; i < getTeams().size(); i++) {
+            toret[i] = getTeams().get(i).getLobbyItem();
+        }
+        toret[toret.length - 1] = spectator;
+        return toret;
+    }
+
+    public Team getTeamFromLobbyItem(ItemStack itemStack) {
+        for (Team team : teams)
+            if (team.getLobbyItem().equals(itemStack))
+                return team;
+        return null;
     }
 }
 

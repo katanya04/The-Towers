@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public enum Subcommand { //* = optional argument, always at the end if it exists. $ = argument needed if run from the console
-    STATS(0, 0, false, "<player>"),
+    STATS(0, 1, false, "<player>"),
     SPECTATOR(0, 0, true),
     ORGANIZER(0, 1, true, "<password>"),
     COUNT(1, 1, false, "stop|start|<number>", "$<instanceName>"),

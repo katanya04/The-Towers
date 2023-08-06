@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public enum TeamColor {
     RED(true, (short) 14, "&c"),
     BLUE(true, (short) 11, "&9"),
-    GREEN(true, (short) 13, "&a"),
+    GREEN(true, (short) 5, "&a"),
     YELLOW(true, (short) 4, "&e"),
     WHITE(true, (short) 0, "&f"),
     BLACK(true, (short) 15, "&0"),
@@ -87,6 +88,11 @@ public enum TeamColor {
 
         toret.setItemMeta(itemMeta);
         return toret;
+    }
+
+    public static boolean isSpectatorItem(ItemStack item, GameInstance gameInstance) {
+        return AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator"))
+                .equals(item.getItemMeta().getDisplayName());
     }
 }
 

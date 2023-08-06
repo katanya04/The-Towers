@@ -22,7 +22,7 @@ public class JoinListener implements Listener {
         if (!gameInstance.isReadyToJoin()) {
             GameInstance newGameInstance = plugin.checkForInstanceToTp();
             if (newGameInstance != null) {
-                TowerCommand.tpToWorld(newGameInstance.getWorld(), true, player);
+                TowerCommand.tpToWorld(newGameInstance.getWorld(), player);
             } else
                 player.kickPlayer("This world is still loading, try to enter again soon");
         }

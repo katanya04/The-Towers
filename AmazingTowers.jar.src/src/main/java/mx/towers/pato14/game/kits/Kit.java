@@ -72,7 +72,7 @@ public class Kit {
             player.getInventory().setItem(i, hotbar[i]);
         }
         Color color = AmazingTowers.getPlugin().getGameInstance(player).getGame().getTeams()
-                .getTeamColorByPlayer(player).getColorEnum();
+                .getTeamColorByPlayer(player.getName()).getColorEnum();
         for (ItemStack itemStack : armor) {
             if (isLeatherArmor(itemStack.getType()) && color != null) {
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();

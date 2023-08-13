@@ -2,7 +2,9 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.PlayerState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

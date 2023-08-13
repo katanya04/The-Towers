@@ -4,6 +4,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
@@ -27,16 +28,17 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = this.plugin.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
+        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
+        final String finalKill = playerTeam == null || playerTeam.respawnPlayers() ? "" : AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
         if (killer == null) {
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
+            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)));
         } else {
-            final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer);
+            final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            e.setDeathMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller") //to do, check colors
+            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller") //to do, check colors
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)
@@ -56,7 +58,12 @@ public class DeathListener implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
                 player.setCanPickupItems(false);
                 player.spigot().respawn();
-            },  1L);
+            }, 1L);
+        }
+        if (playerTeam != null && !playerTeam.respawnPlayers()) {
+            playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
+            if (playerTeam.getSizeOnlinePlayers() <= 0)
+                Utils.checkForTeamWin(gameInstance);
         }
     }
 
@@ -71,10 +78,15 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
+        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
         if (gameInstance.getGame().getGameState().equals(GameState.GAME) && playerTeam != null) {
-            e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
-            gameInstance.getGame().applyKitToPlayer(e.getPlayer());
+            if (playerTeam.respawnPlayers()) {
+                e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
+                gameInstance.getGame().applyKitToPlayer(e.getPlayer());
+            } else {
+                e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
+                e.getPlayer().setGameMode(GameMode.SPECTATOR);
+            }
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
             Dar.DarItemsJoin(e.getPlayer(), GameMode.ADVENTURE);

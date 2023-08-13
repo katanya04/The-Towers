@@ -1,18 +1,16 @@
 package mx.towers.pato14;
 
 import com.nametagedit.plugin.NametagEdit;
-import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.Config;
-import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Rule;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Detectoreishon;
+import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.world.WorldLoad;
@@ -20,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -56,8 +55,8 @@ public class GameInstance {
         this.detectoreishon = new Detectoreishon(this);
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
         if (numberOfTeams < 2 || numberOfTeams > 8) {
-            plugin.sendConsoleError("Error while creating " + name +
-                    ", number of teams needs to be greater than 1 and less than 9 (currently " + numberOfTeams + ")");
+            plugin.sendConsoleMessage("Error while creating " + name +
+                    ", number of teams needs to be greater than 1 and less than 9 (currently " + numberOfTeams + ")", MessageType.ERROR);
             return;
         }
         this.detectoreishon.checkNeededLocationsExistence(numberOfTeams);
@@ -80,7 +79,7 @@ public class GameInstance {
             this.hasWorldAssociated = checkWorld();
             if (this.hasWorldAssociated)
                 this.world = loadWorld();
-            plugin.sendConsoleWarning("Not all the locations have been set in " + name + ". Please set them first.");
+            plugin.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
         }
         isReadyToJoin = true;
     }
@@ -91,7 +90,7 @@ public class GameInstance {
     }
 
     private World loadWorld() {
-        return TowerCommand.createWorld(name);
+        return Utils.createEmptyWorld(name);
     }
 
     private void registerConfigs(String worldName) {
@@ -106,14 +105,14 @@ public class GameInstance {
             setWorld(towers.loadWorld());
             return true;
         } else {
-            plugin.sendConsoleError("There is no backup for " + worldName);
+            plugin.sendConsoleMessage("There is no backup for " + worldName, MessageType.ERROR);
             return false;
         }
     }
 
     private void setRules() {   //Sets rules to default values
         for (Rule rule : Rule.values())
-            this.rules.put(rule, rule.getCurrentState());
+            this.rules.put(rule, rule.getDefaultState());
     }
     public VaultT getVault() {
         return this.vault;
@@ -187,7 +186,7 @@ public class GameInstance {
     }
 
     public void playerJoinGame(Player player) {
-        Team team = this.getGame().getTeams().getTeamByPlayerIncludingOffline(player.getName());
+        Team team = this.getGame().getTeams().getTeamByPlayer(player.getName());
         this.addPlayer();
         this.getScoreUpdates().createScoreboard(player);
         this.getScoreUpdates().updateScoreboardAll();
@@ -202,8 +201,15 @@ public class GameInstance {
                 break;
             case GAME:
                 if (team != null) {
-                    team.removeOfflinePlayer(player.getName());
-                    Dar.darItemsJoinTeam(player);
+                    if (team.respawnPlayers()) {
+                        team.setPlayerState(player.getName(), PlayerState.ONLINE);
+                        Dar.darItemsJoinTeam(player);
+                    } else {
+                        team.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
+                        player.setGameMode(GameMode.SPECTATOR);
+                        player.teleport(Locations.getLocationFromString(this.getConfig(ConfigType.LOCATIONS)
+                                .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+                    }
                     break;
                 }
                 Dar.DarItemsJoin(player, GameMode.ADVENTURE);
@@ -217,7 +223,7 @@ public class GameInstance {
     }
 
     public void playerLeaveGame(Player player) {
-        final Team playerTeam = this.getGame().getTeams().getTeamByPlayer(player);
+        final Team playerTeam = this.getGame().getTeams().getTeamByPlayer(player.getName());
         if (ScoreHelper.hasScore(player)) {
             ScoreHelper.removeScore(player);
         }
@@ -240,27 +246,9 @@ public class GameInstance {
                         if (playerTeam == null) {
                             break;
                         }
-                        playerTeam.addOfflinePlayer(player.getName());
-                        playerTeam.removePlayer(player);
-                        boolean makeATeamWin = true;
-                        Team temp = null;
-                        for (Team team : teams) {
-                            if (team.getSizePlayers() > 0) {
-                                if (temp == null)
-                                    temp = team;
-                                else
-                                    makeATeamWin = false;
-                            }
-                        }
-                        if (makeATeamWin) {
-                            if (temp != null)
-                                GameInstance.this.getGame().getFinish().Fatality(temp.getTeamColor());
-                            else {
-                                int numberOfTeams = teams.size();
-                                int numero = (int) Math.floor(Math.random() * numberOfTeams);
-                                GameInstance.this.getGame().getFinish().Fatality(TeamColor.values()[numero]);
-                            }
-                        }
+                        playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
+                        if (playerTeam.getSizeOnlinePlayers() <= 0)
+                            Utils.checkForTeamWin(GameInstance.this);
                         break;
                 }
             }

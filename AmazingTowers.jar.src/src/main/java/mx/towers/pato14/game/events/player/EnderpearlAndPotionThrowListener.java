@@ -19,7 +19,7 @@ public class EnderpearlAndPotionThrowListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.getRules().get(Rule.ENDERPEARL) && e.getEntity() instanceof EnderPearl)
+        if (!gameInstance.getRules().get(Rule.ENDER_PEARL) && e.getEntity() instanceof EnderPearl)
             e.setCancelled(true);
         else if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE) && e.getEntity() instanceof ThrownPotion)
             e.setCancelled(true);

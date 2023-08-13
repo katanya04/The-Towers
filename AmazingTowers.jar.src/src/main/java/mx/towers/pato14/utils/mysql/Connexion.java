@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.mysql.jdbc.CommunicationsException;
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.stats.Stats;
 
@@ -51,7 +52,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleError("§cError while creating the database table: " + e);
+                plugin.sendConsoleMessage("§cError while creating the database table: " + e, MessageType.ERROR);
             }
         } while (repeat);
     }
@@ -79,7 +80,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleError("§cError while adding an entry to the database: " + e);
+                plugin.sendConsoleMessage("§cError while adding an entry to the database: " + e, MessageType.ERROR);
             }
         } while (repeat);
     }
@@ -104,7 +105,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleError("§cError while updating the database: " + e);
+                plugin.sendConsoleMessage("§cError while updating the database: " + e, MessageType.ERROR);
             }
         } while (repeat);
     }
@@ -131,7 +132,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleError("§cError while getting data of the database: " + e);
+                plugin.sendConsoleMessage("§cError while getting data of the database: " + e, MessageType.ERROR);
             }
         } while (repeat);
         return data;
@@ -150,7 +151,7 @@ public class Connexion {
                 this.Connect();
                 repeat = true;
             } catch (SQLException e) {
-                plugin.sendConsoleError("§cError while checking the database: " + e);
+                plugin.sendConsoleMessage("§cError while checking the database: " + e, MessageType.ERROR);
             }
         } while (repeat);
         return false;

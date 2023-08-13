@@ -5,6 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,7 +35,7 @@ public class LeatherProtectListener implements Listener {
             return;
         }
         Game game = gameInstance.getGame();
-        if (game.getLobbyItems().canUseLobbyItem(e.getPlayer()))
+        if (e.getPlayer().getGameMode() == GameMode.ADVENTURE)
             e.setCancelled(true);
         if (game.getItemBook() != null && i.getItemMeta().getDisplayName().equals(game.getItemBook().getItem().getItemMeta().getDisplayName())) {
             e.setCancelled(true);

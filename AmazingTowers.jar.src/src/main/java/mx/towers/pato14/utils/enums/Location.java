@@ -91,4 +91,11 @@ public enum Location {
             return false;
         }
     }
+
+    public String getName(TeamColor teamColor) {
+        return teamColor == null ?
+                this.path.replace("LOCATIONS.", "").replace("GENERAL.", "").replace("_", " ").toLowerCase() :
+                this.path.replace("LOCATIONS.", "").replace("GENERAL.", "").replace("_", " ")
+                .replace("{TEAMCOLOR}.", teamColor.getColor() + teamColor.name() + " ").toLowerCase();
+    }
 }

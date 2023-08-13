@@ -2,8 +2,8 @@ package mx.towers.pato14.game.kits;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.enums.MessageType;
 import net.minecraft.server.v1_8_R3.MojangsonParseException;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -28,7 +28,7 @@ public class Kits {
                     kits.add(new Kit(kit.get("name"), armor, hotbar, plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
                 }
             } catch (MojangsonParseException e) {
-                plugin.sendConsoleError("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"");
+                plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
             }
         }
         this.temporalBoughtKits = new HashMap<>();
@@ -42,11 +42,11 @@ public class Kits {
                 try {
                     toret[i] = plugin.getNms().deserializeItemStack(itemsArray[i]);
                 } catch (MojangsonParseException e) {
-                    plugin.sendConsoleError("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i);
+                    plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }
             }
         } else
-            plugin.sendConsoleError("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size");
+            plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size", MessageType.ERROR);
         return toret;
     }
 

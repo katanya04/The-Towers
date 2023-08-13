@@ -2,10 +2,10 @@ package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
@@ -60,7 +60,7 @@ public class Finish {
                             GameInstance gameToTp;
                             if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
                             && (gameToTp = plugin.checkForInstanceToTp()) != null) {
-                                TowerCommand.tpToWorld(gameToTp.getWorld(), game.getPlayers().toArray(new Player[0]));
+                                Utils.tpToWorld(gameToTp.getWorld(), game.getPlayers().toArray(new Player[0]));
                             } else {
                                 if (bungeecord) {
                                     for (Player player : game.getPlayers()) {
@@ -150,7 +150,7 @@ public class Finish {
             for (Player player : game.getPlayers()) {
                 if (game.getTeams().getTeam(teamColor).containsPlayer(player.getName())) {
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
-                } else if (game.getTeams().containsTeamPlayer(player))
+                } else if (game.getTeams().getTeamByPlayer(player.getName()) != null)
                     this.plugin.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
             }
         }
@@ -189,10 +189,6 @@ public class Finish {
                 .replace("{Color}", teamColor.getColor())
                 .replace("{Team}", teamColor.getName(game.getGameInstance())), true);
     }
-
-    public int getSeconds() {
-        return this.seconds;
-    }
     private String getTopFive(List<Map.Entry<String, Stats>> list, StatType stat) {
         Iterator <Map.Entry<String, Stats>> listIterator = list.iterator();
         StringBuilder sb = new StringBuilder();
@@ -200,7 +196,7 @@ public class Finish {
         int i;
         for (i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            sb.append(game.getTeams().getTeamByPlayerIncludingOffline(current.getKey()).getTeamColor().getColor());
+            sb.append(game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor().getColor());
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("&r");
         }
@@ -217,7 +213,7 @@ public class Finish {
             current = listIterator.next();
             if (current.getKey().equals(p)) break;
         }
-        sb.append(game.getTeams().getTeamByPlayerIncludingOffline(p).getTeamColor().getColor());
+        sb.append(game.getTeams().getTeamByPlayer(p).getTeamColor().getColor());
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");
         return sb.toString();

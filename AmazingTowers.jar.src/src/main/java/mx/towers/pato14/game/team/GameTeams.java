@@ -1,16 +1,12 @@
 package mx.towers.pato14.game.team;
 
-import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.PlayerState;
 import mx.towers.pato14.utils.enums.TeamColor;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class GameTeams {
@@ -23,38 +19,13 @@ public class GameTeams {
         this.teams = new LinkedList<>();
         this.spectator = TeamColor.SPECTATOR.getTeamItem(game.getGameInstance());
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
-            String teamName = teamColor.name().toLowerCase();
-            Team currentTeam = new Team(teamName, game.getGameInstance());
-            currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG).getString("teams.prefixes." + teamName) + " ");
+            Team currentTeam = new Team(teamColor, game.getGameInstance());
+            currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG)
+                    .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ");
             teams.add(currentTeam);
         }
     }
 
-    public void removePlayer(HumanEntity player) {
-        for (Team team : teams) {
-            if (team.containsPlayer(player.getName())) {
-                team.removePlayer(player);
-                return;
-            }
-        }
-    }
-
-    public boolean containsTeamPlayer(String namePlayer) {
-        for (Team team : teams) {
-            if (team.containsPlayer(namePlayer)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean containsTeamPlayer(Player player) {
-        return containsTeamPlayer(player.getName());
-    }
-
-    public Team getTeam(TeamColor teamColor) {
-        return this.teams.get(teamColor.ordinal());
-    }
     public Team getTeamByPlayer(String p) {
         for (Team team : teams) {
             if (team.containsPlayer(p))
@@ -62,22 +33,15 @@ public class GameTeams {
         }
         return null;
     }
-    public Team getTeamByPlayerIncludingOffline(String p) {
-        for (Team team : teams) {
-            if (team.containsPlayer(p) || team.containsOffline(p))
-                return team;
-        }
-        return null;
+    public boolean containsNoRespawnPlayer(String playerName) {
+        return getTeamByPlayer(playerName) == null || getTeamByPlayer(playerName).getPlayerState(playerName) == PlayerState.NO_RESPAWN;
     }
-    public Team getTeamByPlayer(HumanEntity p) {
-        return getTeamByPlayer(p.getName());
+    public Team getTeam(TeamColor teamColor) {
+        return this.teams.get(teamColor.ordinal());
     }
     public TeamColor getTeamColorByPlayer(String p) {
         Team team = getTeamByPlayer(p);
         return team == null ? null : team.getTeamColor();
-    }
-    public TeamColor getTeamColorByPlayer(HumanEntity p) {
-        return getTeamColorByPlayer(p.getName());
     }
 
     public int getLowestTeamPlayers() {

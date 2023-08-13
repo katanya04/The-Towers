@@ -7,6 +7,7 @@ import java.util.Set;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +35,7 @@ public class Book {
                 if (i < Integer.parseInt(s)) i = Integer.parseInt(s);
                 pages.put(Integer.valueOf(s), getStringPage(this.game.getGameInstance().getConfig(ConfigType.BOOK).getStringList("book.pages." + s)));
             } catch (NumberFormatException e) {
-                game.getGameInstance().getPlugin().sendConsoleError("§cThe page " + s + " isn't a numeric identifier");
+                game.getGameInstance().getPlugin().sendConsoleMessage("§cThe page " + s + " isn't a numeric identifier", MessageType.ERROR);
             }
         }
         for (int j = 0; j < i; j = j + 1) {

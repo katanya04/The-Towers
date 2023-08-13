@@ -36,6 +36,7 @@ public class EventsManager {
         pm.registerEvents(new EnderpearlAndPotionThrowListener(this.plugin), this.plugin);
         pm.registerEvents(new BlockStats(this.plugin), this.plugin);
         pm.registerEvents(new EnchantItem(this.plugin), this.plugin);
+        pm.registerEvents(new UseLobbyItems(), this.plugin);
     }
 }
 

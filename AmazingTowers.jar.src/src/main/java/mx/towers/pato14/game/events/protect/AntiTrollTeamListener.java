@@ -5,7 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.TeamColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -31,7 +31,7 @@ public class AntiTrollTeamListener implements Listener {
             return;
         if (!e.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() || e.getBlock().getRelative(BlockFace.DOWN).getDrops().contains(new ItemStack(Material.SIGN))) {
             Player pl = e.getPlayer();
-            Team plTeam = gameInstance.getGame().getTeams().getTeamByPlayer(pl);
+            Team plTeam = gameInstance.getGame().getTeams().getTeamByPlayer(pl.getName());
             byte b;
             int i;
             Entity[] arrayOfEntity;
@@ -40,8 +40,8 @@ public class AntiTrollTeamListener implements Listener {
                 if (en instanceof Player) {
                     Player player = (Player) en;
                     if (!pl.equals(player)) {
-                        Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player);
-                        if (playerTeam.equals(plTeam) && e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock())) {
+                        Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+                        if (playerTeam.equals(plTeam) && e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock()) && player.getGameMode() == GameMode.SURVIVAL) {
                             e.setCancelled(true);
                             pl.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("trollingTeammates")));
                             return;

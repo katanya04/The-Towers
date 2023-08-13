@@ -3,10 +3,15 @@ package mx.towers.pato14.game.team;
 import com.nametagedit.plugin.NametagEdit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.enums.PlayerState;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.enums.TeamColor;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -16,26 +21,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class Team {
     private final TeamColor teamColor;
     private String prefix;
-    private final String nameTeam;
-    private final ArrayList<String> players;
-    private final ArrayList<String> offlinePlayers;
+    private final HashMap<String, PlayerState> players;
     private int points;
     private final ItemStack lobbyItem;
     private final GameInstance gameInstance;
 
-    public Team(String nameTeam, GameInstance gameInstance) {
+    public Team(TeamColor teamColor, GameInstance gameInstance) {
         points = 0;
-        this.nameTeam = nameTeam;
-        this.players = new ArrayList<>();
-        this.offlinePlayers = new ArrayList<>();
-        this.teamColor = TeamColor.valueOf(nameTeam.toUpperCase());
+        this.players = new HashMap<>();
+        this.teamColor = teamColor;
         this.lobbyItem = teamColor.getTeamItem(gameInstance);
         this.gameInstance = gameInstance;
-    }
-
-    public void addPlayer(HumanEntity player) {
-        this.players.add(player.getName());
-        addPlayerNameToTeamItem(player.getName());
     }
 
     public void removePlayer(HumanEntity player) {
@@ -54,48 +50,32 @@ public class Team {
     public int getSizePlayers() {
         return this.players.size();
     }
+    public int getSizeOnlinePlayers() {
+        int i = 0;
+        for (Map.Entry<String, PlayerState> player : players.entrySet()) {
+            if (player.getValue() == PlayerState.ONLINE)
+                i++;
+        }
+        return i;
+    }
 
     public boolean containsPlayer(String name) {
-        return this.players.contains(name);
+        return this.players.get(name) != null;
+    }
+
+    public boolean containsPlayerOnline(String name) {
+        return this.players.get(name) == PlayerState.ONLINE;
     }
     public TeamColor getTeamColor() {
         return this.teamColor;
-    }
-    public String getNameTeam() {
-        return this.nameTeam;
     }
 
     public String getPrefixTeam() {
         return this.prefix;
     }
 
-    public ArrayList<String> getTeam() {
-        return this.players;
-    }
-
     protected void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    public ArrayList<String> getPlayersOfflineTeam() {
-        return this.offlinePlayers;
-    }
-
-    public boolean containsOffline(String namePlayer) {
-        return this.offlinePlayers.contains(namePlayer);
-    }
-
-    public void addOfflinePlayer(String namePlayer) {
-        if (!containsOffline(namePlayer)) {
-            this.offlinePlayers.add(namePlayer);
-        }
-    }
-
-    public void removeOfflinePlayer(String namePlayer) {
-        if (containsOffline(namePlayer)) {
-            this.offlinePlayers.remove(namePlayer);
-            this.players.add(namePlayer);
-        }
     }
 
     public int getPoints() {
@@ -106,15 +86,18 @@ public class Team {
         this.points = points;
     }
 
-    public void sumarPunto() {
-        this.points++;
+    public void scorePoint(boolean bedwarsStyle) {
+        if (bedwarsStyle)
+            this.points--;
+        else
+            this.points++;
     }
 
     public ItemStack getLobbyItem() {
         return lobbyItem;
     }
 
-    private void addPlayerNameToTeamItem(String playerName) {
+    public void addPlayerNameToTeamItem(String playerName) {
         ItemMeta itemMeta = lobbyItem.getItemMeta();
         List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
         lore.add("§r§7- " + playerName);
@@ -123,7 +106,7 @@ public class Team {
         this.gameInstance.getGame().getLobbyItems().updateTeamsMenu();
     }
 
-    private void removePlayerNameToTeamItem(String playerName) {
+    public void removePlayerNameToTeamItem(String playerName) {
         ItemMeta itemMeta = lobbyItem.getItemMeta();
         List<String> lore = itemMeta.getLore();
         if (lore == null)
@@ -133,6 +116,24 @@ public class Team {
         lobbyItem.setItemMeta(itemMeta);
         this.gameInstance.getGame().getLobbyItems().updateTeamsMenu();
     }
+
+    public boolean respawnPlayers() {
+        return !gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.getPoints() != 0;
+    }
+
+    public void setPlayerState(String playerName, PlayerState playerState) {
+        this.players.put(playerName, playerState);
+    }
+
+    public PlayerState getPlayerState(String playerName) {
+        return this.players.get(playerName);
+    }
+
+    public List<Player> getListOnlinePlayers() {
+        List<Player> toret = new ArrayList<>();
+        for (String playerName : players.keySet()) {
+            toret.add(Bukkit.getPlayer(playerName));
+        }
+        return toret;
+    }
 }
-
-

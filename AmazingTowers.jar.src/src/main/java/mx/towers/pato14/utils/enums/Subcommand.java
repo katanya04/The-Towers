@@ -12,33 +12,34 @@ import java.util.Arrays;
 import java.util.Map;
 
 public enum Subcommand { //* = optional argument, always at the end if it exists. $ = argument needed if run from the console
-    STATS(0, 1, false, "<player>"),
-    SPECTATOR(0, 0, true),
-    ORGANIZER(0, 1, true, "<password>"),
-    COUNT(1, 1, false, "stop|start|<number>", "$<instanceName>"),
-    RULE(1, 2, false, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
-    SETSCORE(1, 2, false, "%team_colors%", "<number>", "$<instanceName>"),
-    JOINTEAM(1, 2, false, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
-    LOCATIONS(2, 0, true),
-    TPWORLD(2, 1, true, "<worldName>"),
-    CREATEWORLD(2, 1, false, "<instanceName>|all"),
-    BACKUPWORLD(2, 0, false, "$<instanceName>"),
-    LOADWORLD(2, 1, false, "<worldName>"),
-    SETREGION(2, 1, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
-    HELP(2, 0, false),
-    VAULTINFO(2, 0, false),
-    RELOADCONFIG(2, 1, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
-    TOOL(2, 1, true, "wand|refillChest");
+    STATS(0, 1, false, false, "<player>"),
+    SPECTATOR(0, 0, true, true),
+    ORGANIZER(0, 1, true, true, "<password>"),
+    COUNT(1, 1, false, true, "stop|start|<number>", "$<instanceName>"),
+    RULE(1, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
+    SETSCORE(1, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
+    JOINTEAM(1, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
+    TPWORLD(2, 1, true, false, "<worldName>"),
+    CREATEWORLD(2, 1, false, false, "<instanceName>|all"),
+    BACKUPWORLD(2, 0, false, false, "$<instanceName>"),
+    LOADWORLD(2, 1, false, false, "<worldName>"),
+    SETREGION(2, 1, true, false, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
+    HELP(2, 0, false, false),
+    VAULTINFO(2, 0, false, false),
+    RELOADCONFIG(2, 1, false, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
+    TOOL(2, 1, true, false, "wand|refillChest");
 
     private final int permissionLevel;
     private final int numberOfNeededArguments;
     private final boolean playerExecutorOnly;
+    private final boolean needsAGameInstance;
     private final String[] arguments;
 
-    Subcommand(int permissionLevel, int numberOfNeededArguments, boolean playerExecutorOnly, String... arguments) {
+    Subcommand(int permissionLevel, int numberOfNeededArguments, boolean playerExecutorOnly, boolean needsAGameInstance, String... arguments) {
         this.permissionLevel = permissionLevel;
         this.numberOfNeededArguments = numberOfNeededArguments;
         this.playerExecutorOnly = playerExecutorOnly;
+        this.needsAGameInstance = needsAGameInstance;
         this.arguments = arguments;
     }
 
@@ -163,4 +164,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         return new AbstractMap.SimpleEntry<>(0, gameInstance); //All arguments are correct
     }
 
+    public boolean needsAGameInstance() {
+        return needsAGameInstance;
+    }
 }

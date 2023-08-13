@@ -1,6 +1,7 @@
 package mx.towers.pato14.utils.rewards;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.plugin.PluginA;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
@@ -30,13 +31,13 @@ public class SetupVault {
 
     public static void setupVault() {
         if (plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
-            plugin.sendConsoleMessage("Looking for the vault plugin...");
+            plugin.sendConsoleMessage("Looking for the vault plugin...", MessageType.INFO);
             if (plugin.getServer().getPluginManager().getPlugin("Vault") != null) {
-                plugin.sendConsoleMessage("It has been detected that you have the Vault plugin, loading Chat and Economy...");
-                plugin.sendConsoleMessage(setupEconomy() ? "§aEconomy§f: " + economy.getName() : "§aEconomy§f: [NONE]");
-                plugin.sendConsoleMessage(setupChat() ? "§aChat§f: " + chat.getName() : "§aChat§f: [NONE]");
+                plugin.sendConsoleMessage("It has been detected that you have the Vault plugin, loading Chat and Economy...", MessageType.INFO);
+                plugin.sendConsoleMessage(setupEconomy() ? "§aEconomy§f: " + economy.getName() : "§aEconomy§f: [NONE]", MessageType.INFO);
+                plugin.sendConsoleMessage(setupChat() ? "§aChat§f: " + chat.getName() : "§aChat§f: [NONE]", MessageType.INFO);
             } else {
-                plugin.sendConsoleWarning("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled");
+                plugin.sendConsoleMessage("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled", MessageType.WARNING);
                 plugin.getGlobalConfig().set("options.rewards.vault", false);
             }
         }

@@ -8,6 +8,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.enums.StatType;
 import mx.towers.pato14.utils.cofresillos.RefilleadoGalloConTenis;
 import mx.towers.pato14.utils.enums.GameState;
@@ -85,9 +86,22 @@ public class ScoreUpdate {
                         .replace("%refill_time%", convertirTimeXd((int) this.refill.getTimeRegeneration()));
                 if (st.contains("%team_points%")) {
                     if (currentTeam < teams.size()) {
+                        String pointsText;
+                        if (!gameInstance.getRules().get(Rule.BEDWARS_STYLE))
+                            pointsText = String.valueOf(teams.get(currentTeam).getPoints());
+                        else {
+                            if (teams.get(currentTeam).respawnPlayers())
+                                pointsText = teams.get(currentTeam).getPoints() + " &4❤";
+                            else {
+                                if (teams.get(currentTeam).getSizeOnlinePlayers() == 1)
+                                    pointsText = teams.get(currentTeam).getSizeOnlinePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("player");
+                                else
+                                    pointsText = teams.get(currentTeam).getSizeOnlinePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("players");
+                            }
+                        }
                         text = AmazingTowers.getColor(text
                                 .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
-                                .replace("%team_points%", String.valueOf(teams.get(currentTeam).getPoints()))
+                                .replace("%team_points%", pointsText)
                                 .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
                                 .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getNameFirstCapitalized(gameInstance))));
                         currentTeam++;

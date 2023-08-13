@@ -77,3 +77,6 @@ Scoreboard:
       - '&fPuntos: &a%player_points%'
       - '&fMuertes: &a%player_deaths%'
       - '&fMapa: &aClassic'
+
+player: 'jugador'
+players: 'jugadores'

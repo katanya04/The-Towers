@@ -58,12 +58,15 @@ options:
 lobbyItems:
 
   hotbarItems:
-    joinTeams:
+    selectTeam:
       name: '&3&lEscoger equipo'
       position: 0
-    kits:
+    selectKit:
       name: '&3&lEscoger kit'
       position: 1
+    modifyGameSettings:
+      name: '&3&lModificar ajustes'
+      position: 7
     quit:
       name: '&c&lVolver al lobby'
       position: 8
@@ -75,6 +78,16 @@ lobbyItems:
   buyKitMenuName: '&a&lComprar kit'
   acceptBuy: '&a&lComprar'
   denyBuy: '&c&lNo comprar'
+
+settingsBook:
+  kickAll:
+    name: '&7&lKickear a todos los jugadores'
+    kickMessage: 'Todos los jugadores han sido kickeados de esta partida'
+  setRules: '&7&lCambiar las reglas'
+  continueCount: '&7&lContinuar la cuenta atras'
+  setWhitelist: '&7&lWhitelist'
+  startImmediately: '&7&lEmpezar ya la partida'
+  stopCount: '&7&lParar la cuenta atras'
 
 
 

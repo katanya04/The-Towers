@@ -8,6 +8,7 @@ import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
 import mx.towers.pato14.utils.enums.GameState;
+import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
@@ -41,19 +42,19 @@ public final class AmazingTowers extends JavaPlugin {
         games = new HashMap<>();
 
         if (!setupNMS()) {
-            sendConsoleError("§cYour server version is not compatible with this plugin!");
+            sendConsoleMessage("§cYour server version is not compatible with this plugin!", MessageType.ERROR);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
-            sendConsoleError("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers");
+            sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers", MessageType.ERROR);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
         createFolderBackup();
 
-        getCommand("towers").setExecutor(new TowerCommand(this));
+        getCommand("towers").setExecutor(new TowerCommand());
 
         this.globalConfig = new Config(this, "globalConfig.yml", true);
         int numberOfInstances = this.globalConfig.getInt("options.instances.amount");
@@ -66,9 +67,9 @@ public final class AmazingTowers extends JavaPlugin {
                 this.con = new Connexion();
                 this.con.Connect();
                 this.con.CreateTable();
-                sendConsoleMessage("§aSuccessfully connected to the database");
+                sendConsoleMessage("§aSuccessfully connected to the database", MessageType.INFO);
             } catch (Exception e) {
-                sendConsoleError("§cCouldn't connect to the database");
+                sendConsoleMessage("§cCouldn't connect to the database", MessageType.ERROR);
             }
         }
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -95,27 +96,27 @@ public final class AmazingTowers extends JavaPlugin {
         String version;
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            sendConsoleMessage("§aServer§f: §f" + version);
+            sendConsoleMessage("§aServer§f: §f" + version, MessageType.INFO);
         } catch (ArrayIndexOutOfBoundsException a) {
-            sendConsoleError("Unknown server version");
+            sendConsoleMessage("Unknown server version", MessageType.ERROR);
         }
-        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
-        sendConsoleMessage("§aPlugin§f: §aEnabled§a successfully§f!");
-        sendConsoleMessage("§aVersion§f: §f" + getDescription().getVersion());
-        sendConsoleMessage("§aAuthor§f: §f[§aPato14§f, §aMarco2124§f]");
-        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----");
+        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----", MessageType.INFO);
+        sendConsoleMessage("§aPlugin§f: §aEnabled§a successfully§f!", MessageType.INFO);
+        sendConsoleMessage("§aVersion§f: " + getDescription().getVersion(), MessageType.INFO);
+        sendConsoleMessage("§aAuthor§f: §f[§aPato14§f, §aMarco2124§f]", MessageType.INFO);
+        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----", MessageType.INFO);
         boolean worldUnset = false;
         for (GameInstance gameInstance : games.values()) {
             if (gameInstance.hasWorldAssociated()) {
-                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ");
-                sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true));
+                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ", MessageType.INFO);
+                sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true), MessageType.INFO);
             } else {
                 worldUnset = true;
-                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f world doesn't exist yet.");
-                sendConsoleMessage("To create it, run /tt createWorld " + gameInstance.getName());
+                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f world doesn't exist yet.", MessageType.INFO);
+                sendConsoleMessage("To create it, run /tt createWorld " + gameInstance.getName(), MessageType.INFO);
             }
             if (worldUnset) {
-                sendConsoleMessage("To create all missing worlds, run /tt createWorld all");
+                sendConsoleMessage("To create all missing worlds, run /tt createWorld all", MessageType.INFO);
             }
         }
     }
@@ -125,7 +126,7 @@ public final class AmazingTowers extends JavaPlugin {
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         } catch (ArrayIndexOutOfBoundsException a) {
-            sendConsoleError("Unknown server version");
+            sendConsoleMessage("Unknown server version", MessageType.ERROR);
             return false;
         }
         if (version.hashCode() == -1156422964) {
@@ -179,7 +180,7 @@ public final class AmazingTowers extends JavaPlugin {
         File folder = new File(plugin.getDataFolder(), "backup");
         if (!folder.exists() &&
                 folder.mkdirs()) {
-            sendConsoleMessage("The backup folder was created successfully");
+            sendConsoleMessage("The backup folder was created successfully", MessageType.INFO);
         }
     }
 
@@ -187,19 +188,8 @@ public final class AmazingTowers extends JavaPlugin {
         return games;
     }
 
-    public void sendConsoleMessage(String msg) {
-        String prefix = "§f[§aAmazingTowers/Info§f] ";
-        getServer().getConsoleSender().sendMessage(prefix + msg);
-    }
-
-    public void sendConsoleError(String msg) {
-        String prefix = "§f[§cAmazingTowers/Error§f]§4 ";
-        getServer().getConsoleSender().sendMessage(prefix + msg);
-    }
-
-    public void sendConsoleWarning(String msg) {
-        String prefix = "§f[§eAmazingTowers/Warning§f]§6 ";
-        getServer().getConsoleSender().sendMessage(prefix + msg);
+    public void sendConsoleMessage(String msg, MessageType messageType) {
+        getServer().getConsoleSender().sendMessage(messageType.getPrefix() + msg);
     }
 
     public boolean capitalismExists() {

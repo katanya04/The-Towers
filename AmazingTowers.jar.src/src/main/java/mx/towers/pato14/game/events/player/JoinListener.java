@@ -2,7 +2,8 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.commands.TowerCommand;
+import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,21 +23,12 @@ public class JoinListener implements Listener {
         if (!gameInstance.isReadyToJoin()) {
             GameInstance newGameInstance = plugin.checkForInstanceToTp();
             if (newGameInstance != null) {
-                TowerCommand.tpToWorld(newGameInstance.getWorld(), player);
+                Utils.tpToWorld(newGameInstance.getWorld(), player);
             } else
                 player.kickPlayer("This world is still loading, try to enter again soon");
         }
         gameInstance.playerJoinGame(player);
-        if (gameInstance.getGame().getTeams().containsTeamPlayer(player)) {
-            e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
-                    .replace("{Player}", player.getName())
-                    .replace("{Color}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getColor())
-                    .replace("{Team}", gameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName(gameInstance)).replaceAll("&", "§"));
-        } else {
-            e.setJoinMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("joinMessage").replaceAll("&", "§")
-                    .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                    .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers())));
-        }
+        e.setJoinMessage(AmazingTowers.getColor(getMessage(gameInstance, player.getName())));
     }
 
     @EventHandler
@@ -49,15 +41,20 @@ public class JoinListener implements Listener {
         if (newGameInstance == null || newGameInstance.getGame() == null)
             return;
         newGameInstance.playerJoinGame(player);
-        if (newGameInstance.getGame().getTeams().containsTeamPlayer(player)) {
-            newGameInstance.broadcastMessage(newGameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
-                    .replace("{Player}", player.getName())
-                    .replace("{Color}", newGameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getColor())
-                    .replace("{Team}", newGameInstance.getGame().getTeams().getTeamByPlayer(player).getTeamColor().getName(newGameInstance)), true);
+        newGameInstance.broadcastMessage(getMessage(newGameInstance, player.getName()), true);
+    }
+
+    private String getMessage(GameInstance gameInstance, String playerName) {
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
+        if (team != null) {
+            return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
+                    .replace("{Player}", playerName)
+                    .replace("{Color}", team.getTeamColor().getColor())
+                    .replace("{Team}", team.getTeamColor().getName(gameInstance));
         } else {
-            newGameInstance.broadcastMessage(newGameInstance.getConfig(ConfigType.MESSAGES).getString("joinMessage")
-                    .replace("{Player}", player.getName()).replace("%online_players%", String.valueOf(newGameInstance.getNumPlayers()))
-                    .replace("%max_players%", String.valueOf(newGameInstance.getMaxPlayers())), true);
+            return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinMessage")
+                    .replace("{Player}", playerName).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
+                    .replace("%max_players%", String.valueOf(gameInstance.getMaxPlayers()));
         }
     }
 }

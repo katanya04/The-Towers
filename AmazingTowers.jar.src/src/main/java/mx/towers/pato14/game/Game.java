@@ -2,22 +2,20 @@ package mx.towers.pato14.game;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.team.LobbyItems;
+import mx.towers.pato14.game.items.LobbyItems;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.utils.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.rewards.SetupVault;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +108,7 @@ public class Game {
 
     public void applyKitToPlayer(HumanEntity player) {
         Kit kit = this.getPlayersSelectedKit().get(player);
-        if (kit == null)
+        if (kit == null || !this.getGameInstance().getRules().get(Rule.KITS))
             getKits().getDefaultKit().applyKitToPlayer(player);
         else
             kit.applyKitToPlayer(player);

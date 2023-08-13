@@ -25,37 +25,36 @@ public class TeamChatListener implements Listener {
         GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chat.enabled")) {
-            e.setCancelled(true);
-            String name = e.getPlayer().getName();
-            String msg = e.getMessage();
-            List<Player> players = gameInstance.getGame().getPlayers();
-            if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) || gameInstance.getGame().getGameState().equals(GameState.PREGAME) || !(gameInstance.getGame().getTeams().containsTeamPlayer(name))) {
-                for (Player player : players) {
+        if (!gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chat.enabled"))
+            return;
+        e.setCancelled(true);
+        String name = e.getPlayer().getName();
+        String msg = e.getMessage();
+        List<Player> players = gameInstance.getGame().getPlayers();
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(name);
+        if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) || gameInstance.getGame().getGameState().equals(GameState.PREGAME) || team == null || gameInstance.getGame().getTeams().containsNoRespawnPlayer(e.getPlayer().getName())) {
+            for (Player player : players) {
+                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                                .getString("options.chat.format.defaultChat").replace("%vault_prefix%", gameInstance.getVault()
+                                        .getPrefixRank(e.getPlayer())).replace("%player%", name))
+                        .replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
+                                ChatColor.translateAlternateColorCodes('&', msg) : msg));
+            }
+        } else if (msg.startsWith("!")) {
+            for (Player player : players) {
+                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                        .getString("options.chat.format.globalChat").replace("%team_color%", team.getTeamColor().getColor())
+                        .replace("%player%", name).replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
+                                ChatColor.translateAlternateColorCodes('&', msg) : msg).replaceFirst("!", "")));
+            }
+        } else {
+            for (Player player : players) {
+                if (team.containsPlayerOnline(player.getName()))
                     player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                            .getString("options.chat.format.defaultChat").replace("%vault_prefix%", gameInstance.getVault()
-                                    .getPrefixRank(e.getPlayer())).replace("%player%", name))
+                            .getString("options.chat.format.teamChat").replace("%team_color%", team.getTeamColor().getColor())
+                            .replace("%team_prefix%", team.getPrefixTeam()).replace("%player%", name)
                             .replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
-                                    ChatColor.translateAlternateColorCodes('&', msg) : msg));
-                }
-            } else if (msg.startsWith("!")) {
-                Team team = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
-                for (Player player : players) {
-                    player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                            .getString("options.chat.format.globalChat").replace("%team_color%", team.getTeamColor().getColor())
-                            .replace("%player%", name).replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
-                                    ChatColor.translateAlternateColorCodes('&', msg) : msg).replaceFirst("!", "")));
-                }
-            } else {
-                Team team = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer());
-                for (Player player : players) {
-                    if (team.containsPlayer(player.getName()))
-                        player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
-                                .getString("options.chat.format.teamChat").replace("%team_color%", team.getTeamColor().getColor())
-                                .replace("%team_prefix%", team.getPrefixTeam()).replace("%player%", name)
-                                .replace("%msg%", e.getPlayer().hasPermission("towers.chat.color") ?
-                                        ChatColor.translateAlternateColorCodes('&', msg) : msg)));
-                }
+                                    ChatColor.translateAlternateColorCodes('&', msg) : msg)));
             }
         }
     }

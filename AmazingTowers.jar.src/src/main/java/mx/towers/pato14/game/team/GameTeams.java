@@ -12,12 +12,10 @@ import java.util.*;
 public class GameTeams {
     private final List<Team> teams;
     private final Game game;
-    private final ItemStack spectator;
 
     public GameTeams(Game game) {
         this.game = game;
         this.teams = new LinkedList<>();
-        this.spectator = TeamColor.SPECTATOR.getTeamItem(game.getGameInstance());
         for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
             Team currentTeam = new Team(teamColor, game.getGameInstance());
             currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG)
@@ -71,22 +69,6 @@ public class GameTeams {
 
     public Game getGame() {
         return game;
-    }
-
-    public ItemStack[] getLobbyItems() {
-        ItemStack[] toret = new ItemStack[getTeams().size() + 1];
-        for (int i = 0; i < getTeams().size(); i++) {
-            toret[i] = getTeams().get(i).getLobbyItem();
-        }
-        toret[toret.length - 1] = spectator;
-        return toret;
-    }
-
-    public Team getTeamFromLobbyItem(ItemStack itemStack) {
-        for (Team team : teams)
-            if (team.getLobbyItem().equals(itemStack))
-                return team;
-        return null;
     }
 }
 

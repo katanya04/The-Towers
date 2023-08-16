@@ -1,0 +1,15 @@
+# +###----------------------------------------------###+ #
+# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+
+defaultRules:
+whitelist:
+  activated: 'false'
+blacklist:
+  activated: 'false'
+timer:
+  activated: 'false'
+  time: '30:00'
+  message: 'Tiempo: %time%'

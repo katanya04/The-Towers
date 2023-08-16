@@ -7,6 +7,7 @@ import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.items.LobbyItems;
+import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.utils.Move;
@@ -26,6 +27,7 @@ public class Game {
     private final GameTeams teams;
     private final Start gameStart;
     private final Finish finish;
+    private final Timer timer;
     private final StatisticsPlayer stats;
     private final Move detectionMove;
     private Book bookItem;
@@ -44,6 +46,7 @@ public class Game {
         this.lobbyItems = new LobbyItems(this);
         getPlugin().getServer().getPluginManager().registerEvents(getLobbyItems(), getPlugin());
         this.gameStart = new Start(this);
+        this.timer = new Timer(this);
         this.finish = new Finish(this);
         this.stats = new StatisticsPlayer();
         this.detectionMove = new Move(this);
@@ -112,5 +115,9 @@ public class Game {
             getKits().getDefaultKit().applyKitToPlayer(player);
         else
             kit.applyKitToPlayer(player);
+    }
+
+    public Timer getTimer() {
+        return timer;
     }
 }

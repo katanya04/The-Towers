@@ -3,8 +3,8 @@ name: AmazingTowers
 author: Pato14, Marco2124
 
 version: 3.0_alpha1
-depend: [NametagEdit]
-softdepend: [Vault,PlaceholderAPI]
+depend: [NametagEdit, BossBarAPI]
+softdepend: [Vault, PlaceholderAPI]
 
 main: mx.towers.pato14.AmazingTowers
 

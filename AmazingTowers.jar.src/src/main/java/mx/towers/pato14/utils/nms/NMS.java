@@ -7,7 +7,8 @@ import org.bukkit.inventory.ItemStack;
 public interface NMS {
     void sendTitle(final Player p0, final String p1, final String p2, final int p3, final int p4, final int p5);
     String serializeItemStack(ItemStack itemStack);
-    public ItemStack deserializeItemStack(String rawItem) throws MojangsonParseException;
+    ItemStack deserializeItemStack(String rawItem) throws MojangsonParseException;
+    void open(Player p, ItemStack book);
 }
 
 

@@ -2,39 +2,38 @@ package mx.towers.pato14.game.items;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.items.menus.BungeecordQuit;
 import mx.towers.pato14.game.items.menus.ModifyGameSettings;
 import mx.towers.pato14.game.items.menus.SelectKit;
 import mx.towers.pato14.game.items.menus.SelectTeam;
 import mx.towers.pato14.utils.Config;
-import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import org.bukkit.*;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LobbyItems implements Listener {
     private final HashMap<Integer, ItemStack> hotbarItems;
     private final SelectTeam selectTeam;
     private final SelectKit selectKit;
-    private ItemStack quit;
+    private BungeecordQuit quit;
     private final ModifyGameSettings modifyGameSettings;
-    private final Game game;
     private final AmazingTowers plugin;
 
     public LobbyItems(Game game) {
-        this.game = game;
         this.plugin = game.getGameInstance().getPlugin();
         this.hotbarItems = new HashMap<>();
         Config config = game.getGameInstance().getConfig(ConfigType.CONFIG);
-        this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), this.selectTeam = new SelectTeam(game));
+        this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), this.selectTeam = new SelectTeam(game.getGameInstance()));
         this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.selectKit.position"), this.selectKit = new SelectKit(game));
         if (getPlugin().getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
-            this.quit = Utils.setName(new ItemStack(Material.BED), AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.quit.name")));
+            this.quit = new BungeecordQuit(game);
             this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.quit.position"), this.quit);
         }
         this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), this.modifyGameSettings = new ModifyGameSettings(game));
@@ -82,11 +81,23 @@ public class LobbyItems implements Listener {
         return quit;
     }
 
-    public void updateTeamsMenu() {
-        this.selectTeam.setContents(game.getTeams().getLobbyItems());
-    }
-
     public ModifyGameSettings getModifyGameSettings() {
         return modifyGameSettings;
+    }
+
+    public List<ChestInventoryItem> getInventories() {
+        List<ChestInventoryItem> toret = new ArrayList<>();
+        for (ItemStack hotbarItem : hotbarItems.values()) {
+            recursiveSearchChestMenuItems(toret, hotbarItem);
+        }
+        return toret;
+    }
+
+    private void recursiveSearchChestMenuItems(List<ChestInventoryItem> list, ItemStack item) {
+        if (!(item instanceof ChestInventoryItem))
+            return;
+        list.add(((ChestInventoryItem) item));
+        for (ItemStack item2 : ((ChestInventoryItem) item).getContents())
+            recursiveSearchChestMenuItems(list, item2);
     }
 }

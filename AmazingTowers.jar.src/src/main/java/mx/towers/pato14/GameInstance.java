@@ -23,6 +23,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class GameInstance {
     private boolean hasWorldAssociated;
     private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
     private boolean isReadyToJoin;
+    private final List<String> whitelist;
+    private final List<String> blacklist;
 
     public GameInstance(AmazingTowers towers, String name) {
         isReadyToJoin = false;
@@ -51,6 +54,8 @@ public class GameInstance {
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
+        this.whitelist = new ArrayList<>();
+        this.blacklist = new ArrayList<>();
         registerConfigs(name);
         this.detectoreishon = new Detectoreishon(this);
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
@@ -96,7 +101,7 @@ public class GameInstance {
     private void registerConfigs(String worldName) {
         for (ConfigType config : ConfigType.values())
             this.configs.put(config, new Config(plugin,
-                    config.toString().toLowerCase() + ".yml", true, worldName));
+                    Utils.macroCaseToCamelCase(config.name()) + ".yml", true, worldName));
     }
 
     public boolean overwriteWithBackup(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup

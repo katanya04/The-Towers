@@ -1,12 +1,7 @@
 package mx.towers.pato14.utils.enums;
 
-import mx.towers.pato14.game.Game;
-import mx.towers.pato14.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.Arrays;
 
 public enum Rule {
     GRIEF(false, new ItemStack(Material.DIAMOND_PICKAXE)),
@@ -35,22 +30,8 @@ public enum Rule {
     public boolean getDefaultState() {
         return this.defaultState;
     }
-    public static ItemStack[] getIcons(Game game) {
-        return Arrays.stream(Rule.values()).map(o -> {
-            ItemStack item = o.icon;
-            ItemMeta meta = item.getItemMeta();
-            String name = Utils.macroCaseToItemName(o.name());
-            name = "§r" + name + ":" + (game.getGameInstance().getRules().get(o) ? "§a true" : "§c false");
-            meta.setDisplayName(name);
-            item.setItemMeta(meta);
-            return item;
-        }).toArray(ItemStack[]::new);
-    }
-    public static Rule getRuleFromItem(ItemStack item) {
-        for (Rule rule : Rule.values()) {
-            if (rule.icon.equals(item))
-                return rule;
-        }
-        return null;
+
+    public ItemStack getIcon() {
+        return icon;
     }
 }

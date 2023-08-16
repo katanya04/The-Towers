@@ -45,7 +45,7 @@ public class TowerCommand implements CommandExecutor
         int numberOfTeams = gameInstance == null ? TeamColor.getMatchTeams(TeamColor.values().length).size() : gameInstance.getNumberOfTeams();
         Subcommand subcommand;
         if (args.length < 1  || (subcommand = Subcommand.isValidSubcommand(args[0])) == null || args[0].equalsIgnoreCase(Subcommand.HELP.name())) {
-            sender.sendMessage(Subcommand.listOfCommands(numberOfTeams));
+            sender.sendMessage(Subcommand.listOfCommands(numberOfTeams, sender));
             return true;
         }
         if (!subcommand.hasPermission(sender)) {
@@ -156,10 +156,7 @@ public class TowerCommand implements CommandExecutor
                 assert gameInstance != null;
                 Player p = Bukkit.getPlayer(args[2]);
                 if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
-                    Team pTeam = gameInstance.getGame().getTeams().getTeamByPlayer(p.getName());
-                    if (pTeam != null)
-                       pTeam.removePlayer(p);
-                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).setPlayerState(p.getName(), PlayerState.ONLINE);
+                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p);
                     Dar.darItemsJoinTeam(p);
                 } else
                     Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
@@ -290,7 +287,7 @@ public class TowerCommand implements CommandExecutor
                 locations.saveConfig();
                 break;
             case HELP:
-                sender.sendMessage(Subcommand.listOfCommands(numberOfTeams));
+                sender.sendMessage(Subcommand.listOfCommands(numberOfTeams, sender));
             case VAULTINFO:
                 if (Bukkit.getPluginManager().getPlugin("Vault") == null)
                     Utils.sendMessage("§cThe vault plugin doesn't exist", MessageType.INFO, sender);

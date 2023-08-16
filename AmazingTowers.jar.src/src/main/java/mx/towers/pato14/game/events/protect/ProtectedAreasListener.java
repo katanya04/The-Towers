@@ -28,9 +28,6 @@ public class ProtectedAreasListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
-            return;
-        }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         Location blockLocation = e.getBlock().getLocation();
         if (!Locations.isValidLocation(locations,
@@ -48,9 +45,6 @@ public class ProtectedAreasListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
-            return;
-        }
         Config locations = this.plugin.getGameInstance(e.getEntity()).getConfig(ConfigType.LOCATIONS);
         ArrayList<Block> end = new ArrayList<>(e.blockList());
         for (Block bl : e.blockList()) {
@@ -73,9 +67,6 @@ public class ProtectedAreasListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.getGame().getGameState().equals(GameState.GAME) || gameInstance.getRules().get(Rule.GRIEF)) {
-            return;
-        }
         Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         Location blockLocation = e.getBlock().getLocation();
         if (!Locations.isValidLocation(locations,

@@ -12,30 +12,30 @@ import java.util.Arrays;
 import java.util.Map;
 
 public enum Subcommand { //* = optional argument, always at the end if it exists. $ = argument needed if run from the console
-    STATS(0, 1, false, false, "<player>"),
-    SPECTATOR(0, 0, true, true),
-    ORGANIZER(0, 1, true, true, "<password>"),
-    COUNT(1, 1, false, true, "stop|start|<number>", "$<instanceName>"),
-    RULE(1, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
-    SETSCORE(1, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
-    JOINTEAM(1, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
-    TPWORLD(2, 1, true, false, "<worldName>"),
-    CREATEWORLD(2, 1, false, false, "<instanceName>|all"),
-    BACKUPWORLD(2, 0, false, false, "$<instanceName>"),
-    LOADWORLD(2, 1, false, false, "<worldName>"),
-    SETREGION(2, 1, true, false, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
-    HELP(2, 0, false, false),
-    VAULTINFO(2, 0, false, false),
-    RELOADCONFIG(2, 1, false, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
-    TOOL(2, 1, true, false, "wand|refillChest");
+    STATS(PermissionLevel.NONE, 1, false, false, "<player>"),
+    SPECTATOR(PermissionLevel.NONE, 0, true, true),
+    ORGANIZER(PermissionLevel.NONE, 1, true, true, "<password>", "$<instanceName>"),
+    COUNT(PermissionLevel.ORGANIZER, 1, false, true, "stop|start|<number>", "$<instanceName>"),
+    RULE(PermissionLevel.ORGANIZER, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
+    SETSCORE(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
+    JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
+    TPWORLD(PermissionLevel.ADMIN, 1, true, false, "<worldName>"),
+    CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
+    BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),
+    LOADWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>"),
+    SETREGION(PermissionLevel.ADMIN, 1, true, false, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
+    HELP(PermissionLevel.NONE, 0, false, false),
+    VAULTINFO(PermissionLevel.ADMIN, 0, false, false),
+    RELOADCONFIG(PermissionLevel.ADMIN, 1, false, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
+    TOOL(PermissionLevel.ADMIN, 1, true, false, "wand|refillChest");
 
-    private final int permissionLevel;
+    private final PermissionLevel permissionLevel;
     private final int numberOfNeededArguments;
     private final boolean playerExecutorOnly;
     private final boolean needsAGameInstance;
     private final String[] arguments;
 
-    Subcommand(int permissionLevel, int numberOfNeededArguments, boolean playerExecutorOnly, boolean needsAGameInstance, String... arguments) {
+    Subcommand(PermissionLevel permissionLevel, int numberOfNeededArguments, boolean playerExecutorOnly, boolean needsAGameInstance, String... arguments) {
         this.permissionLevel = permissionLevel;
         this.numberOfNeededArguments = numberOfNeededArguments;
         this.playerExecutorOnly = playerExecutorOnly;
@@ -65,9 +65,8 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         }
     }
 
-    public boolean hasPermission(CommandSender sender) {
-        int senderPermission = sender.hasPermission("towers.admin") ? 2 : sender.hasPermission("towers.organizer") ? 1 : 0;
-        return this.permissionLevel <= senderPermission;
+    public boolean hasPermission(CommandSender commandSender) {
+        return PermissionLevel.hasPermission(this.permissionLevel, PermissionLevel.getPermissionLevel(commandSender));
     }
 
     private int getNumberOfConsoleNeededArguments() {
@@ -104,9 +103,12 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         return toret.toString();
     }
 
-    public static String listOfCommands(int numberOfTeams) {
+    public static String listOfCommands(int numberOfTeams, CommandSender sender) {
+        PermissionLevel permission =  PermissionLevel.getPermissionLevel(sender);
         StringBuilder toret = new StringBuilder();
         for (Subcommand subcommand : Subcommand.values()) {
+            if (!PermissionLevel.hasPermission(subcommand.permissionLevel, permission))
+                continue;
             toret.append(subcommand.getCorrectUse(numberOfTeams));
             toret.append("\n");
         }

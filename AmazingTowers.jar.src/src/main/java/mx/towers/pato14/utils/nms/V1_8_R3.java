@@ -1,9 +1,10 @@
 
 package mx.towers.pato14.utils.nms;
 
+import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.MessageType;
 import net.minecraft.server.v1_8_R3.*;
-import mx.towers.pato14.utils.plugin.PluginA;
-import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -40,5 +41,19 @@ public class V1_8_R3 implements NMS
         NBTTagCompound compound = MojangsonParser.parse(rawItem);
         net.minecraft.server.v1_8_R3.ItemStack netItemStack = net.minecraft.server.v1_8_R3.ItemStack.createStack(compound);
         return CraftItemStack.asBukkitCopy(netItemStack);
+    }
+
+    public void open(Player p, ItemStack book) { //thx to Juancomaster1998 :)
+        net.minecraft.server.v1_8_R3.ItemStack NMSBook = CraftItemStack.asNMSCopy(book);
+        EntityHuman player = ((CraftHumanEntity)p).getHandle();
+        org.bukkit.inventory.ItemStack hand = p.getItemInHand();
+        try {
+            p.setItemInHand(CraftItemStack.asBukkitCopy(NMSBook));
+            player.openBook(NMSBook);
+        } catch(Exception ex) {
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while trying to open book menu", MessageType.ERROR);
+        } finally {
+            p.setItemInHand(hand);
+        }
     }
 }

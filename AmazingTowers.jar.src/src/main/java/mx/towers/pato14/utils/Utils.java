@@ -14,6 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 public class Utils {
     public static World createEmptyWorld(String name) {
         final WorldCreator wc = new WorldCreator(name);
@@ -75,6 +78,17 @@ public class Utils {
         return itemName.toString().trim();
     }
 
+    public static String macroCaseToCamelCase(String macroCaseText) {
+        StringBuilder camelCase = new StringBuilder();
+        Iterator<String> itr = Arrays.stream(macroCaseText.toLowerCase().split("_")).iterator();
+        if (itr.hasNext())
+            camelCase.append(itr.next().toLowerCase());
+        while (itr.hasNext()) {
+            camelCase.append(firstCapitalized(itr.next().toLowerCase()));
+        }
+        return camelCase.toString().trim();
+    }
+
     public static void checkForTeamWin(GameInstance gameInstance) {
         boolean makeATeamWin = true;
         Team temp = null;
@@ -95,5 +109,40 @@ public class Utils {
                 gameInstance.getGame().getFinish().Fatality(TeamColor.values()[numero]);
             }
         }
+    }
+
+    public static int stringTimeToInt(String[] time) {
+        int toret = 0;
+        int temp;
+        for (int i = time.length - 1; i >= 0; i--) {
+            temp = Integer.parseInt(time[i]);
+            for (int j = time.length - 1; j > i; j--)
+                temp *= 60;
+            toret += temp;
+        }
+        return toret;
+    }
+
+    public static String intTimeToString(int time) {
+        StringBuilder toret = new StringBuilder();
+        int temp;
+        int j = -1;
+        int i = 0;
+        while (j-- != 0) {
+            temp = time;
+            while (temp >= 60) {
+                temp /= 60;
+                i++;
+            }
+            toret.append(temp < 10 && j >= 0 ? "0" + temp : temp).append(":");
+            if (j < 0)
+                j = i;
+            while (i > 0) {
+                temp *= 60;
+                i--;
+            }
+            time -= temp;
+        }
+        return toret.deleteCharAt(toret.length() - 1).toString();
     }
 }

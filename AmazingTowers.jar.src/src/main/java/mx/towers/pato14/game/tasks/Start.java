@@ -48,6 +48,8 @@ public class Start {
                     Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     Start.this.game.getDetectionMove().MoveDetect();
                     Start.this.game.getDetectionMove().setBedwarsStyle(Start.this.game.getGameInstance().getRules().get(Rule.BEDWARS_STYLE));
+                    if (Start.this.game.getTimer().isActivated())
+                        Start.this.game.getTimer().timerStart();
                     return;
                 }
                 if (!runFromCommand && game.getGameInstance().getNumPlayers() < Start.this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.min-players")) {

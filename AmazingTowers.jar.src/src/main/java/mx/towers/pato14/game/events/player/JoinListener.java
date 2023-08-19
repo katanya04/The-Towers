@@ -20,12 +20,12 @@ public class JoinListener implements Listener {
         GameInstance gameInstance = plugin.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.isReadyToJoin()) {
-            GameInstance newGameInstance = plugin.checkForInstanceToTp();
+        if (!gameInstance.canJoin(player)) {
+            GameInstance newGameInstance = plugin.checkForInstanceToTp(player);
             if (newGameInstance != null) {
                 Utils.tpToWorld(newGameInstance.getWorld(), player);
             } else
-                player.kickPlayer("This world is still loading, try to enter again soon");
+                player.kickPlayer("You can't join this world at this moment");
         }
         gameInstance.playerJoinGame(player);
         e.setJoinMessage(AmazingTowers.getColor(getMessage(gameInstance, player.getName())));

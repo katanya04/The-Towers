@@ -1,14 +1,34 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#            AmazingTowers - v3.0_beta1            #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
 
-defaultRules:
+rules:
+  grief: 'false'
+  protectPoint: 'true'
+  emerald: 'true'
+  redstone: 'true'
+  coal: 'true'
+  lapislazuli: 'true'
+  balancedTeams: 'true'
+  bow: 'true'
+  ironArmor: 'true'
+  water: 'true'
+  potsAndApple: 'true'
+  enderPearl: 'true'
+  tnt: 'true'
+  enchants: 'true'
+  kits: 'true'
+  bedwarsStyle: 'false'
 whitelist:
   activated: 'false'
+  players:
+    - '<empty>'
 blacklist:
   activated: 'false'
+  players:
+    - '<empty>'
 timer:
   activated: 'false'
   time: '30:00'

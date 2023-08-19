@@ -3,7 +3,7 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
@@ -38,7 +38,7 @@ public class DeathListener implements Listener {
         } else {
             final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller") //to do, check colors
+            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)
@@ -46,7 +46,6 @@ public class DeathListener implements Listener {
             addRewardsKiller(killer);
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
-        gameInstance.getScoreUpdates().updateScoreboard(player);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
             for (ItemStack i : e.getDrops()) {
                 if (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS) {
@@ -62,9 +61,11 @@ public class DeathListener implements Listener {
         }
         if (playerTeam != null && !playerTeam.respawnPlayers()) {
             playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
+            gameInstance.getScoreUpdates().updateScoreboardAll();
             if (playerTeam.getSizeOnlinePlayers() <= 0)
                 Utils.checkForTeamWin(gameInstance);
-        }
+        } else
+            gameInstance.getScoreUpdates().updateScoreboard(player);
     }
 
     private void addRewardsKiller(Player killer) {
@@ -80,7 +81,7 @@ public class DeathListener implements Listener {
             return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
         if (gameInstance.getGame().getGameState().equals(GameState.GAME) && playerTeam != null) {
-            if (playerTeam.respawnPlayers()) {
+            if (playerTeam.respawnPlayers() && !playerTeam.isEliminated()) {
                 e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
                 gameInstance.getGame().applyKitToPlayer(e.getPlayer());
             } else {
@@ -89,7 +90,7 @@ public class DeathListener implements Listener {
             }
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
-            Dar.DarItemsJoin(e.getPlayer(), GameMode.ADVENTURE);
+            Dar.joinLobby(e.getPlayer());
         }
         e.getPlayer().setCanPickupItems(true);
     }

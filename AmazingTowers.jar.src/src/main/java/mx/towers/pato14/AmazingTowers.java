@@ -20,6 +20,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AmazingTowers extends JavaPlugin {
@@ -196,9 +197,9 @@ public final class AmazingTowers extends JavaPlugin {
         return SetupVault.getVaultEconomy() != null;
     }
 
-    public GameInstance checkForInstanceToTp() {
+    public GameInstance checkForInstanceToTp(Player player) {
         for (GameInstance gameInstance : games.values()) {
-            if (!gameInstance.isReadyToJoin())
+            if (!gameInstance.canJoin(player))
                 continue;
             if (gameInstance.getGame() == null)
                 continue;

@@ -5,7 +5,7 @@ import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -23,10 +23,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GameInstance {
     private final AmazingTowers plugin;
@@ -43,8 +40,8 @@ public class GameInstance {
     private boolean hasWorldAssociated;
     private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
     private boolean isReadyToJoin;
-    private final List<String> whitelist;
-    private final List<String> blacklist;
+    private Map.Entry<Boolean, List<String>> whitelist;
+    private Map.Entry<Boolean, List<String>> blacklist;
 
     public GameInstance(AmazingTowers towers, String name) {
         isReadyToJoin = false;
@@ -54,8 +51,6 @@ public class GameInstance {
         this.configs = new HashMap<>();
         this.rules = new HashMap<>();
         this.numPlayers = 0;
-        this.whitelist = new ArrayList<>();
-        this.blacklist = new ArrayList<>();
         registerConfigs(name);
         this.detectoreishon = new Detectoreishon(this);
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
@@ -115,9 +110,9 @@ public class GameInstance {
         }
     }
 
-    private void setRules() {   //Sets rules to default values
+    private void setRules() {
         for (Rule rule : Rule.values())
-            this.rules.put(rule, rule.getDefaultState());
+            this.rules.put(rule, Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("rules." + Utils.macroCaseToCamelCase(rule.name()))));
     }
     public VaultT getVault() {
         return this.vault;
@@ -202,13 +197,13 @@ public class GameInstance {
                     this.getGame().getStart().gameStart();
                 }
             case PREGAME:
-                Dar.DarItemsJoin(player, GameMode.ADVENTURE);
+                Dar.joinLobby(player);
                 break;
             case GAME:
                 if (team != null) {
                     if (team.respawnPlayers()) {
                         team.setPlayerState(player.getName(), PlayerState.ONLINE);
-                        Dar.darItemsJoinTeam(player);
+                        Dar.joinTeam(player);
                     } else {
                         team.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
                         player.setGameMode(GameMode.SPECTATOR);
@@ -217,11 +212,12 @@ public class GameInstance {
                     }
                     break;
                 }
-                Dar.DarItemsJoin(player, GameMode.ADVENTURE);
-                break;
-            case FINISH:
+                Dar.joinLobby(player);
                 break;
             default:
+                if (team == null || team.isEliminated())
+                    player.setGameMode(GameMode.SPECTATOR);
+                break;
         }
         if (this.getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active"))
             this.plugin.con.CreateAccount(player.getName());
@@ -238,7 +234,6 @@ public class GameInstance {
         (new BukkitRunnable() {
             public void run() {
                 GameInstance.this.getScoreUpdates().updateScoreboardAll();
-                List<Team> teams = GameInstance.this.getGame().getTeams().getTeams();
                 switch (GameInstance.this.getGame().getGameState()) {
                     case LOBBY:
                     case PREGAME:
@@ -248,9 +243,9 @@ public class GameInstance {
                         }
                         break;
                     case GAME:
-                        if (playerTeam == null) {
+                    case GOLDEN_GOAL:
+                        if (playerTeam == null)
                             break;
-                        }
                         playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
                         if (playerTeam.getSizeOnlinePlayers() <= 0)
                             Utils.checkForTeamWin(GameInstance.this);
@@ -260,11 +255,23 @@ public class GameInstance {
         }).runTaskLaterAsynchronously(this.plugin, 5L);
     }
 
-    public boolean isReadyToJoin() {
-        return isReadyToJoin;
+    public boolean canJoin(Player player) {
+        return isReadyToJoin && (player.isOp() || (!whitelist.getKey() || whitelist.getValue().contains(player.getName()))
+                && (!blacklist.getKey() || !blacklist.getValue().contains(player.getName())));
     }
 
     public void setReadyToJoin(boolean readyToJoin) {
         isReadyToJoin = readyToJoin;
+    }
+
+    public void updateWhiteList() {
+        this.whitelist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("whitelist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players"));
+    }
+    public void updateBlackList() {
+        this.blacklist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("blacklist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players"));
+    }
+    public void updateLists() {
+        updateWhiteList();
+        updateBlackList();
     }
 }

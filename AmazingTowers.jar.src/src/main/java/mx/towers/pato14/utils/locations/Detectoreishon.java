@@ -15,7 +15,7 @@ public class Detectoreishon {
         this.gameInstance = gameInstance;
     }
 
-    public String getLocationsNeededString(boolean console) { //Replace with StringBuilder
+    public String getLocationsNeededString(boolean console) {
         StringBuilder names = new StringBuilder();
         Iterator<String> itr = nonExistentLocations.iterator();
         while (itr.hasNext()) {

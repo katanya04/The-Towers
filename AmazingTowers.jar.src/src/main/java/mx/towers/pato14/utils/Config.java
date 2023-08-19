@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.enums.MessageType;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -52,7 +54,7 @@ public class Config extends YamlConfiguration {
         try {
             load(getFile());
         } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while loading " + name + " config file", MessageType.ERROR);
         }
     }
 
@@ -64,7 +66,7 @@ public class Config extends YamlConfiguration {
         try {
             save(getFile());
         } catch (IOException e) {
-            e.printStackTrace();
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while saving " + name + " config file", MessageType.ERROR);
         }
     }
 

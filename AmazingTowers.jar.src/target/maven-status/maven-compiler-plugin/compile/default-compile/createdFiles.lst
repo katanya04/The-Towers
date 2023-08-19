@@ -29,11 +29,14 @@ mx\towers\pato14\game\events\protect\AntiTrollTeamListener.class
 mx\towers\pato14\game\utils\Move.class
 mx\towers\pato14\utils\wand\Wand.class
 mx\towers\pato14\game\events\player\DamageListener.class
+mx\towers\pato14\utils\nms\V1_8_R3$FakeAnvil.class
+mx\towers\pato14\utils\exceptions\ParseItemException.class
 mx\towers\pato14\game\items\menus\settings\KickAll.class
 mx\towers\pato14\game\tasks\Timer.class
 mx\towers\pato14\game\utils\Dar.class
 mx\towers\pato14\game\events\player\EnchantItem.class
 mx\towers\pato14\game\events\protect\ProtectedAreasListener.class
+mx\towers\pato14\game\items\menus\settings\SaveSettings.class
 mx\towers\pato14\game\kits\Kit.class
 mx\towers\pato14\game\utils\Move$1.class
 mx\towers\pato14\GameInstance.class
@@ -46,7 +49,6 @@ mx\towers\pato14\game\team\GameTeams.class
 mx\towers\pato14\utils\enums\PermissionLevel.class
 mx\towers\pato14\commands\TowerCommand.class
 mx\towers\pato14\game\items\menus\SelectTeam.class
-mx\towers\pato14\game\items\ChestInventoryItem.class
 mx\towers\pato14\game\events\player\BlockStats.class
 mx\towers\pato14\game\events\player\BowListener.class
 mx\towers\pato14\game\events\player\TeamChatListener.class
@@ -73,9 +75,10 @@ mx\towers\pato14\game\items\menus\settings\SetWhitelist.class
 mx\towers\pato14\utils\locations\Locations.class
 mx\towers\pato14\game\events\player\PotionsAndAppleListener.class
 mx\towers\pato14\utils\enums\PlayerState.class
+mx\towers\pato14\game\items\BookMenuItem.class
 mx\towers\pato14\utils\locations\Pool.class
+mx\towers\pato14\game\items\ChestMenuItem.class
 mx\towers\pato14\utils\mysql\Connexion.class
-mx\towers\pato14\game\items\BookConfigItem.class
 mx\towers\pato14\game\items\menus\settings\SetRules.class
 mx\towers\pato14\game\scoreboard\ScoreHelper.class
 mx\towers\pato14\utils\enums\StatType.class

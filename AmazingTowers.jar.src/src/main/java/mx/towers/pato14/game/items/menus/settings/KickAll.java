@@ -2,7 +2,6 @@ package mx.towers.pato14.game.items.menus.settings;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -12,9 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class KickAll extends ActionItem {
-    public KickAll(Game game) {
+    public KickAll(GameInstance gameInstance) {
         super(Utils.setName(new ItemStack(Material.REDSTONE_TORCH_ON),
-                AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("settingsBook.kickAll.name"))));
+                AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.kickAll.name"))));
     }
 
     @Override

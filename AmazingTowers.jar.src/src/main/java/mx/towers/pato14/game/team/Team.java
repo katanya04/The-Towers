@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.enums.PlayerState;
-import mx.towers.pato14.utils.enums.Rule;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
@@ -22,12 +22,14 @@ public class Team {
     private final HashMap<String, PlayerState> players;
     private int points;
     private final GameInstance gameInstance;
+    private boolean eliminated;
 
     public Team(TeamColor teamColor, GameInstance gameInstance) {
         points = 0;
         this.players = new HashMap<>();
         this.teamColor = teamColor;
         this.gameInstance = gameInstance;
+        this.eliminated = false;
     }
 
     public void removePlayer(HumanEntity player) {
@@ -98,7 +100,7 @@ public class Team {
     }
 
     public boolean respawnPlayers() {
-        return !gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.getPoints() != 0;
+        return !eliminated && (!gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.getPoints() != 0);
     }
 
     public void setPlayerState(String playerName, PlayerState playerState) {
@@ -115,5 +117,22 @@ public class Team {
             toret.add(Bukkit.getPlayer(playerName));
         }
         return toret;
+    }
+
+    public void eliminateTeam() {
+        Player player;
+        for (String playerName : players.keySet()) {
+            setPlayerState(playerName, PlayerState.NO_RESPAWN);
+            if ((player = Bukkit.getPlayer(playerName)) != null) {
+                player.setGameMode(GameMode.SPECTATOR);
+                player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
+                player.sendMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.eliminated"));
+            }
+        }
+        this.eliminated = true;
+    }
+
+    public boolean isEliminated() {
+        return eliminated;
     }
 }

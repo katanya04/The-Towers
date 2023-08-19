@@ -3,8 +3,9 @@ package mx.towers.pato14.game.kits;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.MessageType;
-import net.minecraft.server.v1_8_R3.MojangsonParseException;
+import mx.towers.pato14.utils.exceptions.ParseItemException;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,15 +24,28 @@ public class Kits {
             try {
                 if (capitalismExists) {
                     kits.add(new Kit(kit.get("name"), armor, hotbar, Integer.parseInt(kit.get("price")),
-                            Boolean.parseBoolean(kit.get("permanent")), plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
+                            Boolean.parseBoolean(kit.get("permanent")), setIcon(plugin.getNms().deserializeItemStack(kit.get("iconInMenu")), true, kit)));
                 } else {
-                    kits.add(new Kit(kit.get("name"), armor, hotbar, plugin.getNms().deserializeItemStack(kit.get("iconInMenu"))));
+                    kits.add(new Kit(kit.get("name"), armor, hotbar, setIcon(plugin.getNms().deserializeItemStack(kit.get("iconInMenu")), false, kit)));
                 }
-            } catch (MojangsonParseException e) {
+            } catch (ParseItemException e) {
                 plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
             }
         }
         this.temporalBoughtKits = new HashMap<>();
+    }
+
+    private static ItemStack setIcon(ItemStack item, boolean addLore, Map<String, String> kit) {
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(AmazingTowers.getColor("§r&l" + kit.get("name")));
+        if (addLore) {
+            List<String> lore = new ArrayList<>();
+            lore.add(Integer.parseInt(kit.get("price")) + " coins");
+            lore.add(Boolean.parseBoolean(kit.get("permanent")) ? "Usos ilimitados" : "Comprar 1 uso");
+            meta.setLore(lore);
+        }
+        item.setItemMeta(meta);
+        return item;
     }
 
     private ItemStack[] getItems(Map<String, String> kit, String name, int size) {
@@ -41,7 +55,7 @@ public class Kits {
             for (int i = 0; i < size; i++) {
                 try {
                     toret[i] = plugin.getNms().deserializeItemStack(itemsArray[i]);
-                } catch (MojangsonParseException e) {
+                } catch (ParseItemException e) {
                     plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }
             }

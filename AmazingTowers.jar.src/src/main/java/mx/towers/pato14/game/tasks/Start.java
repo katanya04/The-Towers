@@ -3,12 +3,10 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.events.protect.CofresillosListener;
-import mx.towers.pato14.game.utils.Dar;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.locations.Locations;
-import net.minecraft.server.v1_8_R3.MojangsonParseException;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -47,8 +45,8 @@ public class Start {
                     Start.this.game.getGameInstance().getScoreUpdates().getRefill().iniciarRefill();
                     Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     Start.this.game.getDetectionMove().MoveDetect();
-                    Start.this.game.getDetectionMove().setBedwarsStyle(Start.this.game.getGameInstance().getRules().get(Rule.BEDWARS_STYLE));
-                    if (Start.this.game.getTimer().isActivated())
+                    Start.this.game.setBedwarsStyle(Start.this.game.getGameInstance().getRules().get(Rule.BEDWARS_STYLE));
+                    if (Boolean.parseBoolean(Start.this.game.getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated")))
                         Start.this.game.getTimer().timerStart();
                     return;
                 }
@@ -84,7 +82,7 @@ public class Start {
 
     private void teleportPlayers() {
         for (Player player : game.getPlayers()) {
-            Dar.darItemsJoinTeam(player);
+            Dar.joinTeam(player);
         }
     }
 
@@ -129,7 +127,7 @@ public class Start {
                         world.dropItemNaturally(Locations.getLocationFromString(item.get("coords")),
                                 plugin.getNms().deserializeItemStack(item.get("item")));
                     }
-                } catch (MojangsonParseException exception) {
+                } catch (ParseItemException exception) {
                     plugin.sendConsoleMessage("§cError while parsing the generator items!", MessageType.ERROR);
                     cancel();
                 }

@@ -9,8 +9,9 @@ import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.items.LobbyItems;
 import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Book;
-import mx.towers.pato14.game.utils.Move;
+import mx.towers.pato14.game.tasks.Move;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
@@ -35,6 +36,8 @@ public class Game {
     private GameState gameState;
     private final Kits kits;
     private final HashMap<HumanEntity, Kit> playersSelectedKit;
+    private boolean goldenGoal;
+    private boolean bedwarsStyle;
 
     public Game(GameInstance game) {
         this.gameInstance = game;
@@ -50,9 +53,8 @@ public class Game {
         this.finish = new Finish(this);
         this.stats = new StatisticsPlayer();
         this.detectionMove = new Move(this);
-        if (game.getConfig(ConfigType.BOOK).getBoolean("book.enabled")) {
-            this.bookItem = new Book(this);
-        }
+        this.bedwarsStyle = false;
+        this.goldenGoal = false;
     }
 
     public StatisticsPlayer getStats() {
@@ -119,5 +121,25 @@ public class Game {
 
     public Timer getTimer() {
         return timer;
+    }
+
+    public boolean isGoldenGoal() {
+        return goldenGoal;
+    }
+
+    public void setGoldenGoal(boolean goldenGoal) {
+        this.goldenGoal = goldenGoal;
+    }
+
+    public void setBedwarsStyle(boolean bedwarsStyle) {
+        this.bedwarsStyle = bedwarsStyle;
+        if (bedwarsStyle) {
+            for (Team team : this.getTeams().getTeams())
+                team.setPoints(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin"));
+        }
+    }
+
+    public boolean isBedwarsStyle() {
+        return bedwarsStyle;
     }
 }

@@ -2,7 +2,7 @@ package mx.towers.pato14.game.items.menus;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.items.ChestInventoryItem;
+import mx.towers.pato14.game.items.ChestMenuItem;
 import mx.towers.pato14.game.items.actions.AcceptBuy;
 import mx.towers.pato14.game.items.actions.DenyBuy;
 import mx.towers.pato14.game.kits.Kit;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 
-public class BuyKitMenu extends ChestInventoryItem {
+public class BuyKitMenu extends ChestMenuItem {
     private final HumanEntity player;
     public BuyKitMenu(GameInstance gameInstance, Kit kit, HumanEntity player) {
         super(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.buyKitMenuName")), null, new HashMap<>(), 27);

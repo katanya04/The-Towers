@@ -24,6 +24,7 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ut
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\team\Team.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\StatType.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\OrePlacedListener.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\exceptions\ParseItemException.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\BuyKitMenu.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\KickAll.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\AmazingTowers.java
@@ -38,6 +39,7 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\utils\Book.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\SelectKit.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\nms\V1_8_R3.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SaveSettings.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\Game.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\BowListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\nms\NMS.java
@@ -51,9 +53,9 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\JoinListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\GameInstance.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\ContinueCount.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\BookMenuItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\mysql\FindOneCallback.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\plugin\PluginA.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\BookConfigItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\PlayerState.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\mysql\Connexion.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\rewards\SetupVault.java
@@ -63,7 +65,6 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ap
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\utils\Dar.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Start.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\world\WorldLoad.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\ChestInventoryItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\GameState.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Timer.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SetRules.java
@@ -92,6 +93,7 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\Subcommand.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SetTimer.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\stats\StatisticsPlayer.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\ChestMenuItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\kits\Kits.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\LeatherProtectListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\RuleItem.java

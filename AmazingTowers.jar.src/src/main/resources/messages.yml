@@ -1,5 +1,5 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#            AmazingTowers - v3.0_beta1            #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
@@ -43,6 +43,13 @@ deathMessages:
   knownKiller: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}'
   unknownKiller: '{Color}{Player} &7murio'
   finalKillPrefix: '&b&lKILL FINAL: '
+
+goldenGoal:
+  titles:
+    enabled: true
+    title: '&c&lSe acabo el tiempo!'
+    subTitle: '&6&lGol de oro!'
+  eliminated: '&cHas sido eliminado'
 
 scorePoint:
   point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}&7!'

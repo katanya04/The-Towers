@@ -9,13 +9,19 @@ import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
     public static World createEmptyWorld(String name) {
@@ -57,6 +63,20 @@ public class Utils {
         return item;
     }
 
+    public static ItemStack setLore(ItemStack item, List<String> lore) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.setLore(lore);
+        item.setItemMeta(itemMeta);
+        return item;
+    }
+
+    public static ItemStack setLore(ItemStack item, String lore) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.setLore(Collections.singletonList(lore));
+        item.setItemMeta(itemMeta);
+        return item;
+    }
+
     public static int ceilToMultipleOfNine(int n) {
         if (n <= 0)
             return 9;
@@ -87,6 +107,24 @@ public class Utils {
             camelCase.append(firstCapitalized(itr.next().toLowerCase()));
         }
         return camelCase.toString().trim();
+    }
+
+    public static String camelCaseToMacroCase(String camelCaseText) {
+        StringBuilder toret = new StringBuilder(camelCaseText);
+        Pattern pat = Pattern.compile("[A-Z][^A-Z]*$");
+        Matcher match = pat.matcher(camelCaseText);
+
+        int lastCapitalIndex = -1;
+        do {
+            if (match.find()) {
+                lastCapitalIndex = match.start();
+                if (lastCapitalIndex != -1) {
+                    camelCaseText = toret.insert(lastCapitalIndex, "_").toString();
+                    match = pat.matcher(camelCaseText);
+                }
+            }
+        } while (match.find());
+        return camelCaseText.toUpperCase();
     }
 
     public static void checkForTeamWin(GameInstance gameInstance) {
@@ -144,5 +182,54 @@ public class Utils {
             time -= temp;
         }
         return toret.deleteCharAt(toret.length() - 1).toString();
+    }
+
+    public static boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+    public static boolean isDouble(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+    public static boolean isValidPath(String path) {
+        String[] pathSplit = path.split(";");
+        if (pathSplit.length < 2)
+            return false;
+        try {
+            ConfigType.valueOf(camelCaseToMacroCase(pathSplit[0]));
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void addGlint(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(itemMeta);
+    }
+
+    public static void removeGlint(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.removeEnchant(Enchantment.ARROW_DAMAGE);
+        itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(itemMeta);
+    }
+
+    public static boolean hasGlint(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        return itemMeta.hasEnchant(Enchantment.ARROW_DAMAGE) && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS);
     }
 }

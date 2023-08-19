@@ -1,7 +1,9 @@
-package mx.towers.pato14.utils.enums;
+package mx.towers.pato14.commands;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.enums.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -27,7 +29,13 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     HELP(PermissionLevel.NONE, 0, false, false),
     VAULTINFO(PermissionLevel.ADMIN, 0, false, false),
     RELOADCONFIG(PermissionLevel.ADMIN, 1, false, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),
-    TOOL(PermissionLevel.ADMIN, 1, true, false, "wand|refillChest");
+    TOOL(PermissionLevel.ADMIN, 1, true, false, "wand|refillChest"),
+    TIMER(PermissionLevel.ADMIN, 1, false, true, "true|false|<number>", "$<instanceName>"),
+    WHITELIST(PermissionLevel.ADMIN, 1, false, true, "add|remove|list|true|false", "*<player>"),
+    BLACKLIST(PermissionLevel.ADMIN, 1, false, true, "add|remove|list|true|false", "*<player>"),
+    MODIFYSETTING(PermissionLevel.ORGANIZER, 1, false, true, "<path>", "*add|remove"),
+    SAVESETTINGS(PermissionLevel.ORGANIZER, 0, false, true, "$<instanceName>"),
+    BOOK(PermissionLevel.ORGANIZER, 0, true, true);
 
     private final PermissionLevel permissionLevel;
     private final int numberOfNeededArguments;
@@ -115,15 +123,6 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         return toret.toString();
     }
 
-    public static boolean isInteger(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch(NumberFormatException e){
-            return false;
-        }
-    }
-
     public static Map.Entry<Integer, GameInstance> checkArgs(Subcommand subcommand, String[] args, int numberOfTeams, CommandSender sender) {
         GameInstance gameInstance = null;
         int i = 1;
@@ -147,7 +146,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                     }
                 } else {
                     if (currentSubArg.equals("<number>")) {
-                        if (isInteger(args[i]))
+                        if (Utils.isInteger(args[i]))
                             matches = true;
                     } else if (currentSubArg.equals("<instanceName>")) {
                         if ((gameInstance = AmazingTowers.getPlugin().getGameInstance(Bukkit.getWorld(args[i]))) != null)

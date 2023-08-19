@@ -77,27 +77,45 @@ public class LobbyItems implements Listener {
         return hotbarItems;
     }
 
-    public ItemStack getQuitItem() {
-        return quit;
-    }
-
     public ModifyGameSettings getModifyGameSettings() {
         return modifyGameSettings;
     }
 
-    public List<ChestInventoryItem> getInventories() {
-        List<ChestInventoryItem> toret = new ArrayList<>();
+    public List<ChestMenuItem> getChestMenus() {
+        List<ChestMenuItem> toret = new ArrayList<>();
         for (ItemStack hotbarItem : hotbarItems.values()) {
-            recursiveSearchChestMenuItems(toret, hotbarItem);
+            recursiveSearchChestMenus(toret, hotbarItem);
         }
         return toret;
     }
 
-    private void recursiveSearchChestMenuItems(List<ChestInventoryItem> list, ItemStack item) {
-        if (!(item instanceof ChestInventoryItem))
+    public BookMenuItem getBookMenu(String path) {
+        BookMenuItem toret = null;
+        for (ItemStack hotbarItem : hotbarItems.values()) {
+            toret = recursiveSearchBookMenu(hotbarItem, path);
+            if (toret != null) return toret;
+        }
+        return toret;
+    }
+
+    private void recursiveSearchChestMenus(List<ChestMenuItem> list, ItemStack item) {
+        if (!(item instanceof ChestMenuItem))
             return;
-        list.add(((ChestInventoryItem) item));
-        for (ItemStack item2 : ((ChestInventoryItem) item).getContents())
-            recursiveSearchChestMenuItems(list, item2);
+        list.add(((ChestMenuItem) item));
+        for (ItemStack item2 : ((ChestMenuItem) item).getContents().values())
+            recursiveSearchChestMenus(list, item2);
+    }
+
+    private BookMenuItem recursiveSearchBookMenu(ItemStack item, String path) {
+        BookMenuItem toret;
+        if (item instanceof BookMenuItem && ((BookMenuItem) item).getFullPath().equals(path)) {
+            return (BookMenuItem) item;
+        } else if (item instanceof ChestMenuItem) {
+            for (ItemStack item2 : ((ChestMenuItem) item).getContents().values()) {
+                toret = recursiveSearchBookMenu(item2, path);
+                if (toret != null) return toret;
+            }
+        }
+        return null;
     }
 }

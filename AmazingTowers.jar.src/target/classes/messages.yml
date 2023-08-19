@@ -44,6 +44,13 @@ deathMessages:
   unknownKiller: '{Color}{Player} &7murio'
   finalKillPrefix: '&b&lKILL FINAL: '
 
+goldenGoal:
+  titles:
+    enabled: true
+    title: '&c&lSe acabo el tiempo!'
+    subTitle: '&6&lGol de oro!'
+  eliminated: '&cHas sido eliminado'
+
 scorePoint:
   point: '{Color}{Player} &7anoto un punto para el {Color}&l{Team}&7!'
   pointBedwarsStyle: '{Color}&l{Player} &r&7anoto un punto en la base {ColorTeamScored}{TeamScored}&7!'

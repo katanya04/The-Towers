@@ -1,4 +1,4 @@
-package mx.towers.pato14.game.utils;
+package mx.towers.pato14.game.tasks;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -18,13 +18,13 @@ import org.bukkit.potion.PotionEffect;
 public class Dar {
     private static final AmazingTowers plugin = AmazingTowers.getPlugin();
 
-    public static void DarItemsJoin(Player player, GameMode gameMode) {
+    public static void joinLobby(Player player) {
         player.setHealth(20.0D);
         player.setLevel(0);
         player.setExp(0.0F);
         player.setFoodLevel(20);
         player.setSaturation(5.f);
-        player.setGameMode(gameMode);
+        player.setGameMode(GameMode.ADVENTURE);
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
         GameInstance gameInstance = plugin.getGameInstance(player);
@@ -34,7 +34,7 @@ public class Dar {
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
-    public static void darItemsJoinTeam(Player player) {
+    public static void joinTeam(Player player) {
         removePotion(player);
         GameInstance gameInstance = plugin.getGameInstance(player);
         Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());

@@ -1,8 +1,7 @@
-package mx.towers.pato14.game.utils;
+package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.*;
@@ -18,7 +17,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class Move {
     private final Game game;
     private final Pool[] pools;
-    private boolean bedwarsStyle;
 
     public Move(Game game) {
         this.game = game;
@@ -56,16 +54,17 @@ public class Move {
 
     private void checkPool(Pool pool, Player player) {
         if (AreaUtil.isInsideArea(pool, player.getLocation())) {
+            boolean bedwarsStyle = game.isBedwarsStyle();
             Team team = this.game.getTeams().getTeamByPlayer(player.getName());
             Team teamScored = pool.getTeam();
             player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+            if (bedwarsStyle)
+                teamScored.scorePoint(bedwarsStyle);
+            else
+                team.scorePoint(false);
             this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
             this.game.getStats().addOne(player.getName(), StatType.POINTS);
             this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
-            if (bedwarsStyle)
-                teamScored.scorePoint(true);
-            else
-                team.scorePoint(false);
             game.getGameInstance().broadcastMessage(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")
                             .replace("{Player}", player.getName())
                             .replace("{Color}", team.getTeamColor().getColor())
@@ -83,14 +82,18 @@ public class Move {
                 }
             }
             if (!bedwarsStyle) {
-                if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin")) {
+                if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin") || game.isGoldenGoal()) {
                     this.game.getFinish().Fatality(team.getTeamColor());
                     this.game.setGameState(GameState.FINISH);
                 }
-            } else if (teamScored.getPoints() <= 0 && game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled")) {
+            } else if (teamScored.getPoints() <= 0) {
                 String title = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
                 for (Player pl : teamScored.getListOnlinePlayers()) {
-                    AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
+                    pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
+                    if (game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
+                        AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
+                    else
+                        pl.sendMessage(title);
                 }
             }
         }
@@ -98,13 +101,5 @@ public class Move {
 
     public Pool[] getPools() {
         return pools;
-    }
-
-    public void setBedwarsStyle(boolean bedwarsStyle) {
-        this.bedwarsStyle = bedwarsStyle;
-        if (bedwarsStyle) {
-            for (Team team : game.getTeams().getTeams())
-                team.setPoints(game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin"));
-        }
     }
 }

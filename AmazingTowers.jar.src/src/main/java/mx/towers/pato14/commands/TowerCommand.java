@@ -1,6 +1,7 @@
 package mx.towers.pato14.commands;
 
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.game.items.BookMenuItem;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
@@ -15,7 +16,7 @@ import net.md_5.bungee.api.ChatColor;
 import mx.towers.pato14.utils.locations.Locations;
 import java.io.File;
 
-import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.game.tasks.Dar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -97,9 +98,10 @@ public class TowerCommand implements CommandExecutor
                 break;
             case SPECTATOR:
                 assert gameInstance != null;
-                if (sender instanceof Player && ((Player) sender).getGameMode().equals(GameMode.SPECTATOR) &&
-                        !gameInstance.getGame().getTeams().containsNoRespawnPlayer(sender.getName()))
-                    Dar.DarItemsJoin((Player) sender, GameMode.ADVENTURE);
+                assert player != null;
+                if (player.getGameMode().equals(GameMode.SPECTATOR) &&
+                        !gameInstance.getGame().getTeams().containsNoRespawnPlayer(player.getName()))
+                    Dar.joinLobby(player);
                 else
                     Utils.sendMessage("Solo puedes ejecutar este comando estando en modo espectador y sin ser parte de ningún equipo", MessageType.INFO, sender);
                 break;
@@ -135,6 +137,7 @@ public class TowerCommand implements CommandExecutor
             case RULE:
                 assert gameInstance != null;
                 gameInstance.getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
+                gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("rules." + Utils.macroCaseToCamelCase(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
                 Utils.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + args[2].toLowerCase(), MessageType.INFO, sender);
                 break;
             case SETSCORE:
@@ -157,7 +160,7 @@ public class TowerCommand implements CommandExecutor
                 Player p = Bukkit.getPlayer(args[2]);
                 if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
                     gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p);
-                    Dar.darItemsJoinTeam(p);
+                    Dar.joinTeam(p);
                 } else
                     Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
                 break;
@@ -293,11 +296,11 @@ public class TowerCommand implements CommandExecutor
                     Utils.sendMessage("§cThe vault plugin doesn't exist", MessageType.INFO, sender);
                 else if (this.plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
                     final String format = ChatColor.GRAY + "%s: [%s]";
-                    Utils.sendMessage("§7*--------------*", MessageType.INFO, sender);
-                    Utils.sendMessage(" §f*Vault* ", MessageType.INFO, sender);
-                    Utils.sendMessage((SetupVault.getVaultEconomy() != null) ? String.format(format, "Economy", SetupVault.getVaultEconomy().getName()) : String.format(format, "Economy", "NONE"), MessageType.INFO, sender);
-                    Utils.sendMessage((SetupVault.getVaultChat() != null) ? String.format(format, "Chat", SetupVault.getVaultChat().getName()) : String.format(format, "Chat", "NONE"), MessageType.INFO, sender);
-                    Utils.sendMessage("§7*--------------*", MessageType.INFO, sender);
+                    Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
+                    Utils.sendMessage(" §f*Vault* ", MessageType.NO_PREFIX, sender);
+                    Utils.sendMessage((SetupVault.getVaultEconomy() != null) ? String.format(format, "Economy", SetupVault.getVaultEconomy().getName()) : String.format(format, "Economy", "NONE"), MessageType.NO_PREFIX, sender);
+                    Utils.sendMessage((SetupVault.getVaultChat() != null) ? String.format(format, "Chat", SetupVault.getVaultChat().getName()) : String.format(format, "Chat", "NONE"), MessageType.NO_PREFIX, sender);
+                    Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
                 } else
                     Utils.sendMessage("§cThe vault option is inactive in the config", MessageType.INFO, sender);
                 break;
@@ -323,6 +326,102 @@ public class TowerCommand implements CommandExecutor
                     }
                 }
                 break;
+            case TIMER:
+                assert gameInstance != null;
+                if (args[1].equalsIgnoreCase("true") || args[1].equalsIgnoreCase("false")) {
+                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("timer.activated", args[1].toLowerCase());
+                    Utils.sendMessage("Timer turned§f§l " + (Boolean.parseBoolean(args[1].toLowerCase()) ? "on" : "off"), MessageType.INFO, sender);
+                } else {
+                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("timer.time", Utils.intTimeToString(Integer.parseInt(args[1])));
+                    Utils.sendMessage("Time set to§f§l " + Utils.intTimeToString(Integer.parseInt(args[1])), MessageType.INFO, sender);
+                }
+                gameInstance.getGame().getTimer().update();
+                break;
+            case WHITELIST:
+            case BLACKLIST:
+                assert gameInstance != null;
+                List<String> players = gameInstance.getConfig(ConfigType.GAME_SETTINGS).getStringList(args[0].toLowerCase() + ".players");
+                if (args[1].equalsIgnoreCase("list")) {
+                    Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
+                    Utils.sendMessage(" §f*" + Utils.firstCapitalized(args[0].toLowerCase()) + "* (" + (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString(args[0].toLowerCase() + ".activated")) ? "§aOn" + "§f)" : "§cOff" + "§f)"), MessageType.NO_PREFIX, sender);
+                    if (players == null || players.isEmpty())
+                        Utils.sendMessage(" §7(Empty)", MessageType.NO_PREFIX, sender);
+                    for (String pl : gameInstance.getConfig(ConfigType.GAME_SETTINGS).getStringList(args[0].toLowerCase() + ".players")) {
+                        Utils.sendMessage(" §7" + pl, MessageType.NO_PREFIX, sender);
+                    }
+                    Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
+                } else if (args[1].equalsIgnoreCase("true") || args[1].equalsIgnoreCase("false")) {
+                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).set(args[0].toLowerCase() + ".activated", args[1].toLowerCase());
+                    Utils.sendMessage(Utils.firstCapitalized(args[0].toLowerCase()) + " turned§f§l " + (Boolean.parseBoolean(args[1].toLowerCase()) ? "on" : "off"), MessageType.INFO, sender);
+                    gameInstance.updateLists();
+                } else {
+                    if (args.length < 3)
+                        Utils.sendMessage("You need to specify a player", MessageType.ERROR, sender);
+                    else if (args[1].equalsIgnoreCase("add")) {
+                        if (!players.contains(args[2])) {
+                            players.add(args[2]);
+                            gameInstance.getConfig(ConfigType.GAME_SETTINGS).set(args[0].toLowerCase() + ".players", players);
+                            Utils.sendMessage("Player successfully added to the " + args[0].toLowerCase(), MessageType.INFO, sender);
+                            gameInstance.updateLists();
+                        } else
+                            Utils.sendMessage("That player is already in the " + args[0].toLowerCase(), MessageType.INFO, sender);
+                    } else if (args[1].equalsIgnoreCase("remove")) {
+                        if (players.contains(args[2])) {
+                            players.remove(args[2]);
+                            gameInstance.getConfig(ConfigType.GAME_SETTINGS).set(args[0].toLowerCase() + ".players", players);
+                            Utils.sendMessage("Player successfully removed from the " + args[0].toLowerCase(), MessageType.INFO, sender);
+                        } else
+                            Utils.sendMessage("That player isn't in the " + args[0].toLowerCase(), MessageType.INFO, sender);
+                        gameInstance.updateLists();
+                    }
+                }
+                break;
+            case MODIFYSETTING:
+                assert gameInstance != null;
+                assert player != null;
+                String[] argSplit = args[1].split(";");
+                Config settings = gameInstance.getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(argSplit[0])));
+                BookMenuItem currentMenu = gameInstance.getGame().getLobbyItems().getBookMenu(argSplit[0] + ";" + argSplit[1].split("\\.")[0]);
+                if (argSplit.length == 2) {
+                    if (args.length < 3) { //gameSettings;timer.time
+                        String currentValue = settings.getString(argSplit[1]);
+                        if (currentValue.equalsIgnoreCase("true")) {
+                            settings.set(argSplit[1], "false");
+                            currentMenu.updateSettings(gameInstance);
+                            currentMenu.openMenu(player);
+                        } else if (currentValue.equalsIgnoreCase("false")) {
+                            settings.set(argSplit[1], "true");
+                            currentMenu.updateSettings(gameInstance);
+                            currentMenu.openMenu(player);
+                        } else {
+                            gameInstance.getPlugin().getNms().openAnvilInventory(player, args[1]);
+                        }
+                    } else { //gameSettings;whitelist.players add
+                        if (args[2].equalsIgnoreCase("add")) {
+                            gameInstance.getPlugin().getNms().openAnvilInventory(player, args[1]);
+                        }
+                    }
+                } else if (argSplit.length == 3) { //gameSettings;whitelist.players;Marco2124 remove
+                    List<String> currentValue = settings.getStringList(argSplit[1]);
+                    if (args[2].equalsIgnoreCase("remove")) {
+                        currentValue.remove(argSplit[2]);
+                        settings.set(argSplit[1], currentValue);
+                        currentMenu.updateSettings(gameInstance);
+                        currentMenu.openMenu(player);
+                    }
+                } else
+                    Utils.sendMessage("Incorrect path", MessageType.ERROR, sender);
+                break;
+            case SAVESETTINGS:
+                assert gameInstance != null;
+                gameInstance.getConfig(ConfigType.GAME_SETTINGS).saveConfig();
+                Utils.sendMessage("Game settings saved correctly", MessageType.INFO, sender);
+                break;
+            case BOOK:
+                assert gameInstance != null;
+                assert player != null;
+                player.getInventory().addItem(gameInstance.getGame().getLobbyItems().getModifyGameSettings());
+                Utils.sendMessage("Gave settings book to §f" + player.getName(), MessageType.INFO, sender);
         }
         return false;
     }

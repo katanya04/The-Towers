@@ -13,11 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Kit extends ActionItem {
     private final String name;
@@ -28,7 +24,6 @@ public class Kit extends ActionItem {
 
     public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, int price, boolean permanent, ItemStack iconInMenu) {
         super(iconInMenu);
-        setIcon(iconInMenu, true);
         this.name = name.trim();
         this.armor = armor;
         this.hotbar = hotbar;
@@ -38,7 +33,6 @@ public class Kit extends ActionItem {
 
     public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, ItemStack iconInMenu) {
         super(iconInMenu);
-        setIcon(iconInMenu, false);
         this.name = name.trim();
         this.armor = armor;
         this.hotbar = hotbar;
@@ -61,7 +55,7 @@ public class Kit extends ActionItem {
             player.closeInventory();
         } else if (gameInstance.getVault().getCoins((Player) player) >= this.getPrice()) {
             BuyKitMenu buyKitMenu = new BuyKitMenu(gameInstance, this, player);
-            gameInstance.getGame().getLobbyItems().getInventories().add(buyKitMenu);
+            gameInstance.getGame().getLobbyItems().getChestMenus().add(buyKitMenu);
             buyKitMenu.interact(player, gameInstance);
         } else {
             player.sendMessage(AmazingTowers.getColor(messages.getString("notEnoughMoney")));
@@ -69,28 +63,8 @@ public class Kit extends ActionItem {
         }
     }
 
-    private void setIcon(ItemStack item, boolean addLore) {
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(AmazingTowers.getColor("§r&l" + this.name));
-        if (addLore) {
-            List<String> lore = new ArrayList<>();
-            lore.add(this.price + " coins");
-            lore.add(permanent ? "Usos ilimitados" : "Comprar 1 uso");
-            meta.setLore(lore);
-        }
-        item.setItemMeta(meta);
-    }
-
     public String getName() {
         return this.name;
-    }
-
-    public ItemStack[] getArmor() {
-        return this.armor;
-    }
-
-    public ItemStack[] getHotbar() {
-        return this.hotbar;
     }
 
     public ItemStack getIconInMenu() {

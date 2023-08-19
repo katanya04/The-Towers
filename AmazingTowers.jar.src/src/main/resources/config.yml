@@ -1,5 +1,5 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#            AmazingTowers - v3.0_beta1            #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
@@ -86,9 +86,14 @@ settingsBook:
   setRules: '&7&lCambiar las reglas'
   continueCount: '&7&lContinuar la cuenta atras'
   setWhitelist: '&7&lWhitelist'
+  setBlacklist: '&7&lBlacklist'
   startImmediately: '&7&lEmpezar ya la partida'
   stopCount: '&7&lParar la cuenta atras'
   setTimer: '&7&lTimer'
+  saveSettings:
+    name: '&d&lGuardar ajustes'
+    saveMessage: 'Ajustes guardados correctamente'
+    noChangesMessage: 'No hay ningún cambio que guardar'
 
 
 

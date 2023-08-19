@@ -3,20 +3,19 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.utils.Dar;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import mx.towers.pato14.utils.stats.Stats;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
+import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -58,23 +57,21 @@ public class Finish {
                         public void run() {
                             game.getGameInstance().setReadyToJoin(false);
                             GameInstance gameToTp;
-                            if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
-                            && (gameToTp = plugin.checkForInstanceToTp()) != null) {
-                                Utils.tpToWorld(gameToTp.getWorld(), game.getPlayers().toArray(new Player[0]));
-                            } else {
-                                if (bungeecord) {
-                                    for (Player player : game.getPlayers()) {
+                            for (Player player : game.getPlayers()) {
+                                if (game.getGameInstance().getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
+                                        && (gameToTp = plugin.checkForInstanceToTp(player)) != null) {
+                                    Utils.tpToWorld(gameToTp.getWorld(), game.getPlayers().toArray(new Player[0]));
+                                } else {
+                                    if (bungeecord) {
                                         player.teleport(Locations.getLocationFromString(game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
                                         Dar.bungeecordTeleport(player);
                                         if (game.getPlayers().isEmpty()) {
                                             run();
                                             return;
                                         }
+                                        cancel();
+                                        return;
                                     }
-                                    cancel();
-                                    return;
-                                }
-                                for (Player player : game.getPlayers()) {
                                     player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
                                             .replace("{Color}", teamColor.getColor())
                                             .replace("{Team}", teamColor.getName(game.getGameInstance()))
@@ -217,6 +214,60 @@ public class Finish {
         int value = current == null ? 0 : current.getValue().getStat(stat);
         sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");
         return sb.toString();
+    }
+
+    public void goldenGoal() {
+        if (game.getGameInstance().getRules().get(Rule.BEDWARS_STYLE)) {
+            for (Team team : game.getTeams().getTeams()) {
+                if (team.respawnPlayers()) {
+                    team.setPoints(0);
+                    String title = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
+                    for (Player pl : team.getListOnlinePlayers()) {
+                        pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
+                        if (game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
+                            AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
+                        else
+                            pl.sendMessage(title);
+                    }
+                }
+                game.getGameInstance().getWorld().spawnEntity(Locations.getLocationFromString(game.getGameInstance()
+                        .getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), EntityType.ENDER_DRAGON);
+            }
+        } else {
+            List<Team> mostPoints = new ArrayList<>();
+            int mostPointsInt = game.getTeams().getTeams().get(0).getPoints();
+            for (Team team : game.getTeams().getTeams()) {
+                if (team.getPoints() >= mostPointsInt) {
+                    if (team.getPoints() > mostPointsInt) {
+                        mostPoints.clear();
+                        mostPointsInt = team.getPoints();
+                    }
+                    mostPoints.add(team);
+                }
+            }
+            if (mostPoints.size() == 1) {
+                game.getFinish().Fatality(mostPoints.get(0).getTeamColor());
+            } else {
+                game.setGoldenGoal(true);
+                String title = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.title"));
+                String subTitle = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.subTitle"));
+                for (Team team : game.getTeams().getTeams()) {
+                    if (mostPoints.contains(team)) {
+                        for (Player pl : team.getListOnlinePlayers()) {
+                            if (game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("goldenGoal.titles.enabled"))
+                                AmazingTowers.getPlugin().getNms().sendTitle(pl, title, subTitle, 0, 50, 20);
+                            else {
+                                pl.sendMessage(title);
+                                pl.sendMessage(subTitle);
+                            }
+                            pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
+                        }
+                    } else {
+                        team.eliminateTeam();
+                    }
+                }
+            }
+        }
     }
 }
 

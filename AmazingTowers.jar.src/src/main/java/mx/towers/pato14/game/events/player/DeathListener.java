@@ -2,12 +2,14 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
+import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,8 +27,17 @@ public class DeathListener implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         final Player player = e.getEntity().getPlayer();
         final Player killer = e.getEntity().getKiller();
-        final GameInstance gameInstance = this.plugin.getGameInstance(player);
-        if (gameInstance == null || gameInstance.getGame() == null)
+        final TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        if (instance.getConfig(ConfigType.CONFIG).getBoolean("options.instantRespawn")) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
+                player.setCanPickupItems(false);
+                player.spigot().respawn();
+            }, 1L);
+        }
+        if (!(instance instanceof GameInstance))
+            return;
+        final GameInstance gameInstance = (GameInstance) instance;
+        if (gameInstance.getGame() == null)
             return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
@@ -48,16 +59,10 @@ public class DeathListener implements Listener {
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
             for (ItemStack i : e.getDrops()) {
-                if (i.getType() == Material.LEATHER_HELMET || i.getType() == Material.LEATHER_CHESTPLATE || i.getType() == Material.LEATHER_LEGGINGS || i.getType() == Material.LEATHER_BOOTS) {
+                if (Utils.isLeatherArmor(i.getType())) {
                     i.setType(Material.AIR);
                 }
             }
-        }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.instantRespawn")) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
-                player.setCanPickupItems(false);
-                player.spigot().respawn();
-            }, 1L);
         }
         if (playerTeam != null && !playerTeam.respawnPlayers()) {
             playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
@@ -90,7 +95,7 @@ public class DeathListener implements Listener {
             }
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
-            Dar.joinLobby(e.getPlayer());
+            Dar.joinGameLobby(e.getPlayer());
         }
         e.getPlayer().setCanPickupItems(true);
     }

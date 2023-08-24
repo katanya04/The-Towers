@@ -6,12 +6,13 @@ import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.items.LobbyItems;
+import mx.towers.pato14.game.items.GameLobbyItems;
 import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.tasks.Move;
+import mx.towers.pato14.utils.cofresillos.RefillTask;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Rule;
@@ -24,7 +25,6 @@ import java.util.List;
 
 public class Game {
     private final AmazingTowers plugin;
-    private final LobbyItems lobbyItems;
     private final GameTeams teams;
     private final Start gameStart;
     private final Finish finish;
@@ -38,6 +38,7 @@ public class Game {
     private final HashMap<HumanEntity, Kit> playersSelectedKit;
     private boolean goldenGoal;
     private boolean bedwarsStyle;
+    private final RefillTask refill;
 
     public Game(GameInstance game) {
         this.gameInstance = game;
@@ -46,8 +47,6 @@ public class Game {
         this.kits = new Kits(game.getConfig(ConfigType.KITS), plugin.capitalismExists());
         this.playersSelectedKit = new HashMap<>();
         this.teams = new GameTeams(this);
-        this.lobbyItems = new LobbyItems(this);
-        getPlugin().getServer().getPluginManager().registerEvents(getLobbyItems(), getPlugin());
         this.gameStart = new Start(this);
         this.timer = new Timer(this);
         this.finish = new Finish(this);
@@ -55,6 +54,7 @@ public class Game {
         this.detectionMove = new Move(this);
         this.bedwarsStyle = false;
         this.goldenGoal = false;
+        this.refill = new RefillTask(game);
     }
 
     public StatisticsPlayer getStats() {
@@ -75,10 +75,6 @@ public class Game {
 
     public Finish getFinish() {
         return this.finish;
-    }
-
-    public LobbyItems getLobbyItems() {
-        return this.lobbyItems;
     }
 
     public Move getDetectionMove() {
@@ -141,5 +137,9 @@ public class Game {
 
     public boolean isBedwarsStyle() {
         return bedwarsStyle;
+    }
+
+    public RefillTask getRefill() {
+        return refill;
     }
 }

@@ -2,6 +2,7 @@ package mx.towers.pato14.game.items.menus;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.team.Team;
@@ -33,7 +34,10 @@ public class JoinTeamItem extends ActionItem {
         this.teamColor = teamColor;
     }
     @Override
-    public void interact(HumanEntity player, GameInstance gameInstance) {
+    public void interact(HumanEntity player, TowersWorldInstance instance) {
+        if (!(instance instanceof GameInstance))
+            return;
+        GameInstance gameInstance = (GameInstance) instance;
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         Game game = gameInstance.getGame();
         Team currentTeam = game.getTeams().getTeamByPlayer(player.getName()); //Equipo actual
@@ -83,7 +87,7 @@ public class JoinTeamItem extends ActionItem {
         lore.add("§r§7- " + playerName);
         itemMeta.setLore(lore);
         this.setItemMeta(itemMeta);
-        this.gameInstance.getGame().getLobbyItems().getSelectTeam().updateMenu();
+        this.gameInstance.getHotbarItems().getSelectTeam().updateMenu();
     }
 
     public void removePlayerNameToTeamItem(String playerName) {
@@ -94,7 +98,7 @@ public class JoinTeamItem extends ActionItem {
         lore.remove("§r§7- " + playerName);
         itemMeta.setLore(lore);
         this.setItemMeta(itemMeta);
-        this.gameInstance.getGame().getLobbyItems().getSelectTeam().updateMenu();
+        this.gameInstance.getHotbarItems().getSelectTeam().updateMenu();
     }
 
     public TeamColor getTeamColor() {

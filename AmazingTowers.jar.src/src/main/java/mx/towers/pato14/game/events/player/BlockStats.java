@@ -2,8 +2,7 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.enums.StatType;
-import org.bukkit.entity.Player;
+import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

@@ -20,7 +20,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SelectCofresillos implements Listener {
     private final AmazingTowers plugin;
-
     public SelectCofresillos(AmazingTowers plugin) {
         this.plugin = plugin;
     }
@@ -41,7 +40,7 @@ public class SelectCofresillos implements Listener {
         String locString = Locations.getLocationStringBlock(loc);
         if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
             if (locConfig.contains(locString)) {
-                e.getPlayer().sendMessage("§7(§cAT§7) §cThe location in this block already exist in Config!");
+                e.getPlayer().sendMessage("§7(§cAT§7) §cThe location of this block already exist in Config!");
             } else {
                 locConfig.add(locString);
                 locations.set("LOCATIONS.REFILLCHEST", locConfig);

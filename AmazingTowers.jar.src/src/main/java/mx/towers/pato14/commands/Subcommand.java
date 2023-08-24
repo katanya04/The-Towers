@@ -25,7 +25,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
     BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),
     LOADWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>"),
-    SETREGION(PermissionLevel.ADMIN, 1, true, false, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
+    SETREGION(PermissionLevel.ADMIN, 1, true, true, argsBuilder(Arrays.stream(Location.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "*%team_colors%"),
     HELP(PermissionLevel.NONE, 0, false, false),
     VAULTINFO(PermissionLevel.ADMIN, 0, false, false),
     RELOADCONFIG(PermissionLevel.ADMIN, 1, false, false, argsBuilder(Arrays.stream(ConfigType.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "$<instanceName>"),

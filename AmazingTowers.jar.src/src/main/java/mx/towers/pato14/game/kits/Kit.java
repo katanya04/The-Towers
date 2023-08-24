@@ -5,10 +5,10 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.items.menus.BuyKitMenu;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -55,7 +55,7 @@ public class Kit extends ActionItem {
             player.closeInventory();
         } else if (gameInstance.getVault().getCoins((Player) player) >= this.getPrice()) {
             BuyKitMenu buyKitMenu = new BuyKitMenu(gameInstance, this, player);
-            gameInstance.getGame().getLobbyItems().getChestMenus().add(buyKitMenu);
+            gameInstance.getHotbarItems().getChestMenus().add(buyKitMenu);
             buyKitMenu.interact(player, gameInstance);
         } else {
             player.sendMessage(AmazingTowers.getColor(messages.getString("notEnoughMoney")));
@@ -78,18 +78,13 @@ public class Kit extends ActionItem {
         Color color = AmazingTowers.getPlugin().getGameInstance(player).getGame().getTeams()
                 .getTeamColorByPlayer(player.getName()).getColorEnum();
         for (ItemStack itemStack : armor) {
-            if (isLeatherArmor(itemStack.getType()) && color != null) {
+            if (Utils.isLeatherArmor(itemStack.getType()) && color != null) {
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);
             }
         }
         player.getInventory().setArmorContents(armor);
-    }
-
-    private boolean isLeatherArmor(Material material) {
-        return material.equals(Material.LEATHER_HELMET) || material.equals(Material.LEATHER_CHESTPLATE)
-                || material.equals(Material.LEATHER_LEGGINGS) || material.equals(Material.LEATHER_BOOTS);
     }
 
     public int getPrice() {

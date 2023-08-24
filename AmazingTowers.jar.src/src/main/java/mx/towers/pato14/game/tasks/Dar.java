@@ -5,7 +5,9 @@ import com.google.common.io.ByteStreams;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.enums.TeamColor;
@@ -18,47 +20,34 @@ import org.bukkit.potion.PotionEffect;
 public class Dar {
     private static final AmazingTowers plugin = AmazingTowers.getPlugin();
 
-    public static void joinLobby(Player player) {
-        player.setHealth(20.0D);
-        player.setLevel(0);
-        player.setExp(0.0F);
-        player.setFoodLevel(20);
-        player.setSaturation(5.f);
+    public static void joinMainLobby(Player player) {
         player.setGameMode(GameMode.ADVENTURE);
-        player.getInventory().clear();
-        player.getInventory().setArmorContents(null);
+        Utils.resetPlayer(player);
+        AmazingTowers.getLobby().getHotbarItems().giveHotbarItems(player);
+    }
+
+    public static void joinGameLobby(Player player) {
+        player.setGameMode(GameMode.ADVENTURE);
+        Utils.resetPlayer(player);
         GameInstance gameInstance = plugin.getGameInstance(player);
-        gameInstance.getGame().getLobbyItems().giveHotbarItems(player);
-        removePotion(player);
+        gameInstance.getHotbarItems().giveHotbarItems(player);
         NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
     public static void joinTeam(Player player) {
-        removePotion(player);
         GameInstance gameInstance = plugin.getGameInstance(player);
         Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         if (team == null)
             return;
         NametagEdit.getApi().clearNametag(player);
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
-        player.getInventory().clear();
-        player.getInventory().setArmorContents(null);
-        player.setFoodLevel(20);
-        player.setSaturation(5.f);
+        Utils.resetPlayer(player);
         player.setGameMode(GameMode.SURVIVAL);
         team.setNameTagPlayer(player);
         gameInstance.getGame().applyKitToPlayer(player);
         gameInstance.getGame().getStats().setHashStats(player.getName());
 
-    }
-
-    private static void removePotion(Player player) {
-        if (!player.getActivePotionEffects().isEmpty()) {
-            for (PotionEffect effect : player.getActivePotionEffects()) {
-                player.removePotionEffect(effect.getType());
-            }
-        }
     }
 
     public static void bungeecordTeleport(Player player) {

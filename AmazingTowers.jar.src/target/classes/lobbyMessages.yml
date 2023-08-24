@@ -1,0 +1,9 @@
+# +###----------------------------------------------###+ #
+# <#            AmazingTowers - v3.0_beta1            #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+canNotJoinGame: "&cNo te puedes unir en este momento"
+
+player: "jugador"
+players: "jugadores"

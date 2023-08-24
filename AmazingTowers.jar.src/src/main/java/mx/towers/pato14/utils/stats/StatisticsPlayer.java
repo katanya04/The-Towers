@@ -2,8 +2,6 @@ package mx.towers.pato14.utils.stats;
 
 import java.util.HashMap;
 
-import mx.towers.pato14.utils.enums.StatType;
-
 public class StatisticsPlayer {
     private final HashMap<String, Stats> playerStats = new HashMap<>();
 

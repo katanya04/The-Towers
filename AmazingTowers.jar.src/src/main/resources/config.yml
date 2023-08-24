@@ -33,7 +33,7 @@ options:
     refillChests:
       enabled: true
       messageOnScoreboard: '&cCofres rellenados!'
-      refillTime: 0;50
+      refillTime: '1:00'
       sendMessageOnRefill: true
 
   canNotDropLeatherArmor: true
@@ -122,3 +122,6 @@ teams:
     orange: '[NARANJA]'
     purple: '[MORADO]'
     default: ''
+
+
+name:

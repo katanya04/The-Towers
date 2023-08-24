@@ -18,12 +18,12 @@ public class EventsManager {
         pm.registerEvents(new QuitListener(), this.plugin);
         pm.registerEvents(new DeathListener(), this.plugin);
         pm.registerEvents(new DamageListener(), this.plugin);
-        pm.registerEvents(new TeamChatListener(this.plugin), this.plugin);
+        pm.registerEvents(new TeamChatListener(), this.plugin);
         pm.registerEvents(new LobbyListener(), this.plugin);
         pm.registerEvents(new CofresillosListener(this.plugin), this.plugin);
         pm.registerEvents(new PistonsillosListener(this.plugin), this.plugin);
         pm.registerEvents(new LeatherProtectListener(this.plugin), this.plugin);
-        pm.registerEvents(new TimeListener(this.plugin), this.plugin);
+        pm.registerEvents(new WeatherListener(), this.plugin);
         pm.registerEvents(new AntiTrollTeamListener(this.plugin), this.plugin);
         pm.registerEvents(new AntiFallingSandTrollListener(this.plugin), this.plugin);
         pm.registerEvents(new TntListener(this.plugin), this.plugin);

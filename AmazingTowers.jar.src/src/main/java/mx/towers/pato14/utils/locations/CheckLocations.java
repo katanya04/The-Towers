@@ -8,10 +8,10 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.enums.TeamColor;
 
-public class Detectoreishon {
+public class CheckLocations {
     private final List<String> nonExistentLocations = new ArrayList<>();
     private final GameInstance gameInstance;
-    public Detectoreishon(GameInstance gameInstance) {
+    public CheckLocations(GameInstance gameInstance) {
         this.gameInstance = gameInstance;
     }
 

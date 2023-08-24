@@ -2,6 +2,7 @@ package mx.towers.pato14.utils;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
@@ -15,7 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,9 +44,9 @@ public class Utils {
 
     public static void tpToWorld(World world, Player... players) {
         org.bukkit.Location destination;
-        GameInstance worldGameInstance = AmazingTowers.getPlugin().getGameInstance(world);
+        TowersWorldInstance worldInstance = AmazingTowers.getInstance(world);
         String lobby;
-        if (worldGameInstance != null && (lobby = worldGameInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null) {
+        if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null) {
             destination = Locations.getLocationFromString(lobby);
         } else
             destination = world.getSpawnLocation();
@@ -231,5 +234,38 @@ public class Utils {
     public static boolean hasGlint(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
         return itemMeta.hasEnchant(Enchantment.ARROW_DAMAGE) && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS);
+    }
+
+    public static boolean isLeatherArmor(Material material) {
+        return material.equals(Material.LEATHER_HELMET) || material.equals(Material.LEATHER_CHESTPLATE)
+                || material.equals(Material.LEATHER_LEGGINGS) || material.equals(Material.LEATHER_BOOTS);
+    }
+
+    public static boolean checkWorldFolder(String worldName) {
+        File potentialWorld = new File(Bukkit.getServer().getWorldContainer(), worldName);
+        return potentialWorld.exists();
+    }
+
+    public static double safeDivide(double n1, double n2) {
+        return n2 == 0 ? n1 : n1 / n2;
+    }
+
+    public static void resetPlayer(Player player) {
+        player.setHealth(20.0D);
+        player.setLevel(0);
+        player.setExp(0.0F);
+        player.setFoodLevel(20);
+        player.setSaturation(5.f);
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        removePotion(player);
+    }
+
+    private static void removePotion(Player player) {
+        if (!player.getActivePotionEffects().isEmpty()) {
+            for (PotionEffect effect : player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
+        }
     }
 }

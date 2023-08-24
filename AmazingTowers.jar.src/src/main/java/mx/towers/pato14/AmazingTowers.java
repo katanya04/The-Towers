@@ -6,6 +6,7 @@ import java.util.*;
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
@@ -26,17 +27,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class AmazingTowers extends JavaPlugin {
 
     private static AmazingTowers plugin;
+    private static LobbyInstance lobby;
     private static HashMap<String, GameInstance> games;
     private NMS nms;
     private Wand wand;
     private Config globalConfig;
-    public Connexion con;
-
-    public void onLoad() {
-        if (!getDescription().getAuthors().contains("Pato14")) {
-            Bukkit.getPluginManager().disablePlugin(this);
-        }
-    }
+    public Connexion connexion;
 
     public void onEnable() {
         plugin = this;
@@ -58,16 +54,20 @@ public final class AmazingTowers extends JavaPlugin {
         getCommand("towers").setExecutor(new TowerCommand());
 
         this.globalConfig = new Config(this, "globalConfig.yml", true);
+
         int numberOfInstances = this.globalConfig.getInt("options.instances.amount");
 
         for (int i = 0; i < numberOfInstances; i++)
-            games.put("TheTowers" + (i + 1), new GameInstance(this,"TheTowers" + (i + 1)));
+            games.put("TheTowers" + (i + 1), new GameInstance("TheTowers" + (i + 1)));
+
+        if (this.globalConfig.getBoolean("options.lobby.activated"))
+            lobby = new LobbyInstance(this.globalConfig.getString("options.lobby.worldName"));
 
         if (getGlobalConfig().getBoolean("options.mysql.active")) {
             try {
-                this.con = new Connexion();
-                this.con.Connect();
-                this.con.CreateTable();
+                this.connexion = new Connexion();
+                this.connexion.connect();
+                this.connexion.createTable();
                 sendConsoleMessage("§aSuccessfully connected to the database", MessageType.INFO);
             } catch (Exception e) {
                 sendConsoleMessage("§cCouldn't connect to the database", MessageType.ERROR);
@@ -108,7 +108,7 @@ public final class AmazingTowers extends JavaPlugin {
         sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----", MessageType.INFO);
         boolean worldUnset = false;
         for (GameInstance gameInstance : games.values()) {
-            if (gameInstance.hasWorldAssociated()) {
+            if (Utils.checkWorldFolder(gameInstance.name)) {
                 sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ", MessageType.INFO);
                 sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true), MessageType.INFO);
             } else {
@@ -154,17 +154,17 @@ public final class AmazingTowers extends JavaPlugin {
         return plugin;
     }
 
-    public GameInstance getGameInstance(Entity e) {
+    public static GameInstance getGameInstance(Entity e) {
         String worldName = e.getWorld().getName();
         return games.get(worldName);
     }
 
-    public GameInstance getGameInstance(Block e) {
+    public static GameInstance getGameInstance(Block e) {
         String worldName = e.getWorld().getName();
         return games.get(worldName);
     }
 
-    public GameInstance getGameInstance(World w) {
+    public static GameInstance getGameInstance(World w) {
         String worldName = w.getName();
         return games.get(worldName);
     }
@@ -215,8 +215,18 @@ public final class AmazingTowers extends JavaPlugin {
     public void resetGameInstance(GameInstance gameInstance) {
         String name = gameInstance.getName();
         games.remove(name);
-        games.put(name, new GameInstance(this, name));
+        games.put(name, new GameInstance(name));
+    }
+
+    public static LobbyInstance getLobby() {
+        return lobby;
+    }
+
+    public static TowersWorldInstance getInstance(Entity entity) {
+        return entity.getWorld().equals(lobby.getWorld()) ? lobby : getGameInstance(entity);
+    }
+
+    public static TowersWorldInstance getInstance(World world) {
+        return world.equals(lobby.getWorld()) ? lobby : getGameInstance(world);
     }
 }
-
-

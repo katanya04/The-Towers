@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class FixedItem {
-    private HashMap<Enchantment, Integer> papu;
+    private HashMap<Enchantment, Integer> enchantments;
     private final Material material;
     private final int amount;
     private final short durability;
@@ -16,7 +16,7 @@ public class FixedItem {
     public FixedItem(ItemStack i) {
         this.material = i.getType();
         if (i.getItemMeta().hasEnchants()) {
-            this.papu = new HashMap<>(i.getItemMeta().getEnchants());
+            this.enchantments = new HashMap<>(i.getItemMeta().getEnchants());
         }
         this.amount = i.getAmount();
         this.durability = i.getDurability();
@@ -45,9 +45,9 @@ public class FixedItem {
     public ItemStack getItemStack() {
         ItemStack item = new ItemStack(this.material, this.amount, this.durability);
         ItemMeta imeta = item.getItemMeta();
-        if (this.papu != null) {
-            for (Enchantment e : this.papu.keySet()) {
-                imeta.addEnchant(e, this.papu.get(e), false);
+        if (this.enchantments != null) {
+            for (Enchantment e : this.enchantments.keySet()) {
+                imeta.addEnchant(e, this.enchantments.get(e), false);
             }
         }
         item.setItemMeta(imeta);

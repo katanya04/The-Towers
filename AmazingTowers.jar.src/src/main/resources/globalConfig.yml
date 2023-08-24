@@ -5,6 +5,10 @@
 
 options:
 
+  lobby:
+    activated: true
+    worldName: lobby
+
   instances:
     amount: 1
 

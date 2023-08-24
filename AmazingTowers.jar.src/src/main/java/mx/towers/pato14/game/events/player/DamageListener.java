@@ -2,7 +2,10 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.LobbyInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.GameTeams;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -13,39 +16,49 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class DamageListener implements Listener {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     @EventHandler
     public void voidDamage(EntityDamageEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        if (e.getCause() != EntityDamageEvent.DamageCause.VOID || !(e.getEntity() instanceof Player))
             return;
-        if (!gameInstance.getGame().getGameState().equals(GameState.GAME)) {
+        Player player = (Player) e.getEntity();
+        TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        if (instance == null)
+            return;
+        if (instance instanceof LobbyInstance) {
             e.setCancelled(true);
-            return;
-        }
-        if (e.getCause() == EntityDamageEvent.DamageCause.VOID) {
-            if (e.getEntity() instanceof Player) {
-                Player p = (Player) e.getEntity();
-                if (p.getHealth() > 0.0) p.setHealth(0.0);
-                e.setCancelled(true);
-            }
+            Utils.tpToWorld(instance.getWorld(), player);
+        } else if (instance instanceof GameInstance) {
+            if (((GameInstance) instance).getGame() == null)
+                return;
+            if (((GameInstance) instance).getGame().getGameState() == GameState.GAME)
+                if (player.getHealth() > 0.0)
+                    player.setHealth(0.0);
+            e.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        if (e.getEntityType() != EntityType.PLAYER)
             return;
-        if (e.getEntityType().equals(EntityType.PLAYER)) {
+        Player player = (Player) e.getEntity();
+        TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        if (instance == null)
+            return;
+        if (instance instanceof LobbyInstance) {
+            e.setCancelled(true);
+        } else if (instance instanceof GameInstance) {
+            GameInstance gameInstance = (GameInstance) instance;
+            if (gameInstance.getGame() == null)
+                return;
             GameTeams teams = gameInstance.getGame().getTeams();
             if (e.getDamager().getType().equals(EntityType.PLAYER)) { // Player attacks player
                 if (teams.getTeamByPlayer(e.getEntity().getName()).equals(teams.getTeamByPlayer(e.getEntity().getName())))
                     e.setCancelled(true);
-            // Player shoots player
+                // Player shoots player
             } else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
-                if (teams.getTeamByPlayer(e.getEntity().getName()).equals(teams.getTeamByPlayer(((Player)((Projectile) e.getDamager()).getShooter()).getName())))
+                if (teams.getTeamByPlayer(e.getEntity().getName()).equals(teams.getTeamByPlayer(((Player) ((Projectile) e.getDamager()).getShooter()).getName())))
                     e.setCancelled(true);
             }
         }

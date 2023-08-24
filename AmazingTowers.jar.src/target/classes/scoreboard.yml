@@ -1,20 +1,20 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#            AmazingTowers - v3.0_beta1            #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
-Scoreboard:
+scoreboard:
   name: '&e&lTHE TOWERS'
   formatDate: dd/MM/yy
   
   # LOBBY
   # VARIABLES
-  # %date% , %online_players% , %max_players%
+  # %date% , %online_players%
   lobby:
     scores:
       - '&7%date%'
       - '&4'
-      - 'Jugadores: &a%online_players%/%max_players%'
+      - 'Jugadores: &a%online_players%'
       - '&3'
       - '&fEsperando...'
       - '&2'
@@ -24,12 +24,12 @@ Scoreboard:
 
   # PREGAME
   # VARIABLES
-  # %date% , %online_players% , %max_players% , %seconds%
+  # %date% , %online_players% , %seconds%
   pre-game:
     scores:
       - '&7%date%'
       - '&4'
-      - '&fJugadores: &a%online_players%/%max_players%'
+      - '&fJugadores: &a%online_players%'
       - '&3'
       - '&fEmpezando en &a%seconds%s'
       - '&2'
@@ -39,7 +39,7 @@ Scoreboard:
 
   # GAME
   # VARIABLES
-  # %date% , %online_players% , %max_players% ,  %team_points% ,
+  # %date% , %online_players% ,  %team_points% ,
   # %team_name% , %maxPointsWin% , %player_kills% , %first_letter% ,
   # %player_deaths% , %refill_time% , %player_points% , %team_color%
   gameFourTeamsOrLess:

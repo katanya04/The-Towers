@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.items.menus;
 
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -19,14 +20,17 @@ public class RuleItem extends ActionItem {
     }
 
     @Override
-    public void interact(HumanEntity player, GameInstance gameInstance) {
+    public void interact(HumanEntity player, TowersWorldInstance instance) {
+        if (!(instance instanceof GameInstance))
+            return;
+        GameInstance gameInstance = (GameInstance) instance;
         super.interact(player, gameInstance);
         gameInstance.getRules().put(rule, !gameInstance.getRules().get(rule));
         gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("rules." + Utils.macroCaseToCamelCase(rule.name()), gameInstance.getRules().get(rule).toString().toLowerCase());
         Utils.setLore(this, gameInstance.getRules().get(rule) ? "§r§aTrue" : "§r§cFalse");
-        gameInstance.getGame().getLobbyItems().getModifyGameSettings().getSetRules().updateMenu();
-        Utils.addGlint(gameInstance.getGame().getLobbyItems().getModifyGameSettings().getSaveSettings());
-        gameInstance.getGame().getLobbyItems().getModifyGameSettings().updateMenu();
+        gameInstance.getHotbarItems().getModifyGameSettings().getSetRules().updateMenu();
+        Utils.addGlint(gameInstance.getHotbarItems().getModifyGameSettings().getSaveSettings());
+        gameInstance.getHotbarItems().getModifyGameSettings().updateMenu();
     }
 
     public static ItemStack[] createAllRules(GameInstance gameInstance) {

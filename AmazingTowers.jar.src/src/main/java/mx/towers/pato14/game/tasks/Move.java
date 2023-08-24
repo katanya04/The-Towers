@@ -8,6 +8,7 @@ import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.locations.Pool;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
+import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

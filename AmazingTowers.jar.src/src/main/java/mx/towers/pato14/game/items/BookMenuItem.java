@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.items;
 
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.Material;
@@ -10,20 +11,20 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class BookMenuItem extends MenuItem { //Item that opens a book that contains a part of a config file or other data that can be modified by the player
     private final ConfigType configType;
-    private final GameInstance gameInstance;
+    private final TowersWorldInstance instance;
     private final String path;
     private ItemStack book;
-    public BookMenuItem(ItemStack icon, ConfigType configType, GameInstance gameInstance, String path) {
+    public BookMenuItem(ItemStack icon, ConfigType configType, TowersWorldInstance instance, String path) {
         super(icon);
         this.configType = configType;
-        this.gameInstance = gameInstance;
+        this.instance = instance;
         this.path = path;
         this.book = new ItemStack(Material.WRITTEN_BOOK);
     }
     @Override
     public void openMenu(HumanEntity player) {
         this.book = setBook();
-        gameInstance.getPlugin().getNms().openBook((Player) player, book);
+        instance.getPlugin().getNms().openBook((Player) player, book);
     }
 
     public static String getColorOfValue(String value) {
@@ -40,8 +41,8 @@ public abstract class BookMenuItem extends MenuItem { //Item that opens a book t
     }
 
     public ItemStack setBook() {
-        return gameInstance.getPlugin().getNms().getBook(this,
-                gameInstance.getConfig(configType).getConfigurationSection(path).getValues(true));
+        return instance.getPlugin().getNms().getBook(this,
+                instance.getConfig(configType).getConfigurationSection(path).getValues(true));
     }
 
     public String getFullPath() {
@@ -49,7 +50,7 @@ public abstract class BookMenuItem extends MenuItem { //Item that opens a book t
     }
 
     public void updateSettings(GameInstance gameInstance) {
-        Utils.addGlint(gameInstance.getGame().getLobbyItems().getModifyGameSettings().getSaveSettings());
-        gameInstance.getGame().getLobbyItems().getModifyGameSettings().updateMenu();
+        Utils.addGlint(gameInstance.getHotbarItems().getModifyGameSettings().getSaveSettings());
+        gameInstance.getHotbarItems().getModifyGameSettings().updateMenu();
     }
 }

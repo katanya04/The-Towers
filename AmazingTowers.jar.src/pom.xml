@@ -60,7 +60,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
-                    <outputDirectory>C:\Minecraft_Server_1_8_8 tt nuevo\plugins</outputDirectory>
+                    <outputDirectory>C:\paper 1.8.8\plugins</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>

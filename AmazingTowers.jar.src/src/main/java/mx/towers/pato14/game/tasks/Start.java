@@ -42,7 +42,7 @@ public class Start {
                     Start.this.teleportPlayers();
                     Start.this.startGenerators();
                     CofresillosListener.getChests(Start.this.game.getGameInstance());
-                    Start.this.game.getGameInstance().getScoreUpdates().getRefill().iniciarRefill();
+                    Start.this.game.getGameInstance().getGame().getRefill().startRefillTask();
                     Start.this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
                     Start.this.game.getDetectionMove().MoveDetect();
                     Start.this.game.setBedwarsStyle(Start.this.game.getGameInstance().getRules().get(Rule.BEDWARS_STYLE));

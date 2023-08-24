@@ -4,7 +4,7 @@
 # +###----------------------------------------------###+ #
 
 
-joinMessage: '&a{Player} &7entro a la partida &7(&a%online_players%&7/&a%max_players%&7)'
+joinMessage: '&a{Player} &7entro a la partida &7(Jugadores: &a%online_players%&7)'
 quitMessage: '&c{Player} &7dejo la partida'
 joinTeam: '{Color}{Player} &7entro al equipo {Color}&l{Team}&7!'
 

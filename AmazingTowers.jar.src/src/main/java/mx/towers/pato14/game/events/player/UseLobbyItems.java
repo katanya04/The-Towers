@@ -2,7 +2,8 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
+import mx.towers.pato14.LobbyInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.items.BookMenuItem;
 import mx.towers.pato14.game.items.menus.BuyKitMenu;
@@ -11,6 +12,8 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import org.bukkit.*;
+import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,26 +29,23 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class UseLobbyItems implements Listener {
-    AmazingTowers plugin = AmazingTowers.getPlugin();
-    private boolean canUseLobbyItem(GameInstance gameInstance) {
-        return gameInstance != null && gameInstance.getGame() != null;
+
+    private boolean canUseLobbyItem(TowersWorldInstance instance) {
+        return instance != null && (instance instanceof LobbyInstance || ((GameInstance) instance).getGame() != null);
     }
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-        GameInstance gameInstance = this.plugin.getGameInstance(player);
-        if (!canUseLobbyItem(gameInstance))
-            return;
-        Game game = gameInstance.getGame();
-        if (game.getGameState().equals(GameState.FINISH))
-            return;
         if (e.getItem() == null || !(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
             return;
-        for (ItemStack item : game.getLobbyItems().getHotbarItems().values()) {
+        Player player = e.getPlayer();
+        TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        if (instance instanceof GameInstance && (((GameInstance) (instance)).getGame() == null || ((GameInstance) (instance)).getGame().getGameState().equals(GameState.FINISH)))
+            return;
+        for (ItemStack item : instance.getHotbarItems().getHotbarItems().values()) {
             if (!item.equals(e.getItem()) || !(item instanceof ActionItem))
                 continue;
-            ((ActionItem) item).interact(player, gameInstance);
+            ((ActionItem) item).interact(player, instance);
             e.setCancelled(true);
             return;
         }
@@ -57,10 +57,13 @@ public class UseLobbyItems implements Listener {
         if (clickedItem == null || clickedItem.getType().equals(Material.AIR))
             return;
         HumanEntity player = e.getWhoClicked();
-        GameInstance gameInstance = this.plugin.getGameInstance(player);
-        if (!canUseLobbyItem(gameInstance))
+        TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        if (!canUseLobbyItem(instance))
             return;
-        Game game = gameInstance.getGame();
+        if (!player.isOp() && instance instanceof LobbyInstance && (e.getClickedInventory().getHolder() instanceof Chest || e.getClickedInventory().getHolder() instanceof DoubleChest)) {
+            e.setCancelled(true);
+            return;
+        }
         if (e.getClickedInventory() instanceof AnvilInventory) {
             String path = clickedItem.getItemMeta().getLore().get(0).replace("§r§8", "");
             if (!Utils.isValidPath(path))
@@ -71,7 +74,7 @@ public class UseLobbyItems implements Listener {
             if (rawSlot != view.convertSlot(rawSlot)
                     || rawSlot != 2 ||
                     !(e.getClickedInventory().getItem(1) == null ||
-                    e.getClickedInventory().getItem(1).getType() == Material.AIR) ||
+                            e.getClickedInventory().getItem(1).getType() == Material.AIR) ||
                     e.getClickedInventory().getItem(0).getType() != Material.PAPER ||
                     clickedItem.getType() != Material.PAPER)
                 return;
@@ -81,28 +84,30 @@ public class UseLobbyItems implements Listener {
                 Utils.sendMessage("Error while changing game setting, bad path", MessageType.ERROR, player);
                 return;
             }
-            BookMenuItem currentMenu = gameInstance.getGame().getLobbyItems().getBookMenu(pathSplit[0] + ";" + pathSplit[1].split("\\.")[0]);
-            Config settings = gameInstance.getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(pathSplit[0])));
+            BookMenuItem currentMenu = instance.getHotbarItems().getBookMenu(pathSplit[0] + ";" + pathSplit[1].split("\\.")[0]);
+            Config settings = instance.getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(pathSplit[0])));
             Object currentValue = settings.get(pathSplit[1]);
             if (currentValue instanceof String) {
                 settings.set(pathSplit[1], clickedItem.getItemMeta().getDisplayName());
-                currentMenu.updateSettings(gameInstance);
+                if (instance instanceof GameInstance)
+                    currentMenu.updateSettings((GameInstance) (instance));
                 currentMenu.openMenu(player);
             } else if (currentValue instanceof List<?>) { //add String case by default
                 List<String> value = settings.getStringList(pathSplit[1]);
                 value.add(clickedItem.getItemMeta().getDisplayName());
                 settings.set(pathSplit[1], value);
-                currentMenu.updateSettings(gameInstance);
+                if (instance instanceof GameInstance)
+                    currentMenu.updateSettings((GameInstance) (instance));
                 currentMenu.openMenu(player);
             }
             return;
         }
-        if (!game.getLobbyItems().isALobbyItem(clickedItem, e.getClickedInventory()))
+        if (!instance.getHotbarItems().isALobbyItem(clickedItem, e.getClickedInventory()))
             return;
         e.setCancelled(true);
-        for (ChestMenuItem inventory : game.getLobbyItems().getChestMenus()) {
+        for (ChestMenuItem inventory : instance.getHotbarItems().getChestMenus()) {
             if (inventory instanceof BuyKitMenu && inventory.getMenu().getViewers().isEmpty()) {
-                game.getLobbyItems().getChestMenus().remove(inventory);
+                instance.getHotbarItems().getChestMenus().remove(inventory);
                 System.out.println("Removed inventory");
             }
             if (!inventory.getMenu().equals(e.getClickedInventory()))
@@ -111,12 +116,13 @@ public class UseLobbyItems implements Listener {
                 if (!item.equals(clickedItem))
                     continue;
                 if (item instanceof ActionItem) {
-                    ((ActionItem) item).interact(player, gameInstance);
+                    ((ActionItem) item).interact(player, instance);
                     return;
                 }
             }
         }
     }
+
     @EventHandler
     public void InventoryCloseEvent(InventoryCloseEvent e) {
         if (!(e.getInventory() instanceof AnvilInventory))

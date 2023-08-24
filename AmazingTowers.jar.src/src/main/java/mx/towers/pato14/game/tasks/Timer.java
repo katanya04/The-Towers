@@ -102,4 +102,8 @@ public class Timer {
             bossBar.removePlayer(player);
         }
     }
+
+    public void addPlayer(Player player) {
+        bossBar.addPlayer(player);
+    }
 }

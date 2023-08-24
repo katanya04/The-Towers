@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Kits {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
+    private final static AmazingTowers plugin = AmazingTowers.getPlugin();
     private final Config kitsConfig;
     private final List<Kit> kits = new ArrayList<>();
     private final HashMap<String, List<Kit>> temporalBoughtKits;
@@ -48,7 +48,7 @@ public class Kits {
         return item;
     }
 
-    private ItemStack[] getItems(Map<String, String> kit, String name, int size) {
+    private static ItemStack[] getItems(Map<String, String> kit, String name, int size) {
         ItemStack[] toret = new ItemStack[size];
         String[] itemsArray = kit.get(name).split(";");
         if (itemsArray.length == size) {

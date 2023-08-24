@@ -12,6 +12,8 @@ import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.rewards.SetupVault;
+import mx.towers.pato14.utils.stats.Rank;
+import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.*;
@@ -78,7 +80,6 @@ public class Finish {
                                             .replace("%newLine%", "\n")));
                                 }
                             }
-                            System.out.println("Unloading and resetting");
                             Bukkit.unloadWorld(game.getGameInstance().getName(), false);
                             plugin.resetGameInstance(game.getGameInstance());
                         }
@@ -136,7 +137,7 @@ public class Finish {
                 for (Player player : game.getPlayers()) {
                     if (game.getTeams().getTeam(teamColor).containsPlayer(player.getName()) &&
                             player.getGameMode() != GameMode.SPECTATOR) {
-                        Finish.this.fuegosArtificiales(player, teamColor.getColorEnum());
+                        Finish.this.fireworks(player, teamColor.getColorEnum());
                     }
                 }
                 Finish.this.seconds = Finish.this.seconds - 1;
@@ -156,7 +157,7 @@ public class Finish {
         }
     }
 
-    private void fuegosArtificiales(Player pl, Color color) {
+    private void fireworks(Player pl, Color color) {
         Firework f = pl.getLocation().getWorld().spawn(pl.getLocation(), Firework.class);
         f.detonate();
         FireworkMeta fm = f.getFireworkMeta();

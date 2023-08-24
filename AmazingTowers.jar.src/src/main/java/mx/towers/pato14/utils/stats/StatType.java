@@ -1,4 +1,4 @@
-package mx.towers.pato14.utils.enums;
+package mx.towers.pato14.utils.stats;
 
 public enum StatType {
     KILLS(3, "Kills", "Kills", "§3"),

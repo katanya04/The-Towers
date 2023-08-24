@@ -1,5 +1,6 @@
-package mx.towers.pato14.utils.enums;
+package mx.towers.pato14.utils.stats;
 
+import mx.towers.pato14.utils.Utils;
 import org.bukkit.Sound;
 
 public enum Rank {
@@ -14,7 +15,7 @@ public enum Rank {
     private final Sound sound;
     private final float pitch;
     private final String text;
-    private Rank(float points, Sound sound, float pitch, String text) {
+    Rank(float points, Sound sound, float pitch, String text) {
         this.points = points;
         this.sound = sound;
         this.pitch = pitch;
@@ -26,6 +27,11 @@ public enum Rank {
                 return r;
         }
         return F;
+    }
+    public static Rank getTotalRank(int[] stats) {
+        double toret = Utils.safeDivide(stats[0], stats[1]) * 1.25 + Utils.safeDivide(stats[2], stats[3]) * 2.5 +
+                (Utils.safeDivide(stats[0], stats[3]) / 15 - Utils.safeDivide(stats[1], stats[3]) / 20) + Utils.safeDivide(stats[4], stats[3]) * 2;
+        return getRank(toret);
     }
     public String toText() {
         return this.text;

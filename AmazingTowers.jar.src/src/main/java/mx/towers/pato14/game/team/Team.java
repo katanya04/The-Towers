@@ -34,7 +34,7 @@ public class Team {
 
     public void removePlayer(HumanEntity player) {
         this.players.remove(player.getName());
-        gameInstance.getGame().getLobbyItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(player.getName());
+        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(player.getName());
     }
 
     public void addPlayer(HumanEntity player) {
@@ -42,7 +42,7 @@ public class Team {
         if ((currentTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName())) != null)
             currentTeam.removePlayer(player);
         this.players.put(player.getName(), PlayerState.ONLINE);
-        gameInstance.getGame().getLobbyItems().getSelectTeam().getItemByTeam(this.teamColor).addPlayerNameToTeamItem(player.getName());
+        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).addPlayerNameToTeamItem(player.getName());
     }
 
     public void setNameTagPlayer(Player player) {

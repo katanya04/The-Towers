@@ -2,27 +2,34 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.LobbyInstance;
+import mx.towers.pato14.TowersWorldInstance;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.PlayerState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class QuitListener implements Listener {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         final Player player = e.getPlayer();
         final String name = player.getName();
-        final GameInstance gameInstance = plugin.getGameInstance(player);
-        if (gameInstance == null || gameInstance.getGame() == null)
+        final TowersWorldInstance instance = AmazingTowers.getInstance(player);
+        LobbyInstance lobby = AmazingTowers.getLobby();
+        if (instance == null)
             return;
-        e.setQuitMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
-                .replace("{Player}", name));
-        gameInstance.playerLeaveGame(player);
+        if (instance instanceof LobbyInstance && lobby != null) {
+            AmazingTowers.getLobby().playerLeaveGame(player);
+        } else if (instance instanceof GameInstance) {
+            e.setQuitMessage(instance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
+                    .replace("{Player}", name));
+            if (lobby != null) {
+                Utils.tpToWorld(lobby.getWorld(), player);
+            }
+        }
     }
 }
 

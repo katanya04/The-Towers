@@ -2,6 +2,7 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,8 +14,8 @@ public class LobbyListener implements Listener {
 
     @EventHandler
     public void Food(FoodLevelChangeEvent e) {
-        GameInstance gameInstance = AmazingTowers.getPlugin().getGameInstance(e.getEntity());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        TowersWorldInstance instance = AmazingTowers.getInstance(e.getEntity());
+        if (instance == null)
             return;
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
@@ -27,7 +28,7 @@ public class LobbyListener implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageEvent e) {
-        GameInstance gameInstance = AmazingTowers.getPlugin().getGameInstance(e.getEntity());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (e.getEntity() instanceof Player) {

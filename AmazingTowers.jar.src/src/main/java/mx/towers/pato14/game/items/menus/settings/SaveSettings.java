@@ -2,6 +2,7 @@ package mx.towers.pato14.game.items.menus.settings;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -17,7 +18,10 @@ public class SaveSettings extends ActionItem {
     }
 
     @Override
-    public void interact(HumanEntity player, GameInstance gameInstance) {
+    public void interact(HumanEntity player, TowersWorldInstance instance) {
+        if (!(instance instanceof GameInstance))
+            return;
+        GameInstance gameInstance = (GameInstance) instance;
         super.interact(player, gameInstance);
         if (!Utils.hasGlint(this)) {
             Utils.sendMessage(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.saveSettings.noChangesMessage"), MessageType.ERROR, player);
@@ -26,6 +30,6 @@ public class SaveSettings extends ActionItem {
         gameInstance.getConfig(ConfigType.GAME_SETTINGS).saveConfig();
         Utils.sendMessage(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.saveSettings.saveMessage"), MessageType.INFO, player);
         Utils.removeGlint(this);
-        gameInstance.getGame().getLobbyItems().getModifyGameSettings().updateMenu();
+        gameInstance.getHotbarItems().getModifyGameSettings().updateMenu();
     }
 }

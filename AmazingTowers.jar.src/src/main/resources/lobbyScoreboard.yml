@@ -1,0 +1,25 @@
+# +###----------------------------------------------###+ #
+# <#            AmazingTowers - v3.0_beta1            #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+scoreboard:
+  name: '&e&lTHE TOWERS'
+  formatDate: dd/MM/yy
+
+  # LOBBY
+  # VARIABLES
+  # %date% , %online_players%
+  lobby:
+    scores:
+      - '&7%date%'
+      - '&4'
+      - 'Jugadores: &e%online_players%'
+      - '&2'
+      - '&fPara ver tus stats:'
+      - '&a /towers stats&3 <nombre>'
+      - '&4'
+      - '&eFran Kingdom&f'
+
+player: 'jugador'
+players: 'jugadores'

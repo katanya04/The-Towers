@@ -1,0 +1,12 @@
+# +###----------------------------------------------###+ #
+# <#            AmazingTowers - v3.0_beta1            #> #
+# <#             Author: Pato14, Marco2124            #> #
+# +###----------------------------------------------###+ #
+
+lobbyItems:
+  selectGame:
+    name: "&b&lUnirse a una partida"
+    position: 0
+
+options:
+  cancelWeatherUpdates: true

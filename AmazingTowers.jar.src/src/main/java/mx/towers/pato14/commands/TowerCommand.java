@@ -9,6 +9,8 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
+import mx.towers.pato14.utils.stats.Rank;
+import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.*;
 import mx.towers.pato14.utils.world.WorldReset;
 import mx.towers.pato14.utils.rewards.SetupVault;
@@ -39,7 +41,7 @@ public class TowerCommand implements CommandExecutor
         GameInstance gameInstance = null;
         Player player = null;
         if (sender instanceof Entity) {
-            gameInstance = this.plugin.getGameInstance((Entity) sender);
+            gameInstance = AmazingTowers.getGameInstance((Entity) sender);
             if (sender instanceof Player)
                 player = (Player) sender;
         }
@@ -83,9 +85,11 @@ public class TowerCommand implements CommandExecutor
                             if (result == null) {
                                 Utils.sendMessage("No se ha encontrado ese jugador", MessageType.WARNING, sender);
                             } else {
-                                for (StatType statType : StatType.values())
+                                for (StatType statType : StatType.values()) {
                                     sender.sendMessage("§7" + statType.getText() + ": " + statType.getColor() + "§l" +
                                             result[statType.getIndex() - 3]);
+                                }
+                                sender.sendMessage("§7§lRANGO: " + Rank.getTotalRank(result).toText());
                             }
                         });
                         cooldown.put(sender.getName(), System.currentTimeMillis());
@@ -101,7 +105,7 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 if (player.getGameMode().equals(GameMode.SPECTATOR) &&
                         !gameInstance.getGame().getTeams().containsNoRespawnPlayer(player.getName()))
-                    Dar.joinLobby(player);
+                    Dar.joinGameLobby(player);
                 else
                     Utils.sendMessage("Solo puedes ejecutar este comando estando en modo espectador y sin ser parte de ningún equipo", MessageType.INFO, sender);
                 break;
@@ -171,7 +175,7 @@ public class TowerCommand implements CommandExecutor
                     Utils.tpToWorld(worldDestination, player);
                     Utils.sendMessage("Teleportation to the world §a" + args[1] + " successfully", MessageType.INFO, sender);
                 } else
-                    Utils.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist", MessageType.ERROR, sender);
+                    Utils.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist or is not loaded (/towers loadWorld <worldName>)", MessageType.ERROR, sender);
                 break;
             case CREATEWORLD:
                 boolean success = false;
@@ -182,7 +186,6 @@ public class TowerCommand implements CommandExecutor
                     for (GameInstance gameInstance1 : AmazingTowers.getGameInstances().values()) {
                         if (gameInstance1.getWorld() != null || !(setAll || args[1].equals(gameInstance1.getName())))
                             continue;
-                        gameInstance1.linkWorld(Utils.createEmptyWorld(gameInstance1.getName()));
                         Utils.sendMessage("The world §a" + gameInstance1.getName() + "§f was created§a successfully...", MessageType.INFO, sender);
                         success = true;
                     }
@@ -281,7 +284,7 @@ public class TowerCommand implements CommandExecutor
                             .getMapList(path).stream().map(o -> (Map<String, String>) o).collect(Collectors.toList());
                     HashMap<String, String> newGenerator = new HashMap<>();
                     newGenerator.put("item", plugin.getNms().serializeItemStack(player.getItemInHand()));
-                    newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), true));
+                    newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), false));
                     generators.add(newGenerator);
                     locations.set(path, generators);
                     name = player.getItemInHand().getItemMeta().getDisplayName();
@@ -381,7 +384,7 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 String[] argSplit = args[1].split(";");
                 Config settings = gameInstance.getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(argSplit[0])));
-                BookMenuItem currentMenu = gameInstance.getGame().getLobbyItems().getBookMenu(argSplit[0] + ";" + argSplit[1].split("\\.")[0]);
+                BookMenuItem currentMenu = gameInstance.getHotbarItems().getBookMenu(argSplit[0] + ";" + argSplit[1].split("\\.")[0]);
                 if (argSplit.length == 2) {
                     if (args.length < 3) { //gameSettings;timer.time
                         String currentValue = settings.getString(argSplit[1]);
@@ -420,7 +423,7 @@ public class TowerCommand implements CommandExecutor
             case BOOK:
                 assert gameInstance != null;
                 assert player != null;
-                player.getInventory().addItem(gameInstance.getGame().getLobbyItems().getModifyGameSettings());
+                player.getInventory().addItem(gameInstance.getHotbarItems().getModifyGameSettings());
                 Utils.sendMessage("Gave settings book to §f" + player.getName(), MessageType.INFO, sender);
         }
         return false;

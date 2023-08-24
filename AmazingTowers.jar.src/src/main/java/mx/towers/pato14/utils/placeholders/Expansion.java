@@ -36,7 +36,7 @@ public class Expansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
         final String[] toret = new String[1];
-        FindOneCallback.findPlayerAsync(player.getName(), plugin, result -> {
+        int[] result = plugin.connexion.getStats(player.getName());
             if (params.equalsIgnoreCase("kills")) {
                 toret[0] = Integer.toString(result[0]);
             }
@@ -60,7 +60,6 @@ public class Expansion extends PlaceholderExpansion {
             else {
                 toret[0] = null; // Placeholder is unknown by the Expansion
             }
-        });
         return toret[0];
     }
 }

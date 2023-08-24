@@ -10,10 +10,10 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class SetTimer extends BookMenuItem {
-    public SetTimer(Game game) {
+    public SetTimer(GameInstance gameInstance) {
         super(Utils.setName(new ItemStack(Material.WATCH),
-                AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.CONFIG).getString("settingsBook.setTimer"))),
-                ConfigType.GAME_SETTINGS, game.getGameInstance(), "timer");
+                AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.setTimer"))),
+                ConfigType.GAME_SETTINGS, gameInstance, "timer");
     }
 
     @Override

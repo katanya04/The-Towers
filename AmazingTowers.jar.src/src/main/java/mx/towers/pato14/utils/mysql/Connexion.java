@@ -11,7 +11,7 @@ import java.util.UUID;
 import com.mysql.jdbc.CommunicationsException;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.utils.enums.StatType;
+import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.stats.Stats;
 
 public class Connexion {
@@ -29,7 +29,7 @@ public class Connexion {
 
     String password = this.plugin.getGlobalConfig().getString("options.mysql.password");
 
-    public void Connect() {
+    public void connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
@@ -40,7 +40,7 @@ public class Connexion {
         } catch (ClassNotFoundException ignored) {}
     }
 
-    public void CreateTable() {
+    public void createTable() {
         boolean repeat = false;
         do {
             try {
@@ -49,7 +49,7 @@ public class Connexion {
                 ps.close();
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Connect();
+                this.connect();
                 repeat = true;
             } catch (SQLException e) {
                 plugin.sendConsoleMessage("§cError while creating the database table: " + e, MessageType.ERROR);
@@ -57,7 +57,7 @@ public class Connexion {
         } while (repeat);
     }
 
-    public void CreateAccount(String player) {
+    public void createAccount(String player) {
         boolean repeat = false;
         do {
             try {
@@ -77,14 +77,14 @@ public class Connexion {
                 }
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Connect();
+                this.connect();
                 repeat = true;
             } catch (SQLException e) {
                 plugin.sendConsoleMessage("§cError while adding an entry to the database: " + e, MessageType.ERROR);
             }
         } while (repeat);
     }
-    public void UpdateData(String player, Stats stats) {
+    public void updateData(String player, Stats stats) {
         boolean repeat = false;
         do {
             try {
@@ -102,7 +102,7 @@ public class Connexion {
                 ps.close();
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Connect();
+                this.connect();
                 repeat = true;
             } catch (SQLException e) {
                 plugin.sendConsoleMessage("§cError while updating the database: " + e, MessageType.ERROR);
@@ -110,14 +110,14 @@ public class Connexion {
         } while (repeat);
     }
 
-    public int[] getData(String player) {
+    public int[] getStats(String player) {
         boolean repeat = false;
         int[] data;
         do {
             data = new int[7];
             try {
                 if (hasAccount(player)) {
-                    PreparedStatement ps = this.connection.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString() + "'");
+                    PreparedStatement ps = this.connection.prepareStatement("SELECT * FROM towers WHERE UUID ='" + UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)) + "'");
                     ResultSet rs = ps.executeQuery();
                     while (rs.next()) {
                         for (int j = 0; j < 7; j++) {
@@ -129,7 +129,7 @@ public class Connexion {
                 }
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Connect();
+                this.connect();
                 repeat = true;
             } catch (SQLException e) {
                 plugin.sendConsoleMessage("§cError while getting data of the database: " + e, MessageType.ERROR);
@@ -148,7 +148,7 @@ public class Connexion {
                     return true;
                 repeat = false;
             } catch (CommunicationsException e) {
-                this.Connect();
+                this.connect();
                 repeat = true;
             } catch (SQLException e) {
                 plugin.sendConsoleMessage("§cError while checking the database: " + e, MessageType.ERROR);

@@ -2,9 +2,11 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,16 +16,14 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.List;
 
 public class TeamChatListener implements Listener {
-    private final AmazingTowers plugin;
-
-    public TeamChatListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        final TowersWorldInstance instance = AmazingTowers.getInstance(e.getPlayer());
+        if (!(instance instanceof GameInstance))
+            return;
+        GameInstance gameInstance = (GameInstance) instance;
+        if (gameInstance.getGame() == null)
             return;
         if (!gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chat.enabled"))
             return;

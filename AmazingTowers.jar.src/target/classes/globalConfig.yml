@@ -1,9 +1,13 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_alpha1           #> #
+# <#            AmazingTowers - v3.0_beta1            #> #
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
 options:
+
+  lobby:
+    activated: true
+    worldName: lobby
 
   instances:
     amount: 1

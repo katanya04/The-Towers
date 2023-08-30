@@ -1,6 +1,6 @@
 package mx.towers.pato14;
 
-import mx.towers.pato14.game.items.menus.HotbarItems;
+import mx.towers.pato14.game.items.HotbarItems;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.Config;
@@ -82,5 +82,10 @@ public abstract class TowersWorldInstance {
         if (ScoreHelper.hasScore(player))
             ScoreHelper.removeScore(player);
         this.removePlayer();
+    }
+
+    public void reset() {
+        this.configs.clear();
+        registerConfigs(name, this.getClass());
     }
 }

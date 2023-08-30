@@ -3,6 +3,7 @@ package mx.towers.pato14.utils.cofresillos;
 import java.util.HashMap;
 import java.util.Map;
 
+import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -12,19 +13,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class RefillTask {
     private int refillTime;
-    private static Map<Location, FixedItem[]> refileadoProaso = new HashMap<>();
-    private final GameInstance gameInstance;
+    private Map<Location, FixedItem[]> refileadoProaso = new HashMap<>();
+    private final String instanceName;
 
     public RefillTask(GameInstance gameInstance) {
-        this.gameInstance = gameInstance;
+        this.instanceName = gameInstance.getName();
         this.refillTime = Utils.stringTimeToInt(gameInstance.getConfig(ConfigType.CONFIG)
                 .getString("options.chests.refillChests.refillTime").split(":"));
     }
 
     public void startRefillTask() {
-        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.enabled") &&
-                this.gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
-            refileadoProaso = SelectCofresillos.makelist(this.gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
+        GameInstance gameInstance = AmazingTowers.getGameInstance(this.instanceName);
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.enabled") &&
+                gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
+            refileadoProaso = SelectCofresillos.makelist(gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             (new BukkitRunnable() {
                 public void run() {
                     if (gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
@@ -35,7 +37,7 @@ public class RefillTask {
                     if (RefillTask.this.refillTime == 0) {
                         refillTime = Utils.stringTimeToInt(gameInstance.getConfig(ConfigType.CONFIG)
                                 .getString("options.chests.refillChests.refillTime").split(":"));
-                        SelectCofresillos.refill(RefillTask.refileadoProaso);
+                        SelectCofresillos.refill(refileadoProaso);
                         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill"))
                             gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("filledChest"), true);
                         return;
@@ -44,10 +46,6 @@ public class RefillTask {
                 }
             }).runTaskTimerAsynchronously(gameInstance.getPlugin(), 0L, 20L);
         }
-    }
-
-    public static Map<Location, FixedItem[]> getChestRefill() {
-        return refileadoProaso;
     }
 
     public int getTimeRegeneration() {

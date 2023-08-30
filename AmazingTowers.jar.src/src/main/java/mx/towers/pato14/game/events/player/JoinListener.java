@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
@@ -20,23 +21,28 @@ public class JoinListener implements Listener {
         LobbyInstance lobby = AmazingTowers.getLobby();
         if (lobby != null) {
             Player player = e.getPlayer();
+            Utils.clearNameTagPlayer(player);
             Dar.joinMainLobby(player);
             Utils.tpToWorld(lobby.getWorld(), player);
             lobby.playerJoinGame(player);
+            Utils.updatePlayerTab(player);
         }
     }
 
     @EventHandler
     public void onTpToNewGame(PlayerChangedWorldEvent e) {
         Player player = e.getPlayer();
-        GameInstance oldGameInstance = AmazingTowers.getGameInstance(e.getFrom());
-        if (oldGameInstance != null && oldGameInstance.getGame() != null)
-            oldGameInstance.playerLeaveGame(player);
-        GameInstance newGameInstance = AmazingTowers.getGameInstance(player);
-        if (newGameInstance == null || newGameInstance.getGame() == null)
+        Utils.clearNameTagPlayer(player);
+        TowersWorldInstance oldInstance = AmazingTowers.getInstance(e.getFrom());
+        if (oldInstance != null)
+            oldInstance.playerLeaveGame(player);
+        TowersWorldInstance newInstance = AmazingTowers.getInstance(player);
+        if (newInstance == null)
             return;
-        newGameInstance.playerJoinGame(player);
-        newGameInstance.broadcastMessage(getMessage(newGameInstance, player.getName()), true);
+        newInstance.playerJoinGame(player);
+        if (newInstance instanceof GameInstance)
+            newInstance.broadcastMessage(getMessage((GameInstance) newInstance, player.getName()), true);
+        Utils.updatePlayerTab(player);
     }
 
     private String getMessage(GameInstance gameInstance, String playerName) {

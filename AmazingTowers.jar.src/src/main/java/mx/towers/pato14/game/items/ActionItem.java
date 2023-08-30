@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items;
 
-import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;

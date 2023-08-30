@@ -29,14 +29,14 @@ public class Dar {
     public static void joinGameLobby(Player player) {
         player.setGameMode(GameMode.ADVENTURE);
         Utils.resetPlayer(player);
-        GameInstance gameInstance = plugin.getGameInstance(player);
+        GameInstance gameInstance = AmazingTowers.getGameInstance(player);
         gameInstance.getHotbarItems().giveHotbarItems(player);
         NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
     }
 
     public static void joinTeam(Player player) {
-        GameInstance gameInstance = plugin.getGameInstance(player);
+        GameInstance gameInstance = AmazingTowers.getGameInstance(player);
         Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         if (team == null)
             return;

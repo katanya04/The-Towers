@@ -6,7 +6,6 @@ import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.Finish;
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.items.GameLobbyItems;
 import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
@@ -24,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Game {
-    private final AmazingTowers plugin;
+    private final String name;
     private final GameTeams teams;
     private final Start gameStart;
     private final Finish finish;
@@ -32,7 +31,6 @@ public class Game {
     private final StatisticsPlayer stats;
     private final Move detectionMove;
     private Book bookItem;
-    private final GameInstance gameInstance;
     private GameState gameState;
     private final Kits kits;
     private final HashMap<HumanEntity, Kit> playersSelectedKit;
@@ -41,17 +39,16 @@ public class Game {
     private final RefillTask refill;
 
     public Game(GameInstance game) {
-        this.gameInstance = game;
-        this.plugin = game.getPlugin();
+        this.name = game.getName();
         this.gameState = GameState.LOBBY;
-        this.kits = new Kits(game.getConfig(ConfigType.KITS), plugin.capitalismExists());
+        this.kits = new Kits(game, AmazingTowers.capitalismExists());
         this.playersSelectedKit = new HashMap<>();
-        this.teams = new GameTeams(this);
-        this.gameStart = new Start(this);
-        this.timer = new Timer(this);
-        this.finish = new Finish(this);
+        this.teams = new GameTeams(game);
+        this.gameStart = new Start(game);
+        this.timer = new Timer(game);
+        this.finish = new Finish(game);
         this.stats = new StatisticsPlayer();
-        this.detectionMove = new Move(this);
+        this.detectionMove = new Move(game, this);
         this.bedwarsStyle = false;
         this.goldenGoal = false;
         this.refill = new RefillTask(game);
@@ -80,12 +77,8 @@ public class Game {
     public Move getDetectionMove() {
         return this.detectionMove;
     }
-
-    private AmazingTowers getPlugin() {
-        return this.plugin;
-    }
     public GameInstance getGameInstance() {
-        return gameInstance;
+        return AmazingTowers.getGameInstance(this.name);
     }
 
     public List<Player> getPlayers() {
@@ -141,5 +134,19 @@ public class Game {
 
     public RefillTask getRefill() {
         return refill;
+    }
+
+    public void reset() {
+        this.gameState = GameState.LOBBY;
+        this.kits.resetTemporalBoughtKits();
+        this.playersSelectedKit.clear();
+        this.gameStart.setHasStarted(false);
+        this.teams.reset();
+        this.stats.clear();
+        if (this.timer.getBossBar() != null)
+            this.timer.reset();
+        this.timer.update(this.getGameInstance());
+        this.bedwarsStyle = false;
+        this.goldenGoal = false;
     }
 }

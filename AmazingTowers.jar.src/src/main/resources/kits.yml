@@ -4,7 +4,7 @@
 # +###----------------------------------------------###+ #
 
 Kits:
-  -  name: 'Default'
+  Default:
      armor: '{id:"minecraft:leather_boots",Count:1b,Damage:0s};{id:"minecraft:leather_leggings",Count:1b,Damage:0s};{id:"minecraft:leather_chestplate",Count:1b,Damage:0s};{id:"minecraft:leather_helmet",Count:1b,Damage:0s}'
      hotbar: '{id:"minecraft:wooden_sword",Count:1b,Damage:0s};{id:"minecraft:stone_pickaxe",Count:1b,Damage:0s};{id:"minecraft:cobblestone",Count:32b,Damage:0s};empty;empty;empty;empty;empty;{id:"minecraft:baked_potato",Count:20b,Damage:0s}'
      price: '0'

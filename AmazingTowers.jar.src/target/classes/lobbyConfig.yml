@@ -7,6 +7,10 @@ lobbyItems:
   selectGame:
     name: "&b&lUnirse a una partida"
     position: 0
+  quit:
+    name: "&c&lVolver al lobby"
+    position: 8
 
 options:
   cancelWeatherUpdates: true
+  portalsToGame: true

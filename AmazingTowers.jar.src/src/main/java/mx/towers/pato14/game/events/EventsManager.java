@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.events.player.*;
 import mx.towers.pato14.game.events.protect.*;
+import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.plugin.PluginManager;
 
 public class EventsManager {
@@ -22,7 +23,7 @@ public class EventsManager {
         pm.registerEvents(new LobbyListener(), this.plugin);
         pm.registerEvents(new CofresillosListener(this.plugin), this.plugin);
         pm.registerEvents(new PistonsillosListener(this.plugin), this.plugin);
-        pm.registerEvents(new LeatherProtectListener(this.plugin), this.plugin);
+        pm.registerEvents(new LeatherProtectListener(), this.plugin);
         pm.registerEvents(new WeatherListener(), this.plugin);
         pm.registerEvents(new AntiTrollTeamListener(this.plugin), this.plugin);
         pm.registerEvents(new AntiFallingSandTrollListener(this.plugin), this.plugin);
@@ -32,11 +33,14 @@ public class EventsManager {
         pm.registerEvents(new WaterListener(this.plugin), this.plugin);
         pm.registerEvents(new BowListener(this.plugin), this.plugin);
         pm.registerEvents(new PotionsAndAppleListener(this.plugin), this.plugin);
-        pm.registerEvents(new IronArmorListener(this.plugin), this.plugin);
+        pm.registerEvents(new IronArmorListener(), this.plugin);
         pm.registerEvents(new EnderpearlAndPotionThrowListener(this.plugin), this.plugin);
         pm.registerEvents(new BlockStats(this.plugin), this.plugin);
         pm.registerEvents(new EnchantItem(this.plugin), this.plugin);
         pm.registerEvents(new UseLobbyItems(), this.plugin);
+        pm.registerEvents(new ParkourPrizeFly(), this.plugin);
+        if (AmazingTowers.getLobby().getConfig(ConfigType.CONFIG).getBoolean("options.portalsToGame"))
+            pm.registerEvents(new LobbyPortal(), this.plugin);
     }
 }
 

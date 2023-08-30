@@ -16,6 +16,7 @@ public class QuitListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         final Player player = e.getPlayer();
+        Utils.clearNameTagPlayer(player);
         final String name = player.getName();
         final TowersWorldInstance instance = AmazingTowers.getInstance(player);
         LobbyInstance lobby = AmazingTowers.getLobby();
@@ -26,9 +27,7 @@ public class QuitListener implements Listener {
         } else if (instance instanceof GameInstance) {
             e.setQuitMessage(instance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
                     .replace("{Player}", name));
-            if (lobby != null) {
-                Utils.tpToWorld(lobby.getWorld(), player);
-            }
+            instance.playerLeaveGame(player);
         }
     }
 }

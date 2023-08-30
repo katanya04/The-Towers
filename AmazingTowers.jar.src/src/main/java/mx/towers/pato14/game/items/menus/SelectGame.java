@@ -16,23 +16,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class SelectGame extends ActionItem {
-    private final GameInstance gameInstance;
+    private final String instanceName;
     private static SelectGame[] instances;
     protected SelectGame(GameInstance gameInstance, LobbyInstance lobbyInstance) {
         super(Utils.setLore(Utils.setName(new ItemStack(Material.EMPTY_MAP),
-                gameInstance.getConfig(ConfigType.CONFIG).getString("name") == null ? "§r§a" + gameInstance.getName() : AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("name"))),
+                gameInstance.getConfig(ConfigType.CONFIG).getString("name") == null ? "§r§a" + gameInstance.getName() : "§r" + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("name"))),
                 "§f" + gameInstance.getNumPlayers() + " " + lobbyInstance.getConfig(ConfigType.MESSAGES)
                                 .getString(gameInstance.getNumPlayers() == 1 ? "player" : "players")));
-        this.gameInstance = gameInstance;
+        this.instanceName = gameInstance.getName();
     }
 
     @Override
     public void interact(HumanEntity player, TowersWorldInstance instance) {
         super.interact(player, instance);
-        if (this.gameInstance.canJoin(player)) {
-            if (Bukkit.getWorld(this.gameInstance.getName()) == null)
+        GameInstance gameInstance = AmazingTowers.getGameInstance(this.instanceName);
+        if (gameInstance.canJoin(player)) {
+            if (Bukkit.getWorld(gameInstance.getName()) == null)
                 new WorldCreator(gameInstance.getName()).createWorld();
-            Utils.tpToWorld(Bukkit.getWorld(this.gameInstance.getName()), (Player) player);
+            Utils.tpToWorld(Bukkit.getWorld(gameInstance.getName()), (Player) player);
         } else {
             Utils.sendMessage(AmazingTowers.getColor(instance.getConfig(ConfigType.MESSAGES).getString("canNotJoinGame")), MessageType.ERROR, player);
         }
@@ -50,6 +51,6 @@ public class SelectGame extends ActionItem {
     }
 
     public GameInstance getGameInstance() {
-        return gameInstance;
+        return AmazingTowers.getGameInstance(this.instanceName);
     }
 }

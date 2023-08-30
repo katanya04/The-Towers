@@ -1,3 +1,4 @@
+mx\towers\pato14\game\items\LobbyParkourPrize.class
 mx\towers\pato14\utils\nms\NMS.class
 mx\towers\pato14\utils\rewards\RewardsEnum.class
 mx\towers\pato14\game\events\player\JoinListener.class
@@ -13,7 +14,9 @@ mx\towers\pato14\game\items\menus\settings\StopCount.class
 mx\towers\pato14\game\tasks\Start$1.class
 mx\towers\pato14\game\items\menus\BuyKitMenu.class
 mx\towers\pato14\utils\AreaUtil.class
+mx\towers\pato14\game\events\player\ParkourPrizeFly.class
 mx\towers\pato14\game\kits\Kits.class
+mx\towers\pato14\game\items\menus\settings\ModifyKits.class
 mx\towers\pato14\game\items\LobbyItems.class
 mx\towers\pato14\utils\plugin\PluginA.class
 mx\towers\pato14\TowersWorldInstance.class
@@ -43,9 +46,11 @@ mx\towers\pato14\game\items\menus\settings\SetBlacklist.class
 mx\towers\pato14\utils\nms\V1_8_R3.class
 mx\towers\pato14\game\Game.class
 mx\towers\pato14\game\tasks\Move$1.class
+mx\towers\pato14\game\items\actions\BungeecordQuit.class
 mx\towers\pato14\game\utils\Book.class
 mx\towers\pato14\game\team\GameTeams.class
 mx\towers\pato14\utils\enums\PermissionLevel.class
+mx\towers\pato14\game\items\HotbarItems.class
 mx\towers\pato14\commands\TowerCommand.class
 mx\towers\pato14\game\events\protect\WeatherListener.class
 mx\towers\pato14\game\items\menus\SelectTeam.class
@@ -69,6 +74,7 @@ mx\towers\pato14\GameInstance$2.class
 mx\towers\pato14\utils\rewards\VaultT.class
 mx\towers\pato14\game\items\ActionItem.class
 mx\towers\pato14\game\items\menus\JoinTeamItem.class
+mx\towers\pato14\game\events\player\LobbyPortal.class
 mx\towers\pato14\game\events\protect\LeatherProtectListener.class
 mx\towers\pato14\game\events\protect\AntiFallingSandTrollListener.class
 mx\towers\pato14\utils\world\WorldReset.class
@@ -93,7 +99,6 @@ mx\towers\pato14\game\tasks\Start$2.class
 mx\towers\pato14\game\items\MenuItem.class
 mx\towers\pato14\game\tasks\Finish$1$1.class
 mx\towers\pato14\game\items\GameLobbyItems.class
-mx\towers\pato14\game\items\menus\BungeecordQuit.class
 mx\towers\pato14\api\AmazingTowersAPI.class
 mx\towers\pato14\game\tasks\Finish$1.class
 mx\towers\pato14\game\events\player\EnderpearlAndPotionThrowListener.class
@@ -101,6 +106,7 @@ mx\towers\pato14\utils\placeholders\Expansion.class
 mx\towers\pato14\utils\world\WorldLoad.class
 mx\towers\pato14\game\items\menus\settings\SetTimer.class
 mx\towers\pato14\utils\cofresillos\SelectCofresillos.class
+mx\towers\pato14\game\items\actions\QuitItem.class
 mx\towers\pato14\utils\mysql\FindOneCallback.class
 mx\towers\pato14\commands\TowerCommand$1.class
 mx\towers\pato14\game\tasks\Dar.class
@@ -109,6 +115,7 @@ mx\towers\pato14\game\events\player\DeathListener.class
 mx\towers\pato14\game\events\player\IronArmorListener.class
 mx\towers\pato14\game\scoreboard\ScoreUpdate.class
 mx\towers\pato14\game\team\Team.class
+mx\towers\pato14\game\events\player\ParkourPrizeFly$1.class
 mx\towers\pato14\utils\enums\ConfigType.class
 mx\towers\pato14\GameInstance$1.class
 mx\towers\pato14\utils\Config.class
@@ -117,4 +124,3 @@ mx\towers\pato14\game\events\player\QuitListener.class
 mx\towers\pato14\game\events\protect\OrePlacedListener.class
 mx\towers\pato14\utils\enums\Rule.class
 mx\towers\pato14\game\events\protect\WaterListener.class
-mx\towers\pato14\game\items\menus\HotbarItems.class

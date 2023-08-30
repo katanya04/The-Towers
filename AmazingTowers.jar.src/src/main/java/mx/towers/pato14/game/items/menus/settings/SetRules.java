@@ -16,4 +16,8 @@ public class SetRules extends ChestMenuItem {
                 RuleItem.createAllRules(gameInstance)
         );
     }
+
+    public void updateMenu(GameInstance gameInstance) {
+        this.getMenu().setContents(RuleItem.createAllRules(gameInstance));
+    }
 }

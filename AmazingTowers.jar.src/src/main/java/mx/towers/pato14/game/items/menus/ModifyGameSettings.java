@@ -2,7 +2,6 @@ package mx.towers.pato14.game.items.menus;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.ChestMenuItem;
 import mx.towers.pato14.game.items.menus.settings.*;
 import mx.towers.pato14.utils.Utils;
@@ -17,6 +16,7 @@ public class ModifyGameSettings extends ChestMenuItem {
     private final GameInstance gameInstance;
     private SetRules setRules;
     private SaveSettings saveSettings;
+    private ModifyKits modifyKits;
     public ModifyGameSettings(GameInstance gameInstance) {
         super(
                 AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name")),
@@ -38,6 +38,7 @@ public class ModifyGameSettings extends ChestMenuItem {
         toret.put(16, new ContinueCount(this.gameInstance));
         toret.put(25, new StartImmediately(this.gameInstance));
         toret.put(14, new SetTimer(this.gameInstance));
+        toret.put(15, modifyKits = new ModifyKits(this.gameInstance));
         toret.put(26, saveSettings = new SaveSettings(this.gameInstance));
 
         return toret;
@@ -49,5 +50,9 @@ public class ModifyGameSettings extends ChestMenuItem {
 
     public SaveSettings getSaveSettings() {
         return saveSettings;
+    }
+
+    public ModifyKits getModifyKits() {
+        return modifyKits;
     }
 }

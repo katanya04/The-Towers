@@ -49,10 +49,6 @@ public class Team {
         NametagEdit.getApi().setPrefix(player, ChatColor.translateAlternateColorCodes('&', this.prefix));
     }
 
-    public void ClearNameTagPlayer(Player player) {
-        NametagEdit.getApi().clearNametag(player);
-    }
-
     public int getSizePlayers() {
         return this.players.size();
     }
@@ -134,5 +130,11 @@ public class Team {
 
     public boolean isEliminated() {
         return eliminated;
+    }
+
+    public void reset() {
+        players.clear();
+        points = 0;
+        eliminated = false;
     }
 }

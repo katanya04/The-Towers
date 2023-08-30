@@ -24,6 +24,10 @@ public class StatisticsPlayer {
     public HashMap<String, Stats> getPlayerStats() {
         return this.playerStats;
     }
+
+    public void clear() {
+        this.playerStats.clear();
+    }
 }
 
 

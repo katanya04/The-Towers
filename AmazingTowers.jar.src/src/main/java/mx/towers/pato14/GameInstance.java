@@ -3,10 +3,6 @@ package mx.towers.pato14;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.GameLobbyItems;
-import mx.towers.pato14.game.items.LobbyItems;
-import mx.towers.pato14.game.items.menus.HotbarItems;
-import mx.towers.pato14.game.scoreboard.ScoreHelper;
-import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Utils;
@@ -57,12 +53,10 @@ public class GameInstance extends TowersWorldInstance {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
             if (overwriteWithBackup(name)) {
-                SetupVault.setupVault();
                 this.vault = new VaultT(this);
                 this.game = new Game(this);
                 this.hotbarItems = new GameLobbyItems(this);
                 getPlugin().getServer().getPluginManager().registerEvents(getHotbarItems(), getPlugin());
-                this.scoreUpdate = new ScoreUpdate(this);
             }
         } else {
             plugin.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
@@ -200,5 +194,21 @@ public class GameInstance extends TowersWorldInstance {
     public void updateLists() {
         updateWhiteList();
         updateBlackList();
+    }
+    @Override
+    public void reset() {
+        super.reset();
+        isReadyToJoin = false;
+        try {
+            updateLists();
+            setRules();
+            this.game.reset();
+            overwriteWithBackup(name);
+            Utils.removeGlint(this.getHotbarItems().getModifyGameSettings().getSaveSettings());
+            this.getHotbarItems().getModifyGameSettings().updateMenu();
+            this.getHotbarItems().getModifyGameSettings().getSetRules().updateMenu(this);
+        } finally {
+            isReadyToJoin = true;
+        }
     }
 }

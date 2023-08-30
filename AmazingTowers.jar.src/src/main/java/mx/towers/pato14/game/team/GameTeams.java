@@ -1,24 +1,25 @@
 package mx.towers.pato14.game.team;
 
+import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.PlayerState;
 import mx.towers.pato14.utils.enums.TeamColor;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 
 public class GameTeams {
     private final List<Team> teams;
-    private final Game game;
+    private final String name;
 
-    public GameTeams(Game game) {
-        this.game = game;
+    public GameTeams(GameInstance gameInstance) {
+        this.name = gameInstance.getName();
         this.teams = new LinkedList<>();
-        for (TeamColor teamColor : TeamColor.getMatchTeams(game.getGameInstance().getNumberOfTeams())) {
-            Team currentTeam = new Team(teamColor, game.getGameInstance());
-            currentTeam.setPrefix(teamColor.getColor() + game.getGameInstance().getConfig(ConfigType.CONFIG)
+        for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
+            Team currentTeam = new Team(teamColor, gameInstance);
+            currentTeam.setPrefix(teamColor.getColor() + gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ");
             teams.add(currentTeam);
         }
@@ -68,7 +69,11 @@ public class GameTeams {
     }
 
     public Game getGame() {
-        return game;
+        return AmazingTowers.getGameInstance(name).getGame();
+    }
+
+    public void reset() {
+        teams.forEach(Team::reset);
     }
 }
 

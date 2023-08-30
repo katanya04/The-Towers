@@ -2,13 +2,10 @@
 package mx.towers.pato14.utils.nms;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.game.items.BookMenuItem;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_8_R3.*;
@@ -22,11 +19,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static mx.towers.pato14.game.items.BookMenuItem.getColorOfValue;
 
 public class V1_8_R3 implements NMS
 {
@@ -34,9 +27,9 @@ public class V1_8_R3 implements NMS
     public void sendTitle(final Player player, final String Title, final String Subtitle, final int entrada, final int mantener, final int salida) {
         final IChatBaseComponent CTitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + Title + "\"}");
         final IChatBaseComponent CSubtitle = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + Subtitle + "\"}");
-        final PacketPlayOutTitle stitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, CTitle);
+        final PacketPlayOutTitle sTitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, CTitle);
         final PacketPlayOutTitle sSubtitle = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, CSubtitle);
-        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(stitle);
+        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(sTitle);
         ((CraftPlayer)player).getHandle().playerConnection.sendPacket(sSubtitle);
         this.ticks(player, entrada, mantener, salida);
     }
@@ -58,7 +51,7 @@ public class V1_8_R3 implements NMS
     public ItemStack deserializeItemStack(String rawItem) throws ParseItemException {
         if (rawItem == null || rawItem.equals("empty"))
             return null;
-        NBTTagCompound compound = null;
+        NBTTagCompound compound;
         try {
             compound = MojangsonParser.parse(rawItem);
         } catch (MojangsonParseException e) {
@@ -85,7 +78,7 @@ public class V1_8_R3 implements NMS
     }
 
     @Override
-    public ItemStack getBook(BookMenuItem bookItem, Map<String, Object> configText) {
+    public ItemStack getBook(List<TextComponent> pageTextComponents) {
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta meta = (BookMeta) book.getItemMeta();
         List<IChatBaseComponent> pages;
@@ -94,44 +87,7 @@ public class V1_8_R3 implements NMS
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        String color;
-        TextComponent[] modifyText = new TextComponent[]{new TextComponent("Click to modify")};
-        TextComponent[] removeText = new TextComponent[]{new TextComponent("Click to remove")};
-        TextComponent[] addText = new TextComponent[]{new TextComponent("Click to add an entry")};
-        List<TextComponent> pageTextComponents = new ArrayList<>();
-        for (Map.Entry<String, Object> value : configText.entrySet()) {
-            if (value.getValue() instanceof String) {
-                color = getColorOfValue((String) value.getValue());
-                TextComponent keyAndValue = new TextComponent("§o" + value.getKey() + "§r§0: " + color + value.getValue() + "\n");
-                keyAndValue.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tt modifySetting " + bookItem.getFullPath() + "." + value.getKey()));
-                keyAndValue.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, modifyText));
-                pageTextComponents.add(keyAndValue);
-            } else if (value.getValue() instanceof List) {
-                TextComponent key = new TextComponent(value.getKey() + ":\n");
-                List<TextComponent> entries = new ArrayList<>();
-                if (value.getValue() != null) {
-                    for (String s : (List<String>) value.getValue()) {
-                        if (s.equalsIgnoreCase("<empty>") && ((List<?>) value.getValue()).size() > 1)
-                            continue;
-                        TextComponent entry = new TextComponent("- " + s + "\n");
-                        if (!s.equalsIgnoreCase("<empty>")) {
-                            entry.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tt modifySetting " + bookItem.getFullPath() + "." + value.getKey() + ";" + s + " remove"));
-                            entry.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, removeText));
-                        }
-                        entries.add(entry);
-                    }
-                }
-                TextComponent entry = new TextComponent("- §2[+]\n§r§0");
-                entry.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tt modifySetting " + bookItem.getFullPath() + "." + value.getKey() + " add"));
-                entry.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, addText));
-                pageTextComponents.add(key);
-                pageTextComponents.addAll(entries);
-                pageTextComponents.add(entry);
-            }
-        }
-
         IChatBaseComponent page = IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(pageTextComponents.toArray(new TextComponent[0])));
-
         pages.add(page);
         book.setItemMeta(meta);
         return book;
@@ -154,7 +110,7 @@ public class V1_8_R3 implements NMS
         entityPlayer.activeContainer.windowId = containerId;
 
         Inventory inv = fakeAnvil.getBukkitView().getTopInventory();
-        Object name = AmazingTowers.getPlugin().getGameInstance(player).getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(pathSplit[0]))).get(pathSplit[1]);
+        Object name = AmazingTowers.getGameInstance(player).getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(pathSplit[0]))).get(pathSplit[1]);
         inv.setItem(0, Utils.setLore(Utils.setName(new ItemStack(Material.PAPER), name instanceof String ? (String) name : "<entry>"),
                 "§r§8" + path));
     }

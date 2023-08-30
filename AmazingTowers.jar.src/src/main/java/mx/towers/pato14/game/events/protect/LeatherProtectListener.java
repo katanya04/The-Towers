@@ -2,6 +2,8 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.LobbyInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -16,19 +18,17 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class LeatherProtectListener implements Listener {
-    private final AmazingTowers plugin;
-
-    public LeatherProtectListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onDrops(PlayerDropItemEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        TowersWorldInstance instance = AmazingTowers.getInstance(e.getPlayer());
+        if (instance instanceof LobbyInstance)
+            e.setCancelled(true);
+        else if (instance instanceof GameInstance)
+        if (((GameInstance) instance).getGame() == null)
             return;
         ItemStack i = e.getItemDrop().getItemStack();
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor") && Utils.isLeatherArmor(i.getType()))
+        if (instance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor") && Utils.isLeatherArmor(i.getType()))
             e.getItemDrop().remove();
         if (i.getItemMeta().getDisplayName() == null || i.getType() == null)
             return;
@@ -38,7 +38,7 @@ public class LeatherProtectListener implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getWhoClicked());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getWhoClicked());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)

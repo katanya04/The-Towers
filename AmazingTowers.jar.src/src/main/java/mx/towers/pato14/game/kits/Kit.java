@@ -2,6 +2,7 @@ package mx.towers.pato14.game.kits;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.items.menus.BuyKitMenu;
 import mx.towers.pato14.utils.Config;
@@ -40,14 +41,18 @@ public class Kit extends ActionItem {
         this.permanent = true;
     }
 
-    public void interact(HumanEntity player, GameInstance gameInstance) {
+    @Override
+    public void interact(HumanEntity player, TowersWorldInstance instance) {
+        if (!(instance instanceof GameInstance))
+            return;
+        GameInstance gameInstance = (GameInstance) instance;
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         if (!gameInstance.getRules().get(Rule.KITS)) {
             player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("kitsDisabled")));
             player.closeInventory();
             return;
         }
-        if (!AmazingTowers.getPlugin().capitalismExists() || this.getPrice() == 0 || gameInstance.getGame().getKits().playerHasKit(player.getName(), this)) {
+        if (!AmazingTowers.capitalismExists() || this.getPrice() == 0 || gameInstance.getGame().getKits().playerHasKit(player.getName(), this)) {
             gameInstance.getGame().getPlayersSelectedKit().put(player, this);
             player.sendMessage(AmazingTowers.getColor(messages.getString("selectKit")
                     .replace("%kitName%", this.getName())));
@@ -67,7 +72,7 @@ public class Kit extends ActionItem {
         return this.name;
     }
 
-    public ItemStack getIconInMenu() {
+    public Kit getIconInMenu() {
         return this;
     }
 
@@ -75,7 +80,7 @@ public class Kit extends ActionItem {
         for (int i = 0; i < hotbar.length; i++) {
             player.getInventory().setItem(i, hotbar[i]);
         }
-        Color color = AmazingTowers.getPlugin().getGameInstance(player).getGame().getTeams()
+        Color color = AmazingTowers.getGameInstance(player).getGame().getTeams()
                 .getTeamColorByPlayer(player.getName()).getColorEnum();
         for (ItemStack itemStack : armor) {
             if (Utils.isLeatherArmor(itemStack.getType()) && color != null) {

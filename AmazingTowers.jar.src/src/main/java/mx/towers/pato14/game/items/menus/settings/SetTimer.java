@@ -2,7 +2,6 @@ package mx.towers.pato14.game.items.menus.settings;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.BookMenuItem;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -19,6 +18,6 @@ public class SetTimer extends BookMenuItem {
     @Override
     public void updateSettings(GameInstance gameInstance) {
         super.updateSettings(gameInstance);
-        gameInstance.getGame().getTimer().update();
+        gameInstance.getGame().getTimer().update(gameInstance);
     }
 }

@@ -1,5 +1,6 @@
 package mx.towers.pato14.utils;
 
+import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
@@ -217,18 +219,20 @@ public class Utils {
         return true;
     }
 
-    public static void addGlint(ItemStack item) {
+    public static ItemStack addGlint(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(itemMeta);
+        return item;
     }
 
-    public static void removeGlint(ItemStack item) {
+    public static ItemStack removeGlint(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.removeEnchant(Enchantment.ARROW_DAMAGE);
         itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(itemMeta);
+        return item;
     }
 
     public static boolean hasGlint(ItemStack item) {
@@ -258,6 +262,8 @@ public class Utils {
         player.setSaturation(5.f);
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
+        if (player.getGameMode() == GameMode.ADVENTURE || player.getGameMode() == GameMode.SURVIVAL)
+            player.setAllowFlight(false);
         removePotion(player);
     }
 
@@ -267,5 +273,27 @@ public class Utils {
                 player.removePotionEffect(effect.getType());
             }
         }
+    }
+
+    public static ItemStack colorArmor(ItemStack item, Color color) {
+        if (Utils.isLeatherArmor(item.getType()) && color != null) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+            meta.setColor(color);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    public static void updatePlayerTab(Player player) {
+        for (Player player1 : Bukkit.getOnlinePlayers()) {
+            if (player.getWorld().equals(player1.getWorld()))
+                player1.showPlayer(player);
+            else
+                player1.hidePlayer(player);
+        }
+    }
+
+    public static void clearNameTagPlayer(Player player) {
+        NametagEdit.getApi().clearNametag(player);
     }
 }

@@ -7,3 +7,7 @@ canNotJoinGame: "&cNo te puedes unir en este momento"
 
 player: "jugador"
 players: "jugadores"
+
+lobbyParkourPrize:
+  name: "&c&lCamisa del Campeon"
+  lore: "Solo la tienen aquellos que\nsuperen el parkour.\nAh y tambien te permite volar"

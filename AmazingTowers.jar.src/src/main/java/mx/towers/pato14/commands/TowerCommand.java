@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import mx.towers.pato14.AmazingTowers;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 
 public class TowerCommand implements CommandExecutor
@@ -169,11 +170,14 @@ public class TowerCommand implements CommandExecutor
                     Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
                 break;
             case TPWORLD:
-                assert player != null;
                 World worldDestination = Bukkit.getWorld(args[1]);
+                Player player1 = Bukkit.getPlayer(args[2]);
                 if (worldDestination != null) {
-                    Utils.tpToWorld(worldDestination, player);
-                    Utils.sendMessage("Teleportation to the world §a" + args[1] + " successfully", MessageType.INFO, sender);
+                    if (player1 != null) {
+                        Utils.tpToWorld(worldDestination, player1);
+                        Utils.sendMessage("Teleportation to the world §a" + args[1] + " successfully", MessageType.INFO, sender);
+                    } else
+                        Utils.sendMessage("The player §a" + args[1] + " isn't online right now", MessageType.ERROR, sender);
                 } else
                     Utils.sendMessage("§fThe world §a" + args[1] + "§f doesn't exist or is not loaded (/towers loadWorld <worldName>)", MessageType.ERROR, sender);
                 break;
@@ -338,7 +342,7 @@ public class TowerCommand implements CommandExecutor
                     gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("timer.time", Utils.intTimeToString(Integer.parseInt(args[1])));
                     Utils.sendMessage("Time set to§f§l " + Utils.intTimeToString(Integer.parseInt(args[1])), MessageType.INFO, sender);
                 }
-                gameInstance.getGame().getTimer().update();
+                gameInstance.getGame().getTimer().update(gameInstance);
                 break;
             case WHITELIST:
             case BLACKLIST:
@@ -405,9 +409,12 @@ public class TowerCommand implements CommandExecutor
                         }
                     }
                 } else if (argSplit.length == 3) { //gameSettings;whitelist.players;Marco2124 remove
-                    List<String> currentValue = settings.getStringList(argSplit[1]);
+                    Object currentValue = settings.get(argSplit[1]);
                     if (args[2].equalsIgnoreCase("remove")) {
-                        currentValue.remove(argSplit[2]);
+                        if (currentValue instanceof Collection)
+                            ((Collection<?>) currentValue).remove(argSplit[2]);
+                        else if (currentValue instanceof Map)
+                            ((Map<?, ?>) currentValue).remove(argSplit[2]);
                         settings.set(argSplit[1], currentValue);
                         currentMenu.updateSettings(gameInstance);
                         currentMenu.openMenu(player);
@@ -425,6 +432,25 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 player.getInventory().addItem(gameInstance.getHotbarItems().getModifyGameSettings());
                 Utils.sendMessage("Gave settings book to §f" + player.getName(), MessageType.INFO, sender);
+                break;
+            case PARKOURPRIZE:
+                Player player2 = Bukkit.getPlayer(args[1]);
+                ItemStack prize = AmazingTowers.getLobby().getLobbyParkourPrize();
+                if (player2 == null)
+                    Utils.sendMessage("The player " + args[1] + " isn't online right now", MessageType.ERROR, sender);
+                else if (!player2.getInventory().contains(prize))
+                    player2.getInventory().addItem(prize);
+                break;
+            case KITS:
+                assert gameInstance != null;
+                assert player != null;
+                if (args.length < 2)
+                    gameInstance.getHotbarItems().getSelectKit().interact(player, gameInstance);
+                else if (player.hasPermission(PermissionLevel.ADMIN.getPermissionName())) {
+                        AmazingTowers.getPlugin().getNms().openBook(player, gameInstance.getHotbarItems().getModifyGameSettings().getModifyKits());
+                } else {
+                    Utils.sendMessage("No tienes permiso para ejecutar este comando.", MessageType.ERROR, sender);
+                }
         }
         return false;
     }

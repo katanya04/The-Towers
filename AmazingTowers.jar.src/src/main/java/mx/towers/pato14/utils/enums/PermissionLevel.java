@@ -22,4 +22,8 @@ public enum PermissionLevel {
     public static boolean hasPermission(PermissionLevel needed, PermissionLevel have) {
         return have.ordinal() <= needed.ordinal();
     }
+
+    public String getPermissionName() {
+        return permissionName;
+    }
 }

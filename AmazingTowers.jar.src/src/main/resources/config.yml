@@ -90,6 +90,7 @@ settingsBook:
   startImmediately: '&7&lEmpezar ya la partida'
   stopCount: '&7&lParar la cuenta atras'
   setTimer: '&7&lTimer'
+  modifyKits: '&7&lModificar kits'
   saveSettings:
     name: '&d&lGuardar ajustes'
     saveMessage: 'Ajustes guardados correctamente'

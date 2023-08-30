@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.tasks;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.AreaUtil;
@@ -16,82 +17,83 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class Move {
-    private final Game game;
+    private final String instanceName;
     private final Pool[] pools;
 
-    public Move(Game game) {
-        this.game = game;
-        this.pools = new Pool[game.getTeams().getTeams().size()];
-        setPools();
+    public Move(GameInstance gameInstance, Game game) {
+        this.instanceName = gameInstance.getName();
+        this.pools = new Pool[gameInstance.getNumberOfTeams()];
+        setPools(gameInstance, game);
     }
 
-    public void setPools() {
+    private void setPools(GameInstance gameInstance, Game game) {
         int i = 0;
-        for (Team team : this.game.getTeams().getTeams()) {
+        for (Team team : game.getTeams().getTeams()) {
             pools[i++] = new Pool(team,
-                    this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(team.getTeamColor())));
+                    gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(team.getTeamColor())));
         }
     }
 
     public void MoveDetect() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(instanceName);
         (new BukkitRunnable() {
             public void run() {
-                if (!Move.this.game.getGameState().equals(GameState.GAME)) {
+                if (!gameInstance.getGame().getGameState().equals(GameState.GAME)) {
                     cancel();
                     return;
                 }
-                for (Player player : Move.this.game.getPlayers()) {
+                for (Player player : gameInstance.getGame().getPlayers()) {
                     if (player.getHealth() > 0.0D && !player.getGameMode().equals(GameMode.SPECTATOR)) {
                         for (Pool pool : Move.this.pools) {
                             if (pool.getTeam().containsPlayer(player.getName()) || !pool.getTeam().respawnPlayers())
                                 continue;
-                            checkPool(pool, player);
+                            checkPool(pool, player, gameInstance);
                         }
                     }
                 }
             }
-        }).runTaskTimer(this.game.getGameInstance().getPlugin(), 0L, this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
+        }).runTaskTimer(gameInstance.getPlugin(), 0L, gameInstance.getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
     }
 
-    private void checkPool(Pool pool, Player player) {
+    private void checkPool(Pool pool, Player player, GameInstance gameInstance) {
         if (AreaUtil.isInsideArea(pool, player.getLocation())) {
-            boolean bedwarsStyle = game.isBedwarsStyle();
-            Team team = this.game.getTeams().getTeamByPlayer(player.getName());
+            boolean bedwarsStyle = gameInstance.getGame().isBedwarsStyle();
+            Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
             Team teamScored = pool.getTeam();
-            player.teleport(Locations.getLocationFromString(this.game.getGameInstance().getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+            player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             if (bedwarsStyle)
                 teamScored.scorePoint(bedwarsStyle);
             else
                 team.scorePoint(false);
-            this.game.getGameInstance().getScoreUpdates().updateScoreboardAll();
-            this.game.getStats().addOne(player.getName(), StatType.POINTS);
-            this.game.getGameInstance().getVault().setReward(player, RewardsEnum.POINT);
-            game.getGameInstance().broadcastMessage(this.game.getGameInstance().getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")
+            gameInstance.getScoreUpdates().updateScoreboardAll();
+            gameInstance.getGame().getStats().addOne(player.getName(), StatType.POINTS);
+            gameInstance.getVault().setReward(player, RewardsEnum.POINT);
+            gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")
                             .replace("{Player}", player.getName())
                             .replace("{Color}", team.getTeamColor().getColor())
-                            .replace("{Team}", team.getTeamColor().getName(this.game.getGameInstance()))
+                            .replace("{Team}", team.getTeamColor().getName(gameInstance))
                             .replace("{ColorTeamScored}", teamScored.getTeamColor().getColor())
-                            .replace("{TeamScored}", teamScored.getTeamColor().getName(this.game.getGameInstance()))
+                            .replace("{TeamScored}", teamScored.getTeamColor().getName(gameInstance))
                     , true);
-            for (Player p : this.game.getPlayers()) {
+            for (Player p : gameInstance.getGame().getPlayers()) {
                 if (team.containsPlayer(p.getName())) {
                     p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
                 } else if (!bedwarsStyle || (teamScored.containsPlayer(p.getName()) && teamScored.getPoints() > 0)) {
                     p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
-                } else if (bedwarsStyle && teamScored.containsPlayer(p.getName()) && teamScored.getPoints() <= 0) {
+                } else if (teamScored.containsPlayer(p.getName()) && teamScored.getPoints() <= 0) {
                     p.playSound(p.getLocation(), Sound.WITHER_DEATH, 1.0f, 1.0f);
                 }
             }
             if (!bedwarsStyle) {
-                if (team.getPoints() >= this.game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin") || game.isGoldenGoal()) {
-                    this.game.getFinish().Fatality(team.getTeamColor());
-                    this.game.setGameState(GameState.FINISH);
+                if (team.getPoints() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin") || gameInstance.getGame().isGoldenGoal()) {
+                    gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
+                    gameInstance.getGame().setGameState(GameState.FINISH);
                 }
             } else if (teamScored.getPoints() <= 0) {
-                String title = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
+                String title = AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
                 for (Player pl : teamScored.getListOnlinePlayers()) {
                     pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
-                    if (game.getGameInstance().getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
+                    if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
                         AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
                     else
                         pl.sendMessage(title);

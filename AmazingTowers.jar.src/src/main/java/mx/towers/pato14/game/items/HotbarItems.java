@@ -1,7 +1,4 @@
-package mx.towers.pato14.game.items.menus;
-
-import mx.towers.pato14.game.items.BookMenuItem;
-import mx.towers.pato14.game.items.ChestMenuItem;
+package mx.towers.pato14.game.items;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

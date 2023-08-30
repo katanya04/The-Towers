@@ -1,8 +1,7 @@
 package mx.towers.pato14.game.items;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.items.actions.QuitItem;
 import mx.towers.pato14.game.items.menus.*;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -22,9 +21,7 @@ public class GameLobbyItems extends HotbarItems implements Listener {
         Config config = gameInstance.getConfig(ConfigType.CONFIG);
         this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), this.selectTeam = new SelectTeam(gameInstance));
         this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.selectKit.position"), this.selectKit = new SelectKit(gameInstance));
-        if (AmazingTowers.getPlugin().getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
-            this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.quit.position"), new BungeecordQuit(gameInstance));
-        }
+        this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.quit.position"), new QuitItem(gameInstance));
         this.hotbarItems.put(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), this.modifyGameSettings = new ModifyGameSettings(gameInstance));
     }
 

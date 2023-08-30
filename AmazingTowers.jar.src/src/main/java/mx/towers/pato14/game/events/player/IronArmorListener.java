@@ -9,16 +9,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 
 public class IronArmorListener implements Listener {
-    private final AmazingTowers plugin;
-    public IronArmorListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getWhoClicked());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getWhoClicked());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if(!gameInstance.getRules().get(Rule.IRON_ARMOR) && e.getSlotType() == InventoryType.SlotType.ARMOR){
+        if (!gameInstance.getRules().get(Rule.IRON_ARMOR) && e.getSlotType() == InventoryType.SlotType.ARMOR){
             e.setCancelled(true);
         }
 

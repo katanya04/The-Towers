@@ -8,6 +8,7 @@ import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
+import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.mysql.Connexion;
@@ -20,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -193,7 +195,7 @@ public final class AmazingTowers extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(messageType.getPrefix() + msg);
     }
 
-    public boolean capitalismExists() {
+    public static boolean capitalismExists() {
         return SetupVault.getVaultEconomy() != null;
     }
 
@@ -212,12 +214,6 @@ public final class AmazingTowers extends JavaPlugin {
         return null;
     }
 
-    public void resetGameInstance(GameInstance gameInstance) {
-        String name = gameInstance.getName();
-        games.remove(name);
-        games.put(name, new GameInstance(name));
-    }
-
     public static LobbyInstance getLobby() {
         return lobby;
     }
@@ -228,5 +224,14 @@ public final class AmazingTowers extends JavaPlugin {
 
     public static TowersWorldInstance getInstance(World world) {
         return world.equals(lobby.getWorld()) ? lobby : getGameInstance(world);
+    }
+
+    public static GameInstance getGameInstanceWithMorePlayers() {
+        GameInstance toret = games.values().toArray(new GameInstance[0])[0];
+        for (GameInstance gameInstance : games.values()) {
+            if (gameInstance.getNumPlayers() > toret.getNumPlayers())
+                toret = gameInstance;
+        }
+        return toret;
     }
 }

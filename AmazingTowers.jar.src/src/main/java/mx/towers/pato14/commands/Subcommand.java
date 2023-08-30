@@ -21,7 +21,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     RULE(PermissionLevel.ORGANIZER, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
     SETSCORE(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
-    TPWORLD(PermissionLevel.ADMIN, 1, true, false, "<worldName>"),
+    TPWORLD(PermissionLevel.ADMIN, 2, false, false, "<worldName>", "<player>"),
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
     BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),
     LOADWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>"),
@@ -35,7 +35,9 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     BLACKLIST(PermissionLevel.ADMIN, 1, false, true, "add|remove|list|true|false", "*<player>"),
     MODIFYSETTING(PermissionLevel.ORGANIZER, 1, false, true, "<path>", "*add|remove"),
     SAVESETTINGS(PermissionLevel.ORGANIZER, 0, false, true, "$<instanceName>"),
-    BOOK(PermissionLevel.ORGANIZER, 0, true, true);
+    BOOK(PermissionLevel.ORGANIZER, 0, true, true),
+    PARKOURPRIZE(PermissionLevel.ADMIN, 1, false, false, "<player>"),
+    KITS(PermissionLevel.NONE, 0, true, true, "*modify");
 
     private final PermissionLevel permissionLevel;
     private final int numberOfNeededArguments;

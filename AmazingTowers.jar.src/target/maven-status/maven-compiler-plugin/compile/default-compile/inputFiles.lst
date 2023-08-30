@@ -10,8 +10,8 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\Config.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\EnderpearlAndPotionThrowListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\Rule.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\actions\QuitItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\LobbyListener.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\BungeecordQuit.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\SelectTeam.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\placeholders\Expansion.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SetBlacklist.java
@@ -48,7 +48,6 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Dar.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\BowListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\nms\NMS.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\HotbarItems.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\locations\Pool.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\LobbyInstance.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\PistonsillosListener.java
@@ -64,6 +63,7 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ut
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\PlayerState.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\mysql\Connexion.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\rewards\SetupVault.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\actions\BungeecordQuit.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Move.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\Location.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\api\AmazingTowersAPI.java
@@ -95,6 +95,8 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\co
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SetWhitelist.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\AntiTrollTeamListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SetTimer.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\HotbarItems.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\ParkourPrizeFly.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\GameLobbyItems.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\stats\StatisticsPlayer.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\stats\Rank.java
@@ -104,6 +106,9 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\RuleItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\cofresillos\FixedItem.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\TowersWorldInstance.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\ModifyKits.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\LobbyParkourPrize.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\enums\ConfigType.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\Utils.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\TntListener.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\LobbyPortal.java

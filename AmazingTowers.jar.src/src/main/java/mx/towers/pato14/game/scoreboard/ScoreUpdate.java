@@ -120,7 +120,7 @@ public class ScoreUpdate {
             int i = l.size();
             for (String st : l) {
                 helper.setSlot(i, AmazingTowers.getColor(st)
-                        .replace("%online_players%", String.valueOf(instance.getNumPlayers()))
+                        .replace("%online_players%", String.valueOf(instance.getNumPlayers() + AmazingTowers.getGameInstances().values().stream().map(TowersWorldInstance::getNumPlayers).reduce(0, Integer::sum)))
                         .replace("%date%", this.date));
                 i--;
             }

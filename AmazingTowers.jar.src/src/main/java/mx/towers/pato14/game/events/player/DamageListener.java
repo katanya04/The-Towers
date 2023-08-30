@@ -19,7 +19,7 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void voidDamage(EntityDamageEvent e) {
-        if (e.getCause() != EntityDamageEvent.DamageCause.VOID || !(e.getEntity() instanceof Player))
+        if (!(e.getEntity() instanceof Player))
             return;
         Player player = (Player) e.getEntity();
         TowersWorldInstance instance = AmazingTowers.getInstance(player);
@@ -27,8 +27,9 @@ public class DamageListener implements Listener {
             return;
         if (instance instanceof LobbyInstance) {
             e.setCancelled(true);
-            Utils.tpToWorld(instance.getWorld(), player);
-        } else if (instance instanceof GameInstance) {
+            if (e.getCause() == EntityDamageEvent.DamageCause.VOID)
+                Utils.tpToWorld(instance.getWorld(), player);
+        } else if (instance instanceof GameInstance && e.getCause() == EntityDamageEvent.DamageCause.VOID) {
             if (((GameInstance) instance).getGame() == null)
                 return;
             if (((GameInstance) instance).getGame().getGameState() == GameState.GAME)

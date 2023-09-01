@@ -18,12 +18,7 @@ public abstract class ChestMenuItem extends MenuItem {
         this.menu = Bukkit.createInventory(null, Utils.ceilToMultipleOfNine(contents.length), icon.getItemMeta().getDisplayName());
         this.menu.addItem(contents);
         this.contents = new HashMap<>();
-        int i = 0;
-        for (ItemStack item : contents) {
-            this.contents.put(i, item);
-            i++;
-        }
-        this.menu.setContents(contents);
+        setContents(contents);
     }
 
     public ChestMenuItem(String name, ItemStack icon, Map<Integer, ItemStack> contents, int size) {
@@ -44,6 +39,16 @@ public abstract class ChestMenuItem extends MenuItem {
         for (Map.Entry<Integer, ItemStack> item : contents.entrySet())
             this.menu.setItem(item.getKey(), item.getValue());
         this.contents = contents;
+    }
+
+    public void setContents(ItemStack[] contents) {
+        this.contents = new HashMap<>();
+        int i = 0;
+        for (ItemStack item : contents) {
+            this.contents.put(i, item);
+            i++;
+        }
+        this.menu.setContents(contents);
     }
 
     @Override

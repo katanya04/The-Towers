@@ -41,7 +41,7 @@ public class Game {
     public Game(GameInstance game) {
         this.name = game.getName();
         this.gameState = GameState.LOBBY;
-        this.kits = new Kits(game, AmazingTowers.capitalismExists());
+        this.kits = new Kits(game);
         this.playersSelectedKit = new HashMap<>();
         this.teams = new GameTeams(game);
         this.gameStart = new Start(game);

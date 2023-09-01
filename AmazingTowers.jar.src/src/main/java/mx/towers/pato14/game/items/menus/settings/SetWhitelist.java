@@ -18,8 +18,8 @@ public class SetWhitelist extends BookMenuItem {
     }
 
     @Override
-    public void updateSettings(GameInstance gameInstance) {
-        super.updateSettings(gameInstance);
+    public void updateSettings(GameInstance gameInstance, String path) {
+        super.updateSettings(gameInstance, path);
         gameInstance.updateWhiteList();
     }
 }

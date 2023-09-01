@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Kits {
     private final static AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -18,33 +19,43 @@ public class Kits {
     private final HashMap<String, List<Kit>> temporalBoughtKits;
     private final String instanceName;
 
-    public Kits(GameInstance gameInstance, boolean capitalismExists) {
+    public Kits(GameInstance gameInstance) {
         this.instanceName = gameInstance.getName();
         ConfigurationSection kitsConfig = gameInstance.getConfig(ConfigType.KITS);
         for (String entry : kitsConfig.getConfigurationSection("Kits").getKeys(false)) {
             Object value = kitsConfig.get("Kits." + entry);
             if (!(value instanceof ConfigurationSection))
                 continue;
-            ConfigurationSection kit = (ConfigurationSection) value;
-            ItemStack[] armor = getItems(kit, "armor", 4);
-            ItemStack[] hotbar = getItems(kit, "hotbar", 9);
-            try {
-                if (capitalismExists) {
-                    kits.add(new Kit(entry, armor, hotbar, Integer.parseInt(kit.getString("price")),
-                            Boolean.parseBoolean(kit.getString("permanent")), setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), true, kit, entry)));
-                } else {
-                    kits.add(new Kit(entry, armor, hotbar, setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), false, kit, entry)));
-                }
-            } catch (ParseItemException e) {
-                plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
-            }
+            addKit((ConfigurationSection) value);
         }
         this.temporalBoughtKits = new HashMap<>();
     }
 
-    private static ItemStack setIcon(ItemStack item, boolean addLore, ConfigurationSection kit, String name) {
+    private Kit getKitFromConfig(ConfigurationSection kit) {
+        Kit toret = null;
+        ItemStack[] armor = getItems(kit, "armor", 4);
+        ItemStack[] hotbar = getItems(kit, "hotbar", 9);
+        try {
+            if (AmazingTowers.capitalismExists()) {
+                toret = new Kit(kit.getName(), armor, hotbar, Integer.parseInt(kit.getString("price")),
+                        Boolean.parseBoolean(kit.getString("permanent")), setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), true, kit));
+            } else
+                toret = new Kit(kit.getName(), armor, hotbar, setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), false, kit));
+        } catch (ParseItemException e) {
+            plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
+        }
+        return toret;
+    }
+
+    private void addKit(ConfigurationSection kitConfigSection) {
+        Kit kit = getKitFromConfig(kitConfigSection);
+        if (kit != null)
+            kits.add(kit);
+    }
+
+    private static ItemStack setIcon(ItemStack item, boolean addLore, ConfigurationSection kit) {
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(AmazingTowers.getColor("§r&l" + name));
+        meta.setDisplayName(AmazingTowers.getColor("§r&l" + kit.getName()));
         if (addLore) {
             List<String> lore = new ArrayList<>();
             lore.add(kit.getString("price") + " coins");
@@ -119,6 +130,22 @@ public class Kits {
     public void resetTemporalBoughtKits() {
         this.temporalBoughtKits.clear();
     }
+
+    public void updateKits(String path) { // kits;Kits.Default remove or kits;Kits.Default.prize or kits;Kits.Joseile add
+        if (path.split("\\.").length > 2)
+            path = path.substring(0, path.lastIndexOf("."));
+        String[] pathSpaces = path.split(" ");
+        String[] pathSemiColon = pathSpaces[0].split(";");
+        if (pathSpaces.length == 1 || pathSpaces[1].equalsIgnoreCase("remove")) {
+            Kit kitToRemove = kits.stream().filter(o -> o.getName().equals(pathSemiColon[1].split("\\.")[1])).collect(Collectors.toList()).get(0);
+            kits.remove(kitToRemove);
+            AmazingTowers.getGameInstance(instanceName).getGame().getPlayersSelectedKit().entrySet().forEach(o -> {
+                if (kitToRemove.equals(o.getValue()))
+                    o.setValue(null);
+            });
+        }
+        if (pathSpaces.length == 1 || pathSpaces[1].equalsIgnoreCase("add"))
+            addKit(kitsConfig().getConfigurationSection(pathSemiColon[1]));
+        AmazingTowers.getGameInstance(instanceName).getHotbarItems().getSelectKit().setContents(getIcons());
+    }
 }
-
-

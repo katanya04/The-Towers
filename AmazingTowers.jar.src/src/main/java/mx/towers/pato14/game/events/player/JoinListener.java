@@ -21,10 +21,12 @@ public class JoinListener implements Listener {
         LobbyInstance lobby = AmazingTowers.getLobby();
         if (lobby != null) {
             Player player = e.getPlayer();
+            GameInstance gameInstance = AmazingTowers.getGameInstance(player);
+            if (gameInstance != null)
+                gameInstance.addPlayer();
             Utils.clearNameTagPlayer(player);
             Dar.joinMainLobby(player);
             Utils.tpToWorld(lobby.getWorld(), player);
-            lobby.playerJoinGame(player);
             Utils.updatePlayerTab(player);
         }
     }

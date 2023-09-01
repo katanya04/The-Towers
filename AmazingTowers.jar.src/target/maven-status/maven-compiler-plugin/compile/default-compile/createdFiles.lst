@@ -53,6 +53,7 @@ mx\towers\pato14\utils\enums\PermissionLevel.class
 mx\towers\pato14\game\items\HotbarItems.class
 mx\towers\pato14\commands\TowerCommand.class
 mx\towers\pato14\game\events\protect\WeatherListener.class
+mx\towers\pato14\game\items\menus\settings\GetStringFromItems.class
 mx\towers\pato14\game\items\menus\SelectTeam.class
 mx\towers\pato14\game\events\player\BlockStats.class
 mx\towers\pato14\game\events\player\BowListener.class
@@ -99,7 +100,9 @@ mx\towers\pato14\game\tasks\Start$2.class
 mx\towers\pato14\game\items\MenuItem.class
 mx\towers\pato14\game\tasks\Finish$1$1.class
 mx\towers\pato14\game\items\GameLobbyItems.class
+mx\towers\pato14\game\items\menus\settings\GetStringFromItems$1.class
 mx\towers\pato14\api\AmazingTowersAPI.class
+mx\towers\pato14\game\items\menus\settings\GetStringFromItems$SlotType.class
 mx\towers\pato14\game\tasks\Finish$1.class
 mx\towers\pato14\game\events\player\EnderpearlAndPotionThrowListener.class
 mx\towers\pato14\utils\placeholders\Expansion.class

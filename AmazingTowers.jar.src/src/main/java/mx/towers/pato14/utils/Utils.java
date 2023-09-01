@@ -10,6 +10,7 @@ import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.*;
+import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -18,12 +19,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.map.MinecraftFont;
 import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -193,7 +193,7 @@ public class Utils {
         try {
             Integer.parseInt(str);
             return true;
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
     }
@@ -202,7 +202,7 @@ public class Utils {
         try {
             Double.parseDouble(str);
             return true;
-        } catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             return false;
         }
     }
@@ -295,5 +295,33 @@ public class Utils {
 
     public static void clearNameTagPlayer(Player player) {
         NametagEdit.getApi().clearNametag(player);
+    }
+
+    public static List<List<net.md_5.bungee.api.chat.TextComponent>> getLines(List<net.md_5.bungee.api.chat.TextComponent> text) { //Thx to Swedz :)
+        //Note that the only flaw with using MinecraftFont is that it can't account for some UTF-8 symbols, it will throw an IllegalArgumentException
+        final MinecraftFont font = new MinecraftFont();
+        final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
+
+        //Get all of our lines
+        List<List<net.md_5.bungee.api.chat.TextComponent>> lines = new ArrayList<>();
+        try {
+            List<net.md_5.bungee.api.chat.TextComponent> line = new ArrayList<>();
+            for (net.md_5.bungee.api.chat.TextComponent textComponent : text) {
+                String rawLine = ChatColor.stripColor(line.stream().map(net.md_5.bungee.api.chat.TextComponent::getText).reduce("", String::concat));
+                rawLine += ChatColor.stripColor(textComponent.getText());
+                if (font.getWidth(rawLine) > maxLineWidth) {
+                    lines.add(line);
+                    line = new ArrayList<>();
+                }
+                line.add(textComponent);
+                if (textComponent.getText().endsWith("\n")) {
+                    lines.add(line);
+                    line = new ArrayList<>();
+                }
+            }
+        } catch (IllegalArgumentException ex) {
+            lines.clear();
+        }
+        return lines;
     }
 }

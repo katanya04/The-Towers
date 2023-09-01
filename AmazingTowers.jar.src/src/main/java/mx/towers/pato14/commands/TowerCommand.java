@@ -21,6 +21,7 @@ import java.io.File;
 import mx.towers.pato14.game.tasks.Dar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -394,29 +395,35 @@ public class TowerCommand implements CommandExecutor
                         String currentValue = settings.getString(argSplit[1]);
                         if (currentValue.equalsIgnoreCase("true")) {
                             settings.set(argSplit[1], "false");
-                            currentMenu.updateSettings(gameInstance);
+                            currentMenu.updateSettings(gameInstance, args[1]);
                             currentMenu.openMenu(player);
                         } else if (currentValue.equalsIgnoreCase("false")) {
                             settings.set(argSplit[1], "true");
-                            currentMenu.updateSettings(gameInstance);
+                            currentMenu.updateSettings(gameInstance, args[1]);
                             currentMenu.openMenu(player);
                         } else {
-                            gameInstance.getPlugin().getNms().openAnvilInventory(player, args[1]);
+                            currentMenu.modifyConfigString(player, args[1]);
                         }
                     } else { //gameSettings;whitelist.players add
                         if (args[2].equalsIgnoreCase("add")) {
-                            gameInstance.getPlugin().getNms().openAnvilInventory(player, args[1]);
+                            currentMenu.modifyConfigString(player, args[1]);
+                        } else if (args[2].equalsIgnoreCase("remove")) {
+                            Object currentValue = settings.get(argSplit[1]);
+                            if (currentValue instanceof ConfigurationSection) { // kits;Kits.test remove
+                                settings.set(((ConfigurationSection) currentValue).getCurrentPath(), null);
+                            }
+                            currentMenu.updateSettings(gameInstance, args[1] + " " + args[2]);
+                            currentMenu.openMenu(player);
                         }
                     }
                 } else if (argSplit.length == 3) { //gameSettings;whitelist.players;Marco2124 remove
                     Object currentValue = settings.get(argSplit[1]);
                     if (args[2].equalsIgnoreCase("remove")) {
-                        if (currentValue instanceof Collection)
+                        if (currentValue instanceof Collection) {
                             ((Collection<?>) currentValue).remove(argSplit[2]);
-                        else if (currentValue instanceof Map)
-                            ((Map<?, ?>) currentValue).remove(argSplit[2]);
-                        settings.set(argSplit[1], currentValue);
-                        currentMenu.updateSettings(gameInstance);
+                            settings.set(argSplit[1], currentValue);
+                        }
+                        currentMenu.updateSettings(gameInstance, args[1] + " " + args[2]);
                         currentMenu.openMenu(player);
                     }
                 } else

@@ -28,6 +28,7 @@ public class SaveSettings extends ActionItem {
             return;
         }
         gameInstance.getConfig(ConfigType.GAME_SETTINGS).saveConfig();
+        gameInstance.getConfig(ConfigType.KITS).saveConfig();
         Utils.sendMessage(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.saveSettings.saveMessage"), MessageType.INFO, player);
         Utils.removeGlint(this);
         gameInstance.getHotbarItems().getModifyGameSettings().updateMenu();

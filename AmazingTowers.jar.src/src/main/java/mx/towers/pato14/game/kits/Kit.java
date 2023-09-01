@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
+import java.util.Map;
+
 public class Kit extends ActionItem {
     private final String name;
     private final ItemStack[] armor;
@@ -33,12 +35,7 @@ public class Kit extends ActionItem {
     }
 
     public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, ItemStack iconInMenu) {
-        super(iconInMenu);
-        this.name = name.trim();
-        this.armor = armor;
-        this.hotbar = hotbar;
-        this.price = 0;
-        this.permanent = true;
+        this(name, armor, hotbar, 0, true, iconInMenu);
     }
 
     @Override

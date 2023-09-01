@@ -19,6 +19,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class V1_8_R3 implements NMS
@@ -41,6 +42,8 @@ public class V1_8_R3 implements NMS
 
     @Override
     public String serializeItemStack(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getType() == Material.AIR)
+            return "empty";
         net.minecraft.server.v1_8_R3.ItemStack netItemStack = CraftItemStack.asNMSCopy(itemStack);
         NBTTagCompound tag = new NBTTagCompound();
         netItemStack.save(tag);
@@ -85,10 +88,23 @@ public class V1_8_R3 implements NMS
         try {
             pages = (List<IChatBaseComponent>) CraftMetaBook.class.getDeclaredField("pages").get(meta);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while trying to create a book menu item", MessageType.ERROR);
+            return book;
         }
-        IChatBaseComponent page = IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(pageTextComponents.toArray(new TextComponent[0])));
-        pages.add(page);
+        List<List<TextComponent>> lines = Utils.getLines(pageTextComponents);
+        List<TextComponent> page = new ArrayList<>();
+        int index = 0;
+        for (List<TextComponent> line : lines) {
+            if (index++ < 14)
+                page.addAll(line);
+            else {
+                pages.add(IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(page.toArray(new TextComponent[0]))));
+                page = new ArrayList<>(line);
+                index = 0;
+            }
+        }
+        if (!page.isEmpty())
+            pages.add(IChatBaseComponent.ChatSerializer.a(ComponentSerializer.toString(page.toArray(new TextComponent[0]))));
         book.setItemMeta(meta);
         return book;
     }

@@ -19,10 +19,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SelectCofresillos implements Listener {
-    private final AmazingTowers plugin;
-    public SelectCofresillos(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onSelectorCofressillos(PlayerInteractEvent e) {
@@ -34,7 +30,7 @@ public class SelectCofresillos implements Listener {
         if (!block.getType().equals(Material.CHEST))
             return;
         Location loc = block.getLocation();
-        Config locations = this.plugin.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
+        Config locations = AmazingTowers.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
         e.setCancelled(true);
         List<String> locConfig = locations.getStringList("LOCATIONS.REFILLCHEST");
         String locString = Locations.getLocationStringBlock(loc);

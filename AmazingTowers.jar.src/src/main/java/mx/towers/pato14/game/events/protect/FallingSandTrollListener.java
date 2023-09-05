@@ -13,10 +13,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class AntiFallingSandTrollListener implements Listener {
+public class FallingSandTrollListener implements Listener {
     private final AmazingTowers plugin;
 
-    public AntiFallingSandTrollListener(AmazingTowers plugin) {
+    public FallingSandTrollListener(AmazingTowers plugin) {
         this.plugin = plugin;
     }
 

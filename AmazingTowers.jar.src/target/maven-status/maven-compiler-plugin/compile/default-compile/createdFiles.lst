@@ -1,7 +1,7 @@
 mx\towers\pato14\game\items\LobbyParkourPrize.class
-mx\towers\pato14\utils\nms\NMS.class
 mx\towers\pato14\utils\rewards\RewardsEnum.class
 mx\towers\pato14\game\events\player\JoinListener.class
+mx\towers\pato14\game\events\protect\FallingSandTrollListener.class
 mx\towers\pato14\game\tasks\Finish.class
 mx\towers\pato14\utils\enums\TeamColor.class
 mx\towers\pato14\game\items\actions\AcceptBuy.class
@@ -18,7 +18,6 @@ mx\towers\pato14\game\events\player\ParkourPrizeFly.class
 mx\towers\pato14\game\kits\Kits.class
 mx\towers\pato14\game\items\menus\settings\ModifyKits.class
 mx\towers\pato14\game\items\LobbyItems.class
-mx\towers\pato14\utils\plugin\PluginA.class
 mx\towers\pato14\TowersWorldInstance.class
 mx\towers\pato14\utils\stats\Stats.class
 mx\towers\pato14\game\items\menus\SelectGame.class
@@ -28,11 +27,11 @@ mx\towers\pato14\game\tasks\Start.class
 mx\towers\pato14\utils\cofresillos\FixedItem.class
 mx\towers\pato14\game\events\player\UseLobbyItems.class
 mx\towers\pato14\game\items\menus\settings\StartImmediately.class
-mx\towers\pato14\game\events\protect\AntiTrollTeamListener.class
 mx\towers\pato14\utils\wand\Wand.class
 mx\towers\pato14\game\events\player\DamageListener.class
-mx\towers\pato14\utils\nms\V1_8_R3$FakeAnvil.class
+mx\towers\pato14\game\events\protect\TeamTrollListener.class
 mx\towers\pato14\utils\exceptions\ParseItemException.class
+mx\towers\pato14\utils\nms\ReflectionMethods.class
 mx\towers\pato14\game\items\menus\settings\KickAll.class
 mx\towers\pato14\game\tasks\Timer.class
 mx\towers\pato14\utils\locations\CheckLocations.class
@@ -43,7 +42,6 @@ mx\towers\pato14\game\kits\Kit.class
 mx\towers\pato14\GameInstance.class
 mx\towers\pato14\game\events\protect\TntListener.class
 mx\towers\pato14\game\items\menus\settings\SetBlacklist.class
-mx\towers\pato14\utils\nms\V1_8_R3.class
 mx\towers\pato14\game\Game.class
 mx\towers\pato14\game\tasks\Move$1.class
 mx\towers\pato14\game\items\actions\BungeecordQuit.class
@@ -77,7 +75,6 @@ mx\towers\pato14\game\items\ActionItem.class
 mx\towers\pato14\game\items\menus\JoinTeamItem.class
 mx\towers\pato14\game\events\player\LobbyPortal.class
 mx\towers\pato14\game\events\protect\LeatherProtectListener.class
-mx\towers\pato14\game\events\protect\AntiFallingSandTrollListener.class
 mx\towers\pato14\utils\world\WorldReset.class
 mx\towers\pato14\game\tasks\Timer$1.class
 mx\towers\pato14\utils\rewards\SetupVault.class
@@ -101,7 +98,6 @@ mx\towers\pato14\game\items\MenuItem.class
 mx\towers\pato14\game\tasks\Finish$1$1.class
 mx\towers\pato14\game\items\GameLobbyItems.class
 mx\towers\pato14\game\items\menus\settings\GetStringFromItems$1.class
-mx\towers\pato14\api\AmazingTowersAPI.class
 mx\towers\pato14\game\items\menus\settings\GetStringFromItems$SlotType.class
 mx\towers\pato14\game\tasks\Finish$1.class
 mx\towers\pato14\game\events\player\EnderpearlAndPotionThrowListener.class

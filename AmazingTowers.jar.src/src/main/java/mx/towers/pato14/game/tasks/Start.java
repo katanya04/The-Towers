@@ -8,6 +8,7 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.locations.Locations;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -50,13 +51,14 @@ public class Start {
                         game.getTimer().timerStart();
                     return;
                 }
-                if (!runFromCommand && game.getGameInstance().getNumPlayers() < game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.min-players")) {
-                    cancel();
+                if (!runFromCommand && game.getGameInstance().getNumPlayers() < game.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
                     game.setGameState(GameState.LOBBY);
                     for (Player p : world.getPlayers()) {
                         p.sendMessage(AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.notEnoughPlayers")));
                     }
+                    setSeconds(20);
                     game.getGameInstance().getScoreUpdates().updateScoreboardAll();
+                    cancel();
                     return;
                 }
                 if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
@@ -71,7 +73,7 @@ public class Start {
                     String title = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.title.titleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
                     String subtitle = AmazingTowers.getColor(game.getGameInstance().getConfig(ConfigType.MESSAGES).getString("gameStart.title.subtitleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
                     for (Player player : world.getPlayers()) {
-                        Start.this.plugin.getNms().sendTitle(player, title, subtitle, 0, 50, 20);
+                        ReflectionMethods.sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
                 game.getGameInstance().getScoreUpdates().updateScoreboardAll();
@@ -111,6 +113,7 @@ public class Start {
         this.runFromCommand = runFromCommand;
     }
 
+    @SuppressWarnings("unchecked")
     private void startGenerators() {
         Config locations = AmazingTowers.getGameInstance(world).getConfig(ConfigType.LOCATIONS);
         String path = Location.GENERATOR.getPath();
@@ -125,7 +128,7 @@ public class Start {
                 try {
                     for (Map<String, String> item : generators) {
                         world.dropItemNaturally(Locations.getLocationFromString(item.get("coords")),
-                                plugin.getNms().deserializeItemStack(item.get("item")));
+                                ReflectionMethods.deserializeItemStack(item.get("item")));
                     }
                 } catch (ParseItemException exception) {
                     plugin.sendConsoleMessage("§cError while parsing the generator items!", MessageType.ERROR);

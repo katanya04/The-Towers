@@ -76,12 +76,16 @@ public abstract class TowersWorldInstance {
         this.addPlayer();
         this.getScoreUpdates().createScoreboard(player);
         this.getScoreUpdates().updateScoreboardAll();
+        if (AmazingTowers.isConnectedToDatabase()) {
+            AmazingTowers.getPlugin().connexion.createAccount(player.getName());
+        }
     }
 
     public void playerLeaveGame(Player player) {
         if (ScoreHelper.hasScore(player))
             ScoreHelper.removeScore(player);
         this.removePlayer();
+        this.getScoreUpdates().updateScoreboardAll();
     }
 
     public void reset() {

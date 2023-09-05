@@ -14,3 +14,9 @@ lobbyItems:
 options:
   cancelWeatherUpdates: true
   portalsToGame: true
+  chat:
+    enabled: true
+    format:
+      defaultChat: '%vault_prefix% &f%player% &8: &f%msg%'
+
+name: "Lobby"

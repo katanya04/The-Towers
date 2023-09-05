@@ -6,6 +6,7 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -38,9 +39,9 @@ public class Kits {
         try {
             if (AmazingTowers.capitalismExists()) {
                 toret = new Kit(kit.getName(), armor, hotbar, Integer.parseInt(kit.getString("price")),
-                        Boolean.parseBoolean(kit.getString("permanent")), setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), true, kit));
+                        Boolean.parseBoolean(kit.getString("permanent")), setIcon(ReflectionMethods.deserializeItemStack(kit.getString("iconInMenu")), true, kit));
             } else
-                toret = new Kit(kit.getName(), armor, hotbar, setIcon(plugin.getNms().deserializeItemStack(kit.getString("iconInMenu")), false, kit));
+                toret = new Kit(kit.getName(), armor, hotbar, setIcon(ReflectionMethods.deserializeItemStack(kit.getString("iconInMenu")), false, kit));
         } catch (ParseItemException e) {
             plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
         }
@@ -72,7 +73,7 @@ public class Kits {
         if (itemsArray.length == size) {
             for (int i = 0; i < size; i++) {
                 try {
-                    toret[i] = plugin.getNms().deserializeItemStack(itemsArray[i]);
+                    toret[i] = ReflectionMethods.deserializeItemStack(itemsArray[i]);
                 } catch (ParseItemException e) {
                     plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }

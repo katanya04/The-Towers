@@ -17,36 +17,33 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 
 public class TntListener implements Listener {
-    private final AmazingTowers plugin;
-    public TntListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.TNT)) {
             e.setCancelled(true);
             return;
         }
-        Class<Block> blockclass = Block.class;
-        Field f = blockclass.getDeclaredField("durability");
-        f.setAccessible(true);
+        Class<Block> blockClass = Block.class;
+        Field durabilityField = blockClass.getDeclaredField("durability");
+        durabilityField.setAccessible(true);
         if (e.getEntityType().equals(EntityType.PRIMED_TNT) || e.getEntityType().equals(EntityType.MINECART_TNT)) {
-            e.blockList().removeIf(b -> {
+            e.blockList().removeIf(block -> {
                 try {
-                    return (((float)f.get(Block.getById(b.getTypeId()))/7 + 0.5) + (b.getLocation().distance(e.getLocation())) > 6.5);
+                    return (((float)durabilityField.get(Block.getById(block.getTypeId()))/7 + 0.5)
+                            + (block.getLocation().distance(e.getLocation())) > 6.5);
                 } catch (IllegalAccessException ex) {
                     throw new RuntimeException(ex);
                 }
             });
         }
-        f.setAccessible(false);
+        durabilityField.setAccessible(false);
     }
     @EventHandler
     public void onPlaceBlocks(BlockPlaceEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (e.getBlockPlaced().getType().equals(Material.TNT)) {

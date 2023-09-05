@@ -125,7 +125,7 @@ public class Connexion {
                         }
                     }
                 } else {
-                    data = null;
+                    data = new int[]{0, 0, 0, 0, 0, 0, 0};
                 }
                 repeat = false;
             } catch (CommunicationsException e) {

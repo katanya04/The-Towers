@@ -9,6 +9,7 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
+import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Color;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -55,7 +56,7 @@ public class Kit extends ActionItem {
                     .replace("%kitName%", this.getName())));
             ((Player) player).playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
             player.closeInventory();
-        } else if (gameInstance.getVault().getCoins((Player) player) >= this.getPrice()) {
+        } else if (SetupVault.getCoins((Player) player) >= this.getPrice()) {
             BuyKitMenu buyKitMenu = new BuyKitMenu(gameInstance, this, player);
             gameInstance.getHotbarItems().getChestMenus().add(buyKitMenu);
             buyKitMenu.interact(player, gameInstance);
@@ -80,7 +81,7 @@ public class Kit extends ActionItem {
         Color color = AmazingTowers.getGameInstance(player).getGame().getTeams()
                 .getTeamColorByPlayer(player.getName()).getColorEnum();
         for (ItemStack itemStack : armor) {
-            if (Utils.isLeatherArmor(itemStack.getType()) && color != null) {
+            if (itemStack != null && Utils.isLeatherArmor(itemStack.getType()) && color != null) {
                 LeatherArmorMeta meta = (LeatherArmorMeta) itemStack.getItemMeta();
                 meta.setColor(color);
                 itemStack.setItemMeta(meta);

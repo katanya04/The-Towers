@@ -12,6 +12,7 @@ import mx.towers.pato14.game.items.menus.settings.GetStringFromItems;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
@@ -98,7 +99,7 @@ public class UseLobbyItems implements Listener {
                 }
                 currentMenu.removeAuxiliarItemsFromPlayer(player);
                 if (newValue == null)
-                    newValue = AmazingTowers.getPlugin().getNms().serializeItemStack(clickedItem);
+                    newValue = ReflectionMethods.serializeItemStack(clickedItem);
                 else if (newValue.equals("<skip_item>"))
                     return;
             }

@@ -19,22 +19,22 @@ import org.bukkit.entity.Player;
 public class ScoreUpdate {
     private final String title;
     private final String date;
-    private final TowersWorldInstance instance;
 
     public ScoreUpdate(TowersWorldInstance instance) {
-        this.instance = instance;
         this.title = instance.getConfig(ConfigType.SCOREBOARD).getString("scoreboard.name").replace("&", "§");
         this.date = (new SimpleDateFormat(instance.getConfig(ConfigType.SCOREBOARD).getString("scoreboard.formatDate"))).format(Calendar.getInstance().getTime());
     }
 
     public void createScoreboard(Player player) {
+        if (ScoreHelper.hasScore(player))
+            return;
         ScoreHelper helper = ScoreHelper.createScore(player);
         helper.setTitle(this.title);
         getScores(helper, player);
     }
 
     public void updateScoreboardAll() {
-        for (Player player : this.instance.getWorld().getPlayers()) {
+        for (Player player : AmazingTowers.getAllOnlinePlayers()) {
             updateScoreboard(player);
         }
     }
@@ -47,8 +47,9 @@ public class ScoreUpdate {
     }
 
     private void getScores(ScoreHelper helper, Player player) {
-        if (this.instance instanceof GameInstance) {
-            GameInstance gameInstance = (GameInstance) instance;
+        TowersWorldInstance towersWorldInstance = AmazingTowers.getInstance(player.getWorld());
+        if (towersWorldInstance instanceof GameInstance) {
+            GameInstance gameInstance = (GameInstance) towersWorldInstance;
             if (gameInstance.getGame().getGameState().equals(GameState.LOBBY)) {
                 List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
                 int i = l.size();
@@ -115,12 +116,12 @@ public class ScoreUpdate {
                     i--;
                 }
             }
-        } else if (this.instance instanceof LobbyInstance) {
-            List<String> l = instance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
+        } else if (towersWorldInstance instanceof LobbyInstance) {
+            List<String> l = towersWorldInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
             int i = l.size();
             for (String st : l) {
                 helper.setSlot(i, AmazingTowers.getColor(st)
-                        .replace("%online_players%", String.valueOf(instance.getNumPlayers() + AmazingTowers.getGameInstances().values().stream().map(TowersWorldInstance::getNumPlayers).reduce(0, Integer::sum)))
+                        .replace("%online_players%", String.valueOf(AmazingTowers.getGameInstances().values().stream().map(TowersWorldInstance::getNumPlayers).reduce(towersWorldInstance.getNumPlayers(), Integer::sum)))
                         .replace("%date%", this.date));
                 i--;
             }

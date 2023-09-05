@@ -141,9 +141,11 @@ public class Game {
         this.kits.resetTemporalBoughtKits();
         this.playersSelectedKit.clear();
         this.gameStart.setHasStarted(false);
+        this.gameStart.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart"));
+        this.gameStart.setRunFromCommand(false);
         this.teams.reset();
         this.stats.clear();
-        if (this.timer.getBossBar() != null)
+        if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
             this.timer.reset();
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;

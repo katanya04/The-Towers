@@ -1,37 +1,38 @@
 package mx.towers.pato14.commands;
 
+import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.BookMenuItem;
+import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.enums.Location;
+import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
+import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
 import mx.towers.pato14.utils.stats.StatType;
-import org.bukkit.*;
 import mx.towers.pato14.utils.world.WorldReset;
-import mx.towers.pato14.utils.rewards.SetupVault;
 import net.md_5.bungee.api.ChatColor;
-import mx.towers.pato14.utils.locations.Locations;
-import java.io.File;
-
-import mx.towers.pato14.game.tasks.Dar;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import mx.towers.pato14.AmazingTowers;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
+
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TowerCommand implements CommandExecutor
 {
@@ -81,7 +82,7 @@ public class TowerCommand implements CommandExecutor
         }
         switch (subcommand) {
             case STATS:
-                if (this.plugin.getGlobalConfig().getBoolean("options.mysql.active")) {
+                if (AmazingTowers.isConnectedToDatabase()) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
                         FindOneCallback.findPlayerAsync(args[1], this.plugin, result -> {
                             if (result == null) {
@@ -288,7 +289,7 @@ public class TowerCommand implements CommandExecutor
                     List<Map<String, String>> generators = locations.getList(path) == null ? new ArrayList<>() : locations
                             .getMapList(path).stream().map(o -> (Map<String, String>) o).collect(Collectors.toList());
                     HashMap<String, String> newGenerator = new HashMap<>();
-                    newGenerator.put("item", plugin.getNms().serializeItemStack(player.getItemInHand()));
+                    newGenerator.put("item", ReflectionMethods.serializeItemStack(player.getItemInHand()));
                     newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), false));
                     generators.add(newGenerator);
                     locations.set(path, generators);
@@ -432,6 +433,7 @@ public class TowerCommand implements CommandExecutor
             case SAVESETTINGS:
                 assert gameInstance != null;
                 gameInstance.getConfig(ConfigType.GAME_SETTINGS).saveConfig();
+                gameInstance.getConfig(ConfigType.KITS).saveConfig();
                 Utils.sendMessage("Game settings saved correctly", MessageType.INFO, sender);
                 break;
             case BOOK:
@@ -454,10 +456,9 @@ public class TowerCommand implements CommandExecutor
                 if (args.length < 2)
                     gameInstance.getHotbarItems().getSelectKit().interact(player, gameInstance);
                 else if (player.hasPermission(PermissionLevel.ADMIN.getPermissionName())) {
-                        AmazingTowers.getPlugin().getNms().openBook(player, gameInstance.getHotbarItems().getModifyGameSettings().getModifyKits());
-                } else {
+                        ReflectionMethods.openBook(player, gameInstance.getHotbarItems().getModifyGameSettings().getModifyKits());
+                } else
                     Utils.sendMessage("No tienes permiso para ejecutar este comando.", MessageType.ERROR, sender);
-                }
         }
         return false;
     }

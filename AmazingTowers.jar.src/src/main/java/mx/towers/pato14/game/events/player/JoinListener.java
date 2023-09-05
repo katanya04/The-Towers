@@ -26,6 +26,8 @@ public class JoinListener implements Listener {
                 gameInstance.addPlayer();
             Utils.clearNameTagPlayer(player);
             Dar.joinMainLobby(player);
+            if (lobby.getWorld().equals(player.getWorld()))
+                lobby.playerJoinGame(player);
             Utils.tpToWorld(lobby.getWorld(), player);
             Utils.updatePlayerTab(player);
         }

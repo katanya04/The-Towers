@@ -8,11 +8,9 @@ import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
-import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.mysql.Connexion;
-import mx.towers.pato14.utils.nms.*;
 import mx.towers.pato14.utils.placeholders.Expansion;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.wand.Wand;
@@ -21,7 +19,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,20 +28,16 @@ public final class AmazingTowers extends JavaPlugin {
     private static AmazingTowers plugin;
     private static LobbyInstance lobby;
     private static HashMap<String, GameInstance> games;
-    private NMS nms;
+    private static boolean connectedToDatabase;
     private Wand wand;
     private Config globalConfig;
     public Connexion connexion;
 
     public void onEnable() {
+        System.out.println(System.getProperty("java.class.path"));
+        System.out.println(System.getenv("java.class.path"));
         plugin = this;
         games = new HashMap<>();
-
-        if (!setupNMS()) {
-            sendConsoleMessage("§cYour server version is not compatible with this plugin!", MessageType.ERROR);
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
             sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers", MessageType.ERROR);
@@ -70,8 +63,10 @@ public final class AmazingTowers extends JavaPlugin {
                 this.connexion = new Connexion();
                 this.connexion.connect();
                 this.connexion.createTable();
+                connectedToDatabase = true;
                 sendConsoleMessage("§aSuccessfully connected to the database", MessageType.INFO);
             } catch (Exception e) {
+                connectedToDatabase = false;
                 sendConsoleMessage("§cCouldn't connect to the database", MessageType.ERROR);
             }
         }
@@ -95,7 +90,7 @@ public final class AmazingTowers extends JavaPlugin {
         (new EventsManager(getPlugin())).registerEvents();
         this.wand = new Wand();
         getServer().getPluginManager().registerEvents(new WandListener(this), this);
-        getServer().getPluginManager().registerEvents(new SelectCofresillos(this), this);
+        getServer().getPluginManager().registerEvents(new SelectCofresillos(), this);
         String version;
         try {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -122,26 +117,6 @@ public final class AmazingTowers extends JavaPlugin {
                 sendConsoleMessage("To create all missing worlds, run /tt createWorld all", MessageType.INFO);
             }
         }
-    }
-
-    private boolean setupNMS() {
-        String version;
-        try {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException a) {
-            sendConsoleMessage("Unknown server version", MessageType.ERROR);
-            return false;
-        }
-        if (version.hashCode() == -1156422964) {
-            if (!version.equals("v1_8_R3"))
-                return (this.nms != null);
-            this.nms = new V1_8_R3();
-        }
-        return (this.nms != null);
-    }
-
-    public NMS getNms() {
-        return this.nms;
     }
 
     public static String getColor(String st) {
@@ -233,5 +208,16 @@ public final class AmazingTowers extends JavaPlugin {
                 toret = gameInstance;
         }
         return toret;
+    }
+
+    public static Collection<Player> getAllOnlinePlayers() {
+        List<Player> playersInGameInstances = new ArrayList<>();
+        getGameInstances().values().forEach(o -> playersInGameInstances.addAll(o.getWorld().getPlayers()));
+        playersInGameInstances.addAll(lobby.getWorld().getPlayers());
+        return playersInGameInstances;
+    }
+
+    public static boolean isConnectedToDatabase() {
+        return connectedToDatabase;
     }
 }

@@ -285,11 +285,14 @@ public class Utils {
     }
 
     public static void updatePlayerTab(Player player) {
-        for (Player player1 : Bukkit.getOnlinePlayers()) {
-            if (player.getWorld().equals(player1.getWorld()))
+        for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
+            if (player.getWorld().equals(player1.getWorld())) {
                 player1.showPlayer(player);
-            else
+                player.showPlayer(player1);
+            } else {
                 player1.hidePlayer(player);
+                player.hidePlayer(player1);
+            }
         }
     }
 

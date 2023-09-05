@@ -15,10 +15,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class AntiTrollTeamListener implements Listener {
+public class TeamTrollListener implements Listener {
     private final AmazingTowers plugin;
 
-    public AntiTrollTeamListener(AmazingTowers plugin) {
+    public TeamTrollListener(AmazingTowers plugin) {
         this.plugin = plugin;
     }
 

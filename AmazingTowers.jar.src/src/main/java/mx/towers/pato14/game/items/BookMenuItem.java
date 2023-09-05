@@ -5,6 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -50,7 +51,7 @@ public abstract class BookMenuItem extends MenuItem { //Item that opens a book t
     @Override
     public void openMenu(HumanEntity player) {
         this.book = getBook();
-        instance.getPlugin().getNms().openBook((Player) player, book);
+        ReflectionMethods.openBook((Player) player, book);
         this.mapKeysAsListDeepLevel = this.mapKeysAsListDeepLevelCopy;
     }
 
@@ -91,11 +92,11 @@ public abstract class BookMenuItem extends MenuItem { //Item that opens a book t
     protected ItemStack getBook() {
         Object text = instance.getConfig(configType).get(path);
         if (text instanceof ConfigurationSection)
-            return AmazingTowers.getPlugin().getNms().getBook(getMap((ConfigurationSection) text));
+            return ReflectionMethods.getBook(getMap((ConfigurationSection) text));
         else if (text instanceof List)
-            return AmazingTowers.getPlugin().getNms().getBook(getCollection((List<?>) text, path));
+            return ReflectionMethods.getBook(getCollection((List<?>) text, path));
         else
-            return AmazingTowers.getPlugin().getNms().getBook(Collections.singletonList(new TextComponent(String.valueOf(text))));
+            return ReflectionMethods.getBook(Collections.singletonList(new TextComponent(String.valueOf(text))));
     }
 
     private List<TextComponent> getMap(ConfigurationSection configText) {
@@ -169,7 +170,7 @@ public abstract class BookMenuItem extends MenuItem { //Item that opens a book t
 
     public void modifyConfigString(Player player, String path) {
         givePlayerAuxItems(player);
-        AmazingTowers.getPlugin().getNms().openAnvilInventory(player, path);
+        ReflectionMethods.openAnvilInventory(player, path);
     }
 
     private void givePlayerAuxItems(Player player) {

@@ -3,6 +3,7 @@ package mx.towers.pato14.game.items.menus.settings;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +41,7 @@ public class GetStringFromItems extends ActionItem {
                 return "<skip_item>";
         }
         for (ItemStack item : items) {
-            stringBuilder.append(AmazingTowers.getPlugin().getNms().serializeItemStack(item));
+            stringBuilder.append(ReflectionMethods.serializeItemStack(item));
             stringBuilder.append(";");
         }
         stringBuilder.deleteCharAt(stringBuilder.lastIndexOf(";"));

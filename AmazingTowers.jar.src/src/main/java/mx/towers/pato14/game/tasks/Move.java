@@ -8,6 +8,7 @@ import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.locations.Pool;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
@@ -62,7 +63,7 @@ public class Move {
             Team teamScored = pool.getTeam();
             player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             if (bedwarsStyle)
-                teamScored.scorePoint(bedwarsStyle);
+                teamScored.scorePoint(true);
             else
                 team.scorePoint(false);
             gameInstance.getScoreUpdates().updateScoreboardAll();
@@ -94,7 +95,7 @@ public class Move {
                 for (Player pl : teamScored.getListOnlinePlayers()) {
                     pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                     if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
-                        AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
+                        ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);
                     else
                         pl.sendMessage(title);
                 }

@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
 
 public class DeathListener implements Listener {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
 
     @EventHandler
     public void onDeath(PlayerDeathEvent e) {
@@ -64,6 +63,8 @@ public class DeathListener implements Listener {
                 }
             }
         }
+        if (gameInstance.getGame().getGameState() == GameState.FINISH)
+            return;
         if (playerTeam != null && !playerTeam.respawnPlayers()) {
             playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
             gameInstance.getScoreUpdates().updateScoreboardAll();
@@ -74,14 +75,14 @@ public class DeathListener implements Listener {
     }
 
     private void addRewardsKiller(Player killer) {
-        this.plugin.getGameInstance(killer).getGame().getStats().addOne(killer.getName(), StatType.KILLS);
-        this.plugin.getGameInstance(killer).getScoreUpdates().updateScoreboard(killer);
-        this.plugin.getGameInstance(killer).getVault().setReward(killer, RewardsEnum.KILL);
+        AmazingTowers.getGameInstance(killer).getGame().getStats().addOne(killer.getName(), StatType.KILLS);
+        AmazingTowers.getGameInstance(killer).getScoreUpdates().updateScoreboard(killer);
+        AmazingTowers.getGameInstance(killer).getVault().setReward(killer, RewardsEnum.KILL);
     }
 
     @EventHandler
     public void onRespawn(PlayerRespawnEvent e) {
-        final GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        final GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());

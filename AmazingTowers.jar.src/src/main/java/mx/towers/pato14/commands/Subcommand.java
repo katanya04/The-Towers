@@ -151,7 +151,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                         if (Utils.isInteger(args[i]))
                             matches = true;
                     } else if (currentSubArg.equals("<instanceName>")) {
-                        if ((gameInstance = AmazingTowers.getPlugin().getGameInstance(Bukkit.getWorld(args[i]))) != null)
+                        if ((gameInstance = AmazingTowers.getGameInstance(Bukkit.getWorld(args[i]))) != null)
                             matches = true;
                     } else
                         matches = true;

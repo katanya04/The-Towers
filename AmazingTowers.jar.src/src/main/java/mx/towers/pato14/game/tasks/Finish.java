@@ -10,6 +10,7 @@ import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
@@ -154,7 +155,7 @@ public class Finish {
                     AmazingTowers.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
             }
         }
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active")) {
+        if (AmazingTowers.isConnectedToDatabase()) {
             FindOneCallback.updatePlayersDataAsync(gameInstance.getGame().getStats().getPlayerStats(), this.plugin, result -> {});
         }
     }
@@ -183,7 +184,7 @@ public class Finish {
                     .replace("{Team}", teamColor.getName(gameInstance).toUpperCase()));
             String Subtitle = AmazingTowers.getColor(messages.getString("win.titles.winSubTitle"));
             for (Player player : gameInstance.getGame().getPlayers()) {
-                this.plugin.getNms().sendTitle(player, Title, Subtitle, 10, 100, 20);
+                ReflectionMethods.sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
         }
         gameInstance.broadcastMessage(messages.getString("win.chatMessage")
@@ -232,7 +233,7 @@ public class Finish {
                     for (Player pl : team.getListOnlinePlayers()) {
                         pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                         if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
-                            AmazingTowers.getPlugin().getNms().sendTitle(pl, title, "", 0, 50, 20);
+                            ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);
                         else
                             pl.sendMessage(title);
                     }
@@ -262,7 +263,7 @@ public class Finish {
                     if (mostPoints.contains(team)) {
                         for (Player pl : team.getListOnlinePlayers()) {
                             if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("goldenGoal.titles.enabled"))
-                                AmazingTowers.getPlugin().getNms().sendTitle(pl, title, subTitle, 0, 50, 20);
+                                ReflectionMethods.sendTitle(pl, title, subTitle, 0, 50, 20);
                             else {
                                 pl.sendMessage(title);
                                 pl.sendMessage(subTitle);

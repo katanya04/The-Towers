@@ -2,10 +2,9 @@ package mx.towers.pato14.utils.rewards;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.utils.plugin.PluginA;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class SetupVault {
@@ -49,6 +48,14 @@ public class SetupVault {
 
     public static Economy getVaultEconomy() {
         return economy;
+    }
+
+    public static double getCoins(Player player) {
+        return (getVaultEconomy() != null) ? getVaultEconomy().getBalance(player) : 0.0D;
+    }
+
+    public static String getPrefixRank(Player player) {
+        return (SetupVault.getVaultChat() != null) ? SetupVault.getVaultChat().getPlayerPrefix(player) : "";
     }
 }
 

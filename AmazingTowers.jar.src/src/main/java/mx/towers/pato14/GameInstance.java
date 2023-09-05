@@ -141,8 +141,6 @@ public class GameInstance extends TowersWorldInstance {
                     player.setGameMode(GameMode.SPECTATOR);
                 break;
         }
-        if (this.getConfig(ConfigType.CONFIG).getBoolean("options.mysql.active"))
-            this.plugin.connexion.createAccount(player.getName());
     }
 
     @Override
@@ -165,6 +163,7 @@ public class GameInstance extends TowersWorldInstance {
                         break;
                     case GAME:
                     case GOLDEN_GOAL:
+                        game.getTimer().removeBossBar(player.getName());
                         if (playerTeam == null)
                             break;
                         playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);

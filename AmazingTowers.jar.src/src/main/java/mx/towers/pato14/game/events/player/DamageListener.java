@@ -32,7 +32,7 @@ public class DamageListener implements Listener {
         } else if (instance instanceof GameInstance && e.getCause() == EntityDamageEvent.DamageCause.VOID) {
             if (((GameInstance) instance).getGame() == null)
                 return;
-            if (((GameInstance) instance).getGame().getGameState() == GameState.GAME)
+            if (((GameInstance) instance).getGame().getGameState() != GameState.FINISH)
                 if (player.getHealth() > 0.0)
                     player.setHealth(0.0);
             e.setCancelled(true);
@@ -53,6 +53,10 @@ public class DamageListener implements Listener {
             GameInstance gameInstance = (GameInstance) instance;
             if (gameInstance.getGame() == null)
                 return;
+            if (gameInstance.getGame().getGameState() == GameState.FINISH) {
+                e.setCancelled(true);
+                return;
+            }
             GameTeams teams = gameInstance.getGame().getTeams();
             if (e.getDamager().getType().equals(EntityType.PLAYER)) { // Player attacks player
                 if (teams.getTeamByPlayer(e.getEntity().getName()).equals(teams.getTeamByPlayer(e.getEntity().getName())))

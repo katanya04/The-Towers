@@ -6,6 +6,7 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.inventivetalent.bossbar.BossBar;
@@ -13,17 +14,21 @@ import org.inventivetalent.bossbar.BossBarAPI;
 import org.inventivetalent.bossbar.EntityBossBar;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Timer {
     private boolean activated;
     private int time;
-    private BossBar bossBar;
+    private final Map<String, BossBar> bossBars;
     private BukkitRunnable timerTask;
     private final String name;
+    private TextComponent title;
     public Timer(GameInstance gameInstance) {
         this.name = gameInstance.getName();
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);
+        this.bossBars = new HashMap<>();
     }
     private boolean getActivated(GameInstance gameInstance) {
         return Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated"));
@@ -44,33 +49,39 @@ public class Timer {
         this.time = getTime(gameInstance);
         if (gameInstance.getGame().getGameState() == GameState.GAME) {
             timerTask.cancel();
-            for (Player player : bossBar.getPlayers())
-                bossBar.removePlayer(player);
+            removeBossBar();
             timerStart();
         }
     }
 
+    private BossBar createBossBar(Player player) {
+        BossBar toret  = BossBarAPI.addBar(player, this.title,
+                BossBarAPI.Color.PURPLE, // Unused
+                BossBarAPI.Style.PROGRESS, // Unused
+                1.0f, // Progress (0.0 - 1.0)
+                time, // Timeout
+                2L // Timeout-interval Unused
+        );
+        toret.setProperty(BossBarAPI.Property.CREATE_FOG, false);
+        toret.setProperty(BossBarAPI.Property.DARKEN_SKY, false);
+        toret.setProperty(BossBarAPI.Property.PLAY_MUSIC, false);
+        try {
+            Field field = EntityBossBar.class.getDeclaredField("minHealth");
+            field.setAccessible(true);
+            field.setFloat(toret, -0.1F);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while starting the timer", MessageType.ERROR);
+        }
+        return toret;
+    }
+
     public void timerStart() {
-        TextComponent title = new TextComponent(AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS).getString("timer.message").replace("%time%", AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS).getString("timer.time")));
-        title.setColor(ChatColor.LIGHT_PURPLE);
+        this.title = new TextComponent(AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS)
+                .getString("timer.message").replace("%time%", AmazingTowers.getGameInstance(name)
+                        .getConfig(ConfigType.GAME_SETTINGS).getString("timer.time")));
+        this.title.setColor(ChatColor.LIGHT_PURPLE);
         for (Player player : AmazingTowers.getGameInstance(name).getGame().getPlayers()) {
-            bossBar = BossBarAPI.addBar(player, title,
-                    BossBarAPI.Color.PURPLE, // Unused
-                    BossBarAPI.Style.PROGRESS, // Unused
-                    1.0f, // Progress (0.0 - 1.0)
-                    time, // Timeout
-                    2L // Timeout-interval Unused
-            );
-            bossBar.setProperty(BossBarAPI.Property.CREATE_FOG, false);
-            bossBar.setProperty(BossBarAPI.Property.DARKEN_SKY, false);
-            bossBar.setProperty(BossBarAPI.Property.PLAY_MUSIC, false);
-            try {
-                Field field = EntityBossBar.class.getDeclaredField("minHealth");
-                field.setAccessible(true);
-                field.setFloat(bossBar, -0.1F);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                AmazingTowers.getPlugin().sendConsoleMessage("Error while starting the timer", MessageType.ERROR);
-            }
+            bossBars.put(player.getName(), createBossBar(player));
         }
         (timerTask = new BukkitRunnable() {
             public void run() {
@@ -86,29 +97,43 @@ public class Timer {
                     return;
                 }
                 time--;
-                bossBar.setMessage(ChatColor.LIGHT_PURPLE + AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS).getString("timer.message").replace("%time%", Utils.intTimeToString(time)));
-                bossBar.setProgress((float) time / getTime(AmazingTowers.getGameInstance(name)));
+                for (BossBar bossBar : bossBars.values()) {
+                    bossBar.setMessage(ChatColor.LIGHT_PURPLE + AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS).getString("timer.message").replace("%time%", Utils.intTimeToString(time)));
+                    bossBar.setProgress((float) time / getTime(AmazingTowers.getGameInstance(name)));
+                }
             }
         }).runTaskTimer(AmazingTowers.getPlugin(), 20L, 20L);
     }
 
     private void removeBossBar() {
-        for (Player player : bossBar.getPlayers()) {
-            bossBar.removePlayer(player);
+        for (Map.Entry<String, BossBar> bossBar : bossBars.entrySet()) {
+            Player player = Bukkit.getPlayer(bossBar.getKey());
+            if (player == null)
+                bossBars.remove(bossBar.getKey());
+            else
+                bossBar.getValue().removePlayer(player);
         }
     }
 
-    public void addPlayer(Player player) {
-        bossBar.addPlayer(player);
+    public void removeBossBar(String playerName) {
+        Player player = Bukkit.getPlayer(playerName);
+        if (player != null)
+            bossBars.get(playerName).removePlayer(player);
     }
 
-    public BossBar getBossBar() {
-        return bossBar;
+    public void addPlayer(Player player) {
+        bossBars.put(player.getName(), createBossBar(player));
+    }
+
+    public Map<String, BossBar> getBossBars() {
+        return bossBars;
     }
 
     public void reset() {
         removeBossBar();
-        bossBar.setProgress(-10);
-        bossBar = null;
+        for (BossBar bossBar : bossBars.values()) {
+            bossBar.setProgress(-10);
+        }
+        bossBars.clear();
     }
 }

@@ -31,14 +31,6 @@ public class VaultT {
             player.sendMessage(AmazingTowers.getColor(this.gameInstance.getConfig(ConfigType.CONFIG).getString("options.rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
         }
     }
-
-    public double getCoins(Player player) {
-        return (SetupVault.getVaultEconomy() != null) ? SetupVault.getVaultEconomy().getBalance(player) : 0.0D;
-    }
-
-    public String getPrefixRank(Player player) {
-        return (SetupVault.getVaultChat() != null) ? SetupVault.getVaultChat().getPlayerPrefix(player) : "";
-    }
 }
 
 

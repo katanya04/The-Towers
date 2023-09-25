@@ -19,7 +19,7 @@ import java.util.List;
 public class TeamChatListener implements Listener {
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent e) {
+    public static void onChat(AsyncPlayerChatEvent e) {
         final TowersWorldInstance instance = AmazingTowers.getInstance(e.getPlayer());
         if (instance == null)
             return;
@@ -28,9 +28,9 @@ public class TeamChatListener implements Listener {
         e.setCancelled(true);
         String name = e.getPlayer().getName();
         String msg = e.getMessage();
-        if (msg.startsWith("!!") && AmazingTowers.getPlugin().getGlobalConfig().getBoolean("globalChat.activated")) {
+        if (msg.startsWith("!!") && AmazingTowers.getGlobalConfig().getBoolean("globalChat.activated")) {
             for (Player player : AmazingTowers.getAllOnlinePlayers()) {
-                player.sendMessage(AmazingTowers.getColor(AmazingTowers.getPlugin().getGlobalConfig()
+                player.sendMessage(AmazingTowers.getColor(AmazingTowers.getGlobalConfig()
                                 .getString("globalChat.format").replace("%vault_prefix%", SetupVault
                                         .getPrefixRank(e.getPlayer())).replace("%player%", name))
                                 .replace("%instance_name%", instance.getConfig(ConfigType.CONFIG).getString("name"))

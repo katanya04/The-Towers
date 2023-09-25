@@ -29,7 +29,7 @@ public class SetupVault {
     }
 
     public static void setupVault() {
-        if (plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.rewards.vault")) {
             plugin.sendConsoleMessage("Looking for the vault plugin...", MessageType.INFO);
             if (plugin.getServer().getPluginManager().getPlugin("Vault") != null) {
                 plugin.sendConsoleMessage("It has been detected that you have the Vault plugin, loading Chat and Economy...", MessageType.INFO);
@@ -37,7 +37,7 @@ public class SetupVault {
                 plugin.sendConsoleMessage(setupChat() ? "§aChat§f: " + chat.getName() : "§aChat§f: [NONE]", MessageType.INFO);
             } else {
                 plugin.sendConsoleMessage("Apparently you do not have the Vault plugin, so the compatibility of this will be disabled", MessageType.WARNING);
-                plugin.getGlobalConfig().set("options.rewards.vault", false);
+                AmazingTowers.getGlobalConfig().set("options.rewards.vault", false);
             }
         }
     }

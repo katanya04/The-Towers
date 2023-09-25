@@ -47,13 +47,13 @@ public class JoinTeamItem extends ActionItem {
                 player.setGameMode(GameMode.SPECTATOR);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
                 if (currentTeam != null)
-                    currentTeam.removePlayer(player);
+                    currentTeam.removePlayer(player.getName());
                 player.closeInventory();
             }
         } else if (!teamToJoin.containsPlayer(player.getName())) { //Si no está ya en ese equipo
             if (!gameInstance.getRules().get(Rule.BALANCED_TEAMS)
                     || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
-                teamToJoin.addPlayer(player);
+                teamToJoin.addPlayer(player.getName());
                 if (game.getGameState().equals(GameState.GAME))
                     Dar.joinTeam((Player) player);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")

@@ -58,6 +58,7 @@ public class Start {
                     }
                     setSeconds(20);
                     game.getGameInstance().getScoreUpdates().updateScoreboardAll();
+                    hasStarted = false;
                     cancel();
                     return;
                 }

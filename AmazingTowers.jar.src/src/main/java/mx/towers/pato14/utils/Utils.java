@@ -9,6 +9,7 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
@@ -285,10 +286,16 @@ public class Utils {
     }
 
     public static void updatePlayerTab(Player player) {
+        TowersWorldInstance playerInstance = AmazingTowers.getInstance(player);
         for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
             if (player.getWorld().equals(player1.getWorld())) {
                 player1.showPlayer(player);
                 player.showPlayer(player1);
+                if (!(playerInstance instanceof GameInstance))
+                    continue;
+                //Team team;
+                //if ((team = ((GameInstance) playerInstance).getGame().getTeams().getTeamByPlayer(player1.getName())) != null)
+                NametagEdit.getApi().reloadNametag(player);
             } else {
                 player1.hidePlayer(player);
                 player.hidePlayer(player1);
@@ -300,17 +307,17 @@ public class Utils {
         NametagEdit.getApi().clearNametag(player);
     }
 
-    public static List<List<net.md_5.bungee.api.chat.TextComponent>> getLines(List<net.md_5.bungee.api.chat.TextComponent> text) { //Thx to Swedz :)
+    public static List<List<TextComponent>> getLines(List<TextComponent> text) { //Thx to Swedz :)
         //Note that the only flaw with using MinecraftFont is that it can't account for some UTF-8 symbols, it will throw an IllegalArgumentException
         final MinecraftFont font = new MinecraftFont();
         final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
 
         //Get all of our lines
-        List<List<net.md_5.bungee.api.chat.TextComponent>> lines = new ArrayList<>();
+        List<List<TextComponent>> lines = new ArrayList<>();
         try {
-            List<net.md_5.bungee.api.chat.TextComponent> line = new ArrayList<>();
-            for (net.md_5.bungee.api.chat.TextComponent textComponent : text) {
-                String rawLine = ChatColor.stripColor(line.stream().map(net.md_5.bungee.api.chat.TextComponent::getText).reduce("", String::concat));
+            List<TextComponent> line = new ArrayList<>();
+            for (TextComponent textComponent : text) {
+                String rawLine = ChatColor.stripColor(line.stream().map(TextComponent::getText).reduce("", String::concat));
                 rawLine += ChatColor.stripColor(textComponent.getText());
                 if (font.getWidth(rawLine) > maxLineWidth) {
                     lines.add(line);

@@ -114,7 +114,7 @@ public class TowerCommand implements CommandExecutor
                 break;
             case ORGANIZER:
                 assert gameInstance != null;
-                String password = this.plugin.getGlobalConfig().getString("permissions.password.organizer");
+                String password = AmazingTowers.getGlobalConfig().getString("permissions.password.organizer");
                 if (password != null && !password.isEmpty() && args[1].equals(password)) {
                     PermissionAttachment organizer;
                     organizer = sender.addAttachment(this.plugin);
@@ -166,7 +166,7 @@ public class TowerCommand implements CommandExecutor
                 assert gameInstance != null;
                 Player p = Bukkit.getPlayer(args[2]);
                 if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
-                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p);
+                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p.getName());
                     Dar.joinTeam(p);
                 } else
                     Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
@@ -303,7 +303,7 @@ public class TowerCommand implements CommandExecutor
             case VAULTINFO:
                 if (Bukkit.getPluginManager().getPlugin("Vault") == null)
                     Utils.sendMessage("§cThe vault plugin doesn't exist", MessageType.INFO, sender);
-                else if (this.plugin.getGlobalConfig().getBoolean("options.rewards.vault")) {
+                else if (AmazingTowers.getGlobalConfig().getBoolean("options.rewards.vault")) {
                     final String format = ChatColor.GRAY + "%s: [%s]";
                     Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
                     Utils.sendMessage(" §f*Vault* ", MessageType.NO_PREFIX, sender);

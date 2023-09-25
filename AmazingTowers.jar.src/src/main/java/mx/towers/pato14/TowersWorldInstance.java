@@ -28,7 +28,7 @@ public abstract class TowersWorldInstance {
         registerConfigs(name, aClass);
         SetupVault.setupVault();
         this.scoreUpdate = new ScoreUpdate(this);
-        if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         }
     }

@@ -35,6 +35,8 @@ public class Expansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
         String toret;
+        if (plugin.connexion == null)
+            return "0";
         int[] result = plugin.connexion.getStats(player.getName());
         if (params.equalsIgnoreCase("kills")) {
             toret = Integer.toString(result[0]);

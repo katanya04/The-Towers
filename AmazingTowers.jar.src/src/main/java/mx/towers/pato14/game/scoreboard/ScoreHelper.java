@@ -14,24 +14,7 @@ import org.bukkit.scoreboard.Team;
 public class ScoreHelper {
     private static final HashMap<UUID, ScoreHelper> players = new HashMap<>();
     private final Scoreboard scoreboard;
-
-    public static boolean hasScore(Player player) {
-        return players.containsKey(player.getUniqueId());
-    }
-
     private final Objective sidebar;
-
-    public static ScoreHelper createScore(Player player) {
-        return new ScoreHelper(player);
-    }
-
-    public static ScoreHelper getByPlayer(Player player) {
-        return players.get(player.getUniqueId());
-    }
-
-    public static ScoreHelper removeScore(Player player) {
-        return players.remove(player.getUniqueId());
-    }
 
     private ScoreHelper(Player player) {
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -44,6 +27,19 @@ public class ScoreHelper {
         player.setScoreboard(this.scoreboard);
         players.put(player.getUniqueId(), this);
     }
+    public static boolean hasScore(Player player) {
+        return players.containsKey(player.getUniqueId());
+    }
+    public static ScoreHelper createScore(Player player) {
+        return new ScoreHelper(player);
+    }
+    public static ScoreHelper getByPlayer(Player player) {
+        return players.get(player.getUniqueId());
+    }
+    public static ScoreHelper removeScore(Player player) {
+        return players.remove(player.getUniqueId());
+    }
+
 
     public void setTitle(String title) {
         title = ChatColor.translateAlternateColorCodes('&', title);

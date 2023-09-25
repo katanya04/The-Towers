@@ -32,17 +32,17 @@ public class Team {
         this.eliminated = false;
     }
 
-    public void removePlayer(HumanEntity player) {
-        this.players.remove(player.getName());
-        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(player.getName());
+    public void removePlayer(String playerName) {
+        this.players.remove(playerName);
+        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(playerName);
     }
 
-    public void addPlayer(HumanEntity player) {
+    public void addPlayer(String playerName) {
         Team currentTeam;
-        if ((currentTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName())) != null)
-            currentTeam.removePlayer(player);
-        this.players.put(player.getName(), PlayerState.ONLINE);
-        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).addPlayerNameToTeamItem(player.getName());
+        if ((currentTeam = gameInstance.getGame().getTeams().getTeamByPlayer(playerName)) != null)
+            currentTeam.removePlayer(playerName);
+        this.players.put(playerName, PlayerState.ONLINE);
+        gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).addPlayerNameToTeamItem(playerName);
     }
 
     public void setNameTagPlayer(Player player) {
@@ -133,6 +133,8 @@ public class Team {
     }
 
     public void reset() {
+        for (String playerName : this.players.keySet())
+            removePlayer(playerName);
         players.clear();
         points = 0;
         eliminated = false;

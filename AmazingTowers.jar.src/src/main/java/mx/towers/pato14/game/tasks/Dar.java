@@ -5,7 +5,6 @@ import com.google.common.io.ByteStreams;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -15,7 +14,6 @@ import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.potion.PotionEffect;
 
 public class Dar {
     private static final AmazingTowers plugin = AmazingTowers.getPlugin();
@@ -51,10 +49,10 @@ public class Dar {
     }
 
     public static void bungeecordTeleport(Player player) {
-        if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Connect");
-            out.writeUTF(plugin.getGlobalConfig().getString("options.bungeecord.server_name"));
+            out.writeUTF(AmazingTowers.getGlobalConfig().getString("options.bungeecord.server_name"));
             player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
         }
     }

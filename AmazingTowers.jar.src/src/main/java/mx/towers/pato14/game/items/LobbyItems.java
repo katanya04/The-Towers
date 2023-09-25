@@ -12,7 +12,7 @@ public class LobbyItems extends HotbarItems {
     public LobbyItems(LobbyInstance lobbyInstance) {
         Config config = lobbyInstance.getConfig(ConfigType.CONFIG);
         this.hotbarItems.put(config.getInt("lobbyItems.selectGame.position"), (this.selectGameMenu = new SelectGameMenu(lobbyInstance)));
-        if (AmazingTowers.getPlugin().getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             this.hotbarItems.put(config.getInt("lobbyItems.quit.position"), new BungeecordQuit(lobbyInstance));
         }
     }

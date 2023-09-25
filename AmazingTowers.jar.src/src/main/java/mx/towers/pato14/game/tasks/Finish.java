@@ -36,7 +36,7 @@ public class Finish {
     public Finish(GameInstance gameInstance) {
         this.name = gameInstance.getName();
         seconds = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1;
-        bungeecord = plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled");
+        bungeecord = AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled");
     }
     public void Fatality(final TeamColor teamColor) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
@@ -63,7 +63,7 @@ public class Finish {
                             GameInstance gameToTp;
                             for (Player player : gameInstance.getGame().getPlayers()) {
                                 if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
-                                        && (gameToTp = plugin.checkForInstanceToTp(player)) != null) {
+                                        && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
                                     Utils.tpToWorld(gameToTp.getWorld(), gameInstance.getGame().getPlayers().toArray(new Player[0]));
                                     Dar.joinGameLobby(player);
                                 } else {
@@ -276,6 +276,10 @@ public class Finish {
                 }
             }
         }
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
     }
 }
 

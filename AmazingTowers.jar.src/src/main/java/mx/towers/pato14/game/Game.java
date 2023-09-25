@@ -143,6 +143,7 @@ public class Game {
         this.gameStart.setHasStarted(false);
         this.gameStart.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart"));
         this.gameStart.setRunFromCommand(false);
+        this.finish.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1);
         this.teams.reset();
         this.stats.clear();
         if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())

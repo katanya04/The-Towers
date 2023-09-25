@@ -24,13 +24,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class AmazingTowers extends JavaPlugin {
-
     private static AmazingTowers plugin;
     private static LobbyInstance lobby;
     private static HashMap<String, GameInstance> games;
     private static boolean connectedToDatabase;
     private Wand wand;
-    private Config globalConfig;
+    private static Config globalConfig;
     public Connexion connexion;
 
     public void onEnable() {
@@ -48,15 +47,15 @@ public final class AmazingTowers extends JavaPlugin {
 
         getCommand("towers").setExecutor(new TowerCommand());
 
-        this.globalConfig = new Config(this, "globalConfig.yml", true);
+        globalConfig = new Config(this, "globalConfig.yml", true);
 
-        int numberOfInstances = this.globalConfig.getInt("options.instances.amount");
+        int numberOfInstances = globalConfig.getInt("options.instances.amount");
 
         for (int i = 0; i < numberOfInstances; i++)
             games.put("TheTowers" + (i + 1), new GameInstance("TheTowers" + (i + 1)));
 
-        if (this.globalConfig.getBoolean("options.lobby.activated"))
-            lobby = new LobbyInstance(this.globalConfig.getString("options.lobby.worldName"));
+        if (globalConfig.getBoolean("options.lobby.activated"))
+            lobby = new LobbyInstance(globalConfig.getString("options.lobby.worldName"));
 
         if (getGlobalConfig().getBoolean("options.mysql.active")) {
             try {
@@ -150,7 +149,7 @@ public final class AmazingTowers extends JavaPlugin {
         return games.get(worldName);
     }
 
-    public Config getGlobalConfig() {
+    public static Config getGlobalConfig() {
         return globalConfig;
     }
 
@@ -174,7 +173,7 @@ public final class AmazingTowers extends JavaPlugin {
         return SetupVault.getVaultEconomy() != null;
     }
 
-    public GameInstance checkForInstanceToTp(Player player) {
+    public static GameInstance checkForInstanceToTp(Player player) {
         for (GameInstance gameInstance : games.values()) {
             if (!gameInstance.canJoin(player))
                 continue;

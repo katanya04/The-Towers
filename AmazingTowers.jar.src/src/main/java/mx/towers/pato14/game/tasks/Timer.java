@@ -136,4 +136,8 @@ public class Timer {
         }
         bossBars.clear();
     }
+
+    public boolean isActivated() {
+        return activated;
+    }
 }

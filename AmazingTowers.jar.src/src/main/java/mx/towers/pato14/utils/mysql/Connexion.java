@@ -19,15 +19,15 @@ public class Connexion {
 
     public Connection connection;
 
-    String hostname = this.plugin.getGlobalConfig().getString("options.mysql.hostname");
+    String hostname = AmazingTowers.getGlobalConfig().getString("options.mysql.hostname");
 
     //String port = this.t.getGlobalConfig().getString("options.mysql.port");
 
-    String database = this.plugin.getGlobalConfig().getString("options.mysql.database");
+    String database = AmazingTowers.getGlobalConfig().getString("options.mysql.database");
 
-    String user = this.plugin.getGlobalConfig().getString("options.mysql.user");
+    String user = AmazingTowers.getGlobalConfig().getString("options.mysql.user");
 
-    String password = this.plugin.getGlobalConfig().getString("options.mysql.password");
+    String password = AmazingTowers.getGlobalConfig().getString("options.mysql.password");
 
     public void connect() {
         try {
@@ -35,7 +35,7 @@ public class Connexion {
             this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
                     "/" + this.database + "?autoReconnect=true", this.user, this.password);
         } catch (SQLException e) {
-            this.plugin.getGlobalConfig().set("options.mysql.active", false);
+            AmazingTowers.getGlobalConfig().set("options.mysql.active", false);
             this.plugin.saveConfig();
         } catch (ClassNotFoundException ignored) {}
     }

@@ -9,7 +9,6 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.CheckLocations;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
@@ -49,7 +48,7 @@ public class GameInstance extends TowersWorldInstance {
         setRules();
 
         if (this.checkLocations.neededLocationsExist()) {
-            if (plugin.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+            if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             }
             if (overwriteWithBackup(name)) {
@@ -121,7 +120,8 @@ public class GameInstance extends TowersWorldInstance {
                 Dar.joinGameLobby(player);
                 break;
             case GAME:
-                game.getTimer().addPlayer(player);
+                if (game.getTimer().isActivated())
+                    game.getTimer().addPlayer(player);
                 if (team != null) {
                     if (team.respawnPlayers()) {
                         team.setPlayerState(player.getName(), PlayerState.ONLINE);
@@ -157,7 +157,7 @@ public class GameInstance extends TowersWorldInstance {
                     case LOBBY:
                     case PREGAME:
                         if (playerTeam != null) {
-                            playerTeam.removePlayer(player);
+                            playerTeam.removePlayer(player.getName());
                             NametagEdit.getApi().clearNametag(player);
                         }
                         break;

@@ -3,6 +3,8 @@
 # <#             Author: Pato14, Marco2124            #> #
 # +###----------------------------------------------###+ #
 
+playerJoinedLobby: "&l{player}&r entro al servidor"
+
 canNotJoinGame: "&cNo te puedes unir en este momento"
 
 player: "jugador"

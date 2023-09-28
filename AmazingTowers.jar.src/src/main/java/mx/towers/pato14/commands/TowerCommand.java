@@ -122,6 +122,12 @@ public class TowerCommand implements CommandExecutor
                     organizer.setPermission("towers.organizer", true);
                 }
                 break;
+            case LOBBY:
+                if (AmazingTowers.getLobby() != null)
+                    Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
+                else
+                    Utils.sendMessage("No existe lobby principal", MessageType.ERROR, sender);
+                break;
             case COUNT:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().ordinal() < 2) {

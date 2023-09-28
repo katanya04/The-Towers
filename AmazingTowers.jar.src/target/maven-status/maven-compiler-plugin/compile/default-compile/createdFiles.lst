@@ -69,7 +69,6 @@ mx\towers\pato14\utils\Utils.class
 mx\towers\pato14\utils\cofresillos\RefillTask.class
 mx\towers\pato14\utils\enums\LocationType.class
 mx\towers\pato14\commands\Subcommand.class
-mx\towers\pato14\GameInstance$2.class
 mx\towers\pato14\utils\rewards\VaultT.class
 mx\towers\pato14\game\items\ActionItem.class
 mx\towers\pato14\game\items\menus\JoinTeamItem.class

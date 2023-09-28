@@ -33,8 +33,6 @@ public final class AmazingTowers extends JavaPlugin {
     public Connexion connexion;
 
     public void onEnable() {
-        System.out.println(System.getProperty("java.class.path"));
-        System.out.println(System.getenv("java.class.path"));
         plugin = this;
         games = new HashMap<>();
 

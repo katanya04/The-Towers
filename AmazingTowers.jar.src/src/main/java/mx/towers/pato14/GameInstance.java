@@ -83,6 +83,7 @@ public class GameInstance extends TowersWorldInstance {
         for (Rule rule : Rule.values())
             this.rules.put(rule, Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("rules." + Utils.macroCaseToCamelCase(rule.name()))));
     }
+
     public VaultT getVault() {
         return this.vault;
     }
@@ -94,9 +95,11 @@ public class GameInstance extends TowersWorldInstance {
     public Map<Rule, Boolean> getRules() {
         return rules;
     }
+
     public int getNumberOfTeams() {
         return numberOfTeams;
     }
+
     public CheckLocations getDetectoreishon() {
         return checkLocations;
     }
@@ -149,30 +152,27 @@ public class GameInstance extends TowersWorldInstance {
         final Team playerTeam = this.getGame().getTeams().getTeamByPlayer(player.getName());
         this.getPermissions().remove(player.getName());
         AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
+        GameInstance.this.getScoreUpdates().updateScoreboardAll();
 
-        (new BukkitRunnable() {
-            public void run() {
-                GameInstance.this.getScoreUpdates().updateScoreboardAll();
-                switch (GameInstance.this.getGame().getGameState()) {
-                    case LOBBY:
-                    case PREGAME:
-                        if (playerTeam != null) {
-                            playerTeam.removePlayer(player.getName());
-                            NametagEdit.getApi().clearNametag(player);
-                        }
-                        break;
-                    case GAME:
-                    case GOLDEN_GOAL:
-                        game.getTimer().removeBossBar(player.getName());
-                        if (playerTeam == null)
-                            break;
-                        playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
-                        if (playerTeam.getSizeOnlinePlayers() <= 0)
-                            Utils.checkForTeamWin(GameInstance.this);
-                        break;
+        switch (GameInstance.this.getGame().getGameState()) {
+            case LOBBY:
+            case PREGAME:
+                if (playerTeam != null) {
+                    playerTeam.removePlayer(player.getName());
+                    NametagEdit.getApi().clearNametag(player);
                 }
-            }
-        }).runTaskLaterAsynchronously(this.plugin, 5L);
+                break;
+            case GAME:
+            case GOLDEN_GOAL:
+                if (game.getTimer().isActivated())
+                    game.getTimer().removeBossBar(player.getName());
+                if (playerTeam == null)
+                    break;
+                playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
+                if (playerTeam.getSizeOnlinePlayers() <= 0)
+                    Utils.checkForTeamWin(GameInstance.this);
+                break;
+        }
     }
 
     public boolean canJoin(HumanEntity player) {
@@ -187,13 +187,16 @@ public class GameInstance extends TowersWorldInstance {
     public void updateWhiteList() {
         this.whitelist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("whitelist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players"));
     }
+
     public void updateBlackList() {
         this.blacklist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("blacklist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players"));
     }
+
     public void updateLists() {
         updateWhiteList();
         updateBlackList();
     }
+
     @Override
     public void reset() {
         super.reset();

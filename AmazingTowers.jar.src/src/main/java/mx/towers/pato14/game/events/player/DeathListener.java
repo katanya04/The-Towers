@@ -38,21 +38,22 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = (GameInstance) instance;
         if (gameInstance.getGame() == null)
             return;
+        e.setDeathMessage(null);
         final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
         final String finalKill = playerTeam == null || playerTeam.respawnPlayers() ? "" : AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
         if (killer == null) {
-            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
+            instance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
                     .replace("{Player}", player.getName())
-                    .replace("{Color}", playerColor)));
+                    .replace("{Color}", playerColor), true);
         } else {
             final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            e.setDeathMessage(finalKill + AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
+            instance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)
-                    .replace("{Killer}", killer.getName())));
+                    .replace("{Killer}", killer.getName()), true);
             addRewardsKiller(killer);
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);

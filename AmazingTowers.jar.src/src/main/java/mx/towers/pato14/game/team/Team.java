@@ -134,7 +134,7 @@ public class Team {
 
     public void reset() {
         for (String playerName : this.players.keySet())
-            removePlayer(playerName);
+            gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(playerName);
         players.clear();
         points = 0;
         eliminated = false;

@@ -20,6 +20,8 @@ public class JoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         LobbyInstance lobby = AmazingTowers.getLobby();
         if (lobby != null) {
+            e.setJoinMessage(AmazingTowers.getColor(lobby.getConfig(ConfigType.MESSAGES).getString("playerJoinedLobby")
+                    .replace("{player}", e.getPlayer().getName())));
             Player player = e.getPlayer();
             GameInstance gameInstance = AmazingTowers.getGameInstance(player);
             if (gameInstance != null)

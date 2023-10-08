@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class SelectCofresillos implements Listener {
 
@@ -74,7 +75,11 @@ public class SelectCofresillos implements Listener {
         for (Location ch : Chests.keySet()) {
             if (ch.getBlock().getType() == Material.CHEST) {
                 Chest cht = (Chest) ch.getBlock().getState();
-                cht.getInventory().setContents(FixedItem.fixedItemToItemStack(Chests.get(ch)));
+                new BukkitRunnable() {
+                    public void run() {
+                        cht.getInventory().setContents(FixedItem.fixedItemToItemStack(Chests.get(ch)));
+                    }
+                }.runTaskAsynchronously(AmazingTowers.getPlugin());
             }
         }
     }

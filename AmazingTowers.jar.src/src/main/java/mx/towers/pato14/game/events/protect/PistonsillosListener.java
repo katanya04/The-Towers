@@ -13,15 +13,10 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 
 public class PistonsillosListener implements Listener {
-    private final AmazingTowers plugin;
-
-    public PistonsillosListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onPiston(BlockPistonExtendEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getBlock());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
@@ -49,7 +44,7 @@ public class PistonsillosListener implements Listener {
 
     @EventHandler
     public void onSticky(BlockPistonRetractEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getBlock());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);

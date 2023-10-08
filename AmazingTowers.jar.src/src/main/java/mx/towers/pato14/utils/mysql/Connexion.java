@@ -16,19 +16,12 @@ import mx.towers.pato14.utils.stats.Stats;
 
 public class Connexion {
     AmazingTowers plugin = AmazingTowers.getPlugin();
-
     public Connection connection;
-
     String hostname = AmazingTowers.getGlobalConfig().getString("options.mysql.hostname");
-
     //String port = this.t.getGlobalConfig().getString("options.mysql.port");
-
     String database = AmazingTowers.getGlobalConfig().getString("options.mysql.database");
-
     String user = AmazingTowers.getGlobalConfig().getString("options.mysql.user");
-
     String password = AmazingTowers.getGlobalConfig().getString("options.mysql.password");
-
     public void connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver");

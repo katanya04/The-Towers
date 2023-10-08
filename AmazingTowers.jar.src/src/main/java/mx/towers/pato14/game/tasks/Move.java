@@ -68,7 +68,7 @@ public class Move {
                 team.scorePoint(false);
             gameInstance.getScoreUpdates().updateScoreboardAll();
             gameInstance.getGame().getStats().addOne(player.getName(), StatType.POINTS);
-            gameInstance.getVault().setReward(player, RewardsEnum.POINT);
+            gameInstance.getVault().giveReward(player, RewardsEnum.POINT);
             gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")
                             .replace("{Player}", player.getName())
                             .replace("{Color}", team.getTeamColor().getColor())

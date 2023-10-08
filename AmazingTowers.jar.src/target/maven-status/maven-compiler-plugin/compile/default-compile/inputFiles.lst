@@ -25,7 +25,6 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ga
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\scoreboard\ScoreHelper.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\stats\Stats.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\team\Team.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\locations\CheckLocations.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\OrePlacedListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\TeamTrollListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\exceptions\ParseItemException.java
@@ -42,18 +41,16 @@ C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\ut
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\nms\ReflectionMethods.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\BlockStats.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Finish.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\utils\Book.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\SelectKit.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\items\menus\settings\SaveSettings.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\Game.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\tasks\Dar.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\BowListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\locations\Pool.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\LobbyInstance.java
+C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\ChestsProtect.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\PistonsillosListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\world\WorldReset.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\utils\locations\Locations.java
-C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\CofresillosListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\player\JoinListener.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\GameInstance.java
 C:\spigot\plugins\FKB TT\AmazingTowers.jar.src\src\main\java\mx\towers\pato14\game\events\protect\FallingSandTrollListener.java

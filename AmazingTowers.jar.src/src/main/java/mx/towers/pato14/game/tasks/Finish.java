@@ -21,7 +21,6 @@ import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -33,17 +32,19 @@ public class Finish {
     private int seconds;
     private final boolean bungeecord;
     private final String name;
+
     public Finish(GameInstance gameInstance) {
         this.name = gameInstance.getName();
         seconds = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1;
         bungeecord = AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled");
     }
+
     public void Fatality(final TeamColor teamColor) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
         if (!gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
             gameInstance.getGame().setGameState(GameState.FINISH);
         }
-        for (String p: gameInstance.getGame().getStats().getPlayerStats().keySet()) {
+        for (String p : gameInstance.getGame().getStats().getPlayerStats().keySet()) {
             gameInstance.getGame().getStats().addOne(p, StatType.GAMES_PLAYED);
             if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(p))
                 gameInstance.getGame().getStats().addOne(p, StatType.WINS);
@@ -64,23 +65,17 @@ public class Finish {
                             for (Player player : gameInstance.getGame().getPlayers()) {
                                 if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
                                         && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
-                                    Utils.tpToWorld(gameToTp.getWorld(), gameInstance.getGame().getPlayers().toArray(new Player[0]));
-                                    Dar.joinGameLobby(player);
+                                    Utils.tpToWorld(gameToTp.getWorld(), player);
                                 } else {
-                                    if (bungeecord) {
-                                        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
-                                        Dar.bungeecordTeleport(player);
-                                        if (gameInstance.getGame().getPlayers().isEmpty()) {
-                                            run();
-                                            return;
-                                        }
-                                        cancel();
-                                        return;
-                                    }
-                                    player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
-                                            .replace("{Color}", teamColor.getColor())
-                                            .replace("{Team}", teamColor.getName(gameInstance))
-                                            .replace("%newLine%", "\n")));
+                                    if (AmazingTowers.getLobby() != null)
+                                        Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
+                                    else if (bungeecord)
+                                        Utils.bungeecordTeleport(player);
+                                    else
+                                        player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
+                                                .replace("{Color}", teamColor.getColor())
+                                                .replace("{Team}", teamColor.getName(gameInstance))
+                                                .replace("%newLine%", "\n")));
                                 }
                             }
                             Bukkit.unloadWorld(gameInstance.getName(), false);
@@ -150,13 +145,14 @@ public class Finish {
                 SetupVault.getVaultEconomy() != null) {
             for (Player player : gameInstance.getGame().getPlayers()) {
                 if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(player.getName())) {
-                    AmazingTowers.getGameInstance(player).getVault().setReward(player, RewardsEnum.WIN);
+                    AmazingTowers.getGameInstance(player).getVault().giveReward(player, RewardsEnum.WIN);
                 } else if (gameInstance.getGame().getTeams().getTeamByPlayer(player.getName()) != null)
-                    AmazingTowers.getGameInstance(player).getVault().setReward(player, RewardsEnum.LOSER_TEAM);
+                    AmazingTowers.getGameInstance(player).getVault().giveReward(player, RewardsEnum.LOSER_TEAM);
             }
         }
         if (AmazingTowers.isConnectedToDatabase()) {
-            FindOneCallback.updatePlayersDataAsync(gameInstance.getGame().getStats().getPlayerStats(), this.plugin, result -> {});
+            FindOneCallback.updatePlayersDataAsync(gameInstance.getGame().getStats().getPlayerStats(), this.plugin, result -> {
+            });
         }
     }
 
@@ -191,9 +187,10 @@ public class Finish {
                 .replace("{Color}", teamColor.getColor())
                 .replace("{Team}", teamColor.getName(gameInstance)), true);
     }
+
     private String getTopFive(List<Map.Entry<String, Stats>> list, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();
-        Iterator <Map.Entry<String, Stats>> listIterator = list.iterator();
+        Iterator<Map.Entry<String, Stats>> listIterator = list.iterator();
         StringBuilder sb = new StringBuilder();
         sb.append("&lTop ").append(stat.getText()).append("\n&r");
         int i;
@@ -205,11 +202,12 @@ public class Finish {
         }
         return sb.toString();
     }
+
     private String getPosition(List<Map.Entry<String, Stats>> list, String p, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();
         StringBuilder sb = new StringBuilder();
         sb.append("Tu: ");
-        Iterator <Map.Entry<String, Stats>> listIterator = list.iterator();
+        Iterator<Map.Entry<String, Stats>> listIterator = list.iterator();
         int i = 0;
         Map.Entry<String, Stats> current = null;
         while (listIterator.hasNext()) {

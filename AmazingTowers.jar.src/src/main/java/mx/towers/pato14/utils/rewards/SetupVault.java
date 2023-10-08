@@ -11,20 +11,17 @@ public class SetupVault {
     private static final AmazingTowers plugin = AmazingTowers.getPlugin();
     private static Chat chat;
     private static Economy economy;
-
     private static boolean setupChat() {
         RegisteredServiceProvider<Chat> chatProvider = plugin.getServer().getServicesManager().getRegistration(Chat.class);
-        if (chatProvider != null) {
+        if (chatProvider != null)
             chat = chatProvider.getProvider();
-        }
         return (chat != null);
     }
 
     private static boolean setupEconomy() {
         RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
-        if (economyProvider != null) {
+        if (economyProvider != null)
             economy = economyProvider.getProvider();
-        }
         return (economy != null);
     }
 

@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Kits {
-    private final static AmazingTowers plugin = AmazingTowers.getPlugin();
     private final List<Kit> kits = new ArrayList<>();
     private final HashMap<String, List<Kit>> temporalBoughtKits;
     private final String instanceName;
@@ -43,7 +42,7 @@ public class Kits {
             } else
                 toret = new Kit(kit.getName(), armor, hotbar, setIcon(ReflectionMethods.deserializeItemStack(kit.getString("iconInMenu")), false, kit));
         } catch (ParseItemException e) {
-            plugin.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
         }
         return toret;
     }
@@ -75,11 +74,11 @@ public class Kits {
                 try {
                     toret[i] = ReflectionMethods.deserializeItemStack(itemsArray[i]);
                 } catch (ParseItemException e) {
-                    plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
+                    AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }
             }
         } else
-            plugin.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size", MessageType.ERROR);
+            AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size", MessageType.ERROR);
         return toret;
     }
 

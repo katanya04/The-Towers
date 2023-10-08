@@ -9,7 +9,6 @@ import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.utils.Book;
 import mx.towers.pato14.game.tasks.Move;
 import mx.towers.pato14.utils.cofresillos.RefillTask;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -30,7 +29,6 @@ public class Game {
     private final Timer timer;
     private final StatisticsPlayer stats;
     private final Move detectionMove;
-    private Book bookItem;
     private GameState gameState;
     private final Kits kits;
     private final HashMap<HumanEntity, Kit> playersSelectedKit;
@@ -56,10 +54,6 @@ public class Game {
 
     public StatisticsPlayer getStats() {
         return this.stats;
-    }
-
-    public Book getItemBook() {
-        return this.bookItem;
     }
 
     public GameTeams getTeams() {
@@ -147,7 +141,7 @@ public class Game {
         this.teams.reset();
         this.stats.clear();
         if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
-            this.timer.reset();
+            this.timer.removeAllBossBars();
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;
         this.goldenGoal = false;

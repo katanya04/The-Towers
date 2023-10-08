@@ -9,16 +9,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 
 public class BowListener implements Listener {
-    private final AmazingTowers plugin;
-    public BowListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onBowShoot(EntityShootBowEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!this.plugin.getGameInstance(e.getEntity()).getRules().get(Rule.BOW))
+        if (!gameInstance.getRules().get(Rule.BOW))
             e.setCancelled(true);
     }
 }

@@ -50,13 +50,16 @@ public class ScoreUpdate {
         TowersWorldInstance towersWorldInstance = AmazingTowers.getInstance(player.getWorld());
         if (towersWorldInstance instanceof GameInstance) {
             GameInstance gameInstance = (GameInstance) towersWorldInstance;
+            if (gameInstance.getGame() == null)
+                return;
             if (gameInstance.getGame().getGameState().equals(GameState.LOBBY)) {
                 List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
                 int i = l.size();
                 for (String st : l) {
                     helper.setSlot(i, AmazingTowers.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
-                            .replace("%date%", this.date));
+                            .replace("%date%", this.date)
+                            .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers")));
                     i--;
                 }
             } else if (gameInstance.getGame().getGameState().equals(GameState.PREGAME)) {
@@ -66,7 +69,8 @@ public class ScoreUpdate {
                     helper.setSlot(i, AmazingTowers.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                             .replace("%date%", this.date)
-                            .replace("%seconds%", String.valueOf(gameInstance.getGame().getStart().getIntSeconds())));
+                            .replace("%seconds%", String.valueOf(gameInstance.getGame().getStart().getIntSeconds()))
+                            .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers")));
                     i--;
                 }
             } else {
@@ -83,7 +87,8 @@ public class ScoreUpdate {
                             .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
                             .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
                             .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
-                            .replace("%refill_time%", Utils.intTimeToString(gameInstance.getGame().getRefill().getTimeRegeneration()));
+                            .replace("%refill_time%", Utils.intTimeToString(gameInstance.getGame().getRefill().getTimeRegeneration()))
+                            .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers"));
                     if (st.contains("%team_points%")) {
                         if (currentTeam < teams.size()) {
                             String pointsText;

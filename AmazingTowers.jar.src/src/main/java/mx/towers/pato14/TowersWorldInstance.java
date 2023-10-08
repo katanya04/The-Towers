@@ -37,6 +37,9 @@ public abstract class TowersWorldInstance {
             this.configs.put(config, new Config(plugin,
                     Utils.macroCaseToCamelCase((aClass.equals(LobbyInstance.class) ? "LOBBY_" : "") + config.name()) + ".yml", true, worldName));
     }
+    public void reloadAllConfigs() {
+        configs.forEach((o,v) -> v.reloadConfig());
+    }
     public World getWorld() {
         return Bukkit.getWorld(name);
     }

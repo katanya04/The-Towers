@@ -2,6 +2,8 @@ package mx.towers.pato14;
 
 import mx.towers.pato14.game.items.LobbyItems;
 import mx.towers.pato14.game.items.LobbyParkourPrize;
+import mx.towers.pato14.utils.Utils;
+import org.bukkit.entity.Player;
 
 public class LobbyInstance extends TowersWorldInstance {
     private final LobbyParkourPrize lobbyParkourPrize;
@@ -14,7 +16,11 @@ public class LobbyInstance extends TowersWorldInstance {
     public LobbyItems getHotbarItems() {
         return (LobbyItems) hotbarItems;
     }
-
+    @Override
+    public void playerJoinGame(Player player) {
+        super.playerJoinGame(player);
+        Utils.joinMainLobby(player);
+    }
     public LobbyParkourPrize getLobbyParkourPrize() {
         return lobbyParkourPrize;
     }

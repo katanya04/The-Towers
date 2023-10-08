@@ -45,7 +45,7 @@ public class UseLobbyItems implements Listener {
             return;
         Player player = e.getPlayer();
         TowersWorldInstance instance = AmazingTowers.getInstance(player);
-        if (instance instanceof GameInstance && (((GameInstance) (instance)).getGame() == null || ((GameInstance) (instance)).getGame().getGameState().equals(GameState.FINISH)))
+        if (instance == null || (instance instanceof GameInstance && (((GameInstance) (instance)).getGame() == null || ((GameInstance) (instance)).getGame().getGameState().equals(GameState.FINISH))))
             return;
         for (ItemStack item : instance.getHotbarItems().getHotbarItems().values()) {
             if (!item.equals(e.getItem()) || !(item instanceof ActionItem))
@@ -70,7 +70,10 @@ public class UseLobbyItems implements Listener {
             return;
         }
         if (player.getOpenInventory().getTopInventory() instanceof AnvilInventory) {
-            String path = player.getOpenInventory().getTopInventory().getItem(0).getItemMeta().getLore().get(0).replace("§r§8", "");
+            ItemStack settingToBeChanged = player.getOpenInventory().getTopInventory().getItem(0);
+            if (settingToBeChanged == null || settingToBeChanged.getType() == Material.AIR || settingToBeChanged.getItemMeta().getLore().isEmpty())
+                return;
+            String path = settingToBeChanged.getItemMeta().getLore().get(0).replace("§r§8", "");
             if (!Utils.isValidPath(path))
                 return;
             e.setCancelled(true);

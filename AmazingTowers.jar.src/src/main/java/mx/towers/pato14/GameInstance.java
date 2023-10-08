@@ -4,10 +4,8 @@ import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.GameLobbyItems;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.locations.CheckLocations;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.VaultT;
 import mx.towers.pato14.utils.world.WorldLoad;
@@ -17,7 +15,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -26,31 +23,29 @@ public class GameInstance extends TowersWorldInstance {
     private VaultT vault;
     private final Map<Rule, Boolean> rules;
     private final int numberOfTeams;
-    private final CheckLocations checkLocations;
     private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
     private boolean isReadyToJoin;
     private Map.Entry<Boolean, List<String>> whitelist;
     private Map.Entry<Boolean, List<String>> blacklist;
+    private final List<String> nonExistentLocations;
 
     public GameInstance(String name) {
         super(name, GameInstance.class);
         isReadyToJoin = false;
         this.rules = new HashMap<>();
         updateLists();
-        this.checkLocations = new CheckLocations(this);
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
+        this.nonExistentLocations = new ArrayList<>();
         if (numberOfTeams < 2 || numberOfTeams > 8) {
             plugin.sendConsoleMessage("Error while creating " + name +
                     ", number of teams needs to be greater than 1 and less than 9 (currently " + numberOfTeams + ")", MessageType.ERROR);
             return;
         }
-        this.checkLocations.checkNeededLocationsExistence(numberOfTeams);
         setRules();
-
-        if (this.checkLocations.neededLocationsExist()) {
-            if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
+        checkNeededLocationsExistence(this.numberOfTeams);
+        if (this.nonExistentLocations.isEmpty()) {
+            if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
-            }
             if (overwriteWithBackup(name)) {
                 this.vault = new VaultT(this);
                 this.game = new Game(this);
@@ -100,10 +95,6 @@ public class GameInstance extends TowersWorldInstance {
         return numberOfTeams;
     }
 
-    public CheckLocations getDetectoreishon() {
-        return checkLocations;
-    }
-
     public HashMap<String, PermissionAttachment> getPermissions() {
         return this.perms;
     }
@@ -111,6 +102,7 @@ public class GameInstance extends TowersWorldInstance {
     @Override
     public void playerJoinGame(Player player) {
         super.playerJoinGame(player);
+        Utils.joinGame(player);
         Team team = this.getGame().getTeams().getTeamByPlayer(player.getName());
         AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
         switch (this.getGame().getGameState()) {
@@ -120,16 +112,14 @@ public class GameInstance extends TowersWorldInstance {
                     this.getGame().getStart().gameStart();
                 }
             case PREGAME:
-                Dar.joinGameLobby(player);
                 break;
             case GAME:
                 if (game.getTimer().isActivated())
                     game.getTimer().addPlayer(player);
                 if (team != null) {
-                    if (team.respawnPlayers()) {
+                    if (team.respawnPlayers())
                         team.setPlayerState(player.getName(), PlayerState.ONLINE);
-                        Dar.joinTeam(player);
-                    } else {
+                    else {
                         team.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
                         player.setGameMode(GameMode.SPECTATOR);
                         player.teleport(Locations.getLocationFromString(this.getConfig(ConfigType.LOCATIONS)
@@ -137,7 +127,6 @@ public class GameInstance extends TowersWorldInstance {
                     }
                     break;
                 }
-                Dar.joinGameLobby(player);
                 break;
             default:
                 if (team == null || team.isEliminated())
@@ -165,7 +154,7 @@ public class GameInstance extends TowersWorldInstance {
             case GAME:
             case GOLDEN_GOAL:
                 if (game.getTimer().isActivated())
-                    game.getTimer().removeBossBar(player.getName());
+                    game.getTimer().removeBossBar(player);
                 if (playerTeam == null)
                     break;
                 playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
@@ -202,15 +191,36 @@ public class GameInstance extends TowersWorldInstance {
         super.reset();
         isReadyToJoin = false;
         try {
+            reloadAllConfigs();
             updateLists();
             setRules();
             this.game.reset();
             overwriteWithBackup(name);
-            Utils.removeGlint(this.getHotbarItems().getModifyGameSettings().getSaveSettings());
-            this.getHotbarItems().getModifyGameSettings().updateMenu();
-            this.getHotbarItems().getModifyGameSettings().getSetRules().updateMenu(this);
+            this.getGame().getRefill().resetTime();
+            this.getHotbarItems().reset(this);
         } finally {
             isReadyToJoin = true;
         }
+    }
+
+    private void checkNeededLocationsExistence(int numberOfTeams) {
+        for (Location loc : Location.getObligatoryLocations()) {
+            if (!loc.needsTeamColor()) {
+                if (!loc.exists(this, null))
+                    this.nonExistentLocations.add(loc.name().toLowerCase().replace('_', ' '));
+            } else {
+                for (TeamColor teamColor : TeamColor.getMatchTeams(numberOfTeams))
+                    if (!loc.exists(this, teamColor))
+                        this.nonExistentLocations.add(teamColor.name().toLowerCase() + " " + loc.name().toLowerCase().replace('_', ' '));
+            }
+        }
+    }
+
+    public boolean hasUnsetRegions() {
+        return !nonExistentLocations.isEmpty();
+    }
+
+    public String getUnsetRegionsString() {
+        return Utils.listToCommaSeparatedString(nonExistentLocations);
     }
 }

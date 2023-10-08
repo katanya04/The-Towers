@@ -44,12 +44,16 @@ public class RefillTask {
                     }
                     refillTime--;
                 }
-            }).runTaskTimerAsynchronously(gameInstance.getPlugin(), 0L, 20L);
+            }).runTaskTimer(gameInstance.getPlugin(), 0L, 20L);
         }
     }
 
     public int getTimeRegeneration() {
         return this.refillTime;
+    }
+    public void resetTime() {
+        this.refillTime = Utils.stringTimeToInt(AmazingTowers.getGameInstance(instanceName).getConfig(ConfigType.CONFIG)
+                .getString("options.chests.refillChests.refillTime").split(":"));
     }
 }
 

@@ -6,31 +6,28 @@ import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 
 public class VaultT {
-    private final GameInstance gameInstance;
-
+    private final String gameInstanceName;
     public VaultT(GameInstance gameInstance) {
-        this.gameInstance = gameInstance;
+        this.gameInstanceName = gameInstance.getName();
     }
-
-    public void setReward(Player player, RewardsEnum reward) {
-        if (this.gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.rewards.vault") &&
+    public void giveReward(Player player, RewardsEnum reward) {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(this.gameInstanceName);
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
-            int points = this.gameInstance.getConfig(ConfigType.CONFIG).getInt("options.rewards.reward." + reward.getName());
-            if (player.hasPermission("towers.vip.coinsx6")) {
+            int points = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.rewards.reward." + reward.getName());
+            if (player.hasPermission("towers.coinsx6")) {
                 points *= 6;
-            } else if (player.hasPermission("towers.vip.coinsx5")) {
+            } else if (player.hasPermission("towers.coinsx5")) {
                 points *= 5;
-            } else if (player.hasPermission("towers.vip.coinsx4")) {
+            } else if (player.hasPermission("towers.coinsx4")) {
                 points *= 4;
-            } else if (player.hasPermission("towers.vip.coinsx3")) {
+            } else if (player.hasPermission("towers.coinsx3")) {
                 points *= 3;
-            } else if (player.hasPermission("towers.vip.coinsx2")) {
+            } else if (player.hasPermission("towers.coinsx2")) {
                 points *= 2;
             }
             SetupVault.getVaultEconomy().depositPlayer(player, points);
-            player.sendMessage(AmazingTowers.getColor(this.gameInstance.getConfig(ConfigType.CONFIG).getString("options.rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
+            player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
         }
     }
 }
-
-

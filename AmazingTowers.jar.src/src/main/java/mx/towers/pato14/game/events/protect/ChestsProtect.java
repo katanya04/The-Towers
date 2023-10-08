@@ -18,22 +18,18 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class CofresillosListener implements Listener {
-    private final AmazingTowers plugin;
+public class ChestsProtect implements Listener {
     private static final ArrayList<Location> protectedChest = new ArrayList<>();
-    public CofresillosListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onExplode(EntityExplodeEvent e) {
         ArrayList<Block> end = new ArrayList<>(e.blockList());
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         for (Block bl : e.blockList()) {
             if (bl.getType() == Material.CHEST) {
-                if (Locations.isInsideBase(bl.getLocation(), gameInstance.getGame().getTeams()))
+                if (protectedChest.contains(bl.getLocation()))
                     end.remove(bl);
             }
         }
@@ -43,7 +39,7 @@ public class CofresillosListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getBlock());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Block bl = e.getBlock();
@@ -56,7 +52,7 @@ public class CofresillosListener implements Listener {
     @EventHandler
     public void onInteractChest(PlayerInteractEvent e) {
         Player player = e.getPlayer();
-        GameInstance gameInstance = this.plugin.getGameInstance(player);
+        GameInstance gameInstance = AmazingTowers.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Block block = e.getClickedBlock();

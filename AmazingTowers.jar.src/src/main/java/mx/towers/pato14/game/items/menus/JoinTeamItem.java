@@ -6,7 +6,6 @@ import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -41,21 +40,23 @@ public class JoinTeamItem extends ActionItem {
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         Game game = gameInstance.getGame();
         Team currentTeam = game.getTeams().getTeamByPlayer(player.getName()); //Equipo actual
+        if (teamColor == TeamColor.SPECTATOR) {
+            player.setGameMode(GameMode.SPECTATOR);
+            player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
+            if (currentTeam != null)
+                currentTeam.removePlayer(player.getName());
+            player.closeInventory();
+            return;
+        }
         Team teamToJoin = game.getTeams().getTeam(teamColor);
-        if (teamToJoin == null) {
-            if (teamColor == TeamColor.SPECTATOR) {
-                player.setGameMode(GameMode.SPECTATOR);
-                player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
-                if (currentTeam != null)
-                    currentTeam.removePlayer(player.getName());
-                player.closeInventory();
-            }
-        } else if (!teamToJoin.containsPlayer(player.getName())) { //Si no está ya en ese equipo
+        if (teamToJoin == null)
+            return;
+        if (!teamToJoin.containsPlayer(player.getName())) { //Si no está ya en ese equipo
             if (!gameInstance.getRules().get(Rule.BALANCED_TEAMS)
                     || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
                 teamToJoin.addPlayer(player.getName());
                 if (game.getGameState().equals(GameState.GAME))
-                    Dar.joinTeam((Player) player);
+                    Utils.joinGame((Player) player);
                 player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")
                         .replace("{Color}", teamToJoin.getTeamColor().getColor())
                         .replace("{Team}", teamToJoin.getTeamColor().getName(game.getGameInstance()))));

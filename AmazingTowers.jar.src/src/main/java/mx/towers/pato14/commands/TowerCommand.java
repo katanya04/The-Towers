@@ -3,7 +3,6 @@ package mx.towers.pato14.commands;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.BookMenuItem;
-import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
@@ -108,7 +107,7 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 if (player.getGameMode().equals(GameMode.SPECTATOR) &&
                         !gameInstance.getGame().getTeams().containsNoRespawnPlayer(player.getName()))
-                    Dar.joinGameLobby(player);
+                    Utils.joinGame(player);
                 else
                     Utils.sendMessage("Solo puedes ejecutar este comando estando en modo espectador y sin ser parte de ningún equipo", MessageType.INFO, sender);
                 break;
@@ -123,6 +122,7 @@ public class TowerCommand implements CommandExecutor
                 }
                 break;
             case LOBBY:
+                assert player != null;
                 if (AmazingTowers.getLobby() != null)
                     Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
                 else
@@ -173,7 +173,7 @@ public class TowerCommand implements CommandExecutor
                 Player p = Bukkit.getPlayer(args[2]);
                 if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
                     gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p.getName());
-                    Dar.joinTeam(p);
+                    Utils.joinGame(p);
                 } else
                     Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
                 break;
@@ -324,8 +324,6 @@ public class TowerCommand implements CommandExecutor
                 for (ConfigType configType : ConfigType.values()) {
                     if (args[1].equalsIgnoreCase(configType.toString())) {
                         gameInstance.getConfig(configType).reloadConfig();
-                        if (configType.equals(ConfigType.BOOK))
-                            gameInstance.getGame().getItemBook().createBookItem();
                         Utils.sendMessage("§aReloaded " +  configType.toString().toLowerCase() + " config successfully", MessageType.INFO, sender);
                         break;
                     }

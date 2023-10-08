@@ -10,13 +10,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class EnderpearlAndPotionThrowListener implements Listener {
-    private final AmazingTowers plugin;
-    public EnderpearlAndPotionThrowListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onEnderpearlAndPotionThrow(ProjectileLaunchEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getEntity());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.ENDER_PEARL) && e.getEntity() instanceof EnderPearl)

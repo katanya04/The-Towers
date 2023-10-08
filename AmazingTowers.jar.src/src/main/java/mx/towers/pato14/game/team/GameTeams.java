@@ -33,7 +33,7 @@ public class GameTeams {
         return null;
     }
     public boolean containsNoRespawnPlayer(String playerName) {
-        return getTeamByPlayer(playerName) == null || getTeamByPlayer(playerName).getPlayerState(playerName) == PlayerState.NO_RESPAWN;
+        return getTeamByPlayer(playerName) != null && getTeamByPlayer(playerName).getPlayerState(playerName) == PlayerState.NO_RESPAWN;
     }
     public Team getTeam(TeamColor teamColor) {
         return this.teams.get(teamColor.ordinal());

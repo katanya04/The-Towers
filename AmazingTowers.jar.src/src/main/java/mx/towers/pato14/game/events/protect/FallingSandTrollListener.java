@@ -14,15 +14,10 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class FallingSandTrollListener implements Listener {
-    private final AmazingTowers plugin;
-
-    public FallingSandTrollListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onFallingSand(EntityChangeBlockEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getBlock());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (e.getEntityType().equals(EntityType.FALLING_BLOCK)) {

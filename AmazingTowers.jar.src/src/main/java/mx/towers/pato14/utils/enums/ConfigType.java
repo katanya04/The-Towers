@@ -12,14 +12,12 @@ public enum ConfigType {
     LOCATIONS(TowersWorldInstance.class),
     MESSAGES(TowersWorldInstance.class),
     SCOREBOARD(TowersWorldInstance.class),
-    BOOK(GameInstance.class),
     KITS(GameInstance.class),
     GAME_SETTINGS(GameInstance.class);
     private final Class<? extends TowersWorldInstance> aClass;
     ConfigType(Class<? extends TowersWorldInstance> aClass) {
         this.aClass = aClass;
     }
-
     public static List<ConfigType> getValues(Class<? extends TowersWorldInstance> instanceClass) {
         return Arrays.stream(values()).filter(o -> o.aClass.isAssignableFrom(instanceClass)).collect(Collectors.toList());
     }

@@ -3,8 +3,9 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.events.protect.CofresillosListener;
+import mx.towers.pato14.game.events.protect.ChestsProtect;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.locations.Locations;
@@ -42,7 +43,7 @@ public class Start {
                     cancel();
                     Start.this.teleportPlayers();
                     Start.this.startGenerators();
-                    CofresillosListener.getChests(gameInstance);
+                    ChestsProtect.getChests(gameInstance);
                     gameInstance.getGame().getRefill().startRefillTask();
                     gameInstance.getScoreUpdates().updateScoreboardAll();
                     game.getDetectionMove().MoveDetect();
@@ -85,7 +86,7 @@ public class Start {
 
     private void teleportPlayers() {
         for (Player player : AmazingTowers.getGameInstance(worldName).getGame().getPlayers()) {
-            Dar.joinTeam(player);
+            Utils.joinGame(player);
         }
     }
 

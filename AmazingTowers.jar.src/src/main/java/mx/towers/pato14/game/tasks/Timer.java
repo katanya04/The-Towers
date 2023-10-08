@@ -22,10 +22,9 @@ public class Timer {
     private int time;
     private final Map<String, BossBar> bossBars;
     private BukkitRunnable timerTask;
-    private final String name;
-    private TextComponent title;
+    private final String instanceName;
     public Timer(GameInstance gameInstance) {
-        this.name = gameInstance.getName();
+        this.instanceName = gameInstance.getName();
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);
         this.bossBars = new HashMap<>();
@@ -48,20 +47,20 @@ public class Timer {
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);
         if (gameInstance.getGame().getGameState() == GameState.GAME) {
-            timerTask.cancel();
-            removeBossBar();
+            removeAllBossBars();
             timerStart();
         }
     }
 
     private BossBar createBossBar(Player player) {
-        BossBar toret  = BossBarAPI.addBar(player, this.title,
+        BossBar toret  = BossBarAPI.addBar(player, new TextComponent(),
                 BossBarAPI.Color.PURPLE, // Unused
                 BossBarAPI.Style.PROGRESS, // Unused
                 1.0f, // Progress (0.0 - 1.0)
                 time, // Timeout
                 2L // Timeout-interval Unused
         );
+        updateTimer(toret);
         toret.setProperty(BossBarAPI.Property.CREATE_FOG, false);
         toret.setProperty(BossBarAPI.Property.DARKEN_SKY, false);
         toret.setProperty(BossBarAPI.Property.PLAY_MUSIC, false);
@@ -72,53 +71,60 @@ public class Timer {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             AmazingTowers.getPlugin().sendConsoleMessage("Error while starting the timer", MessageType.ERROR);
         }
+
         return toret;
     }
 
+    private void updateTimer(BossBar bossBar) {
+        bossBar.setMessage(ChatColor.LIGHT_PURPLE + AmazingTowers.getGameInstance(instanceName).getConfig(ConfigType.GAME_SETTINGS).getString("timer.message").replace("%time%", Utils.intTimeToString(time)));
+        bossBar.setProgress((float) time / getTime(AmazingTowers.getGameInstance(instanceName)));
+    }
+    private void updateAllTimers() {
+        for (BossBar bossBar : bossBars.values())
+            updateTimer(bossBar);
+    }
+
     public void timerStart() {
-        this.title = new TextComponent(AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS)
-                .getString("timer.message").replace("%time%", AmazingTowers.getGameInstance(name)
-                        .getConfig(ConfigType.GAME_SETTINGS).getString("timer.time")));
-        this.title.setColor(ChatColor.LIGHT_PURPLE);
-        for (Player player : AmazingTowers.getGameInstance(name).getGame().getPlayers()) {
+        for (Player player : AmazingTowers.getGameInstance(instanceName).getGame().getPlayers()) {
             bossBars.put(player.getName(), createBossBar(player));
         }
         (timerTask = new BukkitRunnable() {
             public void run() {
-                if (!activated || AmazingTowers.getGameInstance(name).getGame().getGameState().equals(GameState.FINISH)) {
-                    removeBossBar();
-                    cancel();
+                if (!activated || AmazingTowers.getGameInstance(instanceName).getGame().getGameState().equals(GameState.FINISH)) {
+                    removeAllBossBars();
                     return;
                 }
                 if (time <= 0) {
-                    removeBossBar();
-                    AmazingTowers.getGameInstance(name).getGame().getFinish().goldenGoal();
-                    cancel();
+                    removeAllBossBars();
+                    AmazingTowers.getGameInstance(instanceName).getGame().getFinish().goldenGoal();
                     return;
                 }
                 time--;
-                for (BossBar bossBar : bossBars.values()) {
-                    bossBar.setMessage(ChatColor.LIGHT_PURPLE + AmazingTowers.getGameInstance(name).getConfig(ConfigType.GAME_SETTINGS).getString("timer.message").replace("%time%", Utils.intTimeToString(time)));
-                    bossBar.setProgress((float) time / getTime(AmazingTowers.getGameInstance(name)));
-                }
+                updateAllTimers();
             }
         }).runTaskTimer(AmazingTowers.getPlugin(), 20L, 20L);
     }
 
-    private void removeBossBar() {
+    public void removeAllBossBars() {
         for (Map.Entry<String, BossBar> bossBar : bossBars.entrySet()) {
             Player player = Bukkit.getPlayer(bossBar.getKey());
-            if (player == null)
-                bossBars.remove(bossBar.getKey());
-            else
+            if (player != null) {
                 bossBar.getValue().removePlayer(player);
+                bossBar.getValue().setProgress(-10);
+            }
         }
+        bossBars.clear();
+        try { timerTask.cancel();} catch (IllegalStateException ignored) {}
     }
 
-    public void removeBossBar(String playerName) {
-        Player player = Bukkit.getPlayer(playerName);
-        if (player != null)
-            bossBars.get(playerName).removePlayer(player);
+    public void removeBossBar(Player player) {
+        if (player == null)
+            return;
+        if (bossBars.get(player.getName()) != null) {
+            bossBars.get(player.getName()).removePlayer(player);
+            bossBars.get(player.getName()).setProgress(-10);
+        }
+        bossBars.remove(player.getName());
     }
 
     public void addPlayer(Player player) {
@@ -127,14 +133,6 @@ public class Timer {
 
     public Map<String, BossBar> getBossBars() {
         return bossBars;
-    }
-
-    public void reset() {
-        removeBossBar();
-        for (BossBar bossBar : bossBars.values()) {
-            bossBar.setProgress(-10);
-        }
-        bossBars.clear();
     }
 
     public boolean isActivated() {

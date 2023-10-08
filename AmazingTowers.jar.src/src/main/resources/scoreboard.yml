@@ -18,7 +18,7 @@ scoreboard:
       - '&3'
       - '&fEsperando...'
       - '&2'
-      - '&fMapa: &aClassic'
+      - '&e%instance_name%'
       - '&1'
       - '&eFran Kingdom'
 
@@ -33,7 +33,7 @@ scoreboard:
       - '&3'
       - '&fEmpezando en &a%seconds%s'
       - '&2'
-      - '&fMapa: &aClassic'
+      - '&e%instance_name%'
       - '&1'
       - '&eFran Kingdom'
 
@@ -58,7 +58,7 @@ scoreboard:
       - '&fKills: &a%player_kills%'
       - '&fPuntos: &a%player_points%'
       - '&fMuertes: &a%player_deaths%'
-      - '&fMapa: &aClassic'
+      - '&e%instance_name%'
 
   gameUpToEightTeams:
     scores:
@@ -76,7 +76,7 @@ scoreboard:
       - '&fKills: &a%player_kills%'
       - '&fPuntos: &a%player_points%'
       - '&fMuertes: &a%player_deaths%'
-      - '&fMapa: &aClassic'
+      - '&e%instance_name%'
 
 player: 'jugador'
 players: 'jugadores'

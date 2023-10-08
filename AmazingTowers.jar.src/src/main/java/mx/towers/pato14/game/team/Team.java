@@ -13,7 +13,6 @@ import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
 public class Team {

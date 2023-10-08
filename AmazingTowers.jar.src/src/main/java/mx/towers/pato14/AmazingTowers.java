@@ -32,6 +32,7 @@ public final class AmazingTowers extends JavaPlugin {
     private static Config globalConfig;
     public Connexion connexion;
 
+    @Override
     public void onEnable() {
         plugin = this;
         games = new HashMap<>();
@@ -73,6 +74,7 @@ public final class AmazingTowers extends JavaPlugin {
         enabledPlugin();
     }
 
+    @Override
     public void onDisable() {
         for (GameInstance gameInstance : games.values()) {
             if (gameInstance.getGame() == null) {
@@ -104,7 +106,7 @@ public final class AmazingTowers extends JavaPlugin {
         for (GameInstance gameInstance : games.values()) {
             if (Utils.checkWorldFolder(gameInstance.name)) {
                 sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ", MessageType.INFO);
-                sendConsoleMessage(gameInstance.getDetectoreishon().getLocationsNeededString(true), MessageType.INFO);
+                sendConsoleMessage("§aLocations§f: §f" + (gameInstance.hasUnsetRegions() ? gameInstance.getUnsetRegionsString().toUpperCase() : "[NONE]"), MessageType.INFO);
             } else {
                 worldUnset = true;
                 sendConsoleMessage("§f§l" + gameInstance.getName() + "§f world doesn't exist yet.", MessageType.INFO);
@@ -209,7 +211,7 @@ public final class AmazingTowers extends JavaPlugin {
 
     public static Collection<Player> getAllOnlinePlayers() {
         List<Player> playersInGameInstances = new ArrayList<>();
-        getGameInstances().values().forEach(o -> playersInGameInstances.addAll(o.getWorld().getPlayers()));
+        getGameInstances().values().forEach(o -> playersInGameInstances.addAll(o.getWorld() == null ? new ArrayList<>() : o.getWorld().getPlayers()));
         playersInGameInstances.addAll(lobby.getWorld().getPlayers());
         return playersInGameInstances;
     }

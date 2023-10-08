@@ -91,5 +91,3 @@ public class Locations {
         return false;
     }
 }
-
-

@@ -13,14 +13,10 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 public class EnchantItem implements Listener {
-    private final AmazingTowers plugin;
-    public EnchantItem(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onEnchantTableClick(PlayerInteractEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.ENCHANTS)) {
@@ -32,7 +28,7 @@ public class EnchantItem implements Listener {
 
     @EventHandler
     public void onAnvilEnchant(InventoryClickEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getWhoClicked());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getWhoClicked());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (gameInstance.getRules().get(Rule.ENCHANTS))

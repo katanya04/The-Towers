@@ -58,8 +58,13 @@ public class DamageListener implements Listener {
                 return;
             }
             GameTeams teams = gameInstance.getGame().getTeams();
+            if (teams.getTeamByPlayer(player.getName()) == null) {
+                e.setCancelled(true);
+                return;
+            }
             if (e.getDamager().getType().equals(EntityType.PLAYER)) { // Player attacks player
-                if (teams.getTeamByPlayer(player.getName()).equals(teams.getTeamByPlayer(e.getDamager().getName())))
+                if (teams.getTeamByPlayer(e.getDamager().getName()) == null ||
+                        teams.getTeamByPlayer(player.getName()).equals(teams.getTeamByPlayer(e.getDamager().getName())))
                     e.setCancelled(true);
                 // Player shoots player
             } else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {

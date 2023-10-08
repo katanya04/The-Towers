@@ -10,13 +10,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockStats implements Listener {
-    private final AmazingTowers plugin;
-    public BlockStats(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlaced(BlockPlaceEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!e.isCancelled())
@@ -24,7 +20,7 @@ public class BlockStats implements Listener {
     }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!e.isCancelled())

@@ -4,6 +4,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.actions.QuitItem;
 import mx.towers.pato14.game.items.menus.*;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Listener;
@@ -44,5 +45,11 @@ public class GameLobbyItems extends HotbarItems implements Listener {
 
     public ModifyGameSettings getModifyGameSettings() {
         return modifyGameSettings;
+    }
+
+    public void reset(GameInstance gameInstance) {
+        Utils.removeGlint(this.getModifyGameSettings().getSaveSettings());
+        this.getModifyGameSettings().getSetRules().updateMenu(gameInstance);
+        this.getModifyGameSettings().updateMenu();
     }
 }

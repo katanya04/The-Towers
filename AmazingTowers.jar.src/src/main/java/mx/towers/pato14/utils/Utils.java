@@ -1,11 +1,14 @@
 package mx.towers.pato14.utils;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
@@ -16,6 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
-    public static World createEmptyWorld(String name) {
+    /*public static World createEmptyWorld(String name) {
         final WorldCreator wc = new WorldCreator(name);
         wc.type(WorldType.FLAT);
         wc.generateStructures(false);
@@ -43,18 +47,17 @@ public class Utils {
         world.setGameRuleValue("mobGriefing", "false");
         world.setGameRuleValue("doDaylightCycle", "false");
         return world;
-    }
+    }*/
 
-    public static void tpToWorld(World world, Player... players) {
-        org.bukkit.Location destination;
+    public static void tpToWorld(World world, Player player) {
         TowersWorldInstance worldInstance = AmazingTowers.getInstance(world);
         String lobby;
-        if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null) {
-            destination = Locations.getLocationFromString(lobby);
-        } else
-            destination = world.getSpawnLocation();
-        for (Player player : players)
-            player.teleport(destination);
+        if (worldInstance instanceof GameInstance && !((GameInstance) worldInstance).canJoin(player))
+            player.sendMessage("No puedes entrar a esta partida ahora mismo");
+        else if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null)
+            player.teleport(Locations.getLocationFromString(lobby));
+        else
+            player.teleport(world.getSpawnLocation());
     }
 
     public static void sendMessage(String msg, MessageType messageType, CommandSender sender) {
@@ -84,12 +87,7 @@ public class Utils {
     }
 
     public static int ceilToMultipleOfNine(int n) {
-        if (n <= 0)
-            return 9;
-        else
-            while (n % 9 != 0)
-                n++;
-        return n;
+        return n <= 9 ? 9 : ((n - 1) / 9 + 1) * 9;
     }
 
     public static String firstCapitalized(String text) {
@@ -120,7 +118,7 @@ public class Utils {
         Pattern pat = Pattern.compile("[A-Z][^A-Z]*$");
         Matcher match = pat.matcher(camelCaseText);
 
-        int lastCapitalIndex = -1;
+        int lastCapitalIndex;
         do {
             if (match.find()) {
                 lastCapitalIndex = match.start();
@@ -149,8 +147,8 @@ public class Utils {
                 gameInstance.getGame().getFinish().Fatality(temp.getTeamColor());
             else {
                 int numberOfTeams = gameInstance.getGame().getTeams().getTeams().size();
-                int numero = (int) Math.floor(Math.random() * numberOfTeams);
-                gameInstance.getGame().getFinish().Fatality(TeamColor.values()[numero]);
+                int teamNumber = (int) Math.floor(Math.random() * numberOfTeams);
+                gameInstance.getGame().getFinish().Fatality(TeamColor.values()[teamNumber]);
             }
         }
     }
@@ -269,11 +267,10 @@ public class Utils {
     }
 
     private static void removePotion(Player player) {
-        if (!player.getActivePotionEffects().isEmpty()) {
-            for (PotionEffect effect : player.getActivePotionEffects()) {
-                player.removePotionEffect(effect.getType());
-            }
-        }
+        if (player.getActivePotionEffects().isEmpty())
+            return;
+        for (PotionEffect effect : player.getActivePotionEffects())
+            player.removePotionEffect(effect.getType());
     }
 
     public static ItemStack colorArmor(ItemStack item, Color color) {
@@ -293,8 +290,6 @@ public class Utils {
                 player.showPlayer(player1);
                 if (!(playerInstance instanceof GameInstance))
                     continue;
-                //Team team;
-                //if ((team = ((GameInstance) playerInstance).getGame().getTeams().getTeamByPlayer(player1.getName())) != null)
                 NametagEdit.getApi().reloadNametag(player);
             } else {
                 player1.hidePlayer(player);
@@ -333,5 +328,55 @@ public class Utils {
             lines.clear();
         }
         return lines;
+    }
+
+    public static void joinMainLobby(Player player) {
+        player.setGameMode(GameMode.ADVENTURE);
+        Utils.resetPlayer(player);
+        AmazingTowers.getLobby().getHotbarItems().giveHotbarItems(player);
+    }
+
+    public static void joinGame(Player player) {
+        Utils.resetPlayer(player);
+        GameInstance gameInstance = AmazingTowers.getGameInstance(player);
+        Team team;
+        if ((team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName())) != null && team.respawnPlayers())
+            joinTeam(player, team, gameInstance);
+        else { //if ... (check for case that player should be on spectator mode)
+            player.setGameMode(GameMode.ADVENTURE);
+            gameInstance.getHotbarItems().giveHotbarItems(player);
+            NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
+            player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+        }
+    }
+
+    public static void joinTeam(Player player, Team team, GameInstance gameInstance) {
+        NametagEdit.getApi().clearNametag(player);
+        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+        player.setGameMode(GameMode.SURVIVAL);
+        team.setNameTagPlayer(player);
+        gameInstance.getGame().applyKitToPlayer(player);
+        gameInstance.getGame().getStats().setHashStats(player.getName());
+
+    }
+
+    public static void bungeecordTeleport(Player player) {
+        if (!AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
+            return;
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("Connect");
+        out.writeUTF(AmazingTowers.getGlobalConfig().getString("options.bungeecord.server_name"));
+        player.sendPluginMessage(AmazingTowers.getPlugin(), "BungeeCord", out.toByteArray());
+    }
+
+    public static String listToCommaSeparatedString(List<?> list) {
+        StringBuilder names = new StringBuilder();
+        Iterator<?> itr = list.iterator();
+        while (itr.hasNext()) {
+            names.append(itr.next().toString());
+            if (itr.hasNext())
+                names.append(", ");
+        }
+        return names.toString();
     }
 }

@@ -12,13 +12,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class OrePlacedListener implements Listener {
-    private final AmazingTowers plugin;
-    public OrePlacedListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onOrePlaced(BlockPlaceEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);

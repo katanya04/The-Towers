@@ -4,7 +4,6 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -27,7 +26,6 @@ public class JoinListener implements Listener {
             if (gameInstance != null)
                 gameInstance.addPlayer();
             Utils.clearNameTagPlayer(player);
-            Dar.joinMainLobby(player);
             if (lobby.getWorld().equals(player.getWorld()))
                 lobby.playerJoinGame(player);
             Utils.tpToWorld(lobby.getWorld(), player);

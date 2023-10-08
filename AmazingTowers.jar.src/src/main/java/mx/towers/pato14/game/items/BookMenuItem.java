@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.utils.Utils;

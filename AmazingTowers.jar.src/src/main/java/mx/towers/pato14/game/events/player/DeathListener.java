@@ -4,7 +4,6 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.tasks.Dar;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
@@ -78,7 +77,7 @@ public class DeathListener implements Listener {
     private void addRewardsKiller(Player killer) {
         AmazingTowers.getGameInstance(killer).getGame().getStats().addOne(killer.getName(), StatType.KILLS);
         AmazingTowers.getGameInstance(killer).getScoreUpdates().updateScoreboard(killer);
-        AmazingTowers.getGameInstance(killer).getVault().setReward(killer, RewardsEnum.KILL);
+        AmazingTowers.getGameInstance(killer).getVault().giveReward(killer, RewardsEnum.KILL);
     }
 
     @EventHandler
@@ -97,7 +96,7 @@ public class DeathListener implements Listener {
             }
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
-            Dar.joinGameLobby(e.getPlayer());
+            Utils.joinGame(e.getPlayer());
         }
         e.getPlayer().setCanPickupItems(true);
     }

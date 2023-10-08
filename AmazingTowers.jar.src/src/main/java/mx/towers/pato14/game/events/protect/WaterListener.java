@@ -10,13 +10,9 @@ import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 
 public class WaterListener implements Listener {
-    private final AmazingTowers plugin;
-    public WaterListener(AmazingTowers plugin) {
-        this.plugin = plugin;
-    }
     @EventHandler
     public void onWaterPlaced(PlayerBucketEmptyEvent e) {
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getPlayer());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.WATER))
@@ -24,7 +20,7 @@ public class WaterListener implements Listener {
     }
     @EventHandler
     public void liquidDispensedEvent(BlockDispenseEvent e){
-        GameInstance gameInstance = this.plugin.getGameInstance(e.getBlock());
+        GameInstance gameInstance = AmazingTowers.getGameInstance(e.getBlock());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.WATER) && e.getItem().getType().equals(Material.WATER_BUCKET))

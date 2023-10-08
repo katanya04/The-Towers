@@ -26,9 +26,8 @@ public class AreaUtil {
         }
         if ( y1 <= y2) {
             if ( y1 > ly || y2 < ly) return false;
-        } else if ( y1 < ly || y2 > ly) {
+        } else if ( y1 < ly || y2 > ly)
             return false;
-        }
         if ( z1 <= z2) {
             return z1 <= lz && z2 >= lz;
         } else return z1 >= lz && z2 <= lz;
@@ -55,9 +54,8 @@ public class AreaUtil {
         if (y1 <= y2) {
             if (y1 > ly + buffer || y2 + buffer < ly)
                 return false;
-        } else if (y1 + buffer < ly || y2 > ly + buffer) {
+        } else if (y1 + buffer < ly || y2 > ly + buffer)
             return false;
-        }
         if (z1 <= z2) {
             return z1 <= lz + buffer && z2 + buffer >= lz;
         } else return z1 + buffer >= lz && z2 <= lz + buffer;

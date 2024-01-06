@@ -1,13 +1,12 @@
 package mx.towers.pato14.utils.enums;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +62,7 @@ public enum TeamColor {
 
     public String getNameFirstCapitalized(GameInstance gameInstance) {
         String toret = getName(gameInstance);
-        return toret.length() == 0 ? toret : toret.substring(0, 1).toUpperCase() + toret.substring(1);
+        return toret.isEmpty() ? toret : toret.substring(0, 1).toUpperCase() + toret.substring(1);
     }
 
     public static boolean isTeamColor(String teamColor) {
@@ -79,11 +78,11 @@ public enum TeamColor {
         ItemStack toret = new ItemStack(Material.WOOL, 1, this.woolColor);
         ItemMeta itemMeta = toret.getItemMeta();
         if (this.matchTeam)
-            itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+            itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("lobbyItems.menuItems.joinTeam").replace("%team_color%", this.color)
                     .replace("%team_name%", this.getName(gameInstance))));
         else if (this == SPECTATOR)
-            itemMeta.setDisplayName(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+            itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("lobbyItems.menuItems.spectator")));
 
         toret.setItemMeta(itemMeta);
@@ -91,7 +90,7 @@ public enum TeamColor {
     }
 
     public static boolean isSpectatorItem(ItemStack item, GameInstance gameInstance) {
-        return AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator"))
+        return Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator"))
                 .equals(item.getItemMeta().getDisplayName());
     }
 }

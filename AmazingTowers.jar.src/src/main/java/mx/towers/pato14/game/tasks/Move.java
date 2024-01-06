@@ -5,6 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.AreaUtil;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.locations.Pool;
@@ -22,7 +23,7 @@ public class Move {
     private final Pool[] pools;
 
     public Move(GameInstance gameInstance, Game game) {
-        this.instanceName = gameInstance.getName();
+        this.instanceName = gameInstance.getInternalName();
         this.pools = new Pool[gameInstance.getNumberOfTeams()];
         setPools(gameInstance, game);
     }
@@ -80,18 +81,18 @@ public class Move {
                 if (team.containsPlayer(p.getName())) {
                     p.playSound(p.getLocation(), Sound.SUCCESSFUL_HIT, 1.0f, 2.0f);
                 } else if (!bedwarsStyle || (teamScored.containsPlayer(p.getName()) && teamScored.getPoints() > 0)) {
-                    p.playSound(p.getLocation(), Sound.AMBIENCE_THUNDER, 1.0f, 1.0f);
+                    p.playSound(p.getLocation(), Sound.GHAST_SCREAM2, 1.0f, 1.1f);
                 } else if (teamScored.containsPlayer(p.getName()) && teamScored.getPoints() <= 0) {
                     p.playSound(p.getLocation(), Sound.WITHER_DEATH, 1.0f, 1.0f);
                 }
             }
             if (!bedwarsStyle) {
                 if (team.getPoints() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin") || gameInstance.getGame().isGoldenGoal()) {
-                    gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
+                    gameInstance.getGame().getFinish().fatality(team.getTeamColor());
                     gameInstance.getGame().setGameState(GameState.FINISH);
                 }
             } else if (teamScored.getPoints() <= 0) {
-                String title = AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
+                String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
                 for (Player pl : teamScored.getListOnlinePlayers()) {
                     pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                     if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))

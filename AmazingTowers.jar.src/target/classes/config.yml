@@ -91,6 +91,8 @@ settingsBook:
   stopCount: '&7&lParar la cuenta atras'
   setTimer: '&7&lTimer'
   modifyKits: '&7&lModificar kits'
+  selectStatsDB: '&7&lEscoger a donde van las stats'
+  endMatch: '&7&lTerminar la partida'
   saveSettings:
     name: '&d&lGuardar ajustes'
     saveMessage: 'Ajustes guardados correctamente'

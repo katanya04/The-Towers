@@ -17,6 +17,5 @@ public class IronArmorListener implements Listener {
         if (!gameInstance.getRules().get(Rule.IRON_ARMOR) && e.getSlotType() == InventoryType.SlotType.ARMOR){
             e.setCancelled(true);
         }
-
     }
 }

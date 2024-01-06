@@ -4,7 +4,7 @@
 # +###----------------------------------------------###+ #
 
 scoreboard:
-  name: '&e&lTHE TOWERS'
+  name: '&e&lThe Towers Champagne'
   formatDate: dd/MM/yy
 
   # LOBBY
@@ -17,9 +17,7 @@ scoreboard:
       - 'Jugadores: &e%online_players%'
       - '&2'
       - '&fPara ver tus stats:'
-      - '&a /towers stats&3 <nombre>'
-      - '&4'
-      - '&eFran Kingdom&f'
+      - '&a /tt stats&3 <nombre> Torneo'
 
 player: 'jugador'
 players: 'jugadores'

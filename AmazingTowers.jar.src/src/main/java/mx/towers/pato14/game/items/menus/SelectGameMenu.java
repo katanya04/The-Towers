@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.menus;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.game.items.ChestMenuItem;
@@ -13,7 +12,7 @@ public class SelectGameMenu extends ChestMenuItem {
     private final SelectGame[] games;
     public SelectGameMenu(LobbyInstance lobbyInstance) {
         super(Utils.setName(new ItemStack(Material.COMPASS),
-                AmazingTowers.getColor(lobbyInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.selectGame.name"))),
+                Utils.getColor(lobbyInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.selectGame.name"))),
                 SelectGame.getItems(lobbyInstance));
         games = SelectGame.getItems(lobbyInstance);
     }

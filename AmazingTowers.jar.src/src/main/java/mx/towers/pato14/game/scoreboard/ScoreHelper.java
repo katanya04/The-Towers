@@ -80,5 +80,3 @@ public class ScoreHelper {
         return (s.length() > 16) ? s.substring(16) : "";
     }
 }
-
-

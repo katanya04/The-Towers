@@ -34,12 +34,12 @@ public class Finish {
     private final String name;
 
     public Finish(GameInstance gameInstance) {
-        this.name = gameInstance.getName();
+        this.name = gameInstance.getInternalName();
         seconds = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1;
         bungeecord = AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled");
     }
 
-    public void Fatality(final TeamColor teamColor) {
+    public void fatality(final TeamColor teamColor) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
         if (!gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
             gameInstance.getGame().setGameState(GameState.FINISH);
@@ -72,13 +72,13 @@ public class Finish {
                                     else if (bungeecord)
                                         Utils.bungeecordTeleport(player);
                                     else
-                                        player.kickPlayer(AmazingTowers.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
+                                        player.kickPlayer(Utils.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
                                                 .replace("{Color}", teamColor.getColor())
                                                 .replace("{Team}", teamColor.getName(gameInstance))
                                                 .replace("%newLine%", "\n")));
                                 }
                             }
-                            Bukkit.unloadWorld(gameInstance.getName(), false);
+                            Bukkit.unloadWorld(gameInstance.getInternalName(), false);
                             gameInstance.reset();
                         }
                     }).runTaskLater(Finish.this.plugin, 60L);
@@ -91,12 +91,12 @@ public class Finish {
                     List<Map.Entry<String, Stats>> killsSorted =
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byKills))).collect(Collectors.toList());
-                    String topFiveKills = AmazingTowers.getColor(getTopFive(killsSorted, StatType.KILLS));
+                    String topFiveKills = Utils.getColor(getTopFive(killsSorted, StatType.KILLS));
                     for (Player player : gameInstance.getGame().getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFiveKills);
                         if (!topFiveKills.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = AmazingTowers.getColor(getPosition(killsSorted, player.getName(), StatType.KILLS));
+                            String msg = Utils.getColor(getPosition(killsSorted, player.getName(), StatType.KILLS));
                             player.sendMessage(msg);
                         }
                     }
@@ -105,12 +105,12 @@ public class Finish {
                     List<Map.Entry<String, Stats>> pointsSorted =
                             stats.getPlayerStats().entrySet().stream()
                                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byPoints))).collect(Collectors.toList());
-                    String topFivePoints = AmazingTowers.getColor(getTopFive(pointsSorted, StatType.POINTS));
+                    String topFivePoints = Utils.getColor(getTopFive(pointsSorted, StatType.POINTS));
                     for (Player player : gameInstance.getGame().getPlayers()) {
                         player.sendMessage("\n");
                         player.sendMessage(topFivePoints);
                         if (!topFivePoints.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = AmazingTowers.getColor(getPosition(pointsSorted, player.getName(), StatType.POINTS));
+                            String msg = Utils.getColor(getPosition(pointsSorted, player.getName(), StatType.POINTS));
                             player.sendMessage(msg);
                         }
                     }
@@ -150,8 +150,8 @@ public class Finish {
                     AmazingTowers.getGameInstance(player).getVault().giveReward(player, RewardsEnum.LOSER_TEAM);
             }
         }
-        if (AmazingTowers.isConnectedToDatabase()) {
-            FindOneCallback.updatePlayersDataAsync(gameInstance.getGame().getStats().getPlayerStats(), this.plugin, result -> {
+        if (AmazingTowers.isConnectedToDatabase() && gameInstance.getTableName() != null) {
+            FindOneCallback.updatePlayersDataAsync(gameInstance.getGame().getStats().getPlayerStats(), gameInstance.getTableName(), result -> {
             });
         }
     }
@@ -175,10 +175,10 @@ public class Finish {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         if (messages.getBoolean("win.titles.enabled")) {
-            String Title = AmazingTowers.getColor(messages.getString("win.titles.winTitle")
+            String Title = Utils.getColor(messages.getString("win.titles.winTitle")
                     .replace("{Color}", teamColor.getColor())
                     .replace("{Team}", teamColor.getName(gameInstance).toUpperCase()));
-            String Subtitle = AmazingTowers.getColor(messages.getString("win.titles.winSubTitle"));
+            String Subtitle = Utils.getColor(messages.getString("win.titles.winSubTitle"));
             for (Player player : gameInstance.getGame().getPlayers()) {
                 ReflectionMethods.sendTitle(player, Title, Subtitle, 10, 100, 20);
             }
@@ -221,58 +221,54 @@ public class Finish {
         return sb.toString();
     }
 
-    public void goldenGoal() {
+    public void endMatch() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        if (gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
-            for (Team team : gameInstance.getGame().getTeams().getTeams()) {
-                if (team.respawnPlayers()) {
-                    team.setPoints(0);
-                    String title = AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
-                    for (Player pl : team.getListOnlinePlayers()) {
-                        pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
-                        if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
-                            ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);
-                        else
-                            pl.sendMessage(title);
-                    }
-                }
-                gameInstance.getWorld().spawnEntity(Locations.getLocationFromString(gameInstance
-                        .getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), EntityType.ENDER_DRAGON);
-            }
-        } else {
-            List<Team> mostPoints = new ArrayList<>();
-            int mostPointsInt = gameInstance.getGame().getTeams().getTeams().get(0).getPoints();
-            for (Team team : gameInstance.getGame().getTeams().getTeams()) {
-                if (team.getPoints() >= mostPointsInt) {
-                    if (team.getPoints() > mostPointsInt) {
-                        mostPoints.clear();
-                        mostPointsInt = team.getPoints();
-                    }
-                    mostPoints.add(team);
-                }
-            }
-            if (mostPoints.size() == 1) {
-                gameInstance.getGame().getFinish().Fatality(mostPoints.get(0).getTeamColor());
-            } else {
-                gameInstance.getGame().setGoldenGoal(true);
-                String title = AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.title"));
-                String subTitle = AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.subTitle"));
-                for (Team team : gameInstance.getGame().getTeams().getTeams()) {
-                    if (mostPoints.contains(team)) {
-                        for (Player pl : team.getListOnlinePlayers()) {
+        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        if (winningTeams.size() == 1)
+            this.fatality(winningTeams.get(0).getTeamColor());
+        else {
+            this.fatality(winningTeams.get(new Random().nextInt(winningTeams.size())).getTeamColor());
+        }
+    }
+
+    public void endMatchOrGoldenGoal() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(name);
+        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        if (winningTeams.size() == 1)
+            this.fatality(winningTeams.get(0).getTeamColor());
+        else {
+            gameInstance.getGame().setGoldenGoal(true);
+            gameInstance.getGame().getTeams().getTeams().forEach(o -> {
+                if (winningTeams.contains(o)) {
+                    if (gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
+                        o.setPoints(0);
+                        String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
+                        for (Player pl : o.getListOnlinePlayers()) {
+                            pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
+                            if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
+                                ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);
+                            else
+                                pl.sendMessage(title);
+                        }
+                    } else {
+                        String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.title"));
+                        String subTitle = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.subTitle"));
+                        for (Player pl : o.getListOnlinePlayers()) {
+                            pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                             if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("goldenGoal.titles.enabled"))
                                 ReflectionMethods.sendTitle(pl, title, subTitle, 0, 50, 20);
                             else {
                                 pl.sendMessage(title);
                                 pl.sendMessage(subTitle);
                             }
-                            pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                         }
-                    } else {
-                        team.eliminateTeam();
                     }
+                } else {
+                    o.eliminateTeam();
                 }
-            }
+            });
+            gameInstance.getWorld().spawnEntity(Locations.getLocationFromString(gameInstance
+                    .getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), EntityType.ENDER_DRAGON);
         }
     }
 

@@ -3,6 +3,7 @@ package mx.towers.pato14.game.team;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.PlayerState;
 import mx.towers.pato14.utils.enums.TeamColor;
@@ -13,10 +14,12 @@ import java.util.*;
 public class GameTeams {
     private final List<Team> teams;
     private final String name;
+    private String playersAmount;
 
     public GameTeams(GameInstance gameInstance) {
-        this.name = gameInstance.getName();
+        this.name = gameInstance.getInternalName();
         this.teams = new LinkedList<>();
+        this.playersAmount = null;
         for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
             Team currentTeam = new Team(teamColor, gameInstance);
             currentTeam.setPrefix(teamColor.getColor() + gameInstance.getConfig(ConfigType.CONFIG)
@@ -74,6 +77,34 @@ public class GameTeams {
 
     public void reset() {
         teams.forEach(Team::reset);
+    }
+
+    public List<Team> getWinningTeams() {
+        List<Team> toret = new LinkedList<>();
+        teams.sort(Comparator.reverseOrder());
+        for (Team team : teams) {
+            if (team.compareTo(teams.get(0)) == 0)
+                toret.add(team);
+            else
+                break;
+        }
+        return toret;
+    }
+
+    public String getPlayersAmount() {
+        if (this.playersAmount == null)
+            updatePlayersAmount();
+        return this.playersAmount;
+    }
+
+    public void updatePlayersAmount() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < teams.size(); i++) {
+            Team team = teams.get(i);
+            sb.append(team.getTeamColor().getColor()).append(team.getSizeOnlinePlayers());
+            if (i != teams.size() - 1) sb.append("&r vs ");
+        }
+        this.playersAmount = Utils.getColor(sb.toString());
     }
 }
 

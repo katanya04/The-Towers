@@ -24,7 +24,7 @@ public class Timer {
     private BukkitRunnable timerTask;
     private final String instanceName;
     public Timer(GameInstance gameInstance) {
-        this.instanceName = gameInstance.getName();
+        this.instanceName = gameInstance.getInternalName();
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);
         this.bossBars = new HashMap<>();
@@ -38,7 +38,7 @@ public class Timer {
             return Utils.stringTimeToInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.time").split(":"));
         } catch (Exception ex) {
             gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("timer.time", "30:00");
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while reading timer's time. Set to default value (30:00)", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while reading timer's time. Set to default value (30:00)", MessageType.ERROR);
         }
         return 1800;
     }
@@ -48,7 +48,8 @@ public class Timer {
         this.time = getTime(gameInstance);
         if (gameInstance.getGame().getGameState() == GameState.GAME) {
             removeAllBossBars();
-            timerStart();
+            if (this.activated)
+                timerStart();
         }
     }
 
@@ -69,7 +70,7 @@ public class Timer {
             field.setAccessible(true);
             field.setFloat(toret, -0.1F);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while starting the timer", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while starting the timer", MessageType.ERROR);
         }
 
         return toret;
@@ -96,7 +97,7 @@ public class Timer {
                 }
                 if (time <= 0) {
                     removeAllBossBars();
-                    AmazingTowers.getGameInstance(instanceName).getGame().getFinish().goldenGoal();
+                    AmazingTowers.getGameInstance(instanceName).getGame().getFinish().endMatchOrGoldenGoal();
                     return;
                 }
                 time--;
@@ -114,7 +115,8 @@ public class Timer {
             }
         }
         bossBars.clear();
-        try { timerTask.cancel();} catch (IllegalStateException ignored) {}
+        if (timerTask != null)
+            try { timerTask.cancel();} catch (IllegalStateException ignored) {}
     }
 
     public void removeBossBar(Player player) {

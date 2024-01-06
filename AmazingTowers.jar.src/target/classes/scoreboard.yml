@@ -4,9 +4,9 @@
 # +###----------------------------------------------###+ #
 
 scoreboard:
-  name: '&e&lTHE TOWERS'
+  name: '&e&lThe Towers Champagne'
   formatDate: dd/MM/yy
-  
+
   # LOBBY
   # VARIABLES
   # %date% , %online_players%
@@ -19,8 +19,6 @@ scoreboard:
       - '&fEsperando...'
       - '&2'
       - '&e%instance_name%'
-      - '&1'
-      - '&eFran Kingdom'
 
   # PREGAME
   # VARIABLES
@@ -34,8 +32,6 @@ scoreboard:
       - '&fEmpezando en &a%seconds%s'
       - '&2'
       - '&e%instance_name%'
-      - '&1'
-      - '&eFran Kingdom'
 
   # GAME
   # VARIABLES
@@ -44,7 +40,7 @@ scoreboard:
   # %player_deaths% , %refill_time% , %player_points% , %team_color%
   gameFourTeamsOrLess:
     scores:
-      - '&7%date% &eFran Kingdom'
+      - '&7%date% - &r%players_amount%'
       - '&f'
       - '&fSiguiente Refill: &a%refill_time%'
       - '&f'
@@ -62,7 +58,7 @@ scoreboard:
 
   gameUpToEightTeams:
     scores:
-      - '&7%date% &eFran Kingdom'
+      - '&7%date% - &r%players_amount%'
       - '&fSiguiente Refill: &a%refill_time%'
       - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
       - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'

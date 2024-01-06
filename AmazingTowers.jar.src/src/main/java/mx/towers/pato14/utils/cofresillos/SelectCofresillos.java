@@ -25,6 +25,7 @@ public class SelectCofresillos implements Listener {
     public void onSelectorCofressillos(PlayerInteractEvent e) {
         if (!Tool.REFILLCHEST.checkIfItemIsTool(e.getItem()))
             return;
+        e.setCancelled(true);
         if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_AIR))
             return;
         Block block = e.getClickedBlock().getState().getBlock();
@@ -32,7 +33,6 @@ public class SelectCofresillos implements Listener {
             return;
         Location loc = block.getLocation();
         Config locations = AmazingTowers.getGameInstance(e.getPlayer()).getConfig(ConfigType.LOCATIONS);
-        e.setCancelled(true);
         List<String> locConfig = locations.getStringList("LOCATIONS.REFILLCHEST");
         String locString = Locations.getLocationStringBlock(loc);
         if (e.getAction().equals(Action.LEFT_CLICK_BLOCK)) {

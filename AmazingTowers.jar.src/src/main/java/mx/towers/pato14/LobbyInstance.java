@@ -17,8 +17,8 @@ public class LobbyInstance extends TowersWorldInstance {
         return (LobbyItems) hotbarItems;
     }
     @Override
-    public void playerJoinGame(Player player) {
-        super.playerJoinGame(player);
+    public void joinInstance(Player player) {
+        super.joinInstance(player);
         Utils.joinMainLobby(player);
     }
     public LobbyParkourPrize getLobbyParkourPrize() {

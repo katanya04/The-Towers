@@ -14,8 +14,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
 
-public class Team {
+public class Team implements Comparable<Team> {
     private final TeamColor teamColor;
     private String prefix;
     private final HashMap<String, PlayerState> players;
@@ -31,9 +33,27 @@ public class Team {
         this.eliminated = false;
     }
 
+    public void joinTeam(Player player) {
+        this.setNameTagPlayer(player);
+        gameInstance.getGame().getStats().setHashStats(player.getName());
+        if (this.respawnPlayers()) {
+            gameInstance.getGame().applyKitToPlayer(player);
+            this.setPlayerState(player.getName(), PlayerState.ONLINE);
+            player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS)
+                    .getString(Location.SPAWN.getPath(this.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+            player.setGameMode(GameMode.SURVIVAL);
+        } else {
+            this.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
+            player.setGameMode(GameMode.SPECTATOR);
+            player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS)
+                    .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+        }
+    }
+
     public void removePlayer(String playerName) {
         this.players.remove(playerName);
         gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).removePlayerNameToTeamItem(playerName);
+        gameInstance.getGame().getTeams().updatePlayersAmount();
     }
 
     public void addPlayer(String playerName) {
@@ -42,6 +62,7 @@ public class Team {
             currentTeam.removePlayer(playerName);
         this.players.put(playerName, PlayerState.ONLINE);
         gameInstance.getHotbarItems().getSelectTeam().getItemByTeam(this.teamColor).addPlayerNameToTeamItem(playerName);
+        gameInstance.getGame().getTeams().updatePlayersAmount();
     }
 
     public void setNameTagPlayer(Player player) {
@@ -100,6 +121,7 @@ public class Team {
 
     public void setPlayerState(String playerName, PlayerState playerState) {
         this.players.put(playerName, playerState);
+        gameInstance.getGame().getTeams().updatePlayersAmount();
     }
 
     public PlayerState getPlayerState(String playerName) {
@@ -124,6 +146,7 @@ public class Team {
                 player.sendMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.eliminated"));
             }
         }
+        gameInstance.getGame().getTeams().updatePlayersAmount();
         this.eliminated = true;
     }
 
@@ -137,5 +160,10 @@ public class Team {
         players.clear();
         points = 0;
         eliminated = false;
+    }
+
+    @Override
+    public int compareTo(@NotNull Team o) {
+        return this.points - o.points;
     }
 }

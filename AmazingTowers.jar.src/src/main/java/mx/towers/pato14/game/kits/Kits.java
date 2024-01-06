@@ -3,6 +3,7 @@ package mx.towers.pato14.game.kits;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
@@ -20,7 +21,7 @@ public class Kits {
     private final String instanceName;
 
     public Kits(GameInstance gameInstance) {
-        this.instanceName = gameInstance.getName();
+        this.instanceName = gameInstance.getInternalName();
         ConfigurationSection kitsConfig = gameInstance.getConfig(ConfigType.KITS);
         for (String entry : kitsConfig.getConfigurationSection("Kits").getKeys(false)) {
             Object value = kitsConfig.get("Kits." + entry);
@@ -42,7 +43,7 @@ public class Kits {
             } else
                 toret = new Kit(kit.getName(), armor, hotbar, setIcon(ReflectionMethods.deserializeItemStack(kit.getString("iconInMenu")), false, kit));
         } catch (ParseItemException e) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while parsing the icon item of the kit \"" + kit.get("name") + "\"", MessageType.ERROR);
         }
         return toret;
     }
@@ -55,7 +56,7 @@ public class Kits {
 
     private static ItemStack setIcon(ItemStack item, boolean addLore, ConfigurationSection kit) {
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(AmazingTowers.getColor("§r&l" + kit.getName()));
+        meta.setDisplayName(Utils.getColor("§r&l" + kit.getName()));
         if (addLore) {
             List<String> lore = new ArrayList<>();
             lore.add(kit.getString("price") + " coins");
@@ -74,11 +75,11 @@ public class Kits {
                 try {
                     toret[i] = ReflectionMethods.deserializeItemStack(itemsArray[i]);
                 } catch (ParseItemException e) {
-                    AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
+                    Utils.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }
             }
         } else
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", incorrect size", MessageType.ERROR);
         return toret;
     }
 

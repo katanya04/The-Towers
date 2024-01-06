@@ -33,3 +33,5 @@ timer:
   activated: 'false'
   time: '30:00'
   message: 'Tiempo: %time%'
+database:
+  database: '<db_name>'

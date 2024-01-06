@@ -2,13 +2,14 @@ package mx.towers.pato14.utils.rewards;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 
 public class VaultT {
     private final String gameInstanceName;
     public VaultT(GameInstance gameInstance) {
-        this.gameInstanceName = gameInstance.getName();
+        this.gameInstanceName = gameInstance.getInternalName();
     }
     public void giveReward(Player player, RewardsEnum reward) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(this.gameInstanceName);
@@ -27,7 +28,7 @@ public class VaultT {
                 points *= 2;
             }
             SetupVault.getVaultEconomy().depositPlayer(player, points);
-            player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
+            player.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.rewards.messages." + reward.getName()).replaceAll("%coins%", String.valueOf(points))));
         }
     }
 }

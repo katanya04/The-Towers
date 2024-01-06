@@ -8,18 +8,18 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
+import mx.towers.pato14.utils.mysql.Connexion;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,8 +28,10 @@ import org.bukkit.map.MinecraftFont;
 import org.bukkit.potion.PotionEffect;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,19 +52,50 @@ public class Utils {
     }*/
 
     public static void tpToWorld(World world, Player player) {
+        Utils.clearNameTagPlayer(player);
         TowersWorldInstance worldInstance = AmazingTowers.getInstance(world);
         String lobby;
+        World oldWorld = player.getWorld();
         if (worldInstance instanceof GameInstance && !((GameInstance) worldInstance).canJoin(player))
-            player.sendMessage("No puedes entrar a esta partida ahora mismo");
-        else if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null)
-            player.teleport(Locations.getLocationFromString(lobby));
-        else
-            player.teleport(world.getSpawnLocation());
+            player.sendMessage("You can't enter this match at the moment");
+        else {
+            if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null)
+                player.teleport(Locations.getLocationFromString(lobby));
+            else
+                player.teleport(world.getSpawnLocation());
+            onChangeWorlds(player, oldWorld, world);
+            Utils.updatePlayerTab(player);
+        }
+    }
+
+    private static void onChangeWorlds(Player player, World oldWorld, World newWorld) {
+        TowersWorldInstance oldInstance = AmazingTowers.getInstance(oldWorld);
+        if (oldInstance != null)
+            oldInstance.leaveInstance(player);
+        TowersWorldInstance newInstance = AmazingTowers.getInstance(newWorld);
+        if (newInstance == null)
+            return;
+        newInstance.joinInstance(player);
+        if (newInstance instanceof GameInstance)
+            newInstance.broadcastMessage(getJoinMessage((GameInstance) newInstance, player.getName()), true);
+    }
+
+    private static String getJoinMessage(GameInstance gameInstance, String playerName) {
+        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
+        if (team != null) {
+            return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
+                    .replace("{Player}", playerName)
+                    .replace("{Color}", team.getTeamColor().getColor())
+                    .replace("{Team}", team.getTeamColor().getName(gameInstance));
+        } else {
+            return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinMessage")
+                    .replace("{Player}", playerName).replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()));
+        }
     }
 
     public static void sendMessage(String msg, MessageType messageType, CommandSender sender) {
         sender.sendMessage((sender instanceof Entity ? messageType.getShortPrefix() : messageType.getPrefix())
-                + AmazingTowers.getColor(msg));
+                + getColor(msg));
     }
 
     public static ItemStack setName(ItemStack item, String name) {
@@ -144,11 +177,11 @@ public class Utils {
         }
         if (makeATeamWin) {
             if (temp != null)
-                gameInstance.getGame().getFinish().Fatality(temp.getTeamColor());
+                gameInstance.getGame().getFinish().fatality(temp.getTeamColor());
             else {
                 int numberOfTeams = gameInstance.getGame().getTeams().getTeams().size();
                 int teamNumber = (int) Math.floor(Math.random() * numberOfTeams);
-                gameInstance.getGame().getFinish().Fatality(TeamColor.values()[teamNumber]);
+                gameInstance.getGame().getFinish().fatality(TeamColor.values()[teamNumber]);
             }
         }
     }
@@ -336,30 +369,6 @@ public class Utils {
         AmazingTowers.getLobby().getHotbarItems().giveHotbarItems(player);
     }
 
-    public static void joinGame(Player player) {
-        Utils.resetPlayer(player);
-        GameInstance gameInstance = AmazingTowers.getGameInstance(player);
-        Team team;
-        if ((team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName())) != null && team.respawnPlayers())
-            joinTeam(player, team, gameInstance);
-        else { //if ... (check for case that player should be on spectator mode)
-            player.setGameMode(GameMode.ADVENTURE);
-            gameInstance.getHotbarItems().giveHotbarItems(player);
-            NametagEdit.getApi().setPrefix(player, AmazingTowers.getColor(TeamColor.SPECTATOR.getColor()));
-            player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
-        }
-    }
-
-    public static void joinTeam(Player player, Team team, GameInstance gameInstance) {
-        NametagEdit.getApi().clearNametag(player);
-        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
-        player.setGameMode(GameMode.SURVIVAL);
-        team.setNameTagPlayer(player);
-        gameInstance.getGame().applyKitToPlayer(player);
-        gameInstance.getGame().getStats().setHashStats(player.getName());
-
-    }
-
     public static void bungeecordTeleport(Player player) {
         if (!AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
             return;
@@ -378,5 +387,71 @@ public class Utils {
                 names.append(", ");
         }
         return names.toString();
+    }
+
+    public static boolean isAValidTable(String tableName) {
+        return tableName != null && (AmazingTowers.connexion.getTables().contains(tableName) || Connexion.ALL_TABLES.equals(tableName));
+    }
+
+    public static String getColor(String st) {
+        return ChatColor.translateAlternateColorCodes('&', st);
+    }
+
+    public static void sendConsoleMessage(String msg, MessageType messageType) {
+        AmazingTowers.getPlugin().getServer().getConsoleSender().sendMessage(messageType.getPrefix() + msg);
+    }
+
+    public static boolean replaceWithBackup(String backupPath, String targetPath) throws IOException {
+        File source = new File(backupPath);
+        if (!source.exists())
+            return false;
+        File target = new File(targetPath);
+        if (target.exists()) {                                 //Borra el mundo que estaba de la anterior partida
+            Bukkit.unloadWorld(target.getName(), false);
+            deleteRecursive(target);
+        }                                                    //Lo sobreescribe con el de backup
+        FileUtils.copyDirectory(source, target);
+        Bukkit.createWorld(new WorldCreator(target.getName()));
+        return true;
+    }
+
+    public static void deleteRecursive(File file) {
+        if (file.exists())
+            return;
+        for (File value : file.listFiles()) {
+            if (value.isDirectory())
+                deleteRecursive(value);
+            else
+                value.delete();
+        }
+    }
+
+    public static <T> T getValueOrDefault(T value, Supplier<? extends T> supplier) {
+        return value == null ? supplier.get() : value;
+    }
+
+    public static <T> T getValueOrDefault(T value, T def) {
+        return value == null ? def : value;
+    }
+
+    public static class Pair<T, U> {
+        private T key;
+        private U value;
+        public Pair(T key, U value) {
+            this.key = key;
+            this.value = value;
+        }
+        public T getKey() {
+            return key;
+        }
+        public U getValue() {
+            return value;
+        }
+        public void setKey(T key) {
+            this.key = key;
+        }
+        public void setValue(U value) {
+            this.value = value;
+        }
     }
 }

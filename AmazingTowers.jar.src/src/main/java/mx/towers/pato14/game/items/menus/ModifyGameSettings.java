@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.menus;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.ChestMenuItem;
 import mx.towers.pato14.game.items.menus.settings.*;
@@ -19,8 +18,8 @@ public class ModifyGameSettings extends ChestMenuItem {
     private ModifyKits modifyKits;
     public ModifyGameSettings(GameInstance gameInstance) {
         super(
-                AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name")),
-                Utils.setName(new ItemStack(Material.PAPER), AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name"))),
+                Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name")),
+                Utils.setName(new ItemStack(Material.PAPER), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name"))),
                 new HashMap<>(),
                 27
         );
@@ -40,6 +39,8 @@ public class ModifyGameSettings extends ChestMenuItem {
         toret.put(14, new SetTimer(this.gameInstance));
         toret.put(15, modifyKits = new ModifyKits(this.gameInstance));
         toret.put(26, saveSettings = new SaveSettings(this.gameInstance));
+        toret.put(17, new SelectDatabase(this.gameInstance));
+        toret.put(8, new EndMatch(this.gameInstance));
 
         return toret;
     }

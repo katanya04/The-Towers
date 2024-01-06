@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.actions;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
@@ -13,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class BungeecordQuit extends ActionItem {
     public BungeecordQuit(LobbyInstance lobbyInstance) {
-        super(Utils.setName(new ItemStack(Material.BED), AmazingTowers.getColor(lobbyInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.quit.name"))));
+        super(Utils.setName(new ItemStack(Material.BED), Utils.getColor(lobbyInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.quit.name"))));
     }
 
     @Override

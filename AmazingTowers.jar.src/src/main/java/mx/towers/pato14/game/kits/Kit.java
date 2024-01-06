@@ -17,8 +17,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import java.util.Map;
-
 public class Kit extends ActionItem {
     private final String name;
     private final ItemStack[] armor;
@@ -46,13 +44,13 @@ public class Kit extends ActionItem {
         GameInstance gameInstance = (GameInstance) instance;
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         if (!gameInstance.getRules().get(Rule.KITS)) {
-            player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("kitsDisabled")));
+            player.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("kitsDisabled")));
             player.closeInventory();
             return;
         }
         if (!AmazingTowers.capitalismExists() || this.getPrice() == 0 || gameInstance.getGame().getKits().playerHasKit(player.getName(), this)) {
             gameInstance.getGame().getPlayersSelectedKit().put(player, this);
-            player.sendMessage(AmazingTowers.getColor(messages.getString("selectKit")
+            player.sendMessage(Utils.getColor(messages.getString("selectKit")
                     .replace("%kitName%", this.getName())));
             ((Player) player).playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
             player.closeInventory();
@@ -61,7 +59,7 @@ public class Kit extends ActionItem {
             gameInstance.getHotbarItems().getChestMenus().add(buyKitMenu);
             buyKitMenu.interact(player, gameInstance);
         } else {
-            player.sendMessage(AmazingTowers.getColor(messages.getString("notEnoughMoney")));
+            player.sendMessage(Utils.getColor(messages.getString("notEnoughMoney")));
             ((Player) player).playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
         }
     }

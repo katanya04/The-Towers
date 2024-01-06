@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.AreaUtil;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
@@ -64,7 +65,7 @@ public class ChestsProtect implements Listener {
             TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player.getName());
             if (!AreaUtil.isInsideArea(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
                 e.setCancelled(true);
-                player.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("openingEnemyChest")));
+                player.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("openingEnemyChest")));
             }
         }
     }

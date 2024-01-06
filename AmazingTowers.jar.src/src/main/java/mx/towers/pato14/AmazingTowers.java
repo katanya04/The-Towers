@@ -13,10 +13,9 @@ import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.placeholders.Expansion;
 import mx.towers.pato14.utils.rewards.SetupVault;
-import mx.towers.pato14.utils.wand.Wand;
+import mx.towers.pato14.utils.wand.WandCoords;
 import mx.towers.pato14.utils.wand.WandListener;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -26,104 +25,72 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class AmazingTowers extends JavaPlugin {
     private static AmazingTowers plugin;
     private static LobbyInstance lobby;
-    private static HashMap<String, GameInstance> games;
-    private static boolean connectedToDatabase;
-    private Wand wand;
+    private static GameInstance[] games;
+    private static HashMap<Player, WandCoords> wands;
     private static Config globalConfig;
-    public Connexion connexion;
+    public static Connexion connexion;
 
     @Override
     public void onEnable() {
         plugin = this;
-        games = new HashMap<>();
+
+        globalConfig = new Config("globalConfig.yml", true);
+        games = new GameInstance[globalConfig.getInt("options.instances.amount")];
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
-            sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers", MessageType.ERROR);
+            Utils.sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers", MessageType.ERROR);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        createFolderBackup();
+        createBackupsFolder();
 
         getCommand("towers").setExecutor(new TowerCommand());
 
-        globalConfig = new Config(this, "globalConfig.yml", true);
+        if (getGlobalConfig().getBoolean("options.database.active")) {
+            connexion = new Connexion(getGlobalConfig().getConfigurationSection("options.database"));
+            if (connexion.initialize())
+                Utils.sendConsoleMessage("§aSuccessfully connected to the database", MessageType.INFO);
+            else
+                Utils.sendConsoleMessage("§cCouldn't connect to the database", MessageType.ERROR);
+        }
 
-        int numberOfInstances = globalConfig.getInt("options.instances.amount");
-
-        for (int i = 0; i < numberOfInstances; i++)
-            games.put("TheTowers" + (i + 1), new GameInstance("TheTowers" + (i + 1)));
+        for (int i = 0; i < games.length; i++)
+            games[i] = new GameInstance("TheTowers" + (i + 1));
 
         if (globalConfig.getBoolean("options.lobby.activated"))
             lobby = new LobbyInstance(globalConfig.getString("options.lobby.worldName"));
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new Expansion().register();
+        }
 
-        if (getGlobalConfig().getBoolean("options.mysql.active")) {
-            try {
-                this.connexion = new Connexion();
-                this.connexion.connect();
-                this.connexion.createTable();
-                connectedToDatabase = true;
-                sendConsoleMessage("§aSuccessfully connected to the database", MessageType.INFO);
-            } catch (Exception e) {
-                connectedToDatabase = false;
-                sendConsoleMessage("§cCouldn't connect to the database", MessageType.ERROR);
+        (new EventsManager(getPlugin())).registerEvents();
+        wands = new HashMap<>();
+        getServer().getPluginManager().registerEvents(new WandListener(), this);
+        getServer().getPluginManager().registerEvents(new SelectCofresillos(), this);
+        boolean worldUnset = false;
+        for (GameInstance gameInstance : games) {
+            if (Utils.checkWorldFolder(gameInstance.getInternalName())) {
+                Utils.sendConsoleMessage("§f§l" + gameInstance.getInternalName() + "§f locations needed to be set: " +
+                        (gameInstance.hasUnsetRegions() ? gameInstance.getUnsetRegionsString().toUpperCase() : "[NONE]"), MessageType.INFO);
+            } else {
+                worldUnset = true;
+                Utils.sendConsoleMessage("§f§l" + gameInstance.getInternalName() + "§f world doesn't exist yet. To create it, run /tt createWorld " + gameInstance.getInternalName(), MessageType.INFO);
             }
         }
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new Expansion(this).register();
-        }
-        enabledPlugin();
+        if (worldUnset)
+            Utils.sendConsoleMessage("To create all missing worlds, run /tt createWorld all", MessageType.INFO);
+
+        Utils.sendConsoleMessage("Enabled successfully", MessageType.INFO);
+        if (!Bukkit.getVersion().contains("1.8."))
+            Utils.sendConsoleMessage("Only 1.8 Minecraft versions are fully supported, there may be errors", MessageType.WARNING);
     }
 
     @Override
     public void onDisable() {
-        for (GameInstance gameInstance : games.values()) {
-            if (gameInstance.getGame() == null) {
-                World world = gameInstance.getWorld();
-                if (world != null)
-                    world.save();
-            }
-        }
+        Arrays.stream(games).filter(o -> o.getGame() == null).map(TowersWorldInstance::getWorld).filter(Objects::nonNull).forEach(World::save);
     }
-
-    private void enabledPlugin() {
-        (new EventsManager(getPlugin())).registerEvents();
-        this.wand = new Wand();
-        getServer().getPluginManager().registerEvents(new WandListener(this), this);
-        getServer().getPluginManager().registerEvents(new SelectCofresillos(), this);
-        String version;
-        try {
-            version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            sendConsoleMessage("§aServer§f: §f" + version, MessageType.INFO);
-        } catch (ArrayIndexOutOfBoundsException a) {
-            sendConsoleMessage("Unknown server version", MessageType.ERROR);
-        }
-        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----", MessageType.INFO);
-        sendConsoleMessage("§aPlugin§f: §aEnabled§a successfully§f!", MessageType.INFO);
-        sendConsoleMessage("§aVersion§f: " + getDescription().getVersion(), MessageType.INFO);
-        sendConsoleMessage("§aAuthor§f: §f[§aPato14§f, §aMarco2124§f]", MessageType.INFO);
-        sendConsoleMessage("§a-----§f-§a-----§f-§a-----§f-§a-----§f-§a-----", MessageType.INFO);
-        boolean worldUnset = false;
-        for (GameInstance gameInstance : games.values()) {
-            if (Utils.checkWorldFolder(gameInstance.name)) {
-                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f locations needed to be set: ", MessageType.INFO);
-                sendConsoleMessage("§aLocations§f: §f" + (gameInstance.hasUnsetRegions() ? gameInstance.getUnsetRegionsString().toUpperCase() : "[NONE]"), MessageType.INFO);
-            } else {
-                worldUnset = true;
-                sendConsoleMessage("§f§l" + gameInstance.getName() + "§f world doesn't exist yet.", MessageType.INFO);
-                sendConsoleMessage("To create it, run /tt createWorld " + gameInstance.getName(), MessageType.INFO);
-            }
-            if (worldUnset) {
-                sendConsoleMessage("To create all missing worlds, run /tt createWorld all", MessageType.INFO);
-            }
-        }
-    }
-
-    public static String getColor(String st) {
-        return ChatColor.translateAlternateColorCodes('&', st);
-    }
-
-    public Wand getWand() {
-        return this.wand;
+    public static WandCoords getWandCoords(Player player) {
+        return wands.get(player);
     }
 
     public static AmazingTowers getPlugin() {
@@ -131,42 +98,37 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     public static GameInstance getGameInstance(Entity e) {
-        String worldName = e.getWorld().getName();
-        return games.get(worldName);
+        return getGameInstance(e.getWorld().getName());
     }
 
     public static GameInstance getGameInstance(Block e) {
-        String worldName = e.getWorld().getName();
-        return games.get(worldName);
+        return getGameInstance(e.getWorld().getName());
     }
 
     public static GameInstance getGameInstance(World w) {
-        String worldName = w.getName();
-        return games.get(worldName);
+        return getGameInstance(w.getName());
     }
 
     public static GameInstance getGameInstance(String worldName) {
-        return games.get(worldName);
+        for (GameInstance gameInstance : games) {
+            if (gameInstance.getInternalName().equals(worldName))
+                return gameInstance;
+        }
+        return null;
     }
 
     public static Config getGlobalConfig() {
         return globalConfig;
     }
 
-    public void createFolderBackup() {  //Crear la carpeta "backup"
+    public static void createBackupsFolder() {  //Crear la carpeta "backup"
         File folder = new File(plugin.getDataFolder(), "backup");
-        if (!folder.exists() &&
-                folder.mkdirs()) {
-            sendConsoleMessage("The backup folder was created successfully", MessageType.INFO);
-        }
+        if (!folder.exists() && folder.mkdirs())
+            Utils.sendConsoleMessage("The backup folder was created successfully", MessageType.INFO);
     }
 
-    public static HashMap<String, GameInstance> getGameInstances() {
+    public static GameInstance[] getGameInstances() {
         return games;
-    }
-
-    public void sendConsoleMessage(String msg, MessageType messageType) {
-        getServer().getConsoleSender().sendMessage(messageType.getPrefix() + msg);
     }
 
     public static boolean capitalismExists() {
@@ -174,14 +136,9 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     public static GameInstance checkForInstanceToTp(Player player) {
-        for (GameInstance gameInstance : games.values()) {
-            if (!gameInstance.canJoin(player))
-                continue;
-            if (gameInstance.getGame() == null)
-                continue;
-            if (gameInstance.getWorld() == null)
-                continue;
-            if (gameInstance.getGame().getGameState() == GameState.FINISH)
+        for (GameInstance gameInstance : games) {
+            if (!gameInstance.canJoin(player) || gameInstance.getGame() == null
+                || gameInstance.getWorld() == null ||gameInstance.getGame().getGameState() == GameState.FINISH)
                 continue;
             return gameInstance;
         }
@@ -193,30 +150,31 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     public static TowersWorldInstance getInstance(Entity entity) {
-        return entity.getWorld().equals(lobby.getWorld()) ? lobby : getGameInstance(entity);
+        return getInstance(entity.getWorld());
     }
 
     public static TowersWorldInstance getInstance(World world) {
         return world.equals(lobby.getWorld()) ? lobby : getGameInstance(world);
     }
 
-    public static GameInstance getGameInstanceWithMorePlayers() {
-        GameInstance toret = games.values().toArray(new GameInstance[0])[0];
-        for (GameInstance gameInstance : games.values()) {
-            if (gameInstance.getNumPlayers() > toret.getNumPlayers())
-                toret = gameInstance;
-        }
-        return toret;
+    public static GameInstance getInstanceMostPlayers() {
+        return games[0];
     }
 
     public static Collection<Player> getAllOnlinePlayers() {
         List<Player> playersInGameInstances = new ArrayList<>();
-        getGameInstances().values().forEach(o -> playersInGameInstances.addAll(o.getWorld() == null ? new ArrayList<>() : o.getWorld().getPlayers()));
+        Arrays.stream(games).filter(o -> o.getWorld() != null).forEach(o -> playersInGameInstances.addAll(o.getWorld().getPlayers()));
         playersInGameInstances.addAll(lobby.getWorld().getPlayers());
         return playersInGameInstances;
     }
 
     public static boolean isConnectedToDatabase() {
-        return connectedToDatabase;
+        return connexion.isConnected();
+    }
+    public static void addPlayerWand(Player player) {
+        wands.put(player, new WandCoords());
+    }
+    public static void removePlayerWand(Player player) {
+        wands.remove(player);
     }
 }

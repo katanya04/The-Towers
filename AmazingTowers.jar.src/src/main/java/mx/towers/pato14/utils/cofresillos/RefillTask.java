@@ -17,7 +17,7 @@ public class RefillTask {
     private final String instanceName;
 
     public RefillTask(GameInstance gameInstance) {
-        this.instanceName = gameInstance.getName();
+        this.instanceName = gameInstance.getInternalName();
         this.refillTime = Utils.stringTimeToInt(gameInstance.getConfig(ConfigType.CONFIG)
                 .getString("options.chests.refillChests.refillTime").split(":"));
     }
@@ -35,8 +35,7 @@ public class RefillTask {
                     }
                     gameInstance.getScoreUpdates().updateScoreboardAll();
                     if (RefillTask.this.refillTime == 0) {
-                        refillTime = Utils.stringTimeToInt(gameInstance.getConfig(ConfigType.CONFIG)
-                                .getString("options.chests.refillChests.refillTime").split(":"));
+                        resetTime();
                         SelectCofresillos.refill(refileadoProaso);
                         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill"))
                             gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("filledChest"), true);

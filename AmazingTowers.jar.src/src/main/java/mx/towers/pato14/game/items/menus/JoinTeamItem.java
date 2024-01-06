@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.menus;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.Game;
@@ -26,8 +25,8 @@ public class JoinTeamItem extends ActionItem {
     public JoinTeamItem(GameInstance gameInstance, TeamColor teamColor) {
         super(
                 Utils.setName(new ItemStack(Material.WOOL, 1, teamColor.getWoolColor()),
-                        teamColor.isMatchTeam() ? AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.joinTeam").replace("%team_color%", teamColor.getColor()).replace("%team_name%", teamColor.getName(gameInstance))) :
-                                AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator")))
+                        teamColor.isMatchTeam() ? Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.joinTeam").replace("%team_color%", teamColor.getColor()).replace("%team_name%", teamColor.getName(gameInstance))) :
+                                Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator")))
         );
         this.gameInstance = gameInstance;
         this.teamColor = teamColor;
@@ -42,7 +41,7 @@ public class JoinTeamItem extends ActionItem {
         Team currentTeam = game.getTeams().getTeamByPlayer(player.getName()); //Equipo actual
         if (teamColor == TeamColor.SPECTATOR) {
             player.setGameMode(GameMode.SPECTATOR);
-            player.sendMessage(AmazingTowers.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
+            player.sendMessage(Utils.getColor(messages.getString("enterSpectatorMode").replace("%newLine%", "\n")));
             if (currentTeam != null)
                 currentTeam.removePlayer(player.getName());
             player.closeInventory();
@@ -56,18 +55,18 @@ public class JoinTeamItem extends ActionItem {
                     || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
                 teamToJoin.addPlayer(player.getName());
                 if (game.getGameState().equals(GameState.GAME))
-                    Utils.joinGame((Player) player);
-                player.sendMessage(AmazingTowers.getColor(messages.getString("selectTeam")
+                    gameInstance.getGame().spawn((Player) player);
+                player.sendMessage(Utils.getColor(messages.getString("selectTeam")
                         .replace("{Color}", teamToJoin.getTeamColor().getColor())
                         .replace("{Team}", teamToJoin.getTeamColor().getName(game.getGameInstance()))));
                 ((Player) player).playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                 player.closeInventory();
             } else {
-                player.sendMessage(AmazingTowers.getColor(messages.getString("unbalancedTeam")));
+                player.sendMessage(Utils.getColor(messages.getString("unbalancedTeam")));
                 ((Player) player).playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
             }
         } else {
-            player.sendMessage(AmazingTowers.getColor(messages.getString("alreadyJoinedTeam")
+            player.sendMessage(Utils.getColor(messages.getString("alreadyJoinedTeam")
                     .replace("{Color}", teamToJoin.getTeamColor().getColor())
                     .replace("{Team}", teamToJoin.getTeamColor().getName(game.getGameInstance()))));
         }

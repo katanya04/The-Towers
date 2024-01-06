@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.actions;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
@@ -12,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class DenyBuy extends ActionItem {
     public DenyBuy(GameInstance gameInstance) {
-        super(Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14), AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy"))));
+        super(Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy"))));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package mx.towers.pato14.game.scoreboard;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class ScoreUpdate {
             return;
         ScoreHelper helper = ScoreHelper.createScore(player);
         helper.setTitle(this.title);
-        getScores(helper, player);
+        setScores(helper, player);
     }
 
     public void updateScoreboardAll() {
@@ -42,11 +43,11 @@ public class ScoreUpdate {
     public void updateScoreboard(Player player) {
         if (ScoreHelper.hasScore(player)) {
             ScoreHelper helper = ScoreHelper.getByPlayer(player);
-            getScores(helper, player);
+            setScores(helper, player);
         }
     }
 
-    private void getScores(ScoreHelper helper, Player player) {
+    private void setScores(ScoreHelper helper, Player player) {
         TowersWorldInstance towersWorldInstance = AmazingTowers.getInstance(player.getWorld());
         if (towersWorldInstance instanceof GameInstance) {
             GameInstance gameInstance = (GameInstance) towersWorldInstance;
@@ -56,7 +57,7 @@ public class ScoreUpdate {
                 List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
                 int i = l.size();
                 for (String st : l) {
-                    helper.setSlot(i, AmazingTowers.getColor(st)
+                    helper.setSlot(i, Utils.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                             .replace("%date%", this.date)
                             .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers")));
@@ -66,7 +67,7 @@ public class ScoreUpdate {
                 List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.pre-game.scores");
                 int i = l.size();
                 for (String st : l) {
-                    helper.setSlot(i, AmazingTowers.getColor(st)
+                    helper.setSlot(i, Utils.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                             .replace("%date%", this.date)
                             .replace("%seconds%", String.valueOf(gameInstance.getGame().getStart().getIntSeconds()))
@@ -78,9 +79,9 @@ public class ScoreUpdate {
                 List<Team> teams = gameInstance.getGame().getTeams().getTeams();
                 List<String> l = teams.size() < 5 ? gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameFourTeamsOrLess.scores") :
                         gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameUpToEightTeams.scores");
-                int i = 15;
+                int i = 15 - (teams.size() < 5 ? 4 - teams.size() : 8 - teams.size());
                 for (String st : l) {
-                    String text = AmazingTowers.getColor(st)
+                    String text = Utils.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                             .replace("%date%", this.date)
                             .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin")))
@@ -88,7 +89,8 @@ public class ScoreUpdate {
                             .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
                             .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
                             .replace("%refill_time%", Utils.intTimeToString(gameInstance.getGame().getRefill().getTimeRegeneration()))
-                            .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers"));
+                            .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers"))
+                            .replace("%players_amount%", gameInstance.getGame().getTeams().getPlayersAmount());
                     if (st.contains("%team_points%")) {
                         if (currentTeam < teams.size()) {
                             String pointsText;
@@ -104,7 +106,7 @@ public class ScoreUpdate {
                                         pointsText = teams.get(currentTeam).getSizeOnlinePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("players");
                                 }
                             }
-                            text = AmazingTowers.getColor(text
+                            text = Utils.getColor(text
                                     .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
                                     .replace("%team_points%", pointsText)
                                     .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
@@ -125,8 +127,8 @@ public class ScoreUpdate {
             List<String> l = towersWorldInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
             int i = l.size();
             for (String st : l) {
-                helper.setSlot(i, AmazingTowers.getColor(st)
-                        .replace("%online_players%", String.valueOf(AmazingTowers.getGameInstances().values().stream().map(TowersWorldInstance::getNumPlayers).reduce(towersWorldInstance.getNumPlayers(), Integer::sum)))
+                helper.setSlot(i, Utils.getColor(st)
+                        .replace("%online_players%", String.valueOf(Arrays.stream(AmazingTowers.getGameInstances()).map(TowersWorldInstance::getNumPlayers).reduce(towersWorldInstance.getNumPlayers(), Integer::sum)))
                         .replace("%date%", this.date));
                 i--;
             }

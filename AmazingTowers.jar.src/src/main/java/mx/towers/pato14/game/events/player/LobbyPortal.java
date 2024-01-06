@@ -10,8 +10,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 public class LobbyPortal implements Listener {
     @EventHandler
     public void onPortal(PlayerPortalEvent e) {
+        if (AmazingTowers.getLobby() == null || !AmazingTowers.getLobby().getWorld().equals(e.getFrom().getWorld()))
+            return;
         if (!(e.getCause() == PlayerTeleportEvent.TeleportCause.END_PORTAL || e.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL))
             return;
-        Utils.tpToWorld(AmazingTowers.getGameInstanceWithMorePlayers().getWorld(), e.getPlayer());
+        Utils.tpToWorld(AmazingTowers.getInstanceMostPlayers().getWorld(), e.getPlayer());
     }
 }

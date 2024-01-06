@@ -9,20 +9,22 @@ import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
+import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.mysql.FindOneCallback;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
 import mx.towers.pato14.utils.stats.StatType;
-import mx.towers.pato14.utils.world.WorldReset;
+import mx.towers.pato14.utils.wand.WandCoords;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -30,15 +32,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TowerCommand implements CommandExecutor
-{
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
+public class TowerCommand implements TabExecutor {
     private final ArrayList<CommandSender> senderPlayer = new ArrayList<>();
     private final HashMap<String, Long> cooldown = new HashMap<>();
-
+    @Override
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         GameInstance gameInstance = null;
         Player player = null;
@@ -54,11 +55,11 @@ public class TowerCommand implements CommandExecutor
             return true;
         }
         if (!subcommand.hasPermission(sender)) {
-            Utils.sendMessage("No tienes permiso para ejecutar este comando.", MessageType.ERROR, sender);
+            Utils.sendMessage("You don't have permission to execute this command.", MessageType.ERROR, sender);
             return true;
         }
         if (!subcommand.checkCorrectSender(sender)) {
-            Utils.sendMessage("Solo un jugador puede ejecutar este comando.", MessageType.ERROR, sender);
+            Utils.sendMessage("Only a player can execute this command.", MessageType.ERROR, sender);
             return true;
         }
         if (!subcommand.correctNumberOfArguments(args, sender)) {
@@ -68,7 +69,7 @@ public class TowerCommand implements CommandExecutor
         if (args.length > 1) {
             Map.Entry<Integer, GameInstance> argErrorAndGameInstance = Subcommand.checkArgs(subcommand, args, numberOfTeams, sender);
             if (argErrorAndGameInstance.getKey() > 0) {
-                Utils.sendMessage("Error en el argumento " + argErrorAndGameInstance.getKey(), MessageType.ERROR, sender);
+                Utils.sendMessage("Error on argument " + argErrorAndGameInstance.getKey(), MessageType.ERROR, sender);
                 Utils.sendMessage(subcommand.getCorrectUse(numberOfTeams), MessageType.INFO, sender);
                 return true;
             }
@@ -76,16 +77,19 @@ public class TowerCommand implements CommandExecutor
                 gameInstance = argErrorAndGameInstance.getValue();
         }
         if (subcommand.needsAGameInstance() && gameInstance == null) {
-            Utils.sendMessage("Se necesita especificar una instancia de The Towers.", MessageType.ERROR, sender);
+            Utils.sendMessage("An instance of a world has to be specified.", MessageType.ERROR, sender);
             return true;
         }
         switch (subcommand) {
             case STATS:
                 if (AmazingTowers.isConnectedToDatabase()) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
-                        FindOneCallback.findPlayerAsync(args[1], this.plugin, result -> {
+                        String tableName = Connexion.ALL_TABLES;
+                        if (args.length > 2 && Utils.isAValidTable(args[2]))
+                            tableName = args[2];
+                        FindOneCallback.findPlayerAsync(args[1], tableName, result -> {
                             if (result == null) {
-                                Utils.sendMessage("No se ha encontrado ese jugador", MessageType.WARNING, sender);
+                                Utils.sendMessage("Player wasn't found in the database", MessageType.WARNING, sender);
                             } else {
                                 for (StatType statType : StatType.values()) {
                                     sender.sendMessage("§7" + statType.getText() + ": " + statType.getColor() + "§l" +
@@ -96,10 +100,10 @@ public class TowerCommand implements CommandExecutor
                         });
                         cooldown.put(sender.getName(), System.currentTimeMillis());
                     } else {
-                        Utils.sendMessage("Tienes que esperar " + "§6" + (3000 - (System.currentTimeMillis() - cooldown.get(sender.getName())))/1000 + " §4segundos antes de poder ejecutar este comando.", MessageType.ERROR, sender);
+                        Utils.sendMessage("You have to wait " + "§6" + (3000 - (System.currentTimeMillis() - cooldown.get(sender.getName())))/1000 + " §4seconds before executing that command again.", MessageType.ERROR, sender);
                     }
                 } else {
-                    Utils.sendMessage("La base de datos está desactivada en la configuración del plugin", MessageType.INFO, sender);
+                    Utils.sendMessage("The database is disabled in the plugin configuration", MessageType.INFO, sender);
                 }
                 break;
             case SPECTATOR:
@@ -107,16 +111,16 @@ public class TowerCommand implements CommandExecutor
                 assert player != null;
                 if (player.getGameMode().equals(GameMode.SPECTATOR) &&
                         !gameInstance.getGame().getTeams().containsNoRespawnPlayer(player.getName()))
-                    Utils.joinGame(player);
+                    gameInstance.getGame().spawn(player);
                 else
-                    Utils.sendMessage("Solo puedes ejecutar este comando estando en modo espectador y sin ser parte de ningún equipo", MessageType.INFO, sender);
+                    Utils.sendMessage("You can only execute this command when on spectator mode and not being part of a team", MessageType.INFO, sender);
                 break;
             case ORGANIZER:
                 assert gameInstance != null;
                 String password = AmazingTowers.getGlobalConfig().getString("permissions.password.organizer");
                 if (password != null && !password.isEmpty() && args[1].equals(password)) {
                     PermissionAttachment organizer;
-                    organizer = sender.addAttachment(this.plugin);
+                    organizer = sender.addAttachment(AmazingTowers.getPlugin());
                     gameInstance.getPermissions().put(sender.getName(), organizer);
                     organizer.setPermission("towers.organizer", true);
                 }
@@ -126,7 +130,7 @@ public class TowerCommand implements CommandExecutor
                 if (AmazingTowers.getLobby() != null)
                     Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
                 else
-                    Utils.sendMessage("No existe lobby principal", MessageType.ERROR, sender);
+                    Utils.sendMessage("A main lobby doesn't exist", MessageType.ERROR, sender);
                 break;
             case COUNT:
                 assert gameInstance != null;
@@ -145,7 +149,7 @@ public class TowerCommand implements CommandExecutor
                     } else
                         start.setSeconds(Integer.parseInt(args[1]));
                 } else
-                    Utils.sendMessage("Este comando solo se puede usar antes de empezar la partida", MessageType.ERROR, sender);
+                    Utils.sendMessage("This command can only be executed before the match start", MessageType.ERROR, sender);
                 break;
             case RULE:
                 assert gameInstance != null;
@@ -162,7 +166,7 @@ public class TowerCommand implements CommandExecutor
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
                     int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin");
                     if (team.getPoints() >= pointsToWin && !gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
-                        gameInstance.getGame().getFinish().Fatality(team.getTeamColor());
+                        gameInstance.getGame().getFinish().fatality(team.getTeamColor());
                         gameInstance.getGame().setGameState(GameState.FINISH);
                     }
                 } else
@@ -173,9 +177,9 @@ public class TowerCommand implements CommandExecutor
                 Player p = Bukkit.getPlayer(args[2]);
                 if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
                     gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p.getName());
-                    Utils.joinGame(p);
+                    gameInstance.getGame().spawn(p);
                 } else
-                    Utils.sendMessage("Ese jugador no está en esta partida.", MessageType.ERROR, sender);
+                    Utils.sendMessage("That player isn't online.", MessageType.ERROR, sender);
                 break;
             case TPWORLD:
                 World worldDestination = Bukkit.getWorld(args[1]);
@@ -195,10 +199,10 @@ public class TowerCommand implements CommandExecutor
                 if (Bukkit.getWorld(args[1]) != null)
                     Utils.sendMessage("§fThe world §c" + args[1] + "§f already exists", MessageType.ERROR, sender);
                 else {
-                    for (GameInstance gameInstance1 : AmazingTowers.getGameInstances().values()) {
-                        if (gameInstance1.getWorld() != null || !(setAll || args[1].equals(gameInstance1.getName())))
+                    for (GameInstance gameInstance1 : AmazingTowers.getGameInstances()) {
+                        if (gameInstance1.getWorld() != null || !(setAll || args[1].equals(gameInstance1.getInternalName())))
                             continue;
-                        Utils.sendMessage("The world §a" + gameInstance1.getName() + "§f was created§a successfully...", MessageType.INFO, sender);
+                        Utils.sendMessage("The world §a" + gameInstance1.getInternalName() + "§f was created§a successfully...", MessageType.INFO, sender);
                         success = true;
                     }
                 }
@@ -212,12 +216,12 @@ public class TowerCommand implements CommandExecutor
                 break;
             case BACKUPWORLD:
                 assert gameInstance != null;
-                final File backup = new File(this.plugin.getDataFolder().getAbsolutePath() + "/backup", gameInstance.getWorld().getName());
+                final File backup = new File(AmazingTowers.getPlugin().getDataFolder().getAbsolutePath() + "/backup", gameInstance.getWorld().getName());
                 if (backup.exists())
                     Utils.sendMessage("§fThe folder §a'" + gameInstance.getWorld().getName() + "'§f already exists in the backup folder!", MessageType.ERROR, sender);
                 else if (!this.senderPlayer.contains(sender)) {
                     this.senderPlayer.add(sender);
-                    Utils.sendMessage("§fDo you want to save the world §a" + gameInstance.getName() + "§f in the backup folder? ", MessageType.INFO, sender);
+                    Utils.sendMessage("§fDo you want to save the world §a" + gameInstance.getInternalName() + "§f in the backup folder? ", MessageType.INFO, sender);
                     Utils.sendMessage("§fIf you want to save it, execute again the command §a/towers backupWorld", MessageType.INFO, sender);
                 }
                 else {
@@ -225,7 +229,12 @@ public class TowerCommand implements CommandExecutor
                     if (!world3.exists())
                         Utils.sendMessage("§fThe folder of the world §c" + gameInstance.getWorld().getName() + "§f doesn't exist", MessageType.ERROR, sender);
                     gameInstance.getWorld().save();
-                    WorldReset.copyWorld(world3, backup);
+                    try {
+                        FileUtils.copyDirectory(world3, backup);
+                    } catch (IOException ex) {
+                        Utils.sendMessage("I/O error when making the backup for " + world3, MessageType.ERROR, sender);
+                        break;
+                    }
                     final File[] ficheros = backup.listFiles();
                     if (ficheros == null) {
                         Utils.sendMessage("Error while trying to do a backup of the world", MessageType.ERROR, sender);
@@ -260,7 +269,7 @@ public class TowerCommand implements CommandExecutor
                 final Location loc = Location.valueOf(args[1].toUpperCase());
                 final TeamColor teamColor = args.length < 3 || !TeamColor.isTeamColor(args[2]) ? null : TeamColor.valueOf(args[2].toUpperCase());
                 if (loc.needsTeamColor() && teamColor == null) {
-                    Utils.sendMessage("Hace falta especificar un color de equipo.", MessageType.ERROR, sender);
+                    Utils.sendMessage("A team color needs to be specified.", MessageType.ERROR, sender);
                     break;
                 }
                 LocationType locationType = loc.getLocationType();
@@ -277,8 +286,17 @@ public class TowerCommand implements CommandExecutor
                             locations.set(path, Locations.getLocationStringCenter(player.getLocation(), true));
                     } else {
                         List<String> corners = new ArrayList<>();
-                        corners.add(this.plugin.getWand().getPos1());
-                        corners.add(this.plugin.getWand().getPos2());
+                        WandCoords wandCoords = AmazingTowers.getWandCoords(player);
+                        if (!wandCoords.isSetPos1()) {
+                            Utils.sendMessage("You need to set Pos1 first", MessageType.ERROR, sender);
+                            break;
+                        }
+                        if (!wandCoords.isSetPos2()) {
+                            Utils.sendMessage("You need to set Pos2 first", MessageType.ERROR, sender);
+                            break;
+                        }
+                        corners.add(Locations.getLocationStringBlock(wandCoords.getPos1()));
+                        corners.add(Locations.getLocationStringBlock(wandCoords.getPos2()));
                         if (loc.isList()) {
                             @SuppressWarnings("unchecked")
                             List<List<String>> list = locations.getList(path) == null ? new ArrayList<>() :
@@ -299,7 +317,7 @@ public class TowerCommand implements CommandExecutor
                     newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), false));
                     generators.add(newGenerator);
                     locations.set(path, generators);
-                    name = player.getItemInHand().getItemMeta().getDisplayName();
+                    name = player.getItemInHand().getType().name().toLowerCase();
                 }
                 Utils.sendMessage("§7Defined " + locationType.toString().toLowerCase() + " of§a " + name, MessageType.INFO, sender);
                 locations.saveConfig();
@@ -317,7 +335,7 @@ public class TowerCommand implements CommandExecutor
                     Utils.sendMessage((SetupVault.getVaultChat() != null) ? String.format(format, "Chat", SetupVault.getVaultChat().getName()) : String.format(format, "Chat", "NONE"), MessageType.NO_PREFIX, sender);
                     Utils.sendMessage("§7*--------------*", MessageType.NO_PREFIX, sender);
                 } else
-                    Utils.sendMessage("§cThe vault option is inactive in the config", MessageType.INFO, sender);
+                    Utils.sendMessage("§cThe vault option is disabled in the plugin config", MessageType.INFO, sender);
                 break;
             case RELOADCONFIG:
                 assert gameInstance != null;
@@ -462,8 +480,63 @@ public class TowerCommand implements CommandExecutor
                 else if (player.hasPermission(PermissionLevel.ADMIN.getPermissionName())) {
                         ReflectionMethods.openBook(player, gameInstance.getHotbarItems().getModifyGameSettings().getModifyKits());
                 } else
-                    Utils.sendMessage("No tienes permiso para ejecutar este comando.", MessageType.ERROR, sender);
+                    Utils.sendMessage("You don't have permission to execute this command.", MessageType.ERROR, sender);
+                break;
+            case SETDATABASE:
+                assert gameInstance != null;
+                if (args.length == 1) {
+                    gameInstance.setTableName(null);
+                    Utils.sendMessage("This match isn't linked to a database table now", MessageType.INFO, sender);
+                } else if (Utils.isAValidTable(args[1])) {
+                    gameInstance.setTableName(args[1]);
+                    Utils.sendMessage("This match is now linked to the database table " + args[1], MessageType.INFO, sender);
+                } else
+                    Utils.sendMessage("No database table with that name exists", MessageType.INFO, sender);
+                break;
+            case ENDMATCH:
+                assert gameInstance != null;
+                if (args.length >= 2) {
+                    if (TeamColor.isTeamColor(args[1]))
+                        gameInstance.getGame().getFinish().fatality(TeamColor.valueOf(args[1].toUpperCase()));
+                    else
+                        Utils.sendMessage("That's not a valid team color", MessageType.ERROR, sender);
+                    break;
+                }
+                switch (gameInstance.getGame().getGameState()) {
+                    case GAME:
+                        gameInstance.getGame().getFinish().endMatchOrGoldenGoal();
+                        if (gameInstance.getGame().isGoldenGoal()) {
+                            gameInstance.getGame().setGameState(GameState.GOLDEN_GOAL);
+                            Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
+                        }
+                        break;
+                    case GOLDEN_GOAL:
+                        gameInstance.getGame().getFinish().endMatch();
+                        break;
+                    default:
+                        Utils.sendMessage("This action can only be done while a match is taking place", MessageType.ERROR, sender);
+                        break;
+                }
+                break;
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String alias, String[] args) {
+        List<String> autocomplete = new ArrayList<>();
+        if (args.length == 1)
+            autocomplete.addAll(Subcommand.getListAvailableSubcommand(commandSender));
+        else {
+            Subcommand subcommand = Subcommand.isValidSubcommand(args[0]);
+            if (subcommand == null || !subcommand.hasPermission(commandSender))
+                return null;
+            GameInstance gameInstance = null;
+            if (commandSender instanceof Entity)
+                gameInstance = AmazingTowers.getGameInstance((Entity) commandSender);
+            autocomplete.addAll(Objects.requireNonNull(subcommand.autocompleteArgs(args.length - 2,
+                    gameInstance == null ? 8 : gameInstance.getNumberOfTeams())));
+        }
+        return autocomplete.stream().filter(o -> o.regionMatches(true, 0, args[args.length - 1], 0, args[args.length - 1].length())).collect(Collectors.toList());
     }
 }

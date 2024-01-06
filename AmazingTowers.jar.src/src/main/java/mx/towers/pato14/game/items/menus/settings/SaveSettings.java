@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.menus.settings;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
@@ -14,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 public class SaveSettings extends ActionItem {
     public SaveSettings(GameInstance gameInstance) {
         super(Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 8),
-                AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.saveSettings.name"))));
+                Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.saveSettings.name"))));
     }
 
     @Override

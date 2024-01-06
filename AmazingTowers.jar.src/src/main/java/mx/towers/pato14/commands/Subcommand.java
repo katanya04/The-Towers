@@ -2,19 +2,21 @@ package mx.towers.pato14.commands;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.mysql.Connexion;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public enum Subcommand { //* = optional argument, always at the end if it exists. $ = argument needed if run from the console
-    STATS(PermissionLevel.NONE, 1, false, false, "<player>"),
+    STATS(PermissionLevel.NONE, 1, false, false, "<player>", "*<tableName>"),
     SPECTATOR(PermissionLevel.NONE, 0, true, true),
     ORGANIZER(PermissionLevel.NONE, 1, true, true, "<password>", "$<instanceName>"),
     LOBBY(PermissionLevel.NONE, 0, true, false),
@@ -38,7 +40,9 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     SAVESETTINGS(PermissionLevel.ORGANIZER, 0, false, true, "$<instanceName>"),
     BOOK(PermissionLevel.ORGANIZER, 0, true, true),
     PARKOURPRIZE(PermissionLevel.ADMIN, 1, false, false, "<player>"),
-    KITS(PermissionLevel.NONE, 0, true, true, "*modify");
+    KITS(PermissionLevel.NONE, 0, true, true, "*modify"),
+    SETDATABASE(PermissionLevel.ORGANIZER, 0, true, true, "*<tableName>"),
+    ENDMATCH(PermissionLevel.ORGANIZER, 0, true, true, "*%team_colors%");
 
     private final PermissionLevel permissionLevel;
     private final int numberOfNeededArguments;
@@ -78,6 +82,11 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
 
     public boolean hasPermission(CommandSender commandSender) {
         return PermissionLevel.hasPermission(this.permissionLevel, PermissionLevel.getPermissionLevel(commandSender));
+    }
+
+    public static List<String> getListAvailableSubcommand(CommandSender commandSender) {
+        return Arrays.stream(Subcommand.values()).filter(o -> o.hasPermission(commandSender))
+                .map(o -> o.toString().toLowerCase()).collect(Collectors.toList());
     }
 
     private int getNumberOfConsoleNeededArguments() {
@@ -148,14 +157,23 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                         break;
                     }
                 } else {
-                    if (currentSubArg.equals("<number>")) {
-                        if (Utils.isInteger(args[i]))
+                    switch (currentSubArg) {
+                        case "<number>":
+                            if (Utils.isInteger(args[i]))
+                                matches = true;
+                            break;
+                        case "<instanceName>":
+                            if ((gameInstance = AmazingTowers.getGameInstance(Bukkit.getWorld(args[i]))) != null)
+                                matches = true;
+                            break;
+                        case "<tableName>":
+                            if (Utils.isAValidTable(args[1]))
+                                matches = true;
+                            break;
+                        default:
                             matches = true;
-                    } else if (currentSubArg.equals("<instanceName>")) {
-                        if ((gameInstance = AmazingTowers.getGameInstance(Bukkit.getWorld(args[i]))) != null)
-                            matches = true;
-                    } else
-                        matches = true;
+                            break;
+                    }
                     if (matches)
                         break;
                 }
@@ -170,5 +188,39 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
 
     public boolean needsAGameInstance() {
         return needsAGameInstance;
+    }
+
+    public List<String> autocompleteArgs(int argNumber, int numberOfTeams) {
+        if (this.arguments.length <= argNumber)
+            return null;
+        String fullArg = arguments[argNumber];
+        if (fullArg.charAt(0) == '*' || fullArg.charAt(0) == '$')
+            fullArg = fullArg.substring(1);
+        Set<String> toret = new HashSet<>();
+        String[] args = fullArg.split("\\|");
+        for (String arg : args) {
+            switch (arg) {
+                case "<player>":
+                case "<onlinePlayer":
+                    toret.addAll(AmazingTowers.getAllOnlinePlayers().stream().map(Player::getName).collect(Collectors.toSet()));
+                    break;
+                case "<tableName>":
+                    toret.addAll(AmazingTowers.connexion.getTables());
+                    toret.add(Connexion.ALL_TABLES);
+                    break;
+                case "<worldName>":
+                    toret.addAll(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toSet()));
+                case "<instanceName>":
+                    toret.addAll(Arrays.stream(AmazingTowers.getGameInstances()).map(TowersWorldInstance::getInternalName)
+                            .collect(Collectors.toList()));
+                    break;
+                case "%team_colors%":
+                    toret.addAll(TeamColor.getMatchTeams(numberOfTeams).stream().map(o -> o.toString().toLowerCase()).collect(Collectors.toSet()));
+                    break;
+                default:
+                    toret.add(arg);
+            }
+        }
+        return new ArrayList<>(toret);
     }
 }

@@ -20,15 +20,23 @@ public abstract class HotbarItems {
         for (Map.Entry<Integer, ItemStack> item : hotbarItems.entrySet())
             player.getInventory().setItem(item.getKey(), item.getValue());
     }
-    public boolean isALobbyItem(ItemStack itemStack, Inventory inventory) {
+    public ItemStack retrieveActionItem(ItemStack itemStack, Inventory inventory) {
+        ItemStack hotbar = retrieveHotbarItem(itemStack);
+        if (hotbar != null)
+            return hotbar;
         for (ChestMenuItem chestMenuItem : getChestMenus())
             if (inventory.equals(chestMenuItem.getMenu()))
-                return true;
+                for (ItemStack item : chestMenuItem.getContents().values())
+                    if (item.equals(itemStack))
+                        return item;
+        return null;
+    }
+    public ItemStack retrieveHotbarItem(ItemStack itemStack) {
         for (ItemStack item : this.hotbarItems.values()) {
             if (item.equals(itemStack))
-                return true;
+                return item;
         }
-        return false;
+        return null;
     }
     public List<ChestMenuItem> getChestMenus() {
         List<ChestMenuItem> toret = new ArrayList<>();

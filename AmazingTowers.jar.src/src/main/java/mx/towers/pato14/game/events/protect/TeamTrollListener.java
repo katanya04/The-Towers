@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events.protect;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.GameMode;
@@ -39,7 +40,7 @@ public class TeamTrollListener implements Listener {
                     continue;
                 if (playerTeam.equals(plTeam) && e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock()) && player.getGameMode() == GameMode.SURVIVAL) {
                     e.setCancelled(true);
-                    pl.sendMessage(AmazingTowers.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("trollingTeammates")));
+                    pl.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("trollingTeammates")));
                     return;
                 }
             }

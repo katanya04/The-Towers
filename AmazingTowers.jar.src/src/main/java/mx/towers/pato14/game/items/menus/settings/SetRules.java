@@ -1,6 +1,5 @@
 package mx.towers.pato14.game.items.menus.settings;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.items.ChestMenuItem;
 import mx.towers.pato14.game.items.menus.RuleItem;
@@ -12,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 public class SetRules extends ChestMenuItem {
     public SetRules(GameInstance gameInstance) {
         super(
-                Utils.setName(new ItemStack(Material.PAPER), AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.setRules"))),
+                Utils.setName(new ItemStack(Material.PAPER), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("settingsBook.setRules"))),
                 RuleItem.createAllRules(gameInstance)
         );
     }

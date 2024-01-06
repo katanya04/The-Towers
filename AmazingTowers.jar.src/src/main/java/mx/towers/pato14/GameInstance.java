@@ -1,21 +1,16 @@
 package mx.towers.pato14;
 
-import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.items.GameLobbyItems;
-import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.VaultT;
-import mx.towers.pato14.utils.world.WorldLoad;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.permissions.PermissionAttachment;
 
+import java.io.IOException;
 import java.util.*;
 
 public class GameInstance extends TowersWorldInstance {
@@ -28,21 +23,27 @@ public class GameInstance extends TowersWorldInstance {
     private Map.Entry<Boolean, List<String>> whitelist;
     private Map.Entry<Boolean, List<String>> blacklist;
     private final List<String> nonExistentLocations;
+    private String dbTableName;
 
     public GameInstance(String name) {
         super(name, GameInstance.class);
         isReadyToJoin = false;
         this.rules = new HashMap<>();
+        this.nonExistentLocations = new ArrayList<>();
         updateLists();
         this.numberOfTeams = this.getConfig(ConfigType.CONFIG).getInt("teams.numberOfTeams");
-        this.nonExistentLocations = new ArrayList<>();
         if (numberOfTeams < 2 || numberOfTeams > 8) {
-            plugin.sendConsoleMessage("Error while creating " + name +
+            Utils.sendConsoleMessage("Error while creating " + name +
                     ", number of teams needs to be greater than 1 and less than 9 (currently " + numberOfTeams + ")", MessageType.ERROR);
             return;
         }
         setRules();
         checkNeededLocationsExistence(this.numberOfTeams);
+        if (AmazingTowers.isConnectedToDatabase()) {
+            dbTableName = getConfig(ConfigType.GAME_SETTINGS).getString("database.database");
+            if (!Utils.isAValidTable(dbTableName))
+                dbTableName = null;
+        }
         if (this.nonExistentLocations.isEmpty()) {
             if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
                 plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
@@ -53,7 +54,7 @@ public class GameInstance extends TowersWorldInstance {
                 getPlugin().getServer().getPluginManager().registerEvents(getHotbarItems(), getPlugin());
             }
         } else {
-            plugin.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
+            Utils.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
         }
         isReadyToJoin = true;
     }
@@ -64,14 +65,17 @@ public class GameInstance extends TowersWorldInstance {
     }
 
     public boolean overwriteWithBackup(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
-        WorldLoad towers = new WorldLoad(worldName, plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName, Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName);
-        if (towers.getFileSource().exists()) {
-            towers.loadWorld();
-            return true;
-        } else {
-            plugin.sendConsoleMessage("There is no backup for " + worldName, MessageType.ERROR);
+        try {
+            if (!Utils.replaceWithBackup(plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName,
+                    Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName)) {
+                Utils.sendConsoleMessage("There is no backup for " + worldName, MessageType.ERROR);
+                return false;
+            }
+        } catch (IOException ex) {
+            Utils.sendConsoleMessage("I/O error when overwritting " + worldName + " with its backup", MessageType.ERROR);
             return false;
         }
+        return true;
     }
 
     private void setRules() {
@@ -100,68 +104,28 @@ public class GameInstance extends TowersWorldInstance {
     }
 
     @Override
-    public void playerJoinGame(Player player) {
-        super.playerJoinGame(player);
-        Utils.joinGame(player);
-        Team team = this.getGame().getTeams().getTeamByPlayer(player.getName());
+    public void joinInstance(Player player) {
+        super.joinInstance(player);
+        if (game == null)
+            return;
         AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
-        switch (this.getGame().getGameState()) {
-            case LOBBY:
-                if (this.getNumPlayers() >= this.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
-                    this.getGame().setGameState(GameState.PREGAME);
-                    this.getGame().getStart().gameStart();
-                }
-            case PREGAME:
-                break;
-            case GAME:
-                if (game.getTimer().isActivated())
-                    game.getTimer().addPlayer(player);
-                if (team != null) {
-                    if (team.respawnPlayers())
-                        team.setPlayerState(player.getName(), PlayerState.ONLINE);
-                    else {
-                        team.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
-                        player.setGameMode(GameMode.SPECTATOR);
-                        player.teleport(Locations.getLocationFromString(this.getConfig(ConfigType.LOCATIONS)
-                                .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
-                    }
-                    break;
-                }
-                break;
-            default:
-                if (team == null || team.isEliminated())
-                    player.setGameMode(GameMode.SPECTATOR);
-                break;
+        if (this.game.getGameState() == GameState.LOBBY && this.getNumPlayers() >=
+                this.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
+            this.game.start();
         }
+        game.joinGame(player);
+        Arrays.sort(AmazingTowers.getGameInstances());
     }
 
     @Override
-    public void playerLeaveGame(Player player) {
-        super.playerLeaveGame(player);
-        final Team playerTeam = this.getGame().getTeams().getTeamByPlayer(player.getName());
+    public void leaveInstance(Player player) {
+        super.leaveInstance(player);
+        if (game == null)
+            return;
         this.getPermissions().remove(player.getName());
         AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
-        GameInstance.this.getScoreUpdates().updateScoreboardAll();
-
-        switch (GameInstance.this.getGame().getGameState()) {
-            case LOBBY:
-            case PREGAME:
-                if (playerTeam != null) {
-                    playerTeam.removePlayer(player.getName());
-                    NametagEdit.getApi().clearNametag(player);
-                }
-                break;
-            case GAME:
-            case GOLDEN_GOAL:
-                if (game.getTimer().isActivated())
-                    game.getTimer().removeBossBar(player);
-                if (playerTeam == null)
-                    break;
-                playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
-                if (playerTeam.getSizeOnlinePlayers() <= 0)
-                    Utils.checkForTeamWin(GameInstance.this);
-                break;
-        }
+        game.leave(player);
+        Arrays.sort(AmazingTowers.getGameInstances());
     }
 
     public boolean canJoin(HumanEntity player) {
@@ -195,7 +159,7 @@ public class GameInstance extends TowersWorldInstance {
             updateLists();
             setRules();
             this.game.reset();
-            overwriteWithBackup(name);
+            overwriteWithBackup(internalName);
             this.getGame().getRefill().resetTime();
             this.getHotbarItems().reset(this);
         } finally {
@@ -222,5 +186,13 @@ public class GameInstance extends TowersWorldInstance {
 
     public String getUnsetRegionsString() {
         return Utils.listToCommaSeparatedString(nonExistentLocations);
+    }
+
+    public String getTableName() {
+        return dbTableName;
+    }
+
+    public void setTableName(String dbTableName) {
+        this.dbTableName = dbTableName;
     }
 }

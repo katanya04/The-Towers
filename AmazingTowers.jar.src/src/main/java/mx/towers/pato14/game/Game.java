@@ -1,5 +1,6 @@
 package mx.towers.pato14.game;
 
+import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.kits.Kit;
@@ -10,13 +11,15 @@ import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.tasks.Move;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.RefillTask;
-import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
-import mx.towers.pato14.utils.enums.Rule;
+import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
+import org.bukkit.GameMode;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +40,7 @@ public class Game {
     private final RefillTask refill;
 
     public Game(GameInstance game) {
-        this.name = game.getName();
+        this.name = game.getInternalName();
         this.gameState = GameState.LOBBY;
         this.kits = new Kits(game);
         this.playersSelectedKit = new HashMap<>();
@@ -145,5 +148,63 @@ public class Game {
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;
         this.goldenGoal = false;
+    }
+
+    public void spawn(Player player) {
+        Utils.resetPlayer(player);
+        NametagEdit.getApi().clearNametag(player);
+        Team team = this.getTeams().getTeamByPlayer(player.getName());
+        if (team == null) {
+            player.setGameMode(GameMode.ADVENTURE);
+            this.getGameInstance().getHotbarItems().giveHotbarItems(player);
+            NametagEdit.getApi().setPrefix(player, Utils.getColor(TeamColor.SPECTATOR.getColor()));
+            player.teleport(Locations.getLocationFromString(this.getGameInstance().getConfig(ConfigType.LOCATIONS)
+                    .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+        } else
+            team.joinTeam(player);
+    }
+
+    public void joinGame(Player player) {
+        spawn(player);
+        Team team = this.getTeams().getTeamByPlayer(player.getName());
+        switch (this.getGameState()) {
+            case LOBBY:
+            case PREGAME:
+                break;
+            case GAME:
+                if (this.getTimer().isActivated())
+                    this.getTimer().addPlayer(player);
+                break;
+            default:
+                if (team == null || team.isEliminated())
+                    player.setGameMode(GameMode.SPECTATOR);
+                break;
+        }
+    }
+
+    public void leave(Player player) {
+        final Team playerTeam = this.getTeams().getTeamByPlayer(player.getName());
+        switch (this.getGameState()) {
+            case LOBBY:
+            case PREGAME:
+                if (playerTeam != null)
+                    playerTeam.removePlayer(player.getName());
+                break;
+            case GAME:
+            case GOLDEN_GOAL:
+                if (this.getTimer().isActivated())
+                    this.getTimer().removeBossBar(player);
+                if (playerTeam == null)
+                    break;
+                playerTeam.setPlayerState(player.getName(), playerTeam.respawnPlayers() ? PlayerState.OFFLINE : PlayerState.NO_RESPAWN);
+                if (playerTeam.getSizeOnlinePlayers() <= 0)
+                    Utils.checkForTeamWin(this.getGameInstance());
+                break;
+        }
+    }
+
+    public void start() {
+        this.setGameState(GameState.PREGAME);
+        this.getStart().gameStart();
     }
 }

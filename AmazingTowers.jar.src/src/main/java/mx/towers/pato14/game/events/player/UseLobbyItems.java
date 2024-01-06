@@ -6,8 +6,6 @@ import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.items.ActionItem;
 import mx.towers.pato14.game.items.BookMenuItem;
-import mx.towers.pato14.game.items.menus.BuyKitMenu;
-import mx.towers.pato14.game.items.ChestMenuItem;
 import mx.towers.pato14.game.items.menus.settings.GetStringFromItems;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
@@ -47,23 +45,17 @@ public class UseLobbyItems implements Listener {
         TowersWorldInstance instance = AmazingTowers.getInstance(player);
         if (instance == null || (instance instanceof GameInstance && (((GameInstance) (instance)).getGame() == null || ((GameInstance) (instance)).getGame().getGameState().equals(GameState.FINISH))))
             return;
-        for (ItemStack item : instance.getHotbarItems().getHotbarItems().values()) {
-            if (!item.equals(e.getItem()) || !(item instanceof ActionItem))
-                continue;
+        ItemStack item = instance.getHotbarItems().retrieveHotbarItem(e.getItem());
+        if (item instanceof ActionItem)
             ((ActionItem) item).interact(player, instance);
-            e.setCancelled(true);
-            return;
-        }
     }
 
     @EventHandler
     public void onClickInventory(InventoryClickEvent e) {
         ItemStack clickedItem = e.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType().equals(Material.AIR))
-            return;
         HumanEntity player = e.getWhoClicked();
         TowersWorldInstance instance = AmazingTowers.getInstance(player);
-        if (!canUseLobbyItem(instance))
+        if (clickedItem == null || clickedItem.getType().equals(Material.AIR) || !canUseLobbyItem(instance))
             return;
         if (!player.isOp() && instance instanceof LobbyInstance && (e.getClickedInventory().getHolder() instanceof Chest || e.getClickedInventory().getHolder() instanceof DoubleChest)) {
             e.setCancelled(true);
@@ -141,25 +133,12 @@ public class UseLobbyItems implements Listener {
             currentMenu.openMenu(player);
             return;
         }
-        if (!instance.getHotbarItems().isALobbyItem(clickedItem, e.getClickedInventory()))
+        ItemStack actionItemClicked = instance.getHotbarItems().retrieveActionItem(clickedItem, e.getClickedInventory());
+        if (actionItemClicked == null)
             return;
         e.setCancelled(true);
-        for (ChestMenuItem inventory : instance.getHotbarItems().getChestMenus()) {
-            if (inventory instanceof BuyKitMenu && inventory.getMenu().getViewers().isEmpty()) {
-                instance.getHotbarItems().getChestMenus().remove(inventory);
-                System.out.println("Removed inventory");
-            }
-            if (!inventory.getMenu().equals(e.getClickedInventory()))
-                continue;
-            for (ItemStack item : inventory.getContents().values()) {
-                if (!item.equals(clickedItem))
-                    continue;
-                if (item instanceof ActionItem) {
-                    ((ActionItem) item).interact(player, instance);
-                    return;
-                }
-            }
-        }
+        if (actionItemClicked instanceof ActionItem)
+            ((ActionItem) actionItemClicked).interact(player, instance);
     }
 
     @EventHandler

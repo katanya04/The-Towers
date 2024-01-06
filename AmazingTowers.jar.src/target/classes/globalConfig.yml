@@ -12,24 +12,25 @@ options:
   instances:
     amount: 1
 
-  mysql:
+  database:
     active: false
     hostname:
     port:
     database:
     user:
     password:
+    tableNames:
+      - 'table1'
 
   bungeecord:
     enabled: false
-    server_name: LobbyTowers
+    server_name:
 
   rewards:
     vault: false
 
 
 permissions:
-
   password:
     organizer:
 

@@ -10,39 +10,36 @@ import mx.towers.pato14.utils.enums.MessageType;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 public class Config extends YamlConfiguration {
     private final String name;
     private final File file;
-    private final Plugin plugin;
 
-    public Config(Plugin plugin, String nameFile, Boolean defaults, String worldName) {
-        this.plugin = plugin;
+    public Config(String nameFile, Boolean defaults, String worldName) {
         this.name = nameFile;
         StringBuilder path = new StringBuilder();
-        path.append(getPlugin().getDataFolder());
+        path.append(AmazingTowers.getPlugin().getDataFolder());
         if (!worldName.isEmpty()) {
             path.append("/instances/");
             path.append(worldName);
             path.append("/");
         }
-        this.file = new File(path.toString(), getNameFile());
+        this.file = new File(path.toString(), nameFile);
         if (defaults)
             saveDefaultConfig(path.toString());
         else
             saveConfig();
     }
 
-    public Config(Plugin plugin, String nameFile, Boolean defaults) {
-        this(plugin, nameFile, defaults, "");
+    public Config(String nameFile, Boolean defaults) {
+        this(nameFile, defaults, "");
     }
 
     private void saveDefaultConfig(String path) {
         if (!this.file.exists()) {
             try {
                 Files.createDirectories(Paths.get(path));
-                FileUtils.copyInputStreamToFile(getPlugin().getResource(getNameFile()), new File(path + "/" + getNameFile()));
+                FileUtils.copyInputStreamToFile(AmazingTowers.getPlugin().getResource(name), new File(path + "/" + name));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -52,9 +49,9 @@ public class Config extends YamlConfiguration {
 
     private void loadConfig() {
         try {
-            load(getFile());
+            load(file);
         } catch (IOException | InvalidConfigurationException e) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while loading " + name + " config file", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while loading " + name + " config file", MessageType.ERROR);
         }
     }
 
@@ -64,22 +61,10 @@ public class Config extends YamlConfiguration {
 
     public void saveConfig() {
         try {
-            save(getFile());
+            save(file);
         } catch (IOException e) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while saving " + name + " config file", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while saving " + name + " config file", MessageType.ERROR);
         }
-    }
-
-    public String getNameFile() {
-        return this.name;
-    }
-
-    public File getFile() {
-        return this.file;
-    }
-
-    private Plugin getPlugin() {
-        return this.plugin;
     }
 }
 

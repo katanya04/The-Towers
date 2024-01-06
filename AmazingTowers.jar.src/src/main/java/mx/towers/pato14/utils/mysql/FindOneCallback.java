@@ -9,25 +9,25 @@ import java.util.HashMap;
 public interface FindOneCallback {
 
     void onQueryDone(int[] result);
-    static void findPlayerAsync(final String name, final AmazingTowers plugin, final FindOneCallback callback) {
+    static void findPlayerAsync(final String name, final String tableName, final FindOneCallback callback) {
         // Run outside the tick loop
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            int[] data = plugin.connexion.getStats(name);
+        Bukkit.getScheduler().runTaskAsynchronously(AmazingTowers.getPlugin(), () -> {
+            int[] data = AmazingTowers.connexion.getStats(name, tableName);
             // go back to the tick loop
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getScheduler().runTask(AmazingTowers.getPlugin(), () -> {
                 // call the callback with the result
                 callback.onQueryDone(data);
             });
         });
     }
-    static void updatePlayersDataAsync(final HashMap<String, Stats> stats, final AmazingTowers plugin, final FindOneCallback callback) {
+    static void updatePlayersDataAsync(final HashMap<String, Stats> stats, final String tableName, final FindOneCallback callback) {
         // Run outside the tick loop
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(AmazingTowers.getPlugin(), () -> {
             for (String p : stats.keySet()) {
-                plugin.connexion.updateData(p, stats.get(p));
+                AmazingTowers.connexion.updateData(p, stats.get(p), tableName);
             }
             // go back to the tick loop
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getScheduler().runTask(AmazingTowers.getPlugin(), () -> {
                 // call the callback with the result
                 callback.onQueryDone(null);
             });

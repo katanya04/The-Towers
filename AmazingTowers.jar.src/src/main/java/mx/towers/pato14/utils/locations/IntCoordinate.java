@@ -2,6 +2,9 @@ package mx.towers.pato14.utils.locations;
 
 public class IntCoordinate {
     private int x, y, z;
+    public IntCoordinate() {
+        this(0,0,0);
+    }
     public IntCoordinate(int x, int y, int z) {
         this.x = x;
         this.y = y;

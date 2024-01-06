@@ -28,7 +28,7 @@ public class ReflectionMethods {
         try {
             return Class.forName("net.minecraft.server." + version + "." + name);
         } catch (ClassNotFoundException var3) {
-            AmazingTowers.getPlugin().sendConsoleMessage("NMS class not found \"" + name + "\"", MessageType.ERROR);
+            Utils.sendConsoleMessage("NMS class not found \"" + name + "\"", MessageType.ERROR);
             return null;
         }
     }
@@ -38,7 +38,7 @@ public class ReflectionMethods {
         try {
             return Class.forName("org.bukkit.craftbukkit." + version + "." + packet + "." + name);
         } catch (ClassNotFoundException var3) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Bukkit class not found \"" + name + "\"", MessageType.ERROR);
+            Utils.sendConsoleMessage("Bukkit class not found \"" + name + "\"", MessageType.ERROR);
             return null;
         }
     }
@@ -69,7 +69,7 @@ public class ReflectionMethods {
             Object timesPacket = PacketPlayOutTitleConstructor2.newInstance(EnumTitleAction.getEnumConstants()[2], null, entrada, mantener, salida);
             sendPacket.invoke(playerConnection.get(getHandle.invoke((CraftPlayer.cast(player)))), timesPacket);
         } catch (Exception ex) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Exception while sending title to player", MessageType.ERROR);
+            Utils.sendConsoleMessage("Exception while sending title to player", MessageType.ERROR);
         }
     }
 
@@ -88,7 +88,7 @@ public class ReflectionMethods {
             NetItemStack.getMethod("save", getNMSClass("NBTTagCompound")).invoke(netItemStack, tag);
             return tag.toString();
         } catch (Exception ex) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Reflection exception when serializing an item", MessageType.ERROR);
+            Utils.sendConsoleMessage("Reflection exception when serializing an item", MessageType.ERROR);
         }
         return null;
     }
@@ -133,7 +133,7 @@ public class ReflectionMethods {
             Method openBook = EntityPlayer.getMethod("openBook", NetItemStack);
             openBook.invoke(getHandle.invoke(CraftPlayer.cast(p)), NMSBook);
         } catch (Exception ex) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while trying to open book menu", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while trying to open book menu", MessageType.ERROR);
         } finally {
             p.setItemInHand(hand);
         }
@@ -164,7 +164,7 @@ public class ReflectionMethods {
             if (!page.isEmpty())
                 pages.add(a.invoke(null, ComponentSerializer.toString(page.toArray(new TextComponent[0]))));
         } catch (Exception ex) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while trying to create a book menu", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while trying to create a book menu", MessageType.ERROR);
         }
 
         book.setItemMeta(meta);
@@ -218,7 +218,7 @@ public class ReflectionMethods {
             inv.setItem(0, Utils.setLore(Utils.setName(new ItemStack(Material.PAPER), name instanceof String ? (String) name : "<entry>"),
                     "§r§8" + path));
         } catch (Exception ex) {
-            AmazingTowers.getPlugin().sendConsoleMessage("Error while trying to open an anvil inventory", MessageType.ERROR);
+            Utils.sendConsoleMessage("Error while trying to open an anvil inventory", MessageType.ERROR);
         }
     }
 }

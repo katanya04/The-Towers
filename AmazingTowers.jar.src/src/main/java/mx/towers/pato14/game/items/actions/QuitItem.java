@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class QuitItem extends ActionItem {
     public QuitItem(GameInstance gameInstance) {
-        super(Utils.setName(new ItemStack(Material.BED), AmazingTowers.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.quit.name"))));
+        super(Utils.setName(new ItemStack(Material.BED), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.quit.name"))));
     }
 
     @Override

@@ -10,4 +10,4 @@ What started as a few bug fixes on the original plugin, ended up becoming a comp
 - More subcommands, a timer...
 
 This is still a work in progress rathen than a release, bugs are expected and I plan on adding more features in the future.
-The only supported version is 1.8, as there are quite a few methods that rely on NMS, althought I used to reflection to try to get around this issue so they may work in more versions. Nonetheless, these modules of code aren't vital, and a normal match could be played without them working.
+The only supported version is 1.8, as there are quite a few methods that rely on NMS, althought I used reflection to try to get around this issue so they may work in more versions. Nonetheless, these modules of code aren't vital, and a normal match could be played without them working.

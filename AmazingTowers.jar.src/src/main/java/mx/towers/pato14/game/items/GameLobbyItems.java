@@ -51,5 +51,6 @@ public class GameLobbyItems extends HotbarItems implements Listener {
         Utils.removeGlint(this.getModifyGameSettings().getSaveSettings());
         this.getModifyGameSettings().getSetRules().updateMenu(gameInstance);
         this.getModifyGameSettings().updateMenu();
+        this.getModifyGameSettings().getSelectDatabase().reset(gameInstance);
     }
 }

@@ -122,7 +122,6 @@ public class ReflectionMethods {
             Class<?> NetItemStack = getNMSClass("ItemStack");
             assert CraftItemStack != null;
             Object NMSBook = CraftItemStack.getMethod("asNMSCopy", ItemStack.class).invoke(null, book);
-
             p.setItemInHand((ItemStack) CraftItemStack.getMethod("asBukkitCopy", NetItemStack).invoke(null, NMSBook));
 
             Class<?> CraftPlayer = getBukkitClass("CraftPlayer", "entity");

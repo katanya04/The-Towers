@@ -16,6 +16,7 @@ public class ModifyGameSettings extends ChestMenuItem {
     private SetRules setRules;
     private SaveSettings saveSettings;
     private ModifyKits modifyKits;
+    private SelectDatabase selectDatabase;
     public ModifyGameSettings(GameInstance gameInstance) {
         super(
                 Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.modifyGameSettings.name")),
@@ -39,7 +40,7 @@ public class ModifyGameSettings extends ChestMenuItem {
         toret.put(14, new SetTimer(this.gameInstance));
         toret.put(15, modifyKits = new ModifyKits(this.gameInstance));
         toret.put(26, saveSettings = new SaveSettings(this.gameInstance));
-        toret.put(17, new SelectDatabase(this.gameInstance));
+        toret.put(17, selectDatabase = new SelectDatabase(this.gameInstance));
         toret.put(8, new EndMatch(this.gameInstance));
 
         return toret;
@@ -55,5 +56,9 @@ public class ModifyGameSettings extends ChestMenuItem {
 
     public ModifyKits getModifyKits() {
         return modifyKits;
+    }
+
+    public SelectDatabase getSelectDatabase() {
+        return selectDatabase;
     }
 }

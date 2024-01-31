@@ -26,4 +26,10 @@ public class SelectDatabase extends ListItem<String> {
         Utils.addGlint(gameInstance.getHotbarItems().getModifyGameSettings().getSaveSettings());
         gameInstance.getHotbarItems().getModifyGameSettings().updateMenu();
     }
+
+    public void reset(GameInstance gameInstance) {
+        this.list = AmazingTowers.connexion.getTables();
+        this.index = AmazingTowers.connexion.getTables().indexOf(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("database.database"));
+        gameInstance.setTableName(getCurrentItem());
+    }
 }

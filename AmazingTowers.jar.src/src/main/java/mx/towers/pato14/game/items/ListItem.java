@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public abstract class ListItem<T> extends ActionItem {
-    private final List<T> list;
+    protected List<T> list;
     protected int index;
     protected final boolean nullOption;
     protected ListItem(ItemStack itemStack, List<T> list, int index, boolean nullOption) {

@@ -84,7 +84,7 @@ public class ScoreUpdate {
                     String text = Utils.getColor(st)
                             .replace("%online_players%", String.valueOf(gameInstance.getNumPlayers()))
                             .replace("%date%", this.date)
-                            .replace("%maxPointsWin%", String.valueOf(gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin")))
+                            .replace("%maxPointsWin%", gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.pointsToWin"))
                             .replace("%player_kills%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.KILLS)))
                             .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
                             .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))

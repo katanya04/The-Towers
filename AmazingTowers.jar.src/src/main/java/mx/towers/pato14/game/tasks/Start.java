@@ -4,32 +4,22 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.events.protect.ChestsProtect;
-import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.exceptions.ParseItemException;
-import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public class Start {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
-    private int seconds;
+    private int countDown;
     private boolean stop = false;
     private boolean hasStarted = false;
     private boolean runFromCommand = false;
     private final String worldName;
-    private List<Map<String, String>> generators;
 
     public Start(GameInstance gameInstance) {
         this.worldName = gameInstance.getWorld().getName();
-        this.seconds = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart");
+        this.countDown = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart");
     }
 
     public void gameStart() {
@@ -38,13 +28,13 @@ public class Start {
         Game game = gameInstance.getGame();
         (new BukkitRunnable() {
             public void run() {
-                if (Start.this.seconds <= 0) {
+                if (Start.this.countDown <= 0) {
                     game.setGameState(GameState.GAME);
                     cancel();
                     Start.this.teleportPlayers();
-                    Start.this.startGenerators();
+                    game.getGenerators().startGenerators();
                     ChestsProtect.getChests(gameInstance);
-                    gameInstance.getGame().getRefill().startRefillTask();
+                    game.getRefill().startRefillTask();
                     gameInstance.getScoreUpdates().updateScoreboardAll();
                     game.getDetectionMove().MoveDetect();
                     game.setBedwarsStyle(gameInstance.getRules().get(Rule.BEDWARS_STYLE));
@@ -57,31 +47,31 @@ public class Start {
                     for (Player p : gameInstance.getWorld().getPlayers()) {
                         p.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.notEnoughPlayers")));
                     }
-                    setSeconds(20);
+                    setCountDown(20);
                     gameInstance.getScoreUpdates().updateScoreboardAll();
                     hasStarted = false;
                     cancel();
                     return;
                 }
-                if (Start.this.seconds % 10 == 0 || Start.this.seconds <= 5) {
+                if (Start.this.countDown % 10 == 0 || Start.this.countDown <= 5) {
                     for (Player p : gameInstance.getWorld().getPlayers()) {
                         p.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.start")
-                                .replace("{count}", String.valueOf(Start.this.seconds))
-                                .replace("{seconds}", Start.this.getSeconds())));
+                                .replace("{count}", String.valueOf(Start.this.countDown))
+                                .replace("{seconds}", Start.this.getCountDown())));
                     }
                 }
-                if (Start.this.seconds <= 5 &&
+                if (Start.this.countDown <= 5 &&
                         gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("gameStart.title.enabled")) {
-                    String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.titleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
-                    String subtitle = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.subtitleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.seconds)));
+                    String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.titleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.countDown)));
+                    String subtitle = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.subtitleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.countDown)));
                     for (Player player : gameInstance.getWorld().getPlayers()) {
                         ReflectionMethods.sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
                 gameInstance.getScoreUpdates().updateScoreboardAll();
-                if (!Start.this.stop) Start.this.seconds = Start.this.seconds - 1;
+                if (!Start.this.stop) Start.this.countDown = Start.this.countDown - 1;
             }
-        }).runTaskTimer(this.plugin, 0L, 20L);
+        }).runTaskTimer(AmazingTowers.getPlugin(), 0L, 20L);
     }
 
     private void teleportPlayers() {
@@ -91,11 +81,11 @@ public class Start {
         }
     }
 
-    private String getSeconds() {
-        return (this.seconds == 1) ? AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.second") : AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.seconds");
+    private String getCountDown() {
+        return (this.countDown == 1) ? AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.second") : AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.seconds");
     }
-    public void setSeconds(int seconds) {
-        this.seconds = seconds;
+    public void setCountDown(int countDown) {
+        this.countDown = countDown;
     }
     public void stopCount() {
         this.stop = true;
@@ -104,7 +94,7 @@ public class Start {
         this.stop = false;
     }
     public int getIntSeconds() {
-        return this.seconds;
+        return this.countDown;
     }
     public boolean hasStarted() {
         return hasStarted;
@@ -114,32 +104,6 @@ public class Start {
     }
     public void setRunFromCommand(boolean runFromCommand) {
         this.runFromCommand = runFromCommand;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void startGenerators() {
-        GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
-        Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
-        String path = Location.GENERATOR.getPath();
-        this.generators = locations.getList(path) == null ? new ArrayList<>() : locations.getMapList(path).stream()
-                .map(o -> (Map<String, String>) o).collect(Collectors.toList());
-        (new BukkitRunnable() {
-            public void run() {
-                if (gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
-                    cancel();
-                    return;
-                }
-                try {
-                    for (Map<String, String> item : generators) {
-                        gameInstance.getWorld().dropItemNaturally(Locations.getLocationFromString(item.get("coords")),
-                                ReflectionMethods.deserializeItemStack(item.get("item")));
-                    }
-                } catch (ParseItemException exception) {
-                    Utils.sendConsoleMessage("§cError while parsing the generator items!", MessageType.ERROR);
-                    cancel();
-                }
-            }
-        }).runTaskTimer(this.plugin, 0L, (gameInstance.getConfig(ConfigType.CONFIG).getInt("options.generatorSpeedInSeconds") * 20L));
     }
 }
 

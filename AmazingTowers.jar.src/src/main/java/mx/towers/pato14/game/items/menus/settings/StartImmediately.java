@@ -31,6 +31,6 @@ public class StartImmediately extends ActionItem {
             start.gameStart();
         }
         start.continueCount();
-        start.setSeconds(0);
+        start.setCountDown(0);
     }
 }

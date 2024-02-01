@@ -1,6 +1,6 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_beta1            #> #
-# <#             Author: Pato14, Marco2124            #> #
+# <#            AmazingTowers - v3.0_beta2            #> #
+# <#             Author: Pato14, katanya04            #> #
 # +###----------------------------------------------###+ #
 
 
@@ -35,3 +35,15 @@ timer:
   message: 'Tiempo: %time%'
 database:
   database: '<db_name>'
+refill:
+  activated: 'true'
+  time: '01:00'
+points:
+  pointsToWin: '10'
+  livesBedwarsMode: '10'
+itemOnKill:
+  activated: 'false'
+  item: ''
+generators:
+  activated: 'true'
+  waitTimeSeconds: '5'

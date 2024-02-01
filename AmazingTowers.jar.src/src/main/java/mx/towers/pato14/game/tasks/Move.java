@@ -87,7 +87,7 @@ public class Move {
                 }
             }
             if (!bedwarsStyle) {
-                if (team.getPoints() >= gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin") || gameInstance.getGame().isGoldenGoal()) {
+                if (team.getPoints() >= Integer.parseInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.pointsToWin")) || gameInstance.getGame().isGoldenGoal()) {
                     gameInstance.getGame().getFinish().fatality(team.getTeamColor());
                     gameInstance.getGame().setGameState(GameState.FINISH);
                 }

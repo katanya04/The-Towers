@@ -5,7 +5,9 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.locations.Locations;
+import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
@@ -50,6 +52,14 @@ public class DeathListener implements Listener {
                     .replace("{ColorKiller}", killerColor)
                     .replace("{Killer}", killer.getName()), true);
             addRewardsKiller(killer);
+            if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.activated"))) {
+                try {
+                    killer.getInventory().addItem(ReflectionMethods.deserializeItemStack(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.item")));
+                } catch (ParseItemException ex) {
+                    Utils.sendConsoleMessage("Error while parsing item reward on kill: " + gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.item") + ", toggling off this setting", MessageType.ERROR);
+                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("itemOnKill.activated", "false");
+                }
+            }
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {

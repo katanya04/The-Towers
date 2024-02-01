@@ -12,7 +12,7 @@ import java.util.Optional;
 public class Expansion extends PlaceholderExpansion {
     @Override
     public @NotNull String getAuthor() {
-        return "Marco2124";
+        return "katanya04";
     }
 
     @Override

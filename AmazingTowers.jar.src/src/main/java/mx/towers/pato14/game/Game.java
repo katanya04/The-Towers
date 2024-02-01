@@ -5,12 +5,9 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
-import mx.towers.pato14.game.tasks.Finish;
-import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.tasks.Timer;
+import mx.towers.pato14.game.tasks.*;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.game.tasks.Move;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.RefillTask;
 import mx.towers.pato14.utils.enums.*;
@@ -38,6 +35,7 @@ public class Game {
     private boolean goldenGoal;
     private boolean bedwarsStyle;
     private final RefillTask refill;
+    private final Generators generators;
 
     public Game(GameInstance game) {
         this.name = game.getInternalName();
@@ -53,6 +51,7 @@ public class Game {
         this.bedwarsStyle = false;
         this.goldenGoal = false;
         this.refill = new RefillTask(game);
+        this.generators = new Generators(game.getWorld().getName());
     }
 
     public StatisticsPlayer getStats() {
@@ -121,7 +120,7 @@ public class Game {
         this.bedwarsStyle = bedwarsStyle;
         if (bedwarsStyle) {
             for (Team team : this.getTeams().getTeams())
-                team.setPoints(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.pointsToWin"));
+                team.setPoints(Integer.parseInt(this.getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getString("points.livesBedwarsMode")));
         }
     }
 
@@ -133,12 +132,16 @@ public class Game {
         return refill;
     }
 
+    public Generators getGenerators() {
+        return generators;
+    }
+
     public void reset() {
         this.gameState = GameState.LOBBY;
         this.kits.resetTemporalBoughtKits();
         this.playersSelectedKit.clear();
         this.gameStart.setHasStarted(false);
-        this.gameStart.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart"));
+        this.gameStart.setCountDown(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart"));
         this.gameStart.setRunFromCommand(false);
         this.finish.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1);
         this.teams.reset();
@@ -148,6 +151,7 @@ public class Game {
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;
         this.goldenGoal = false;
+        this.generators.getGeneratorsTask().cancel();
     }
 
     public void spawn(Player player) {

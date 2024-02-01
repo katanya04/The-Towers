@@ -1,6 +1,6 @@
 # +###----------------------------------------------###+ #
-# <#            AmazingTowers - v3.0_beta1            #> #
-# <#             Author: Pato14, Marco2124            #> #
+# <#            AmazingTowers - v3.0_beta2            #> #
+# <#             Author: Pato14, katanya04            #> #
 # +###----------------------------------------------###+ #
 
 
@@ -31,9 +31,7 @@ options:
   chests:
     lockChestsToOtherTeams: true
     refillChests:
-      enabled: true
       messageOnScoreboard: '&cCofres rellenados!'
-      refillTime: '1:00'
       sendMessageOnRefill: true
 
   canNotDropLeatherArmor: true
@@ -48,11 +46,7 @@ options:
     minPlayers: 2
     timerStart: 20
 
-  pointsToWin: 10
-
   timerEndSeconds: 10
-
-  generatorSpeedInSeconds: 5
 
 
 lobbyItems:

@@ -147,7 +147,7 @@ public class TowerCommand implements TabExecutor {
                         }
                         start.continueCount();
                     } else
-                        start.setSeconds(Integer.parseInt(args[1]));
+                        start.setCountDown(Integer.parseInt(args[1]));
                 } else
                     Utils.sendMessage("This command can only be executed before the match start", MessageType.ERROR, sender);
                 break;
@@ -164,7 +164,7 @@ public class TowerCommand implements TabExecutor {
                     team.setPoints(Integer.parseInt(args[2]));
                     gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
-                    int pointsToWin = gameInstance.getConfig(ConfigType.CONFIG).getInt("options.pointsToWin");
+                    int pointsToWin = Integer.parseInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.pointsToWin"));
                     if (team.getPoints() >= pointsToWin && !gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
                         gameInstance.getGame().getFinish().fatality(team.getTeamColor());
                         gameInstance.getGame().setGameState(GameState.FINISH);
@@ -439,7 +439,7 @@ public class TowerCommand implements TabExecutor {
                             currentMenu.openMenu(player);
                         }
                     }
-                } else if (argSplit.length == 3) { //gameSettings;whitelist.players;Marco2124 remove
+                } else if (argSplit.length == 3) { //gameSettings;whitelist.players;katanya04 remove
                     Object currentValue = settings.get(argSplit[1]);
                     if (args[2].equalsIgnoreCase("remove")) {
                         if (currentValue instanceof Collection) {

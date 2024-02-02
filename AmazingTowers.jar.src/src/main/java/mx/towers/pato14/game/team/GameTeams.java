@@ -46,10 +46,11 @@ public class GameTeams {
         return team == null ? null : team.getTeamColor();
     }
 
-    public int getLowestTeamPlayers() {
+    public int getLowestTeamPlayers(Team originTeam) {
         int toret = Integer.MAX_VALUE;
         for (Team team : teams) {
-            if (team.getSizePlayers() < toret)
+            int players = team.equals(originTeam) ? team.getSizePlayers() - 1 : team.getSizePlayers();
+            if (players < toret)
                 toret = team.getSizePlayers();
         }
         return toret;

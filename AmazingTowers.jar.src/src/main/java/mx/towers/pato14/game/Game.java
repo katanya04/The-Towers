@@ -151,14 +151,16 @@ public class Game {
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;
         this.goldenGoal = false;
-        this.generators.getGeneratorsTask().cancel();
+        try {
+            this.generators.getGeneratorsTask().cancel();
+        } catch (Exception ignored) {}
     }
 
     public void spawn(Player player) {
         Utils.resetPlayer(player);
         NametagEdit.getApi().clearNametag(player);
         Team team = this.getTeams().getTeamByPlayer(player.getName());
-        if (team == null) {
+        if (team == null || gameState == GameState.LOBBY || gameState == GameState.PREGAME) {
             player.setGameMode(GameMode.ADVENTURE);
             this.getGameInstance().getHotbarItems().giveHotbarItems(player);
             NametagEdit.getApi().setPrefix(player, Utils.getColor(TeamColor.SPECTATOR.getColor()));

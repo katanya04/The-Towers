@@ -64,7 +64,7 @@ public class Utils {
             else
                 player.teleport(world.getSpawnLocation());
             onChangeWorlds(player, oldWorld, world);
-            Utils.updatePlayerTab(player);
+            Utils.updatePlayerTab(player, world);
         }
     }
 
@@ -315,10 +315,10 @@ public class Utils {
         return item;
     }
 
-    public static void updatePlayerTab(Player player) {
+    public static void updatePlayerTab(Player player, World currentWorld) {
         TowersWorldInstance playerInstance = AmazingTowers.getInstance(player);
         for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
-            if (player.getWorld().equals(player1.getWorld())) {
+            if (currentWorld.equals(player1.getWorld())) {
                 player1.showPlayer(player);
                 player.showPlayer(player1);
                 if (!(playerInstance instanceof GameInstance))

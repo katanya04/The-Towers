@@ -46,7 +46,9 @@ public class RefillTask {
         if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("refill.activated")) &&
                 gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
             refileadoProaso = SelectCofresillos.makelist(gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
-            refillTask.cancel();
+            try {
+                refillTask.cancel();
+            } catch (Exception ignored) {}
             refillTask.runTaskTimer(gameInstance.getPlugin(), 0L, 20L);
         } else {
             this.refillTime = 0;
@@ -54,7 +56,9 @@ public class RefillTask {
     }
 
     public void stopRefill(GameInstance gameInstance) {
-        refillTask.cancel();
+        try {
+            refillTask.cancel();
+        } catch (Exception ignored) {};
         refillTime = 0;
         gameInstance.getScoreUpdates().updateScoreboardAll();
     }

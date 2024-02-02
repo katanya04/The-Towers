@@ -31,13 +31,13 @@ public class Start {
                 if (Start.this.countDown <= 0) {
                     game.setGameState(GameState.GAME);
                     cancel();
+                    game.setBedwarsStyle(gameInstance.getRules().get(Rule.BEDWARS_STYLE));
                     Start.this.teleportPlayers();
                     game.getGenerators().startGenerators();
                     ChestsProtect.getChests(gameInstance);
                     game.getRefill().startRefillTask();
                     gameInstance.getScoreUpdates().updateScoreboardAll();
                     game.getDetectionMove().MoveDetect();
-                    game.setBedwarsStyle(gameInstance.getRules().get(Rule.BEDWARS_STYLE));
                     if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated")))
                         game.getTimer().timerStart();
                     return;

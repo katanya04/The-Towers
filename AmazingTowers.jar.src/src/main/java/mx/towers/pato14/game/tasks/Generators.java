@@ -28,7 +28,7 @@ public class Generators {
             public void run() {
                 GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
                 if (gameInstance.getGame().getGameState().equals(GameState.FINISH) ||
-                Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.activated"))) {
+                !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.activated"))) {
                     cancel();
                     return;
                 }
@@ -46,13 +46,15 @@ public class Generators {
     }
 
     public void startGenerators() {
-        this.generatorsTask.cancel();
+        try {
+            this.generatorsTask.cancel();
+        } catch (Exception ignored) {}
         GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
         Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
         String path = Location.GENERATOR.getPath();
         this.generators = locations.getList(path) == null ? new ArrayList<>() :
                 locations.getMapList(path).stream().map(o -> o.entrySet().stream().collect(
-                        Collectors.toMap(p -> p.getKey().toString(), q -> q.getKey().toString()))).collect(Collectors.toList());
+                        Collectors.toMap(p -> p.getKey().toString(), q -> q.getValue().toString()))).collect(Collectors.toList());
         this.generatorsTask.runTaskTimer(AmazingTowers.getPlugin(), 0L,
                 (Integer.parseInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.waitTimeSeconds")) * 20L));
     }

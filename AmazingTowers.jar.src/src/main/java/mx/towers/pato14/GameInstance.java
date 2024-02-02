@@ -114,7 +114,7 @@ public class GameInstance extends TowersWorldInstance {
             this.game.start();
         }
         game.joinGame(player);
-        Arrays.sort(AmazingTowers.getGameInstances());
+        Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
     }
 
     @Override
@@ -125,7 +125,7 @@ public class GameInstance extends TowersWorldInstance {
         this.getPermissions().remove(player.getName());
         AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
         game.leave(player);
-        Arrays.sort(AmazingTowers.getGameInstances());
+        Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
     }
 
     public boolean canJoin(HumanEntity player) {

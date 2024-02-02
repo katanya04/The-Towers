@@ -52,7 +52,7 @@ public class JoinTeamItem extends ActionItem {
             return;
         if (!teamToJoin.containsPlayer(player.getName())) { //Si no está ya en ese equipo
             if (!gameInstance.getRules().get(Rule.BALANCED_TEAMS)
-                    || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers()) {
+                    || teamToJoin.getSizePlayers() == game.getTeams().getLowestTeamPlayers(currentTeam)) {
                 teamToJoin.addPlayer(player.getName());
                 if (game.getGameState().equals(GameState.GAME))
                     gameInstance.getGame().spawn((Player) player);

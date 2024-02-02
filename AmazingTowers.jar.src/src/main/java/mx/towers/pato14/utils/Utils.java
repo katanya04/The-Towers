@@ -8,6 +8,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
@@ -452,6 +453,21 @@ public class Utils {
         }
         public void setValue(U value) {
             this.value = value;
+        }
+    }
+
+    public static void endMatch(GameInstance gameInstance) {
+        switch (gameInstance.getGame().getGameState()) {
+            case GAME:
+                gameInstance.getGame().getFinish().endMatchOrGoldenGoal();
+                if (gameInstance.getGame().isGoldenGoal())
+                    gameInstance.getGame().setGameState(GameState.GOLDEN_GOAL);
+                break;
+            case GOLDEN_GOAL:
+                gameInstance.getGame().getFinish().endMatch();
+                break;
+            default:
+                break;
         }
     }
 }

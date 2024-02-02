@@ -29,7 +29,7 @@ public class SelectDatabase extends ListItem<String> {
 
     public void reset(GameInstance gameInstance) {
         this.list = AmazingTowers.connexion.getTables();
-        this.index = AmazingTowers.connexion.getTables().indexOf(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("database.database"));
-        gameInstance.setTableName(getCurrentItem());
+        this.index = list.indexOf(gameInstance.getTableName());
+        Utils.setLore(this, "§r§f" + super.getName());
     }
 }

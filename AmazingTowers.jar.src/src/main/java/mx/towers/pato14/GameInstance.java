@@ -158,6 +158,9 @@ public class GameInstance extends TowersWorldInstance {
             reloadAllConfigs();
             updateLists();
             setRules();
+            this.dbTableName = getConfig(ConfigType.GAME_SETTINGS).getString("database.database");
+            if (!Utils.isAValidTable(this.dbTableName))
+                this.dbTableName = null;
             this.game.reset();
             overwriteWithBackup(internalName);
             this.getGame().getRefill().resetTime();

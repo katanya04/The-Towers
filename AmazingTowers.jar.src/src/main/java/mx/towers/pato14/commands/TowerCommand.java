@@ -502,21 +502,11 @@ public class TowerCommand implements TabExecutor {
                         Utils.sendMessage("That's not a valid team color", MessageType.ERROR, sender);
                     break;
                 }
-                switch (gameInstance.getGame().getGameState()) {
-                    case GAME:
-                        gameInstance.getGame().getFinish().endMatchOrGoldenGoal();
-                        if (gameInstance.getGame().isGoldenGoal()) {
-                            gameInstance.getGame().setGameState(GameState.GOLDEN_GOAL);
-                            Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
-                        }
-                        break;
-                    case GOLDEN_GOAL:
-                        gameInstance.getGame().getFinish().endMatch();
-                        break;
-                    default:
-                        Utils.sendMessage("This action can only be done while a match is taking place", MessageType.ERROR, sender);
-                        break;
-                }
+                Utils.endMatch(gameInstance);
+                if (Objects.requireNonNull(gameInstance.getGame().getGameState()) == GameState.GOLDEN_GOAL)
+                    Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
+                else if (Objects.requireNonNull(gameInstance.getGame().getGameState()) != GameState.FINISH)
+                    Utils.sendMessage("This action can only be done while a match is taking place", MessageType.ERROR, sender);
                 break;
         }
         return false;

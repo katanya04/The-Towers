@@ -63,7 +63,9 @@ public class UseLobbyItems implements Listener {
         }
         if (player.getOpenInventory().getTopInventory() instanceof AnvilInventory) {
             ItemStack settingToBeChanged = player.getOpenInventory().getTopInventory().getItem(0);
-            if (settingToBeChanged == null || settingToBeChanged.getType() == Material.AIR || settingToBeChanged.getItemMeta().getLore().isEmpty())
+            if (settingToBeChanged == null || settingToBeChanged.getType() == Material.AIR ||
+                    settingToBeChanged.getItemMeta() == null || settingToBeChanged.getItemMeta().getLore() == null ||
+                    settingToBeChanged.getItemMeta().getLore().isEmpty())
                 return;
             String path = settingToBeChanged.getItemMeta().getLore().get(0).replace("§r§8", "");
             if (!Utils.isValidPath(path))

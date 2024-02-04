@@ -21,14 +21,22 @@ import java.util.stream.Collectors;
 public class Generators {
     private final String worldName;
     private List<Map<String, String>> generators;
-    private final BukkitRunnable generatorsTask;
     public Generators(String worldName) {
         this.worldName = worldName;
-        this.generatorsTask = new BukkitRunnable() {
+    }
+
+    public void startGenerators() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
+        Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
+        String path = Location.GENERATOR.getPath();
+        this.generators = locations.getList(path) == null ? new ArrayList<>() :
+                locations.getMapList(path).stream().map(o -> o.entrySet().stream().collect(
+                        Collectors.toMap(p -> p.getKey().toString(), q -> q.getValue().toString()))).collect(Collectors.toList());
+        (new BukkitRunnable() {
             public void run() {
                 GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
                 if (gameInstance.getGame().getGameState().equals(GameState.FINISH) ||
-                !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.activated"))) {
+                        !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.activated"))) {
                     cancel();
                     return;
                 }
@@ -42,24 +50,7 @@ public class Generators {
                     cancel();
                 }
             }
-        };
-    }
-
-    public void startGenerators() {
-        try {
-            this.generatorsTask.cancel();
-        } catch (Exception ignored) {}
-        GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
-        Config locations = gameInstance.getConfig(ConfigType.LOCATIONS);
-        String path = Location.GENERATOR.getPath();
-        this.generators = locations.getList(path) == null ? new ArrayList<>() :
-                locations.getMapList(path).stream().map(o -> o.entrySet().stream().collect(
-                        Collectors.toMap(p -> p.getKey().toString(), q -> q.getValue().toString()))).collect(Collectors.toList());
-        this.generatorsTask.runTaskTimer(AmazingTowers.getPlugin(), 0L,
+        }).runTaskTimer(AmazingTowers.getPlugin(), 0L,
                 (Integer.parseInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.waitTimeSeconds")) * 20L));
-    }
-
-    public BukkitRunnable getGeneratorsTask() {
-        return generatorsTask;
     }
 }

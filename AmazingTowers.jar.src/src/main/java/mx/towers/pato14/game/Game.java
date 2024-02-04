@@ -151,9 +151,6 @@ public class Game {
         this.timer.update(this.getGameInstance());
         this.bedwarsStyle = false;
         this.goldenGoal = false;
-        try {
-            this.generators.getGeneratorsTask().cancel();
-        } catch (Exception ignored) {}
     }
 
     public void spawn(Player player) {

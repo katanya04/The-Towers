@@ -34,6 +34,7 @@ public class RefillTask {
                         cancel();
                         refillTime = 0;
                         gameInstance.getScoreUpdates().updateScoreboardAll();
+                        refileadoProaso.clear();
                         return;
                     }
                     gameInstance.getScoreUpdates().updateScoreboardAll();

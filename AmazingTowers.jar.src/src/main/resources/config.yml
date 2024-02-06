@@ -34,7 +34,7 @@ options:
       messageOnScoreboard: '&cCofres rellenados!'
       sendMessageOnRefill: true
 
-  canNotDropLeatherArmor: true
+  doNotDropArmorAndTools: true
 
   cancelWeatherUpdates: true
 

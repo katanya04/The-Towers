@@ -13,11 +13,11 @@ scoreboard:
   lobby:
     scores:
       - '&7%date%'
-      - '&4'
+      - '&f'
       - 'Jugadores: &a%online_players%'
-      - '&3'
+      - '&f'
       - '&fEsperando...'
-      - '&2'
+      - '&f'
       - '&e%instance_name%'
 
   # PREGAME
@@ -26,53 +26,53 @@ scoreboard:
   pre-game:
     scores:
       - '&7%date%'
-      - '&4'
-      - '&fJugadores: &a%online_players%'
-      - '&3'
-      - '&fEmpezando en &a%seconds%s'
-      - '&2'
+      - '&f'
+      - 'Jugadores: &a%online_players%'
+      - '&f'
+      - 'Empezando en &a%seconds%s'
+      - '&f'
       - '&e%instance_name%'
 
   # GAME
   # VARIABLES
-  # %date% , %online_players% ,  %team_points% ,
+  # %date% , %online_players% ,  %team_points% , %players_amount%
   # %team_name% , %maxPointsWin% , %player_kills% , %first_letter% ,
   # %player_deaths% , %refill_time% , %player_points% , %team_color%
   gameFourTeamsOrLess:
     scores:
-      - '&7%date% - &r%players_amount%'
+      - '&7%date%'
+      - '%players_amount%'
+      - 'Siguiente Refill: &a%refill_time%'
       - '&f'
-      - '&fSiguiente Refill: &a%refill_time%'
-      - '&f'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
       - '&f'
       - '&7Haz &a%maxPointsWin% &7puntos para ganar!'
       - '&f'
-      - '&fKills: &a%player_kills%'
-      - '&fPuntos: &a%player_points%'
-      - '&fMuertes: &a%player_deaths%'
+      - 'Kills: &a%player_kills%'
+      - 'Puntos: &a%player_points%'
+      - 'Muertes: &a%player_deaths%'
       - '&e%instance_name%'
 
   gameUpToEightTeams:
     scores:
-      - '&7%date% - &r%players_amount%'
-      - '&fSiguiente Refill: &a%refill_time%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
-      - '&f>%team_color%&l%first_letter% &f%team_name%: &c%team_points%'
+      - '&7%date% %instance_name%'
+      - '%players_amount%'
+      - 'Siguiente Refill: &a%refill_time%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
+      - '>%team_color%&l %first_letter% &f%team_name%: &c%team_points%'
       - '&7Haz &a%maxPointsWin% &7puntos para ganar!'
-      - '&fKills: &a%player_kills%'
-      - '&fPuntos: &a%player_points%'
-      - '&fMuertes: &a%player_deaths%'
-      - '&e%instance_name%'
+      - 'Kills: &a%player_kills%'
+      - 'Puntos: &a%player_points%'
+      - 'Muertes: &a%player_deaths%'
 
 player: 'jugador'
 players: 'jugadores'

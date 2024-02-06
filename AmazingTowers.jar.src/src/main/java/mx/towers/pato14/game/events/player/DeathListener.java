@@ -62,9 +62,9 @@ public class DeathListener implements Listener {
             }
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
             for (ItemStack i : e.getDrops()) {
-                if (Utils.isLeatherArmor(i.getType())) {
+                if (i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable()) {
                     i.setType(Material.AIR);
                 }
             }

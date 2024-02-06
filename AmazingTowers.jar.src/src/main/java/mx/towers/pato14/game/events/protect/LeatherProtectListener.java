@@ -4,10 +4,8 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.TeamColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -28,7 +26,7 @@ public class LeatherProtectListener implements Listener {
         if (((GameInstance) instance).getGame() == null)
             return;
         ItemStack i = e.getItemDrop().getItemStack();
-        if (instance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor") && Utils.isLeatherArmor(i.getType()))
+        if (instance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools") && i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable())
             e.getItemDrop().remove();
         if (i.getItemMeta().getDisplayName() == null || i.getType() == null)
             return;
@@ -43,7 +41,7 @@ public class LeatherProtectListener implements Listener {
             return;
         if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)
             return;
-        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.canNotDropLeatherArmor")) {
+        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
             if (!InventoryType.CRAFTING.equals(e.getInventory().getType()) && !InventoryType.CREATIVE.equals(e.getInventory().getType()) && !InventoryType.PLAYER.equals(e.getInventory().getType()) && Utils.isLeatherArmor(e.getCurrentItem().getType()))
                 e.setCancelled(true);
         }

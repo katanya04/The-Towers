@@ -46,6 +46,8 @@ public class Connexion {
 
     public boolean connect() {
         try {
+            if (this.connection != null && !this.connection.isClosed())
+                this.connection.close();
             Class.forName("com.mysql.jdbc.Driver");
             this.connection = DriverManager.getConnection("jdbc:mysql://" + this.hostname + /*":" + this.port +*/
                     "/" + this.database + "?autoReconnect=true", this.user, this.password);
@@ -76,15 +78,17 @@ public class Connexion {
                     case HAS_ACC:
                         return _hasAccount(player, tableName);
                 }
-            } catch (CommunicationsException ex) {
+            } catch (CommunicationsException | com.mysql.jdbc.exceptions.jdbc4.CommunicationsException ex) {
                 if (!repeat && this.connect())
                     repeat = true;
                 else {
                     Utils.sendConsoleMessage("Can't stablish a connection with the database", MessageType.ERROR);
+                    ex.printStackTrace();
                     repeat = false;
                 }
             } catch (SQLException ex) {
                 Utils.sendConsoleMessage("Error while performing operation " + operation + " on table " + tableName, MessageType.ERROR);
+                ex.printStackTrace();
                 repeat = false;
             }
         } while (repeat);
@@ -122,10 +126,10 @@ public class Connexion {
     }
 
     private boolean _createAccount(String player, String tableName) throws SQLException {
-        if (ALL_TABLES.equals(tableName))
+        if (ALL_TABLES.equals(tableName)) {
             for (String table : tables)
                 _createAccount(player, table);
-        else if (!hasAccount(player, tableName)) {
+        } else if (!hasAccount(player, tableName)) {
             PreparedStatement ps = this.connection.prepareStatement("INSERT INTO " + tableName + "(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,0,0,0,0,0,0,0)");
             ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString());
             ps.setString(2, player);
@@ -180,14 +184,14 @@ public class Connexion {
     private boolean _hasAccount(String player, String tableName) throws SQLException {
         StringBuilder query = new StringBuilder();
         if (!ALL_TABLES.equals(tableName)) {
-            query.append("SELECT UUID FROM ").append(tables.get(0)).append(" ");
+            query.append("SELECT UUID FROM ").append(tableName).append(" ");
         } else {
             query.append("SELECT ").append(tables.get(0)).append(".UUID FROM ").append(tables.get(0)).append(" ");
             for (int i = 1; i < tables.size(); i++) {
                 query.append("INNER JOIN ").append(tables.get(i)).append(" ON ").append(tables.get(0)).append(".UUID = ").append(tables.get(i)).append(".UUID").append(" ");
             }
         }
-        query.append("WHERE ").append(tables.get(0)).append(".UUID ='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8))).append("'");
+        query.append("WHERE ").append(ALL_TABLES.equals(tableName) ? tables.get(0) : tableName).append(".UUID ='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8))).append("'");
         PreparedStatement ps = this.connection.prepareStatement(query.toString());
         ResultSet rs = ps.executeQuery();
         return rs.next();

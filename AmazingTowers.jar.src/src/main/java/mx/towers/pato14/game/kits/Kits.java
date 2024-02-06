@@ -9,6 +9,7 @@ import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Damageable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -73,7 +74,13 @@ public class Kits {
         if (itemsArray.length == size) {
             for (int i = 0; i < size; i++) {
                 try {
-                    toret[i] = ReflectionMethods.deserializeItemStack(itemsArray[i]);
+                    ItemStack item = ReflectionMethods.deserializeItemStack(itemsArray[i]);
+                    if (item != null && item.getType().getMaxDurability() != 0) {
+                        ItemMeta itemMeta = item.getItemMeta();
+                        itemMeta.spigot().setUnbreakable(true);
+                        item.setItemMeta(itemMeta);
+                    }
+                    toret[i] = item;
                 } catch (ParseItemException e) {
                     Utils.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);
                 }

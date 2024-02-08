@@ -33,11 +33,11 @@ public class RefillTask {
                             .getString("refill.activated"))) {
                         cancel();
                         refillTime = 0;
-                        gameInstance.getScoreUpdates().updateScoreboardAll();
+                        gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
                         refileadoProaso.clear();
                         return;
                     }
-                    gameInstance.getScoreUpdates().updateScoreboardAll();
+                    gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
                     if (RefillTask.this.refillTime == 0) {
                         resetTime();
                         SelectCofresillos.refill(refileadoProaso);

@@ -27,6 +27,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.map.MinecraftFont;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,18 +57,25 @@ public class Utils {
     public static void tpToWorld(World world, Player player) {
         Utils.clearNameTagPlayer(player);
         TowersWorldInstance worldInstance = AmazingTowers.getInstance(world);
-        String lobby;
         World oldWorld = player.getWorld();
         if (worldInstance instanceof GameInstance && !((GameInstance) worldInstance).canJoin(player))
             player.sendMessage("You can't enter this match at the moment");
         else {
-            if (worldInstance != null && (lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath())) != null)
-                player.teleport(Locations.getLocationFromString(lobby));
+            if (worldInstance != null)
+                tpToLobby(worldInstance, player);
             else
                 player.teleport(world.getSpawnLocation());
             onChangeWorlds(player, oldWorld, world);
-            Utils.updatePlayerTab(player, world);
+            Utils.updatePlayerTab(player, world, true);
         }
+    }
+
+    public static void tpToLobby(@NotNull TowersWorldInstance worldInstance, Player player) {
+        String lobby = worldInstance.getConfig(ConfigType.LOCATIONS).getString(mx.towers.pato14.utils.enums.Location.LOBBY.getPath());
+        if (lobby != null)
+            player.teleport(Locations.getLocationFromString(lobby));
+        else
+            player.teleport(worldInstance.getWorld().getSpawnLocation());
     }
 
     private static void onChangeWorlds(Player player, World oldWorld, World newWorld) {
@@ -316,18 +325,27 @@ public class Utils {
         return item;
     }
 
-    public static void updatePlayerTab(Player player, World currentWorld) {
-        TowersWorldInstance playerInstance = AmazingTowers.getInstance(player);
-        for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
-            if (currentWorld.equals(player1.getWorld())) {
-                player1.showPlayer(player);
-                player.showPlayer(player1);
-                if (!(playerInstance instanceof GameInstance))
-                    continue;
-                NametagEdit.getApi().reloadNametag(player);
-            } else {
-                player1.hidePlayer(player);
-                player.hidePlayer(player1);
+    public static void updatePlayerTab(Player player, World currentWorld, boolean runTaskLater) {
+        if (runTaskLater) {
+            (new BukkitRunnable() {
+                @Override
+                public void run() {
+                    updatePlayerTab(player, currentWorld, false);
+                }
+            }).runTaskLater(AmazingTowers.getPlugin(), 1L);
+        } else {
+            TowersWorldInstance playerInstance = AmazingTowers.getInstance(player);
+            for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
+                if (currentWorld.equals(player1.getWorld())) {
+                    player1.showPlayer(player);
+                    player.showPlayer(player1);
+                    if (!(playerInstance instanceof GameInstance))
+                        continue;
+                    NametagEdit.getApi().reloadNametag(player);
+                } else {
+                    player1.hidePlayer(player);
+                    player.hidePlayer(player1);
+                }
             }
         }
     }

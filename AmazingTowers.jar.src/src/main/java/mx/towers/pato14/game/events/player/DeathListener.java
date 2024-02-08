@@ -73,7 +73,7 @@ public class DeathListener implements Listener {
             return;
         if (playerTeam != null && !playerTeam.respawnPlayers()) {
             playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
-            gameInstance.getScoreUpdates().updateScoreboardAll();
+            gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
             if (playerTeam.getSizeOnlinePlayers() <= 0)
                 Utils.checkForTeamWin(gameInstance);
         } else

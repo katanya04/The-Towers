@@ -1,9 +1,7 @@
 package mx.towers.pato14.game.scoreboard;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
@@ -16,6 +14,7 @@ import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class ScoreUpdate {
     private final String title;
@@ -26,17 +25,26 @@ public class ScoreUpdate {
         this.date = (new SimpleDateFormat(instance.getConfig(ConfigType.SCOREBOARD).getString("scoreboard.formatDate"))).format(Calendar.getInstance().getTime());
     }
 
-    public void createScoreboard(Player player) {
+    public void createScoreboard(Player player, boolean setScore) {
         if (ScoreHelper.hasScore(player))
             return;
         ScoreHelper helper = ScoreHelper.createScore(player);
         helper.setTitle(this.title);
-        setScores(helper, player);
+        if (setScore)
+            setScores(helper, player);
     }
 
-    public void updateScoreboardAll() {
-        for (Player player : AmazingTowers.getAllOnlinePlayers()) {
-            updateScoreboard(player);
+    public void updateScoreboardAll(boolean runTaskLater, Collection<Player> players) {
+        if (runTaskLater) {
+            (new BukkitRunnable() {
+                @Override
+                public void run() {
+                    updateScoreboardAll(false, players);
+                }
+            }).runTaskLater(AmazingTowers.getPlugin(), 1L);
+        } else {
+            for (Player player : players)
+                updateScoreboard(player);
         }
     }
 
@@ -132,6 +140,10 @@ public class ScoreUpdate {
                         .replace("%date%", this.date));
                 i--;
             }
+            for (TowersWorldInstance tw : AmazingTowers.getGameInstances())
+                System.out.println(tw.getInternalName() + ": " + tw.getNumPlayers());
+            System.out.println(towersWorldInstance.getInternalName() + ": " + towersWorldInstance.getNumPlayers());
+            System.out.println(player);
         }
     }
 }

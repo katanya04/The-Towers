@@ -28,13 +28,15 @@ public class DamageListener implements Listener {
         if (instance instanceof LobbyInstance) {
             e.setCancelled(true);
             if (e.getCause() == EntityDamageEvent.DamageCause.VOID)
-                Utils.tpToWorld(instance.getWorld(), player);
+                Utils.tpToLobby(instance, player);
         } else if (instance instanceof GameInstance && e.getCause() == EntityDamageEvent.DamageCause.VOID) {
-            if (((GameInstance) instance).getGame() == null)
+            GameInstance gameInstance = (GameInstance) instance;
+            if (gameInstance.getGame() == null)
                 return;
-            if (((GameInstance) instance).getGame().getGameState() != GameState.FINISH)
-                if (player.getHealth() > 0.0)
-                    player.setHealth(0.0);
+            if (gameInstance.getGame().getGameState() != GameState.GAME && gameInstance.getGame().getGameState() != GameState.GOLDEN_GOAL)
+                Utils.tpToLobby(gameInstance, player);
+            else if (player.getHealth() > 0.0)
+                player.setHealth(0.0);
             e.setCancelled(true);
         }
     }

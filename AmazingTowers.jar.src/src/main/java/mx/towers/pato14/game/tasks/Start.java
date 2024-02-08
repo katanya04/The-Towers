@@ -36,7 +36,7 @@ public class Start {
                     game.getGenerators().startGenerators();
                     ChestsProtect.getChests(gameInstance);
                     game.getRefill().startRefillTask();
-                    gameInstance.getScoreUpdates().updateScoreboardAll();
+                    gameInstance.getScoreUpdates().updateScoreboardAll(false, game.getPlayers());
                     game.getDetectionMove().MoveDetect();
                     if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated")))
                         game.getTimer().timerStart();
@@ -48,7 +48,7 @@ public class Start {
                         p.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.notEnoughPlayers")));
                     }
                     setCountDown(20);
-                    gameInstance.getScoreUpdates().updateScoreboardAll();
+                    gameInstance.getScoreUpdates().updateScoreboardAll(false, game.getPlayers());
                     hasStarted = false;
                     cancel();
                     return;
@@ -68,7 +68,7 @@ public class Start {
                         ReflectionMethods.sendTitle(player, title, subtitle, 0, 50, 20);
                     }
                 }
-                gameInstance.getScoreUpdates().updateScoreboardAll();
+                gameInstance.getScoreUpdates().updateScoreboardAll(false, game.getPlayers());
                 if (!Start.this.stop) Start.this.countDown = Start.this.countDown - 1;
             }
         }).runTaskTimer(AmazingTowers.getPlugin(), 0L, 20L);

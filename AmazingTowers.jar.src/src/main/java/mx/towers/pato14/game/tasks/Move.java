@@ -67,7 +67,7 @@ public class Move {
                 teamScored.scorePoint(true);
             else
                 team.scorePoint(false);
-            gameInstance.getScoreUpdates().updateScoreboardAll();
+            gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
             gameInstance.getGame().getStats().addOne(player.getName(), StatType.POINTS);
             gameInstance.getVault().giveReward(player, RewardsEnum.POINT);
             gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")

@@ -2,7 +2,6 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -21,10 +20,7 @@ public class QuitListener implements Listener {
         if (instance instanceof GameInstance)
             e.setQuitMessage(instance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
                     .replace("{Player}", name));
-        final LobbyInstance lobby = AmazingTowers.getLobby();
-        if (lobby != null)
-            Utils.tpToWorld(lobby.getWorld(), player);
-        else if (instance != null) {
+        if (instance != null) {
             instance.leaveInstance(player);
             Utils.clearNameTagPlayer(player);
         }

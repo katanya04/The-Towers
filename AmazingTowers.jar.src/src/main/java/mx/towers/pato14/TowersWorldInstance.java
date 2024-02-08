@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,8 +71,8 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     }
 
     public void joinInstance(Player player) {
-        this.getScoreUpdates().createScoreboard(player);
-        this.getScoreUpdates().updateScoreboardAll();
+        this.getScoreUpdates().createScoreboard(player, false);
+        this.getScoreUpdates().updateScoreboardAll(true, AmazingTowers.getAllOnlinePlayers());
         if (AmazingTowers.isConnectedToDatabase()) {
             AmazingTowers.connexion.createAccount(player.getName(), Connexion.ALL_TABLES);
         }
@@ -79,7 +80,9 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
 
     public void leaveInstance(Player player) {
         ScoreHelper.removeScore(player);
-        this.getScoreUpdates().updateScoreboardAll();
+        Collection<Player> players = AmazingTowers.getAllOnlinePlayers();
+        players.remove(player);
+        this.getScoreUpdates().updateScoreboardAll(true, players);
     }
 
     public void reset() {

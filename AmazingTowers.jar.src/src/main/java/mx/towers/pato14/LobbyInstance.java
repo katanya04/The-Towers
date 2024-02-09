@@ -11,6 +11,7 @@ public class LobbyInstance extends TowersWorldInstance {
         super(name, LobbyInstance.class);
         this.hotbarItems = new LobbyItems(this);
         this.lobbyParkourPrize = new LobbyParkourPrize(this);
+        state = State.READY;
     }
     @Override
     public LobbyItems getHotbarItems() {

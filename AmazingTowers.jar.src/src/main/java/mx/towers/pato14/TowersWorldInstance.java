@@ -23,8 +23,12 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     protected ScoreUpdate scoreUpdate;
     protected final String internalName;
     protected HotbarItems hotbarItems;
+    protected enum State {NOT_READY, READY}
+    protected State state;
     public TowersWorldInstance(String name, Class<? extends TowersWorldInstance> aClass) {
+        this.state = State.NOT_READY;
         this.internalName = name;
+        setWorldProperties(getWorld());
         this.configs = new HashMap<>();
         registerConfigs(name, aClass);
         SetupVault.setupVault();
@@ -32,6 +36,15 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
         if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         }
+    }
+    protected void setWorldProperties(World world) {
+        if (world == null)
+            return;
+        world.setAutoSave(false);
+        world.setGameRuleValue("doMobSpawning", "false");
+        world.setGameRuleValue("mobGriefing", "false");
+        world.setGameRuleValue("doDaylightCycle", "false");
+        world.setTime(1000L);
     }
     private void registerConfigs(String worldName, Class<? extends TowersWorldInstance> aClass) {
         for (ConfigType config : ConfigType.getValues(aClass))
@@ -86,11 +99,16 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     }
 
     public void reset() {
+        this.state = State.NOT_READY;
         registerConfigs(internalName, this.getClass());
     }
 
     @Override
     public int compareTo(@NotNull TowersWorldInstance o) {
         return Integer.compare(this.getNumPlayers(), o.getNumPlayers());
+    }
+
+    public boolean isReady() {
+        return this.state == State.READY;
     }
 }

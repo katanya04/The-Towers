@@ -60,7 +60,6 @@ public class Finish {
                 if (Finish.this.seconds == 1) {
                     (new BukkitRunnable() {
                         public void run() {
-                            gameInstance.setReadyToJoin(false);
                             GameInstance gameToTp;
                             for (Player player : gameInstance.getGame().getPlayers()) {
                                 if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")

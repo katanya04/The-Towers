@@ -138,7 +138,7 @@ public final class AmazingTowers extends JavaPlugin {
     public static GameInstance checkForInstanceToTp(Player player) {
         for (GameInstance gameInstance : games) {
             if (!gameInstance.canJoin(player) || gameInstance.getGame() == null
-                || gameInstance.getWorld() == null ||gameInstance.getGame().getGameState() == GameState.FINISH)
+                || gameInstance.getWorld() == null || gameInstance.getGame().getGameState() == GameState.FINISH)
                 continue;
             return gameInstance;
         }

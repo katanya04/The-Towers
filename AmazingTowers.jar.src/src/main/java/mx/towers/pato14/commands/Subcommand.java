@@ -201,7 +201,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         for (String arg : args) {
             switch (arg) {
                 case "<player>":
-                case "<onlinePlayer":
+                case "<onlinePlayer>":
                     toret.addAll(AmazingTowers.getAllOnlinePlayers().stream().map(Player::getName).collect(Collectors.toSet()));
                     break;
                 case "<tableName>":

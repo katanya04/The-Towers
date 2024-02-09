@@ -136,14 +136,11 @@ public class ScoreUpdate {
             int i = l.size();
             for (String st : l) {
                 helper.setSlot(i, Utils.getColor(st)
-                        .replace("%online_players%", String.valueOf(Arrays.stream(AmazingTowers.getGameInstances()).map(TowersWorldInstance::getNumPlayers).reduce(towersWorldInstance.getNumPlayers(), Integer::sum)))
+                        .replace("%online_players%", String.valueOf(Arrays.stream(AmazingTowers.getGameInstances()).filter(o -> o.getGame() != null)
+                                .map(TowersWorldInstance::getNumPlayers).reduce(towersWorldInstance.getNumPlayers(), Integer::sum)))
                         .replace("%date%", this.date));
                 i--;
             }
-            for (TowersWorldInstance tw : AmazingTowers.getGameInstances())
-                System.out.println(tw.getInternalName() + ": " + tw.getNumPlayers());
-            System.out.println(towersWorldInstance.getInternalName() + ": " + towersWorldInstance.getNumPlayers());
-            System.out.println(player);
         }
     }
 }

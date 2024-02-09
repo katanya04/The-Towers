@@ -86,7 +86,7 @@ public class Utils {
         if (newInstance == null)
             return;
         newInstance.joinInstance(player);
-        if (newInstance instanceof GameInstance)
+        if (newInstance instanceof GameInstance && ((GameInstance) newInstance).getGame() != null)
             newInstance.broadcastMessage(getJoinMessage((GameInstance) newInstance, player.getName()), true);
     }
 

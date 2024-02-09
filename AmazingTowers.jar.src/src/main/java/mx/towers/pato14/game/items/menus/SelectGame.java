@@ -39,11 +39,11 @@ public class SelectGame extends ActionItem {
         } else {
             Utils.sendMessage(Utils.getColor(instance.getConfig(ConfigType.MESSAGES).getString("canNotJoinGame")), MessageType.ERROR, player);
         }
-
     }
 
     public static SelectGame[] getItems(LobbyInstance lobby) {
-        return instances == null ? (instances = Arrays.stream(AmazingTowers.getGameInstances()).map(o -> new SelectGame(o, lobby)).toArray(SelectGame[]::new))
+        return instances == null ? (instances = Arrays.stream(AmazingTowers.getGameInstances()).filter(o -> o.getGame() != null)
+                .map(o -> new SelectGame(o, lobby)).toArray(SelectGame[]::new))
                 : instances;
     }
 

@@ -19,7 +19,6 @@ public class GameInstance extends TowersWorldInstance {
     private final Map<Rule, Boolean> rules;
     private final int numberOfTeams;
     private final HashMap<String, PermissionAttachment> perms = new HashMap<>();
-    private boolean isReadyToJoin;
     private Map.Entry<Boolean, List<String>> whitelist;
     private Map.Entry<Boolean, List<String>> blacklist;
     private final List<String> nonExistentLocations;
@@ -27,7 +26,6 @@ public class GameInstance extends TowersWorldInstance {
 
     public GameInstance(String name) {
         super(name, GameInstance.class);
-        isReadyToJoin = false;
         this.rules = new HashMap<>();
         this.nonExistentLocations = new ArrayList<>();
         updateLists();
@@ -56,7 +54,7 @@ public class GameInstance extends TowersWorldInstance {
         } else {
             Utils.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
         }
-        isReadyToJoin = true;
+        state = State.READY;
     }
 
     @Override
@@ -75,6 +73,7 @@ public class GameInstance extends TowersWorldInstance {
             Utils.sendConsoleMessage("I/O error when overwritting " + worldName + " with its backup", MessageType.ERROR);
             return false;
         }
+        this.setWorldProperties(getWorld());
         return true;
     }
 
@@ -129,12 +128,8 @@ public class GameInstance extends TowersWorldInstance {
     }
 
     public boolean canJoin(HumanEntity player) {
-        return isReadyToJoin && (player.isOp() || (!whitelist.getKey() || whitelist.getValue().contains(player.getName()))
+        return isReady() && (player.isOp() || (!whitelist.getKey() || whitelist.getValue().contains(player.getName()))
                 && (!blacklist.getKey() || !blacklist.getValue().contains(player.getName())));
-    }
-
-    public void setReadyToJoin(boolean readyToJoin) {
-        isReadyToJoin = readyToJoin;
     }
 
     public void updateWhiteList() {
@@ -153,7 +148,6 @@ public class GameInstance extends TowersWorldInstance {
     @Override
     public void reset() {
         super.reset();
-        isReadyToJoin = false;
         try {
             reloadAllConfigs();
             updateLists();
@@ -166,7 +160,7 @@ public class GameInstance extends TowersWorldInstance {
             this.getGame().getRefill().resetTime();
             this.getHotbarItems().reset(this);
         } finally {
-            isReadyToJoin = true;
+            state = State.READY;
         }
     }
 

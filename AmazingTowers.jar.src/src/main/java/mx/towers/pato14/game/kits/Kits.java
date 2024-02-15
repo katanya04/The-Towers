@@ -75,11 +75,8 @@ public class Kits {
             for (int i = 0; i < size; i++) {
                 try {
                     ItemStack item = ReflectionMethods.deserializeItemStack(itemsArray[i]);
-                    if (item != null && item.getType().getMaxDurability() != 0) {
-                        ItemMeta itemMeta = item.getItemMeta();
-                        itemMeta.spigot().setUnbreakable(true);
-                        item.setItemMeta(itemMeta);
-                    }
+                    if (item != null && item.getType().getMaxDurability() != 0)
+                        Utils.setUnbreakable(item);
                     toret[i] = item;
                 } catch (ParseItemException e) {
                     Utils.sendConsoleMessage("Error while parsing " + name + " in the kit \"" + kit.get("name") + "\", position " + i, MessageType.ERROR);

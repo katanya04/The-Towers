@@ -20,6 +20,7 @@ public class JoinListener implements Listener {
                     .replace("{player}", player.getName())));
             Utils.tpToLobby(lobby, player);
             lobby.joinInstance(player);
+            Utils.updatePlayerTab(player, lobby.getWorld(), true);
         } else {
             final GameInstance gameInstance = AmazingTowers.getGameInstance(player);
             if (gameInstance != null)

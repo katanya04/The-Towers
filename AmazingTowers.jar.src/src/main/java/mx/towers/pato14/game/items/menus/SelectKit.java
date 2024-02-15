@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 public class SelectKit extends ChestMenuItem {
     public SelectKit(GameInstance gameInstance) {
         super(
-                Utils.setName(new ItemStack(Material.IRON_SWORD), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.selectKit.name"))),
+                Utils.setUnbreakable(Utils.setName(new ItemStack(Material.IRON_SWORD), Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.selectKit.name")))),
                 gameInstance.getGame().getKits().getIcons()
         );
     }

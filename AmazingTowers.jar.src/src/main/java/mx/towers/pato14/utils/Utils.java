@@ -488,4 +488,11 @@ public class Utils {
                 break;
         }
     }
+
+    public static ItemStack setUnbreakable(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.spigot().setUnbreakable(true);
+        item.setItemMeta(itemMeta);
+        return item;
+    }
 }

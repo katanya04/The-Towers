@@ -19,10 +19,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class DeathListener implements Listener {
 
@@ -50,32 +46,11 @@ public class DeathListener implements Listener {
         } else {
             final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            
-            // Begin modification: Check if the killer was an arrow and calculate distance
-            double distance = -1; // Initialize distance to -1 to indicate that it's unknown
-            EntityDamageByEntityEvent lastDamageEvent = (EntityDamageByEntityEvent) killer.getLastDamageCause();
-            if (lastDamageEvent.getDamager() instanceof Arrow) {
-                Arrow arrow = (Arrow) lastDamageEvent.getDamager();
-                if (arrow.getShooter() instanceof Player) {
-                    Player shooter = (Player) arrow.getShooter();
-                    distance = shooter.getLocation().distance(player.getLocation());
-                }
-            }
-            // End modification
-            
-            String deathMessage = finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
+            gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)
-                    .replace("{Killer}", killer.getName());
-            
-            // Modification: Add distance to death message if available
-            if (distance >= 0) {
-                deathMessage += " Distance: " + distance + " blocks";
-            }
-            
-            gameInstance.broadcastMessage(deathMessage, true);
-            
+                    .replace("{Killer}", killer.getName()), true);
             addRewardsKiller(killer);
             if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.activated"))) {
                 try {

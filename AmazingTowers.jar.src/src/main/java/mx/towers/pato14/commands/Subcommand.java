@@ -24,7 +24,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     RULE(PermissionLevel.ORGANIZER, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
     SETSCORE(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
-    TPWORLD(PermissionLevel.ADMIN, 2, false, false, "<worldName>", "<player>"),
+    TPWORLD(PermissionLevel.NONE, 2, false, false, "<worldName>", "*<player>"),
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
     BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),
     LOADWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>"),

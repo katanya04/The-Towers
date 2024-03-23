@@ -183,10 +183,15 @@ public class TowerCommand implements TabExecutor {
                 break;
             case TPWORLD:
                 World worldDestination = Bukkit.getWorld(args[1]);
-                Player player1 = Bukkit.getPlayer(args[2]);
+                if (args.length > 2 && PermissionLevel.hasPermission(PermissionLevel.ADMIN, PermissionLevel.getPermissionLevel(sender)))
+                    player = Bukkit.getPlayer(args[2]);
+                else if (player == null) {
+                    Utils.sendMessage("You need to specify a player to teleport", MessageType.ERROR, sender);
+                    break;
+                }
                 if (worldDestination != null) {
-                    if (player1 != null) {
-                        Utils.tpToWorld(worldDestination, player1);
+                    if (player != null) {
+                        Utils.tpToWorld(worldDestination, player);
                         Utils.sendMessage("Teleportation to the world §a" + args[1] + " successfully", MessageType.INFO, sender);
                     } else
                         Utils.sendMessage("The player §a" + args[1] + " isn't online right now", MessageType.ERROR, sender);

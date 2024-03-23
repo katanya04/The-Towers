@@ -192,4 +192,10 @@ public class GameInstance extends TowersWorldInstance {
     public void setTableName(String dbTableName) {
         this.dbTableName = dbTableName;
     }
+
+    @Override
+    public void setWorldProperties(World world) {
+        super.setWorldProperties(world);
+        world.setAutoSave(false);
+    }
 }

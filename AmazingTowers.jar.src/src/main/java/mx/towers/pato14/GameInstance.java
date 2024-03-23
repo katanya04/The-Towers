@@ -196,6 +196,8 @@ public class GameInstance extends TowersWorldInstance {
 
     @Override
     public void setWorldProperties(World world) {
+        if (world == null)
+            return;
         super.setWorldProperties(world);
         world.setAutoSave(false);
     }

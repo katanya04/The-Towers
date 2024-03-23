@@ -40,7 +40,6 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     protected void setWorldProperties(World world) {
         if (world == null)
             return;
-        world.setAutoSave(false);
         world.setGameRuleValue("doMobSpawning", "false");
         world.setGameRuleValue("mobGriefing", "false");
         world.setGameRuleValue("doDaylightCycle", "false");

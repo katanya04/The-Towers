@@ -6,6 +6,7 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.rewards.VaultT;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;

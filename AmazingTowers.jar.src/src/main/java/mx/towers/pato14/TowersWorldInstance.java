@@ -1,6 +1,6 @@
 package mx.towers.pato14;
 
-import mx.towers.pato14.game.items.HotbarItems;
+import me.katanya04.anotherguiplugin.menu.HotbarItems;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.Config;
@@ -33,6 +33,7 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
         registerConfigs(name, aClass);
         SetupVault.setupVault();
         this.scoreUpdate = new ScoreUpdate(this);
+        this.hotbarItems = new HotbarItems();
         if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
         }
@@ -71,6 +72,14 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     public String getInternalName() {
         return internalName;
     }
+    public String getName() {
+        String name = getConfig(ConfigType.CONFIG).getString("name");
+        return name == null ? getInternalName() : name;
+    }
+    public String getNumPlayersString() {
+        int numPlayers = this.getNumPlayers();
+        return numPlayers + " " + this.getConfig(ConfigType.MESSAGES).getString(numPlayers == 1 ? "player" : "players");
+    }
     public void broadcastMessage(String msg, boolean colorMessage) {
         if (colorMessage)
             msg = Utils.getColor(msg);
@@ -78,7 +87,8 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
             player.sendMessage(msg);
         }
     }
-    public HotbarItems getHotbarItems() {
+
+    public HotbarItems getHotbar() {
         return hotbarItems;
     }
 
@@ -109,5 +119,11 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
 
     public boolean isReady() {
         return this.state == State.READY;
+    }
+
+    public abstract void setHotbarItems();
+
+    public void saveConfig() {
+        this.configs.values().forEach(Config::saveConfig);
     }
 }

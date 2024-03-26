@@ -1,7 +1,8 @@
 package mx.towers.pato14;
 
+import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.items.GameLobbyItems;
+import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.rewards.VaultT;
@@ -24,6 +25,7 @@ public class GameInstance extends TowersWorldInstance {
     private Map.Entry<Boolean, List<String>> blacklist;
     private final List<String> nonExistentLocations;
     private String dbTableName;
+    private boolean flagChangesNotSaved;
 
     public GameInstance(String name) {
         super(name, GameInstance.class);
@@ -49,8 +51,6 @@ public class GameInstance extends TowersWorldInstance {
             if (overwriteWithBackup(name)) {
                 this.vault = new VaultT(this);
                 this.game = new Game(this);
-                this.hotbarItems = new GameLobbyItems(this);
-                getPlugin().getServer().getPluginManager().registerEvents(getHotbarItems(), getPlugin());
             }
         } else {
             Utils.sendConsoleMessage("Not all the locations have been set in " + name + ". Please set them first.", MessageType.WARNING);
@@ -59,8 +59,20 @@ public class GameInstance extends TowersWorldInstance {
     }
 
     @Override
-    public GameLobbyItems getHotbarItems() {
-        return (GameLobbyItems) hotbarItems;
+    public void setHotbarItems() {
+        Config config = getConfig(ConfigType.CONFIG);
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), ActionItem.getByName(ItemsEnum.TEAM_SELECT.name).returnPlaceholder());
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectKit.position"), ActionItem.getByName(ItemsEnum.KIT_SELECT.name).returnPlaceholder());
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), ActionItem.getByName(ItemsEnum.QUIT_GAME.name).returnPlaceholder());
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name).returnPlaceholder());
+    }
+
+    @Override
+    public void setWorldProperties(World world) {
+        if (world == null)
+            return;
+        super.setWorldProperties(world);
+        world.setAutoSave(false);
     }
 
     public boolean overwriteWithBackup(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
@@ -108,7 +120,6 @@ public class GameInstance extends TowersWorldInstance {
         super.joinInstance(player);
         if (game == null)
             return;
-        AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
         if (this.game.getGameState() == GameState.LOBBY && this.getNumPlayers() >=
                 this.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
             this.game.start();
@@ -123,7 +134,6 @@ public class GameInstance extends TowersWorldInstance {
         if (game == null)
             return;
         this.getPermissions().remove(player.getName());
-        AmazingTowers.getLobby().getHotbarItems().getSelectGameMenu().updateMenu(this);
         game.leave(player);
         Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
     }
@@ -134,11 +144,15 @@ public class GameInstance extends TowersWorldInstance {
     }
 
     public void updateWhiteList() {
-        this.whitelist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("whitelist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players"));
+        this.whitelist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS)
+                .getString("whitelist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players")
+                == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("whitelist.players"));
     }
 
     public void updateBlackList() {
-        this.blacklist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("blacklist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players") == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players"));
+        this.blacklist = new AbstractMap.SimpleEntry<>(Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS)
+                .getString("blacklist.activated")), getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players")
+                == null ? new ArrayList<>() : getConfig(ConfigType.GAME_SETTINGS).getStringList("blacklist.players"));
     }
 
     public void updateLists() {
@@ -159,7 +173,7 @@ public class GameInstance extends TowersWorldInstance {
             this.game.reset();
             overwriteWithBackup(internalName);
             this.getGame().getRefill().resetTime();
-            this.getHotbarItems().reset(this);
+            this.setFlagChanges(false);
         } finally {
             state = State.READY;
         }
@@ -194,11 +208,11 @@ public class GameInstance extends TowersWorldInstance {
         this.dbTableName = dbTableName;
     }
 
-    @Override
-    public void setWorldProperties(World world) {
-        if (world == null)
-            return;
-        super.setWorldProperties(world);
-        world.setAutoSave(false);
+    public void setFlagChanges(boolean flagChangesNotSaved) {
+        this.flagChangesNotSaved = flagChangesNotSaved;
+    }
+
+    public boolean needsToBeSaved() {
+        return flagChangesNotSaved;
     }
 }

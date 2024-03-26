@@ -1,8 +1,9 @@
 package mx.towers.pato14.commands;
 
+import me.katanya04.anotherguiplugin.actionItems.ActionItem;
+import me.katanya04.anotherguiplugin.actionItems.MenuItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.items.BookMenuItem;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Config;
@@ -25,7 +26,6 @@ import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -138,15 +138,9 @@ public class TowerCommand implements TabExecutor {
                     Start start = gameInstance.getGame().getStart();
                     if (args[1].equals("stop"))
                         start.stopCount();
-                    else if (args[1].equals("start")) {
-                        if (!start.hasStarted()) {
-                            gameInstance.getGame().setGameState(GameState.PREGAME);
-                            start.setRunFromCommand(true);
-                            start.setHasStarted(true);
-                            start.gameStart();
-                        }
-                        start.continueCount();
-                    } else
+                    else if (args[1].equals("start"))
+                        start.continueFromCommand();
+                    else
                         start.setCountDown(Integer.parseInt(args[1]));
                 } else
                     Utils.sendMessage("This command can only be executed before the match start", MessageType.ERROR, sender);
@@ -412,51 +406,6 @@ public class TowerCommand implements TabExecutor {
                     }
                 }
                 break;
-            case MODIFYSETTING:
-                assert gameInstance != null;
-                assert player != null;
-                String[] argSplit = args[1].split(";");
-                Config settings = gameInstance.getConfig(ConfigType.valueOf(Utils.camelCaseToMacroCase(argSplit[0])));
-                BookMenuItem currentMenu = gameInstance.getHotbarItems().getBookMenu(argSplit[0] + ";" + argSplit[1].split("\\.")[0]);
-                if (argSplit.length == 2) {
-                    if (args.length < 3) { //gameSettings;timer.time
-                        String currentValue = settings.getString(argSplit[1]);
-                        if (currentValue.equalsIgnoreCase("true")) {
-                            settings.set(argSplit[1], "false");
-                            currentMenu.updateSettings(gameInstance, args[1]);
-                            currentMenu.openMenu(player);
-                        } else if (currentValue.equalsIgnoreCase("false")) {
-                            settings.set(argSplit[1], "true");
-                            currentMenu.updateSettings(gameInstance, args[1]);
-                            currentMenu.openMenu(player);
-                        } else {
-                            currentMenu.modifyConfigString(player, args[1]);
-                        }
-                    } else { //gameSettings;whitelist.players add
-                        if (args[2].equalsIgnoreCase("add")) {
-                            currentMenu.modifyConfigString(player, args[1]);
-                        } else if (args[2].equalsIgnoreCase("remove")) {
-                            Object currentValue = settings.get(argSplit[1]);
-                            if (currentValue instanceof ConfigurationSection) { // kits;Kits.test remove
-                                settings.set(((ConfigurationSection) currentValue).getCurrentPath(), null);
-                            }
-                            currentMenu.updateSettings(gameInstance, args[1] + " " + args[2]);
-                            currentMenu.openMenu(player);
-                        }
-                    }
-                } else if (argSplit.length == 3) { //gameSettings;whitelist.players;katanya04 remove
-                    Object currentValue = settings.get(argSplit[1]);
-                    if (args[2].equalsIgnoreCase("remove")) {
-                        if (currentValue instanceof Collection) {
-                            ((Collection<?>) currentValue).remove(argSplit[2]);
-                            settings.set(argSplit[1], currentValue);
-                        }
-                        currentMenu.updateSettings(gameInstance, args[1] + " " + args[2]);
-                        currentMenu.openMenu(player);
-                    }
-                } else
-                    Utils.sendMessage("Incorrect path", MessageType.ERROR, sender);
-                break;
             case SAVESETTINGS:
                 assert gameInstance != null;
                 gameInstance.getConfig(ConfigType.GAME_SETTINGS).saveConfig();
@@ -466,8 +415,7 @@ public class TowerCommand implements TabExecutor {
             case BOOK:
                 assert gameInstance != null;
                 assert player != null;
-                player.getInventory().addItem(gameInstance.getHotbarItems().getModifyGameSettings());
-                Utils.sendMessage("Gave settings book to §f" + player.getName(), MessageType.INFO, sender);
+                ((MenuItem<?>) ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name)).getMenu().openMenu(player);
                 break;
             case PARKOURPRIZE:
                 Player player2 = Bukkit.getPlayer(args[1]);
@@ -481,9 +429,9 @@ public class TowerCommand implements TabExecutor {
                 assert gameInstance != null;
                 assert player != null;
                 if (args.length < 2)
-                    gameInstance.getHotbarItems().getSelectKit().interact(player, gameInstance);
+                    ((MenuItem<?>) ActionItem.getByName(ItemsEnum.KIT_SELECT.name)).getMenu().openMenu(player);
                 else if (player.hasPermission(PermissionLevel.ADMIN.getPermissionName())) {
-                        ReflectionMethods.openBook(player, gameInstance.getHotbarItems().getModifyGameSettings().getModifyKits());
+                    ((MenuItem<?>) ActionItem.getByName(ItemsEnum.MODIFY_KITS.name)).getMenu().openMenu(player);
                 } else
                     Utils.sendMessage("You don't have permission to execute this command.", MessageType.ERROR, sender);
                 break;
@@ -507,7 +455,7 @@ public class TowerCommand implements TabExecutor {
                         Utils.sendMessage("That's not a valid team color", MessageType.ERROR, sender);
                     break;
                 }
-                Utils.endMatch(gameInstance);
+                gameInstance.getGame().endMatch();
                 if (Objects.requireNonNull(gameInstance.getGame().getGameState()) == GameState.GOLDEN_GOAL)
                     Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
                 else if (Objects.requireNonNull(gameInstance.getGame().getGameState()) != GameState.FINISH)

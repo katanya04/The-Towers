@@ -1,18 +1,13 @@
 package mx.towers.pato14;
 
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
-import me.katanya04.anotherguiplugin.actionItems.MenuItem;
-import me.katanya04.anotherguiplugin.menu.ChestMenu;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
-import mx.towers.pato14.utils.enums.ItemsEnum;
+import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.MessageType;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class LobbyInstance extends TowersWorldInstance {

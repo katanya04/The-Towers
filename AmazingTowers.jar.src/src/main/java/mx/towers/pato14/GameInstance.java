@@ -5,6 +5,7 @@ import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.rewards.VaultT;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -65,6 +66,7 @@ public class GameInstance extends TowersWorldInstance {
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectKit.position"), ActionItem.getByName(ItemsEnum.KIT_SELECT.name).returnPlaceholder());
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), ActionItem.getByName(ItemsEnum.QUIT_GAME.name).returnPlaceholder());
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name).returnPlaceholder());
+        hotbarItems.setCanBeGiven((player, item) -> ActionItem.getActionItem(item) != ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name) || player.isOp());
     }
 
     @Override

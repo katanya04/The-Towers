@@ -1,4 +1,4 @@
-package mx.towers.pato14.utils.enums;
+package mx.towers.pato14.utils.items;
 
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.GameInstance;

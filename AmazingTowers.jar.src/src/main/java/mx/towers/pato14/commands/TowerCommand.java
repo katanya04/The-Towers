@@ -12,7 +12,7 @@ import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.Connexion;
-import mx.towers.pato14.utils.mysql.FindOneCallback;
+import mx.towers.pato14.utils.mysql.Callback;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
@@ -88,7 +88,7 @@ public class TowerCommand implements TabExecutor {
                         String tableName = Connexion.ALL_TABLES;
                         if (args.length > 2 && Utils.isAValidTable(args[2]))
                             tableName = args[2];
-                        FindOneCallback.findPlayerAsync(args[1], tableName, result -> {
+                        Callback.findPlayerAsync(args[1], tableName, result -> {
                             if (result == null) {
                                 Utils.sendMessage("Player wasn't found in the database", MessageType.WARNING, sender);
                             } else {

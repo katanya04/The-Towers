@@ -19,19 +19,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class Kit {
     private final static ActionItem kit = new ActionItem(pl -> new ItemStack(Material.PAPER), null, ItemsEnum.KIT.name);
     private final static ChestMenu changeHotbar = new ChestMenu("", new ItemStack[9], true, InventoryMenu.SaveOption.INDIVIDUAL, null, null);
+
     static {
         changeHotbar.setOnClickBehaviour(event -> {
             if (!event.getClickedInventory().equals(event.getInventory()) || event.getClick().isShiftClick())
                 event.setCancelled(true);
         });
     }
+
     private final static ChestMenu buyKitMenu = new ChestMenu("buyKitMenu", new ItemStack[9 * 3]);
+
     static {
         kit.setOnInteract(event -> {
             Player player = event.getPlayer();
@@ -45,7 +45,7 @@ public class Kit {
             if (selectedKit == null)
                 return;
             if (event.getInteractionType() == InteractionType.LEFT_CLICK) {
-                 if (selectedKit.playerHasKit(player, game)) {
+                if (selectedKit.playerHasKit(player, game)) {
                     game.getGame().getPlayersSelectedKit().put(player, selectedKit);
                     player.sendMessage(Utils.getColor(messages.getString("selectKit").replace("%kitName%", selectedKit.getName())));
                     player.playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
@@ -62,25 +62,22 @@ public class Kit {
                     player.playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
                 }
             } else if (event.getInteractionType() == InteractionType.RIGHT_CLICK) {
-                if (selectedKit.playerHasKit(player, game)) {
+                if (!selectedKit.playerHasKit(player, game)) {
                     player.sendMessage(Utils.getColor(messages.getString("tryingToEditNotOwnedKit")));
                     player.playSound(player.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
                 } else {
-                    ItemStack[] hotbar = selectedKit.getHotbar(player);
-                    changeHotbar.setContents(hotbar);
+                    changeHotbar.setParent(kit.getParent());
                     changeHotbar.setGUIName(selectedKit.getName());
-                    changeHotbar.setOnCloseBehaviour(closeEvent -> {
-                        selectedKit.hotbarCache.put(event.getPlayer().getName(), event.getInv().getContents());
-                    });
+                    changeHotbar.setContents(selectedKit.getHotbar(player));
                     changeHotbar.openMenu(player);
                 }
             }
         });
     }
+
     private final String name;
     private final ItemStack[] armor;
     private final ItemStack[] hotbar;
-    private final LinkedHashMap<String, ItemStack[]> hotbarCache;
     private final int price;
     private final boolean permanent;
     private final ItemStack iconInMenu;
@@ -92,12 +89,6 @@ public class Kit {
         this.price = price;
         this.permanent = permanent;
         this.iconInMenu = iconInMenu;
-        this.hotbarCache = new LinkedHashMap<String, ItemStack[]>() {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<String, ItemStack[]> eldest) {
-                return size() > 25;
-            }
-        };
     }
 
     public Kit(String name, ItemStack[] armor, ItemStack[] hotbar, ItemStack iconInMenu) {
@@ -123,29 +114,27 @@ public class Kit {
             }
         }
         player.getInventory().setArmorContents(armor);
+        ItemStack[] items = getHotbar(player);
         int i = 0;
-        ItemStack[] hotbar = getHotbar(player);
-        for (ItemStack itemStack : hotbar) {
+        for (ItemStack itemStack : items) {
             if (itemStack != null && color != null) {
                 if (itemStack.getType().equals(Material.GLASS) || itemStack.getType().equals(Material.STAINED_GLASS))
-                    hotbar[i] = new ItemStack(Material.STAINED_GLASS, hotbar[i].getAmount(), color.getWoolColor());
+                    items[i] = new ItemStack(Material.STAINED_GLASS, items[i].getAmount(), color.getWoolColor());
                 else if (itemStack.getType().equals(Material.THIN_GLASS) || itemStack.getType().equals(Material.STAINED_GLASS_PANE))
-                    hotbar[i] = new ItemStack(Material.STAINED_GLASS_PANE, hotbar[i].getAmount(), color.getWoolColor());
+                    items[i] = new ItemStack(Material.STAINED_GLASS_PANE, items[i].getAmount(), color.getWoolColor());
             }
             i++;
         }
-        for (i = 0; i < hotbar.length; i++) {
-            player.getInventory().setItem(i, hotbar[i]);
+        for (i = 0; i < items.length; i++) {
+            player.getInventory().setItem(i, items[i]);
         }
     }
 
     public ItemStack[] getHotbar(Player player) {
-        ItemStack[] hotbar = this.hotbarCache.get(player.getName());
-        if (hotbar == null)
-            hotbar = InventoryMenu.getSavedMenu(player, this.getName());
-        if (hotbar == null)
+        ItemStack[] hotbar = InventoryMenu.getSavedMenu(player, this.getName());
+        if (hotbar == null) {
             hotbar = this.hotbar;
-        this.hotbarCache.put(player.getName(), hotbar);
+        }
         return hotbar;
     }
 

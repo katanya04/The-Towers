@@ -50,13 +50,17 @@ public class Kits {
         return toret;
     }
 
-    private static ItemStack setIcon(ItemStack item, boolean addLore, ConfigurationSection kit) {
+    private static ItemStack setIcon(ItemStack item, boolean costsMoney, ConfigurationSection kit) {
         Utils.setName(item, Utils.getColor("§r&l" + kit.getName()));
-        if (addLore) {
-            List<String> lore = new ArrayList<>();
-            lore.add(kit.getString("price") + " coins");
-            lore.add(Utils.parseBoolOrDefault(kit.getString("permanent"), true) ? "Usos ilimitados" : "Comprar 1 uso");
-            Utils.setLore(item, lore);
+        List<String> lore = new ArrayList<>();
+        lore.add("Click izquierdo para seleccionar");
+        lore.add("Click derecho para editar la hotbar");
+        Utils.addLore(item, lore);
+        if (costsMoney) {
+            List<String> priceInfo = new ArrayList<>();
+            priceInfo.add(kit.getString("price") + " coins");
+            priceInfo.add(Utils.parseBoolOrDefault(kit.getString("permanent"), true) ? "Usos ilimitados" : "Comprar 1 uso");
+            Utils.setLore(item, priceInfo);
         }
         return item;
     }

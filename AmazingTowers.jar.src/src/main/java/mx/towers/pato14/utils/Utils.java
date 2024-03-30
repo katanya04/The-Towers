@@ -530,16 +530,6 @@ public class Utils {
         return items;
     }
 
-    public static ItemStack[] parseFromConfig(Object configValue) {
-        if (configValue instanceof List)
-            return ((List<?>)configValue).stream().map(o -> (ItemStack) o).toArray(ItemStack[]::new);
-        if (configValue instanceof ItemStack[])
-            return (ItemStack[]) configValue;
-        if (configValue instanceof ItemStack)
-            return new ItemStack[]{(ItemStack) configValue};
-        return null;
-    }
-
     public static <T> T getOrDefault(T value, T def) {
         return value != null ? value : def;
     }

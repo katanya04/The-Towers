@@ -21,6 +21,7 @@ selectKit: '&7Kit %kitName% seleccionado'
 buyKit: '&7Has comprado el kit %kitName%'
 notEnoughMoney: '&cNo tienes suficiente dinero'
 kitsDisabled: '&cLos kits estan desactivados en esta partida'
+tryingToEditNotOwnedKit: '&cNo posees este kit'
 
 filledChest: '&eLos cofres han sido rellenados'
 openingEnemyChest: '&cNo puedes abrir los cofres del equipo enemigo'

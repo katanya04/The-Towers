@@ -96,7 +96,7 @@ public class Game {
         return playersSelectedKit;
     }
 
-    public void applyKitToPlayer(HumanEntity player) {
+    public void applyKitToPlayer(Player player) {
         Kit kit = this.getPlayersSelectedKit().get(player);
         if (kit == null || !this.getGameInstance().getRules().get(Rule.KITS))
             getKits().getDefaultKit().applyKitToPlayer(player);

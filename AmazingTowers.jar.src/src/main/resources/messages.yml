@@ -43,6 +43,7 @@ gameStart:
 
 deathMessages:
   knownKiller: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}'
+  knownKillerProjectile: '{Color}{Player} &7fue asesinado por {ColorKiller}{Killer}&r ({Distance}&r bloques)'
   unknownKiller: '{Color}{Player} &7murio'
   finalKillPrefix: '&b&lKILL FINAL: '
 

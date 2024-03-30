@@ -1,0 +1,40 @@
+# +###----------------------------------------------###+ #
+# <#            AmazingTowers - v3.0_beta3            #> #
+# <#             Author: Pato14, katanya04            #> #
+# +###----------------------------------------------###+ #
+
+Kits:
+  Default:
+     armor:
+      - ==: org.bukkit.inventory.ItemStack
+        type: LEATHER_BOOTS
+      - ==: org.bukkit.inventory.ItemStack
+        type: LEATHER_LEGGINGS
+      - ==: org.bukkit.inventory.ItemStack
+        type: LEATHER_CHESTPLATE
+      - ==: org.bukkit.inventory.ItemStack
+        type: LEATHER_HELMET
+     hotbar:
+       - ==: org.bukkit.inventory.ItemStack
+         type: WOOD_SWORD
+       - ==: org.bukkit.inventory.ItemStack
+         type: STONE_PICKAXE
+       - ==: org.bukkit.inventory.ItemStack
+         type: COBBLESTONE
+         amount: 32
+       - null
+       - null
+       - null
+       - null
+       - null
+       - ==: org.bukkit.inventory.ItemStack
+         type: BAKED_POTATO
+         amount: 20
+     price: '0'
+     permanent: 'true'
+     iconInMenu:
+       - ==: org.bukkit.inventory.ItemStack
+         type: LEATHER_HELMET
+
+
+Buyers:

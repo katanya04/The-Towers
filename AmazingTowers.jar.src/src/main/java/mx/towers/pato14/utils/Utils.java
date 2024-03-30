@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -35,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -278,6 +280,10 @@ public class Utils {
         }
     }
 
+    public static boolean isBoolean(String str) {
+        return "true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str);
+    }
+
     public static boolean isValidPath(String path) {
         String[] pathSplit = path.split(";");
         if (pathSplit.length < 2)
@@ -514,6 +520,16 @@ public class Utils {
         return item;
     }
 
+    public static ItemStack[] setUnbreakable(ItemStack[] items) {
+        int i = 0;
+        for (ItemStack item : items) {
+            if (item != null)
+                items[i] = setUnbreakable(item);
+            i++;
+        }
+        return items;
+    }
+
     public static ItemStack[] parseFromConfig(Object configValue) {
         if (configValue instanceof List)
             return ((List<?>)configValue).stream().map(o -> (ItemStack) o).toArray(ItemStack[]::new);
@@ -526,5 +542,66 @@ public class Utils {
 
     public static <T> T getOrDefault(T value, T def) {
         return value != null ? value : def;
+    }
+
+    public static int parseIntOrDefault(String value, int def) {
+        int toret;
+        try {
+            toret = Integer.parseInt(value);
+        } catch (NumberFormatException ex) {
+            toret = def;
+        }
+        return toret;
+    }
+    public static boolean parseBoolOrDefault(String value, boolean def) {
+        return "true".equalsIgnoreCase(value) || !"false".equalsIgnoreCase(value) && def;
+    }
+
+    public static boolean getConfBoolDefaultsIfNull(Config config, String path) {
+        String obj = config.getString(path);
+        if (!("true".equals(obj) || "false".equals(obj)))
+            obj = Config.getFromDefault(path, config.getFileName()).toString();
+        return Boolean.parseBoolean(obj);
+    }
+
+    public static int getConfIntDefaultsIfNull(Config config, String path) {
+        String obj = config.getString(path);
+        if (!isInteger(obj))
+            obj = Config.getFromDefault(path, config.getFileName()).toString();
+        return Integer.parseInt(obj);
+    }
+
+    public static int getRandomInt(int min, int max) {
+        double rand = Math.random();
+        double longitude = Math.abs(max - min);
+        return (int) Math.round(rand * longitude + min);
+    }
+
+    public static ItemStack[] getItemsFromConf(ConfigurationSection conf, String path) {
+        return getItemsFromConf(conf, path, 0);
+    }
+
+    public static ItemStack[] getItemsFromConf(ConfigurationSection conf, String path, int expectedArraySize) {
+        Object obj = conf.get(path);
+        if (obj instanceof ItemStack[]) {
+            ItemStack[] toret = (ItemStack[]) obj;
+            if (expectedArraySize > 0 && toret.length != expectedArraySize)
+                throw new RuntimeException("Unexpected ItemStack array size at " + conf.getCurrentPath() + "." + path +
+                        " (Expected " + expectedArraySize + ", got " + toret.length + ")");
+            return toret;
+        } else if (obj instanceof Collection<?>) {
+            Collection<?> collection = (Collection<?>) obj;
+            ItemStack[] toret;
+            try {
+                toret = collection.stream().map(o -> (ItemStack) o).toArray(ItemStack[]::new);
+            } catch (Exception ex) {
+                throw new RuntimeException("Error while parsing an ItemStack array");
+            }
+            if (expectedArraySize > 0 && toret.length != expectedArraySize)
+                throw new RuntimeException("Unexpected ItemStack array size at " + conf.getCurrentPath() + "." + path +
+                        " (Expected " + expectedArraySize + ", got " + toret.length + ")");
+            return toret;
+        } else
+            throw new RuntimeException("Error while parsing an ItemStack array");
     }
 }

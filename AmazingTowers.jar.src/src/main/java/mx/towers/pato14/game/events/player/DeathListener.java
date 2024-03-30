@@ -3,6 +3,7 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.exceptions.ParseItemException;
@@ -12,13 +13,17 @@ import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class DeathListener implements Listener {
 
@@ -46,11 +51,13 @@ public class DeathListener implements Listener {
         } else {
             final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
-            gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.knownKiller")
+            boolean bowKill = player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.PROJECTILE;
+            gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString(bowKill ? "deathMessages.knownKillerProjectile" : "deathMessages.knownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor)
                     .replace("{ColorKiller}", killerColor)
-                    .replace("{Killer}", killer.getName()), true);
+                    .replace("{Killer}", killer.getName())
+                    .replace("{Distance}", (bowKill ? String.valueOf((int) (Math.round(killer.getLocation().distance(player.getLocation())))) : "")), true);
             addRewardsKiller(killer);
             if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.activated"))) {
                 try {
@@ -60,6 +67,7 @@ public class DeathListener implements Listener {
                     gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("itemOnKill.activated", "false");
                 }
             }
+            killer.playSound(killer.getLocation(), Sound.SUCCESSFUL_HIT, 1f, 1f);
         }
         gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
@@ -100,6 +108,13 @@ public class DeathListener implements Listener {
             } else {
                 e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
                 e.getPlayer().setGameMode(GameMode.SPECTATOR);
+            }
+            Config settings = gameInstance.getConfig(ConfigType.GAME_SETTINGS);
+            if (Utils.getConfBoolDefaultsIfNull(settings, "respawnInvincibility.activated")) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () ->
+                    e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,
+                        Utils.getConfIntDefaultsIfNull(settings, "respawnInvincibility.timeInSeconds") * 20, 5, true, false)),
+                1L);
             }
         } else {
             e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));

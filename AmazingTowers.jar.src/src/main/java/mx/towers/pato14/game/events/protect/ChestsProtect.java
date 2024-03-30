@@ -52,6 +52,8 @@ public class ChestsProtect implements Listener {
             return;
         if (Locations.isInsideBase(block.getLocation(), gameInstance.getGame().getTeams())) {
             TeamColor teamColor = gameInstance.getGame().getTeams().getTeamColorByPlayer(player.getName());
+            if (teamColor == null)
+                return;
             if (!AreaUtil.isInsideArea(gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(teamColor)), block.getLocation())) {
                 e.setCancelled(true);
                 player.sendMessage(Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("openingEnemyChest")));

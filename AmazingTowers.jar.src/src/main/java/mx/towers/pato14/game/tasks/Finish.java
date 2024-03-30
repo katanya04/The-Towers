@@ -61,7 +61,7 @@ public class Finish {
                         public void run() {
                             GameInstance gameToTp;
                             for (Player player : gameInstance.getGame().getPlayers()) {
-                                if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
+                                if (Utils.getConfBoolDefaultsIfNull(gameInstance.getConfig(ConfigType.CONFIG), "options.sendPlayerToAnotherInstanceAtTheEnd")
                                         && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
                                     Utils.tpToWorld(gameToTp.getWorld(), player);
                                 } else {

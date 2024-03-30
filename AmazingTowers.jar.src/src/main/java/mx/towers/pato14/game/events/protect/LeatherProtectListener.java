@@ -37,7 +37,7 @@ public class LeatherProtectListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getWhoClicked());
-        if (gameInstance == null || gameInstance.getGame() == null)
+        if (gameInstance == null || gameInstance.getGame() == null || !gameInstance.getGame().getGameState().matchIsBeingPlayed)
             return;
         if (e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)
             return;

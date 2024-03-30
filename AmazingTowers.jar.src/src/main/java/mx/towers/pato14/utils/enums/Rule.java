@@ -29,7 +29,8 @@ public enum Rule {
     ENCHANTS(new ItemStack(Material.ENCHANTED_BOOK)),
     KITS(new ItemStack(Material.IRON_SWORD)),
     BEDWARS_STYLE(new ItemStack(Material.BED)),
-    EXPLOSIVE_CHICKEN(new ItemStack(Material.EGG));
+    EXPLOSIVE_CHICKEN(new ItemStack(Material.EGG)),
+    HUNGER(new ItemStack(Material.PORK));
     private final ItemStack icon;
     Rule(ItemStack icon) {
         this.icon = icon;

@@ -29,6 +29,7 @@ public final class AmazingTowers extends JavaPlugin {
     private static GameInstance[] games;
     private static HashMap<Player, WandCoords> wands;
     private static Config globalConfig;
+    private static Config kitsDefine;
     public static Connexion connexion;
 
     @Override
@@ -36,6 +37,7 @@ public final class AmazingTowers extends JavaPlugin {
         plugin = this;
 
         globalConfig = new Config("globalConfig.yml", true);
+        kitsDefine = new Config("kitsDefine.yml", true);
         games = new GameInstance[globalConfig.getInt("options.instances.amount")];
 
         if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
@@ -123,6 +125,9 @@ public final class AmazingTowers extends JavaPlugin {
 
     public static Config getGlobalConfig() {
         return globalConfig;
+    }
+    public static Config getKitsDefine() {
+        return kitsDefine;
     }
 
     public static void createBackupsFolder() {  //Crear la carpeta "backup"

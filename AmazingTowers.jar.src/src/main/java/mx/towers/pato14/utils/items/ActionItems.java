@@ -10,6 +10,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.kits.Kit;
+import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.utils.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -61,7 +62,9 @@ public class ActionItems {
                 event -> {
                     Player player = event.getPlayer();
                     GameInstance game = AmazingTowers.getGameInstance(player);
-                    Kit kitToBuy = game.getGame().getKits().get(event.getInv().getItem(4));
+                    Kit kitToBuy = Kits.getByIcon(event.getInv().getItem(4));
+                    if (kitToBuy == null)
+                        return;
                     if (kitToBuy.isPermanent())
                         game.getGame().getKits().addKitToPlayer(player.getName(), kitToBuy);
                     else
@@ -79,7 +82,7 @@ public class ActionItems {
         ChestMenu selectKit = new ChestMenu("selectKit", new ItemStack[9]);
         selectKit.setOnOpenBehaviour(event -> {
             GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
-            ItemStack[] newContents = Arrays.stream(game.getGame().getKits().getIcons())
+            ItemStack[] newContents = Arrays.stream(game.getGame().getKits().getKitIcons())
                     .map(o -> ActionItem.getByName(ItemsEnum.KIT.name).convertToActionItem(o)).toArray(ItemStack[]::new);
             event.getInventory().setContents(newContents);
         });
@@ -137,18 +140,16 @@ public class ActionItems {
                 rulesMenu, ItemsEnum.SET_RULES.name);
 
         BookMenu<GameInstance> whitelistBook = new BookMenu<>(game -> {
-            BookMenu.Field root = BookMenu.Field.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
-            BookMenu.Field players = root.getChildGivenData("players");
+            BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
+            BookMenu.Field players = root.getFirstChildGivenData("players");
             if (players == null) {
                 gameSettings.apply(game).set("whitelist.players", "");
-                root = BookMenu.Field.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
-                players = root.getChildGivenData("players");
+                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
+                players = root.getFirstChildGivenData("players");
             }
-            for (BookMenu.Field field : players.getChildren())
-                field.setRemovableFromBook(true);
-            root.getChildGivenData("activated").getChild(0).setValidCheckFunction(s -> "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s));
+            players.applyToChildren(field -> field.setRemovableFromBook(true), false);
             players.setCanAddMoreFields(true);
-            players.setChildTemplate(new BookMenu.Field("", true, false));
+            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
             root.setOnModifyChildrenValue(field -> {
                 game.updateWhiteList();
                 game.setFlagChanges(true);
@@ -167,18 +168,16 @@ public class ActionItems {
         );
 
         BookMenu<GameInstance> blacklistBook = new BookMenu<>(game -> {
-            BookMenu.Field root = BookMenu.Field.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
-            BookMenu.Field players = root.getChildGivenData("players");
+            BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
+            BookMenu.Field players = root.getFirstChildGivenData("players");
             if (players == null) {
                 gameSettings.apply(game).set("blacklist.players", "");
-                root = BookMenu.Field.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
-                players = root.getChildGivenData("players");
+                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
+                players = root.getFirstChildGivenData("players");
             }
-            for (BookMenu.Field field : players.getChildren())
-                field.setRemovableFromBook(true);
-            root.getChildGivenData("activated").getChild(0).setValidCheckFunction(s -> "true".equalsIgnoreCase(s) || "false".equalsIgnoreCase(s));
+            players.applyToChildren(field -> field.setRemovableFromBook(true), false);
+            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
             players.setCanAddMoreFields(true);
-            players.setChildTemplate(new BookMenu.Field("", true, false));
             root.setOnModifyChildrenValue(field -> {
                 game.updateWhiteList();
                 game.setFlagChanges(true);
@@ -206,9 +205,9 @@ public class ActionItems {
         );
 
         BookMenu<GameInstance> timerBook = new BookMenu<>(game -> {
-            BookMenu.Field timerRoot = BookMenu.Field.fromConfig(gameSettings.apply(game).getConfigurationSection("timer"));
-            timerRoot.getChildGivenData("activated").getChild(0).setValidCheckFunction(s -> "false".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s));
-            timerRoot.getChildGivenData("time").getChild(0).setValidCheckFunction(s -> Utils.isStringTime(s.split(":")));
+            BookMenu.ConfigField timerRoot = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("timer"));
+            timerRoot.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(s -> "false".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s));
+            timerRoot.getFirstChildGivenData("time").getChild(0).setValidCheckFunction(s -> Utils.isStringTime(s.split(":")));
             timerRoot.setOnModifyChildrenValue(f -> {
                 game.getGame().getTimer().update(game);
                 game.setFlagChanges(true);
@@ -221,13 +220,41 @@ public class ActionItems {
                 timerBook, ItemsEnum.SET_TIMER.name);
 
         BookMenu<GameInstance> kitsBook = new BookMenu<>(game -> {
-            BookMenu.Field kitsRoot = BookMenu.Field.fromConfig(kits.apply(game).getConfigurationSection("Kits"));
-            kitsRoot.setCanAddMoreFields(true);
-            kitsRoot.getChildren().forEach(o -> o.setIsModifiable(BookMenu.Field.ModifiableOption.YES));
-            kitsRoot.setOnModifyChildrenValue(field -> {
+            BookMenu.Field kitsRoot = new BookMenu.Field("Kits")
+                    .addChild(BookMenu.ConfigField.fromConfig(AmazingTowers.getKitsDefine().getConfigurationSection("Kits")));
+            BookMenu.Field kitsField = kitsRoot.getFirstChildGivenData("Kits");
+            kitsField.setCanAddMoreFields(true);
+            kitsField.getChildren().forEach(o -> o.setIsModifiable(BookMenu.Field.ModifiableOption.YES));
+            kitsField.setOnModifyChildrenValue(field -> {
+                Kits.updateGlobalKits();
+                game.setFlagChanges(true);
+            });
+            kitsField.setChildTemplate(
+                    new BookMenu.Field("", true, false)
+                            .addChild(new BookMenu.Field("armor").addChild(new BookMenu.InventoryField(4, "armor")))
+                            .addChild(new BookMenu.Field("hotbar").addChild(new BookMenu.InventoryField(9, "hotbar")))
+                            .addChild(new BookMenu.Field("price").addChild(new BookMenu.Field("0", null, Utils::isInteger)))
+                            .addChild(new BookMenu.Field("permanent").addChild(new BookMenu.Field("true", null, Utils::isBoolean)))
+                            .addChild(new BookMenu.Field("iconInMenu").addChild(new BookMenu.InventoryField(1, "iconInMenu")))
+            );
+            kitsRoot.getChildrenGivenData("price", true).forEach(o -> o.setValidCheckFunction(Utils::isInteger));
+            kitsRoot.getChildrenGivenData("permanent", true).forEach(o -> o.setValidCheckFunction(Utils::isBoolean));
+            if (kits.apply(game).get("KitsInThisInstance") == null) {
+                kits.apply(game).set("KitsInThisInstance", "");
+            }
+            kitsRoot.addChild(BookMenu.ConfigField.fromConfig(kits.apply(game)));
+            BookMenu.Field kitsInThisInstance = kitsRoot.getChildByPredicate(f -> f.getData().equals("KitsInThisInstance"), true);
+            kitsInThisInstance.setCanAddMoreFields(true);
+            kitsInThisInstance.setChildTemplate(new BookMenu.Field("Default", null, str -> Kits.getKitsNames().contains(str)));
+            kitsInThisInstance.getChildren().forEach(o -> o.setRemovableFromBook(true));
+            kitsInThisInstance.setOnModifyChildrenValue(o -> {
                 game.getGame().getKits().updateKits();
                 game.setFlagChanges(true);
             });
+            kitsRoot.getChildrenByPredicate(o -> o instanceof BookMenu.InventoryField &&
+                    ((BookMenu.InventoryField) o).getInvMenu() instanceof ChestMenu, true)
+                    .forEach(o -> ((ChestMenu) ((BookMenu.InventoryField) o).getInvMenu()).setFillWithBarriers(true));
+            kitsRoot.setShouldUseCache(false);
             return kitsRoot;
         });
         kitsBook.setToCacheKey(AmazingTowers::getGameInstance);
@@ -249,6 +276,7 @@ public class ActionItems {
                         return;
                     }
                     game.saveConfig();
+                    AmazingTowers.getKitsDefine().saveConfig();
                     Utils.sendMessage(config.apply(game).getString("settingsBook.saveSettings.saveMessage"), MessageType.INFO, event.getPlayer());
                     game.setFlagChanges(false);
                     ((MenuItem<InventoryMenu>) ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name)).getMenu().updateContents();

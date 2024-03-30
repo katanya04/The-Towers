@@ -33,10 +33,14 @@ public class DamageListener implements Listener {
             GameInstance gameInstance = (GameInstance) instance;
             if (gameInstance.getGame() == null)
                 return;
+            player.setLastDamageCause(e);
             if (gameInstance.getGame().getGameState() != GameState.GAME && gameInstance.getGame().getGameState() != GameState.GOLDEN_GOAL)
                 Utils.tpToLobby(gameInstance, player);
-            else if (player.getHealth() > 0.0)
+            else if (player.getHealth() > 0.0) {
+                if (player.isInsideVehicle())
+                    player.leaveVehicle();
                 player.setHealth(0.0);
+            }
             e.setCancelled(true);
         }
     }

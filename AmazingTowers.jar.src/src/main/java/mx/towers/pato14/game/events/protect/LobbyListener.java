@@ -2,7 +2,9 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
+import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,7 +21,8 @@ public class LobbyListener implements Listener {
             return;
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (p.getGameMode().equals(GameMode.ADVENTURE)) {
+            if (instance instanceof LobbyInstance || (instance instanceof GameInstance &&
+                    (!(((GameInstance) instance).getGame().getGameState().matchIsBeingPlayed) || !((GameInstance) instance).getRules().get(Rule.HUNGER)))) {
                 p.setFoodLevel(20);
                 e.setCancelled(true);
             }

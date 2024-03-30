@@ -85,7 +85,7 @@ public class GameInstance extends TowersWorldInstance {
                 return false;
             }
         } catch (IOException ex) {
-            Utils.sendConsoleMessage("I/O error when overwritting " + worldName + " with its backup", MessageType.ERROR);
+            Utils.sendConsoleMessage("I/O error when overwriting " + worldName + " with its backup", MessageType.ERROR);
             return false;
         }
         this.setWorldProperties(getWorld());
@@ -94,7 +94,7 @@ public class GameInstance extends TowersWorldInstance {
 
     private void setRules() {
         for (Rule rule : Rule.values())
-            this.rules.put(rule, Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("rules." + Utils.macroCaseToCamelCase(rule.name()))));
+            this.rules.put(rule, Utils.getConfBoolDefaultsIfNull(getConfig(ConfigType.GAME_SETTINGS), "rules." + Utils.macroCaseToCamelCase(rule.name())));
     }
 
     public VaultT getVault() {

@@ -25,7 +25,9 @@ public class Kit {
         kit.setOnInteract(event -> {
             Player player = event.getPlayer();
             GameInstance game = AmazingTowers.getGameInstance(player);
-            Kit selectedKit = game.getGame().getKits().get(event.getItem());
+            Kit selectedKit = Kits.getByIcon(event.getItem());
+            if (selectedKit == null)
+                return;
             Config messages = game.getConfig(ConfigType.MESSAGES);
             if (!game.getRules().get(Rule.KITS)) {
                 player.sendMessage(Utils.getColor(messages.getString("kitsDisabled")));

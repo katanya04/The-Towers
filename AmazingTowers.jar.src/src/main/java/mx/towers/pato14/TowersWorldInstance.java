@@ -114,7 +114,8 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
 
     @Override
     public int compareTo(@NotNull TowersWorldInstance o) {
-        return Integer.compare(this.getNumPlayers(), o.getNumPlayers());
+        int result = Integer.compare(this.getNumPlayers(), o.getNumPlayers());
+        return result == 0 ? Utils.getRandomInt(-1, 1) : result;
     }
 
     public boolean isReady() {

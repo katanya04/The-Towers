@@ -2,13 +2,16 @@ package mx.towers.pato14.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.enums.MessageType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Config extends YamlConfiguration {
@@ -65,6 +68,16 @@ public class Config extends YamlConfiguration {
         } catch (IOException e) {
             Utils.sendConsoleMessage("Error while saving " + name + " config file", MessageType.ERROR);
         }
+    }
+
+    public static Object getFromDefault(String path, String name) {
+        InputStream inputStream = AmazingTowers.getPlugin().getResource(name);
+        FileConfiguration defaultConfig = YamlConfiguration.loadConfiguration(inputStream);
+        return defaultConfig.getString(path);
+    }
+
+    public String getFileName() {
+        return name;
     }
 }
 

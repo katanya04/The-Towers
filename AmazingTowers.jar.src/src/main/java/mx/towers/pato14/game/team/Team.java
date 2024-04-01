@@ -160,7 +160,9 @@ public class Team implements Comparable<Team> {
     public List<Player> getListOnlinePlayers() {
         List<Player> toret = new ArrayList<>();
         for (String playerName : players.keySet()) {
-            toret.add(Bukkit.getPlayer(playerName));
+            Player player = Bukkit.getPlayer(playerName);
+            if (player != null)
+                toret.add(player);
         }
         return toret;
     }

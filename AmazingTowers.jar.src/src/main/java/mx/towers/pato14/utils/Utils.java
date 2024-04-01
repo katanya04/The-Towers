@@ -514,6 +514,8 @@ public class Utils {
     }
 
     public static ItemStack setUnbreakable(ItemStack item) {
+        if (item == null || item.getType().getMaxDurability() == 0)
+            return item;
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.spigot().setUnbreakable(true);
         item.setItemMeta(itemMeta);
@@ -521,12 +523,7 @@ public class Utils {
     }
 
     public static ItemStack[] setUnbreakable(ItemStack[] items) {
-        int i = 0;
-        for (ItemStack item : items) {
-            if (item != null)
-                items[i] = setUnbreakable(item);
-            i++;
-        }
+        Arrays.stream(items).forEach(Utils::setUnbreakable);
         return items;
     }
 

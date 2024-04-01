@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Objects;
+
 public enum Tool {
     WAND("§aRegion Selector", new ItemStack(Material.IRON_AXE), "§aLeft Click §7to set §aPos1 §7and §aRight click §7to set §aPos2"),
     REFILLCHEST("§aSelect and Remove Chest Refill", new ItemStack(Material.IRON_SPADE), "§aLeft Click §7to set chest Refill and §cRight Click §7to remove chest location in Config!");
@@ -27,7 +29,7 @@ public enum Tool {
 
     public boolean checkIfItemIsTool(ItemStack item) {
         return item != null &&
-                item.getType().equals(this.getItem().getType()) &&
-                item.getItemMeta().getDisplayName().equals(this.getItem().getItemMeta().getDisplayName());
+                Objects.equals(item.getType(), this.getItem().getType()) &&
+                Objects.equals(item.getItemMeta().getDisplayName(), this.getItem().getItemMeta().getDisplayName());
     }
 }

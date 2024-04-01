@@ -25,7 +25,7 @@ public class Kit {
 
     static {
         changeHotbar.setOnClickBehaviour(event -> {
-            if (!event.getClickedInventory().equals(event.getInventory()) || event.getClick().isShiftClick())
+            if (!event.getClickedInventory().equals(event.getInventory()) || event.getClick().isShiftClick() || event.getClick().isKeyboardClick())
                 event.setCancelled(true);
         });
     }

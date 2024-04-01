@@ -39,7 +39,12 @@ import java.util.stream.Collectors;
 
 public class TowerCommand implements TabExecutor {
     private final ArrayList<CommandSender> senderPlayer = new ArrayList<>();
-    private final HashMap<String, Long> cooldown = new HashMap<>();
+    private final LinkedHashMap<String, Long> cooldown = new LinkedHashMap<String, Long>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+            return size() > 50;
+        }
+    };
     @Override
     public boolean onCommand(final CommandSender sender, final Command cmd, final String label, final String[] args) {
         GameInstance gameInstance = null;

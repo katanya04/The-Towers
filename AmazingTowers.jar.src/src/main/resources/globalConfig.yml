@@ -29,6 +29,18 @@ options:
   rewards:
     vault: false
 
+  logger:
+    activated: false
+    maxTimeHoursPerFile: 12
+    logTowersCommand: false
+    logSQLCalls: false
+
+    #Posible values: READ, WRITE, ALL. Will default to WRITE
+    SQLCallType: 'WRITE'
+
+    #Posible values: ADMIN, ORGANIZER, NONE. Will default to ADMIN
+    permLevelToLog: 'ORGANIZER'
+
 
 permissions:
   password:

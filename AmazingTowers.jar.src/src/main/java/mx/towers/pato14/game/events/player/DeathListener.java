@@ -3,12 +3,10 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.exceptions.ParseItemException;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
@@ -33,6 +31,8 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = AmazingTowers.getGameInstance(player);
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
+        if (player.isInsideVehicle())
+            player.leaveVehicle();
         final Player killer = e.getEntity().getKiller();
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.instantRespawn")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
@@ -60,12 +60,7 @@ public class DeathListener implements Listener {
                     .replace("{Distance}", (bowKill ? String.valueOf((int) (Math.round(killer.getLocation().distance(player.getLocation())))) : "")), true);
             addRewardsKiller(killer);
             if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.activated"))) {
-                try {
-                    killer.getInventory().addItem(ReflectionMethods.deserializeItemStack(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.item")));
-                } catch (ParseItemException ex) {
-                    Utils.sendConsoleMessage("Error while parsing item reward on kill: " + gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.item") + ", toggling off this setting", MessageType.ERROR);
-                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("itemOnKill.activated", "false");
-                }
+                killer.getInventory().addItem(Utils.getItemsFromConf(gameInstance.getConfig(ConfigType.GAME_SETTINGS), "itemOnKill.item"));
             }
             killer.playSound(killer.getLocation(), Sound.SUCCESSFUL_HIT, 1f, 1f);
         }
@@ -123,5 +118,3 @@ public class DeathListener implements Listener {
         e.getPlayer().setCanPickupItems(true);
     }
 }
-
-

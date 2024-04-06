@@ -2,7 +2,7 @@ package mx.towers.pato14;
 
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.ItemsEnum;

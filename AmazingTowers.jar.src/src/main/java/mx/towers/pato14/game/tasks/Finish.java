@@ -4,7 +4,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.enums.Location;

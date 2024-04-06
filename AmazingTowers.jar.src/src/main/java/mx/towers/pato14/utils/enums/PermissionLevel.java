@@ -26,4 +26,12 @@ public enum PermissionLevel {
     public String getPermissionName() {
         return permissionName;
     }
+
+    public static PermissionLevel getOrDefault(String permissionName, PermissionLevel def) {
+        for (PermissionLevel perm : PermissionLevel.values()) {
+            if (perm.name().equalsIgnoreCase(permissionName))
+                return perm;
+        }
+        return def;
+    }
 }

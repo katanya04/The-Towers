@@ -2,7 +2,7 @@ package mx.towers.pato14.game.kits;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.configuration.ConfigurationSection;

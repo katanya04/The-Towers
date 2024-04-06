@@ -1,10 +1,7 @@
 package mx.towers.pato14.utils.enums;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.utils.Config;
-import mx.towers.pato14.utils.Utils;
 
 import java.util.Arrays;
 import java.util.List;

@@ -17,4 +17,9 @@ public class Stats {
         return this.stats.get(st);
     }
 
+    @Override
+    public String toString() {
+        return stats.toString();
+    }
+
 }

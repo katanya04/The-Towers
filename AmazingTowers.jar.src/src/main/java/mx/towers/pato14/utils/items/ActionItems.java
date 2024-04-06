@@ -11,7 +11,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.rewards.SetupVault;

@@ -13,6 +13,7 @@ import com.mysql.jdbc.CommunicationsException;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.MessageType;
+import mx.towers.pato14.utils.files.Logger;
 import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.configuration.ConfigurationSection;
@@ -30,7 +31,20 @@ public class Connexion {
     private final String password;
     private boolean isConnected;
 
-    private enum Operation {CREATE_TABLE, CREATE_ACC, SET_DATA, GET_DATA, HAS_ACC}
+    public enum Operation {
+        CREATE_TABLE(Logger.SQLCallType.WRITE),
+        CREATE_ACC(Logger.SQLCallType.WRITE),
+        SET_DATA(Logger.SQLCallType.WRITE),
+        GET_DATA(Logger.SQLCallType.READ),
+        HAS_ACC(Logger.SQLCallType.READ);
+        private final Logger.SQLCallType sqlCallType;
+        Operation(Logger.SQLCallType sqlCallType) {
+            this.sqlCallType = sqlCallType;
+        }
+        public Logger.SQLCallType getSqlCallType() {
+            return sqlCallType;
+        }
+    }
 
     public Connexion(ConfigurationSection databaseInfo) {
         this.tables = databaseInfo.getStringList("tableNames");
@@ -61,9 +75,21 @@ public class Connexion {
         return false;
     }
 
+    public boolean close() {
+        try {
+            if (connection != null && !connection.isClosed())
+                connection.close(); // closing the connection field variable.
+            return true;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private Object operation(Operation operation, @Nullable String player, @Nullable String tableName, @Nullable Stats stats) {
         if (tableName != null && !Utils.isAValidTable(tableName))
             return null;
+        AmazingTowers.logger.logSQLCall(operation, player, tableName, stats);
         boolean repeat = false;
         do {
             try {

@@ -1,4 +1,4 @@
-package mx.towers.pato14.utils;
+package mx.towers.pato14.utils.files;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,9 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.MessageType;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

@@ -2,7 +2,7 @@ package mx.towers.pato14.utils.locations;
 
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.TeamColor;

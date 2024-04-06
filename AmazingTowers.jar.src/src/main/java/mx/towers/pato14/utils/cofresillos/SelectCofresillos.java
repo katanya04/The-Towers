@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Tool;
 import mx.towers.pato14.utils.locations.Locations;

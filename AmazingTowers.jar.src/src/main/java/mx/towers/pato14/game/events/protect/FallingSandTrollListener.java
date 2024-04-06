@@ -2,7 +2,7 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.locations.Locations;

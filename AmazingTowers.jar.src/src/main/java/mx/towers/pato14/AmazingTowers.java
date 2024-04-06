@@ -5,11 +5,13 @@ import java.util.*;
 
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.events.EventsManager;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.enums.PermissionLevel;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
+import mx.towers.pato14.utils.files.Logger;
 import mx.towers.pato14.utils.items.ActionItems;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.placeholders.Expansion;
@@ -31,6 +33,7 @@ public final class AmazingTowers extends JavaPlugin {
     private static Config globalConfig;
     private static Config kitsDefine;
     public static Connexion connexion;
+    public static Logger logger;
 
     @Override
     public void onEnable() {
@@ -48,6 +51,13 @@ public final class AmazingTowers extends JavaPlugin {
         createBackupsFolder();
 
         getCommand("towers").setExecutor(new TowerCommand());
+
+        logger = new Logger(globalConfig.getBoolean("options.logger.activated"),
+                globalConfig.getBoolean("options.logger.logSQLCalls"),
+                Logger.SQLCallType.getOrDefault(globalConfig.getString("options.logger.SQLCallType"), Logger.SQLCallType.WRITE),
+                globalConfig.getBoolean("options.logger.logTowersCommand"),
+                PermissionLevel.getOrDefault(globalConfig.getString("options.logger.permLevelToLog"), PermissionLevel.ADMIN),
+                globalConfig.getInt("options.logger.maxTimeHoursPerFile"));
 
         if (getGlobalConfig().getBoolean("options.database.active")) {
             connexion = new Connexion(getGlobalConfig().getConfigurationSection("options.database"));
@@ -93,6 +103,8 @@ public final class AmazingTowers extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        logger.closeStream();
+        connexion.close();
         Arrays.stream(games).filter(o -> o.getGame() == null).map(TowersWorldInstance::getWorld).filter(Objects::nonNull).forEach(World::save);
     }
     public static WandCoords getWandCoords(Player player) {

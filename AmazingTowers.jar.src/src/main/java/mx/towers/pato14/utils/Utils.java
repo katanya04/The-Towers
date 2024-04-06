@@ -3,15 +3,14 @@ package mx.towers.pato14.utils;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.nametagedit.plugin.NametagEdit;
-import me.katanya04.anotherguiplugin.AnotherGUIPlugin;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.Connexion;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -33,14 +32,21 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 public class Utils {
     /*public static World createEmptyWorld(String name) {
@@ -569,12 +575,14 @@ public class Utils {
     }
 
     public static ItemStack[] getItemsFromConf(ConfigurationSection conf, String path, int expectedArraySize) {
-        Object obj = conf.get(path);
+        return getItemsFromObj(conf.get(path), expectedArraySize);
+    }
+
+    public static ItemStack[] getItemsFromObj(Object obj, int expectedArraySize) {
         if (obj instanceof ItemStack[]) {
             ItemStack[] toret = (ItemStack[]) obj;
             if (expectedArraySize > 0 && toret.length != expectedArraySize)
-                throw new RuntimeException("Unexpected ItemStack array size at " + conf.getCurrentPath() + "." + path +
-                        " (Expected " + expectedArraySize + ", got " + toret.length + ")");
+                throw new RuntimeException("Unexpected ItemStack array size (Expected " + expectedArraySize + ", got " + toret.length + ")");
             return toret;
         } else if (obj instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) obj;
@@ -585,10 +593,25 @@ public class Utils {
                 throw new RuntimeException("Error while parsing an ItemStack array");
             }
             if (expectedArraySize > 0 && toret.length != expectedArraySize)
-                throw new RuntimeException("Unexpected ItemStack array size at " + conf.getCurrentPath() + "." + path +
-                        " (Expected " + expectedArraySize + ", got " + toret.length + ")");
+                throw new RuntimeException("Unexpected ItemStack array size at (Expected " + expectedArraySize + ", got " + toret.length + ")");
             return toret;
         } else
             throw new RuntimeException("Error while parsing an ItemStack array");
+    }
+
+    public static void compressGzip(Path source, Path target) throws IOException {
+        try (GZIPOutputStream gos = new GZIPOutputStream(Files.newOutputStream(target.toFile().toPath()));
+             FileInputStream fis = new FileInputStream(source.toFile())) {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = fis.read(buffer)) > 0) {
+                gos.write(buffer, 0, len);
+            }
+        }
+    }
+
+    public static String fileTimeToDate(FileTime fileTime) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(fileTime.toMillis());
     }
 }

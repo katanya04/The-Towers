@@ -6,7 +6,7 @@ import me.katanya04.anotherguiplugin.menu.ChestMenu;
 import me.katanya04.anotherguiplugin.menu.InventoryMenu;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.items.ItemsEnum;

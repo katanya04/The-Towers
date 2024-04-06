@@ -6,14 +6,13 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.Team;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.mysql.Callback;
-import mx.towers.pato14.utils.nms.ReflectionMethods;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
 import mx.towers.pato14.utils.stats.StatType;
@@ -86,6 +85,7 @@ public class TowerCommand implements TabExecutor {
             Utils.sendMessage("An instance of a world has to be specified.", MessageType.ERROR, sender);
             return true;
         }
+        AmazingTowers.logger.logTowersCommand(sender, subcommand, args);
         switch (subcommand) {
             case STATS:
                 if (AmazingTowers.isConnectedToDatabase()) {
@@ -315,10 +315,10 @@ public class TowerCommand implements TabExecutor {
                     name = loc.getName(teamColor);
                 } else {
                     @SuppressWarnings("unchecked")
-                    List<Map<String, String>> generators = locations.getList(path) == null ? new ArrayList<>() : locations
-                            .getMapList(path).stream().map(o -> (Map<String, String>) o).collect(Collectors.toList());
-                    HashMap<String, String> newGenerator = new HashMap<>();
-                    newGenerator.put("item", ReflectionMethods.serializeItemStack(player.getItemInHand()));
+                    List<Map<String, Object>> generators = locations.getList(path) == null ? new ArrayList<>() : locations
+                            .getMapList(path).stream().map(o -> (Map<String, Object>) o).collect(Collectors.toList());
+                    HashMap<String, Object> newGenerator = new HashMap<>();
+                    newGenerator.put("item", player.getItemInHand());
                     newGenerator.put("coords", Locations.getLocationStringCenter(player.getLocation(), false));
                     generators.add(newGenerator);
                     locations.set(path, generators);

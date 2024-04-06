@@ -57,11 +57,15 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
         this.arguments = arguments;
     }
 
+    public PermissionLevel getPermissionLevel() {
+        return permissionLevel;
+    }
+
     public String[] getArguments() {
         return arguments;
     }
 
-    private static String argsBuilder(String[] array, char separator) {
+    public static String argsBuilder(String[] array, char separator) {
         StringBuilder args = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             args.append(array[i]);

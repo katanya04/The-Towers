@@ -3,7 +3,7 @@ package mx.towers.pato14;
 import me.katanya04.anotherguiplugin.menu.HotbarItems;
 import mx.towers.pato14.game.scoreboard.ScoreHelper;
 import mx.towers.pato14.game.scoreboard.ScoreUpdate;
-import mx.towers.pato14.utils.Config;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.mysql.Connexion;

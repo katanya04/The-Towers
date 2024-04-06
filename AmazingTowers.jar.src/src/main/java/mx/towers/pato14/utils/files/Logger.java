@@ -97,8 +97,7 @@ public class Logger {
     public void logTowersCommand(CommandSender sender, Subcommand subcommand, String[] args) {
         if (!this.logTowersCommand || !PermissionLevel.hasPermission(this.permLevelToLog, subcommand.getPermissionLevel()))
             return;
-        String logText = sender + " executed " + subcommand.name().toLowerCase() + " " +
-                Subcommand.argsBuilder(args, ' ');
+        String logText = sender + " executed " + Subcommand.argsBuilder(args, ' ');
         log(LogType.TOWERS_COMMAND, logText);
     }
 

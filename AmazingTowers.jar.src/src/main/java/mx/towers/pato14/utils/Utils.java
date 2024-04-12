@@ -2,17 +2,16 @@ package mx.towers.pato14.utils;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.nametagedit.plugin.NametagEdit;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.mysql.Connexion;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,7 +63,6 @@ public class Utils {
     }*/
 
     public static void tpToWorld(World world, Player player) {
-        Utils.clearNameTagPlayer(player);
         TowersWorldInstance worldInstance = AmazingTowers.getInstance(world);
         World oldWorld = player.getWorld();
         if (worldInstance instanceof GameInstance && !((GameInstance) worldInstance).canJoin(player))
@@ -101,7 +98,7 @@ public class Utils {
     }
 
     private static String getJoinMessage(GameInstance gameInstance, String playerName) {
-        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
+        ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
         if (team != null) {
             return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
                     .replace("{Player}", playerName)
@@ -206,9 +203,9 @@ public class Utils {
 
     public static void checkForTeamWin(GameInstance gameInstance) {
         boolean makeATeamWin = true;
-        Team temp = null;
-        for (Team team : gameInstance.getGame().getTeams().getTeams()) {
-            if (team.getSizeOnlinePlayers() > 0) {
+        ITeam temp = null;
+        for (ITeam team : gameInstance.getGame().getTeams().getTeams()) {
+            if (team.getNumAlivePlayers() > 0) {
                 if (temp == null)
                     temp = team;
                 else
@@ -375,24 +372,18 @@ public class Utils {
                 }
             }).runTaskLater(AmazingTowers.getPlugin(), 1L);
         } else {
-            TowersWorldInstance playerInstance = AmazingTowers.getInstance(player);
             for (Player player1 : AmazingTowers.getAllOnlinePlayers()) {
+                if (Objects.equals(player, player1))
+                    continue;
                 if (currentWorld.equals(player1.getWorld())) {
                     player1.showPlayer(player);
                     player.showPlayer(player1);
-                    if (!(playerInstance instanceof GameInstance))
-                        continue;
-                    NametagEdit.getApi().reloadNametag(player);
                 } else {
                     player1.hidePlayer(player);
                     player.hidePlayer(player1);
                 }
             }
         }
-    }
-
-    public static void clearNameTagPlayer(Player player) {
-        NametagEdit.getApi().clearNametag(player);
     }
 
     public static List<List<TextComponent>> getLines(List<TextComponent> text) { //Thx to Swedz :)
@@ -450,7 +441,7 @@ public class Utils {
     }
 
     public static boolean isAValidTable(String tableName) {
-        return tableName != null && (AmazingTowers.connexion.getTables().contains(tableName) || Connexion.ALL_TABLES.equals(tableName));
+        return tableName != null && (AmazingTowers.connexion.getTables().contains(tableName) || IConnexion.ALL_TABLES.equals(tableName));
     }
 
     public static String getColor(String st) {
@@ -613,5 +604,13 @@ public class Utils {
     public static String fileTimeToDate(FileTime fileTime) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return dateFormat.format(fileTime.toMillis());
+    }
+
+    public static void removeItemFromHand(Player p) {
+        int amount;
+        if ((amount = p.getItemInHand().getAmount()) == 1)
+            p.setItemInHand(new ItemStack(Material.AIR));
+        else
+            p.getItemInHand().setAmount(amount - 1);
     }
 }

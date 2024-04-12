@@ -3,9 +3,10 @@ package mx.towers.pato14.commands;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.mysql.Connexion;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -209,7 +210,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                     break;
                 case "<tableName>":
                     toret.addAll(AmazingTowers.connexion.getTables());
-                    toret.add(Connexion.ALL_TABLES);
+                    toret.add(IConnexion.ALL_TABLES);
                     break;
                 case "<worldName>":
                     toret.addAll(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toSet()));

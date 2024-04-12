@@ -34,9 +34,4 @@ public enum ItemsEnum {
         this.name = name;
         this.needsPlayer = needsPlayer;
     }
-    public ItemStack getItem(Player player) {
-        if (player == null && this.needsPlayer)
-            throw new RuntimeException("This item needs a player passed as argument, " + this.name);
-        return ActionItem.getByName(this.name).toItemStack(player);
-    }
 }

@@ -34,12 +34,17 @@ options:
     maxTimeHoursPerFile: 12
     logTowersCommand: false
     logSQLCalls: false
+    logChat: false
 
     #Posible values: READ, WRITE, ALL. Will default to WRITE
     SQLCallType: 'WRITE'
 
     #Posible values: ADMIN, ORGANIZER, NONE. Will default to ADMIN
     permLevelToLog: 'ORGANIZER'
+
+    #Posible values: TEAM, GLOBAL, DEFAULT, SUPER_GLOBAL. Multiple values can be set separated with commas.
+    #Will default to TEAM,GLOBAL,DEFAULT,SUPER_GLOBAL
+    chatScopeToLog: 'GLOBAL,DEFAULT,SUPER_GLOBAL'
 
 
 permissions:

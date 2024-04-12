@@ -1,4 +1,4 @@
-package mx.towers.pato14.utils.cofresillos;
+package mx.towers.pato14.game.refill;
 
 import java.util.HashMap;
 import java.util.List;

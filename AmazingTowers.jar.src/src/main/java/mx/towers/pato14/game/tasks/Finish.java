@@ -3,7 +3,8 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -224,7 +225,7 @@ public class Finish {
 
     public void endMatch() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        List<ITeam> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
         if (winningTeams.size() == 1)
             this.fatality(winningTeams.get(0).getTeamColor());
         else {
@@ -234,7 +235,7 @@ public class Finish {
 
     public void endMatchOrGoldenGoal() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        List<ITeam> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
         if (winningTeams.size() == 1)
             this.fatality(winningTeams.get(0).getTeamColor());
         else {
@@ -244,7 +245,7 @@ public class Finish {
                     if (gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
                         o.setPoints(0);
                         String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
-                        for (Player pl : o.getListOnlinePlayers()) {
+                        for (Player pl : o.getOnlinePlayers()) {
                             pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                             if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
                                 ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);
@@ -254,7 +255,7 @@ public class Finish {
                     } else {
                         String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.title"));
                         String subTitle = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.titles.subTitle"));
-                        for (Player pl : o.getListOnlinePlayers()) {
+                        for (Player pl : o.getOnlinePlayers()) {
                             pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                             if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("goldenGoal.titles.enabled"))
                                 ReflectionMethods.sendTitle(pl, title, subTitle, 0, 50, 20);

@@ -1,48 +1,48 @@
 package mx.towers.pato14.game.team;
 
-import com.nametagedit.plugin.NametagEdit;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
-import mx.towers.pato14.utils.enums.Location;
+import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.locations.Locations;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.jetbrains.annotations.NotNull;
 
-public class Team implements Comparable<Team> {
-    private final TeamColor teamColor;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class TeamScorebord implements ITeam {
+    private final Set<String> players;
     private String prefix;
-    private final HashMap<String, PlayerState> players;
+    private final TeamColor teamColor;
     private int points;
-    private final GameInstance gameInstance;
+    private final GameTeams gameTeams;
     private boolean eliminated;
-
-    public Team(TeamColor teamColor, GameInstance gameInstance) {
-        points = 0;
-        this.players = new HashMap<>();
+    public TeamScorebord(TeamColor teamColor, String prefix, GameTeams gameTeams) {
+        this.prefix = prefix;
         this.teamColor = teamColor;
-        this.gameInstance = gameInstance;
+        this.points = 0;
+        this.gameTeams = gameTeams;
         this.eliminated = false;
+        this.players = new HashSet<>();
     }
 
+    @Override
     public void changeTeam(Player player) {
+        GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
         Config messages = gameInstance.getConfig(ConfigType.MESSAGES);
         Game game = gameInstance.getGame();
-        Team currentTeam = game.getTeams().getTeamByPlayer(player.getName());
+        ITeam currentTeam = game.getTeams().getTeamByPlayer(player.getName());
         if (!this.containsPlayer(player.getName())) { //Si no está ya en ese equipo
             if (!gameInstance.getRules().get(Rule.BALANCED_TEAMS)
-                    || this.getSizePlayers() == game.getTeams().getLowestTeamPlayers(currentTeam)) {
+                    || this.getNumPlayers() == game.getTeams().getLowestTeamPlayers(currentTeam)) {
                 this.addPlayer(player.getName());
                 if (game.getGameState().equals(GameState.GAME))
                     gameInstance.getGame().spawn(player);
@@ -62,81 +62,98 @@ public class Team implements Comparable<Team> {
         }
     }
 
-    public void onRespawn(Player player) {
-        this.setNameTagPlayer(player);
+    @Override
+    public void respawn(Player player) {
+        GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
         gameInstance.getGame().getStats().setHashStats(player.getName());
-        if (this.respawnPlayers()) {
+        if (this.doPlayersRespawn()) {
             gameInstance.getGame().applyKitToPlayer(player);
-            this.setPlayerState(player.getName(), PlayerState.ONLINE);
             player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS)
                     .getString(Location.SPAWN.getPath(this.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             player.setGameMode(GameMode.SURVIVAL);
         } else {
-            this.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
             player.setGameMode(GameMode.SPECTATOR);
             player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS)
                     .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
         }
     }
 
+    @Override
     public void removePlayer(String playerName) {
         this.players.remove(playerName);
+        Prefixes.clearPrefix(Bukkit.getPlayer(playerName));
         ActionItem.getByName("JoinTeam." + teamColor).getParent().updateContents();
-        gameInstance.getGame().getTeams().updatePlayersAmount();
+        this.gameTeams.updatePlayersAmount();
     }
 
+    @Override
     public void addPlayer(String playerName) {
-        Team currentTeam;
-        if ((currentTeam = gameInstance.getGame().getTeams().getTeamByPlayer(playerName)) != null)
+        ITeam currentTeam;
+        if ((currentTeam = this.gameTeams.getTeamByPlayer(playerName)) != null)
             currentTeam.removePlayer(playerName);
-        this.players.put(playerName, PlayerState.ONLINE);
+        this.players.add(playerName);
+        Prefixes.setPrefix(Bukkit.getPlayer(playerName), prefix);
         ActionItem.getByName("JoinTeam." + teamColor).getParent().updateContents();
-        gameInstance.getGame().getTeams().updatePlayersAmount();
+        this.gameTeams.updatePlayersAmount();
     }
 
-    public void setNameTagPlayer(Player player) {
-        NametagEdit.getApi().setPrefix(player, ChatColor.translateAlternateColorCodes('&', this.prefix));
-    }
-
-    public int getSizePlayers() {
+    @Override
+    public int getNumPlayers() {
         return this.players.size();
     }
-    public int getSizeOnlinePlayers() {
-        int i = 0;
-        for (Map.Entry<String, PlayerState> player : players.entrySet()) {
-            if (player.getValue() == PlayerState.ONLINE)
-                i++;
-        }
-        return i;
+
+    @Override
+    public int getNumOnlinePlayers() {
+        return this.getOnlinePlayers().size();
     }
 
+    @Override
+    public int getNumAlivePlayers() {
+        return this.doPlayersRespawn() ? getNumOnlinePlayers() :
+                this.getOnlinePlayers().stream().filter(o -> o.getGameMode() != GameMode.SPECTATOR).collect(Collectors.toSet()).size();
+    }
+
+    @Override
+    public Set<Player> getOnlinePlayers() {
+        return this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    @Override
     public boolean containsPlayer(String name) {
-        return this.players.get(name) != null;
+        return this.players.contains(name);
     }
 
-    public boolean containsPlayerOnline(String name) {
-        return this.players.get(name) == PlayerState.ONLINE;
+    @Override
+    public boolean containsOnlinePlayer(Player player) {
+        return containsPlayer(player.getName());
     }
+
+    @Override
     public TeamColor getTeamColor() {
         return this.teamColor;
     }
 
-    public String getPrefixTeam() {
-        return this.prefix;
-    }
-
-    protected void setPrefix(String prefix) {
+    @Override
+    public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
+    @Override
+    public String getPrefix() {
+        return this.prefix;
+    }
+
+    @Override
     public int getPoints() {
         return this.points;
     }
 
+    @Override
     public void setPoints(int points) {
         this.points = points;
     }
 
+    @Override
     public void scorePoint(boolean bedwarsStyle) {
         if (bedwarsStyle)
             this.points--;
@@ -144,55 +161,42 @@ public class Team implements Comparable<Team> {
             this.points++;
     }
 
-    public boolean respawnPlayers() {
-        return !eliminated && (!gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.getPoints() != 0);
-    }
-
-    public void setPlayerState(String playerName, PlayerState playerState) {
-        this.players.put(playerName, playerState);
-        gameInstance.getGame().getTeams().updatePlayersAmount();
-    }
-
-    public PlayerState getPlayerState(String playerName) {
-        return this.players.get(playerName);
-    }
-
-    public List<Player> getListOnlinePlayers() {
-        List<Player> toret = new ArrayList<>();
-        for (String playerName : players.keySet()) {
-            Player player = Bukkit.getPlayer(playerName);
-            if (player != null)
-                toret.add(player);
-        }
-        return toret;
-    }
-
+    @Override
     public void eliminateTeam() {
         Player player;
-        for (String playerName : players.keySet()) {
-            setPlayerState(playerName, PlayerState.NO_RESPAWN);
+        GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
+        for (String playerName : this.players) {
             if ((player = Bukkit.getPlayer(playerName)) != null) {
                 player.setGameMode(GameMode.SPECTATOR);
                 player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())));
                 player.sendMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("goldenGoal.eliminated"));
             }
         }
-        gameInstance.getGame().getTeams().updatePlayersAmount();
+        this.gameTeams.updatePlayersAmount();
         this.eliminated = true;
     }
 
+    @Override
     public boolean isEliminated() {
-        return eliminated;
-    }
-
-    public void reset() {
-        players.clear();
-        points = 0;
-        eliminated = false;
+        return this.eliminated;
     }
 
     @Override
-    public int compareTo(@NotNull Team o) {
-        return this.points - o.points;
+    public boolean doPlayersRespawn() {
+        GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
+        return (!gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.points != 0) && !isEliminated();
+    }
+
+    @Override
+    public void reset() {
+        this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(Prefixes::clearPrefix);
+        this.players.clear();
+        this.points = 0;
+        this.eliminated = false;
+    }
+
+    @Override
+    public void updatePrefix() {
+        this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(o -> Prefixes.setPrefix(o, this.prefix));
     }
 }

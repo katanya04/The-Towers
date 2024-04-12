@@ -1,10 +1,10 @@
 package mx.towers.pato14.utils.enums;
 
-import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import me.katanya04.anotherguiplugin.actionItems.ListItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.items.Items;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -59,7 +59,7 @@ public enum Rule {
         ItemStack[] toret = new ItemStack[Rule.values().length];
         int i = 0;
         for (Rule rule : Rule.values())
-            toret[i++] = ActionItem.getByName("RuleItem." + rule).returnPlaceholder();
+            toret[i++] = Items.getByName("RuleItem." + rule);
         return toret;
     }
 }

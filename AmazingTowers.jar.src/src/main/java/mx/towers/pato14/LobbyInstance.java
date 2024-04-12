@@ -3,6 +3,7 @@ package mx.towers.pato14;
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.Color;
@@ -32,8 +33,8 @@ public class LobbyInstance extends TowersWorldInstance {
     @Override
     public void setHotbarItems() {
         Config lobbyConfig = AmazingTowers.getLobby().getConfig(ConfigType.CONFIG);
-        hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.selectGame.position"), ActionItem.getByName(ItemsEnum.GAME_SELECT.name).returnPlaceholder());
+        hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.selectGame.position"), Items.get(ItemsEnum.GAME_SELECT));
         if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
-            hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.quit.position"), ActionItem.getByName(ItemsEnum.QUIT_LOBBY.name).returnPlaceholder());
+            hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.quit.position"), Items.get(ItemsEnum.QUIT_LOBBY));
     }
 }

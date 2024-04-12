@@ -1,27 +1,29 @@
-package mx.towers.pato14.utils.files;
+package mx.towers.pato14.utils.logger;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.commands.Subcommand;
+import mx.towers.pato14.game.events.player.TeamChatListener;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.PermissionLevel;
-import mx.towers.pato14.utils.mysql.Connexion;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class Logger {
-    private enum LogType{TOWERS_COMMAND, SQL_CALL}
+public class Logger implements ILogger {
+    private enum LogType{TOWERS_COMMAND, SQL_CALL, CHAT}
     private boolean activated;
     private boolean logTowersCommand;
     private PermissionLevel permLevelToLog; //will log only commands that require this permission or higher
@@ -40,18 +42,22 @@ public class Logger {
         }
     }
     private SQLCallType sqlCallType;
+    private boolean logChat;
+    private Set<TeamChatListener.ChatScope> chatScopeToLog;
     private int hoursPerNewLog;
     private final ScheduledExecutorService scheduler;
-    private ScheduledFuture<?> scheduledFuture;
+    private ScheduledFuture<?> createNewLogFile;
+    private ScheduledFuture<?> flushStream;
     private File log;
     private FileWriter fileWriter;
     private BufferedWriter bufferedWriter;
     private PrintWriter printWriter;
     public Logger(boolean activated, boolean logSQLCalls, SQLCallType sqlCallType, boolean logTowersCommand,
-                  PermissionLevel permLevelToLog, int hoursPerNewLog) {
+                  PermissionLevel permLevelToLog, boolean logChat, Set<TeamChatListener.ChatScope> chatScopeToLog, int hoursPerNewLog) {
         setActivated(activated);
         setLogSQLCalls(logSQLCalls, sqlCallType);
         setLogTowersCommand(logTowersCommand, permLevelToLog);
+        setLogChat(logChat, chatScopeToLog);
         this.scheduler = Executors.newScheduledThreadPool(1);
         setHoursPerNewLog(hoursPerNewLog);
     }
@@ -72,14 +78,20 @@ public class Logger {
         this.permLevelToLog = permLevelToLog;
     }
 
-    public void setHoursPerNewLog(int hoursPerNewLog) {
-        this.hoursPerNewLog = hoursPerNewLog;
-        if (this.scheduledFuture != null)
-            this.scheduledFuture.cancel(false);
-        this.scheduledFuture = scheduler.scheduleAtFixedRate(this::newLogFile, this.hoursPerNewLog, this.hoursPerNewLog, TimeUnit.HOURS);
+    public void setLogChat(boolean logChat, Set<TeamChatListener.ChatScope> chatScopeToLog) {
+        this.logChat = logChat;
+        this.chatScopeToLog = chatScopeToLog;
     }
 
-    public void logSQLCall(Connexion.Operation operationType, @Nullable String player, @Nullable String tableName,
+    public void setHoursPerNewLog(int hoursPerNewLog) {
+        this.hoursPerNewLog = hoursPerNewLog;
+        if (this.createNewLogFile != null)
+            this.createNewLogFile.cancel(false);
+        this.createNewLogFile = scheduler.scheduleAtFixedRate(this::newLogFile, this.hoursPerNewLog, this.hoursPerNewLog, TimeUnit.HOURS);
+    }
+
+    @Override
+    public void logSQLCall(IConnexion.Operation operationType, @Nullable String player, @Nullable String tableName,
                            @Nullable Stats stats) {
         if (!this.logSQLCalls || !this.sqlCallType.shouldLog(operationType.getSqlCallType()))
             return;
@@ -94,17 +106,31 @@ public class Logger {
         log(LogType.SQL_CALL, logText.toString());
     }
 
+    @Override
     public void logTowersCommand(CommandSender sender, Subcommand subcommand, String[] args) {
         if (!this.logTowersCommand || !PermissionLevel.hasPermission(this.permLevelToLog, subcommand.getPermissionLevel()))
             return;
-        String logText = sender + " executed " + Subcommand.argsBuilder(args, ' ');
+        String logText = sender.getName() + " executed " + Subcommand.argsBuilder(args, ' ');
         log(LogType.TOWERS_COMMAND, logText);
     }
 
-    private void log(LogType logType, String logText) {
+    @Override
+    public void logChat(String msg, String senderName, TeamChatListener.ChatScope chatScope, TowersWorldInstance instance) {
+        if (!this.logChat || !this.chatScopeToLog.contains(chatScope))
+            return;
+        String logText = "(" + instance.getName() + ")" + senderName + ": " + msg;
+        log(LogType.CHAT, logText);
+    }
+
+    private void log(@NotNull LogType logType, String logText) {
         String logLine = "[" + LocalTime.now().toString().split("\\.")[0] + "] [" + Utils.macroCaseToItemName(logType.name()) +
                 "]: " + logText;
+        if (this.printWriter == null)
+            openNewStream();
         this.printWriter.println(logLine);
+        if (this.flushStream != null)
+            this.flushStream.cancel(true);
+        this.flushStream = this.scheduler.schedule(() -> this.printWriter.flush(), 5, TimeUnit.SECONDS);
     }
 
     public void newLogFile() {
@@ -113,6 +139,7 @@ public class Logger {
         openNewStream();
     }
 
+    @Override
     public void closeStream() {
         try {
             if (this.printWriter != null)

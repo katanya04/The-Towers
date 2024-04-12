@@ -13,38 +13,21 @@ import com.mysql.jdbc.CommunicationsException;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.utils.files.Logger;
 import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
-public class Connexion {
+public class Connexion implements IConnexion {
     private final AmazingTowers plugin = AmazingTowers.getPlugin();
-    public static String ALL_TABLES = "ALL_TABLES";
     public Connection connection;
     private final List<String> tables;
     private final String hostname;
-    //private final String port = this.t.getGlobalConfig().getString("options.database.port");
+    //private final String port;
     private final String database;
     private final String user;
     private final String password;
     private boolean isConnected;
-
-    public enum Operation {
-        CREATE_TABLE(Logger.SQLCallType.WRITE),
-        CREATE_ACC(Logger.SQLCallType.WRITE),
-        SET_DATA(Logger.SQLCallType.WRITE),
-        GET_DATA(Logger.SQLCallType.READ),
-        HAS_ACC(Logger.SQLCallType.READ);
-        private final Logger.SQLCallType sqlCallType;
-        Operation(Logger.SQLCallType sqlCallType) {
-            this.sqlCallType = sqlCallType;
-        }
-        public Logger.SQLCallType getSqlCallType() {
-            return sqlCallType;
-        }
-    }
 
     public Connexion(ConfigurationSection databaseInfo) {
         this.tables = databaseInfo.getStringList("tableNames");
@@ -55,6 +38,7 @@ public class Connexion {
         this.password = databaseInfo.getString("password");
     }
 
+    @Override
     public boolean initialize() {
         return (isConnected = connect()) && createTables();
     }
@@ -70,17 +54,17 @@ public class Connexion {
         } catch (SQLException e) {
             AmazingTowers.getGlobalConfig().set("options.database.active", false);
             this.plugin.saveConfig();
-        } catch (ClassNotFoundException ignored) {
-        }
+        } catch (ClassNotFoundException ignored) {}
         return false;
     }
 
+    @Override
     public boolean close() {
         try {
             if (connection != null && !connection.isClosed())
-                connection.close(); // closing the connection field variable.
+                connection.close();
             return true;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -98,7 +82,7 @@ public class Connexion {
                         return _createTables();
                     case CREATE_ACC:
                         return _createAccount(player, tableName);
-                    case SET_DATA:
+                    case UPDATE_DATA:
                         return _updateData(player, stats, tableName);
                     case GET_DATA:
                         return _getStats(player, tableName);
@@ -122,22 +106,27 @@ public class Connexion {
         return false;
     }
 
+    @Override
     public boolean createTables() {
         return (boolean) Utils.getValueOrDefault(operation(Operation.CREATE_TABLE, null, null, null), false);
     }
 
+    @Override
     public void createAccount(String player, String tableName) {
         operation(Operation.CREATE_ACC, player, tableName, null);
     }
 
+    @Override
     public void updateData(String player, Stats stats, String tableName) {
-        operation(Operation.SET_DATA, player, tableName, stats);
+        operation(Operation.UPDATE_DATA, player, tableName, stats);
     }
 
+    @Override
     public int[] getStats(String player, String tableName) {
         return (int[]) Utils.getValueOrDefault(operation(Operation.GET_DATA, player, tableName, null), new int[7]);
     }
 
+    @Override
     public boolean hasAccount(String player, String tableName) {
         return (boolean) Utils.getValueOrDefault(operation(Operation.HAS_ACC, player, tableName, null), false);
     }
@@ -147,17 +136,17 @@ public class Connexion {
             PreparedStatement ps = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + "(UUID VARCHAR(37), PlayerName VARCHAR(20), Kills INT(9)NOT NULL, Deaths INT(9)NOT NULL, Anoted_Points INT(9) NOT NULL,Games_Played INT(9) NOT NULL,Wins INT(9)NOT NULL,Blocks_Broken INT(9)NOT NULL,Blocks_Placed INT(9)NOT NULL,PRIMARY KEY(UUID))");
             ps.execute();
             ps.close();
-            return true;
         }
-        return false;
+        return true;
     }
 
     private boolean _createAccount(String player, String tableName) throws SQLException {
         if (ALL_TABLES.equals(tableName)) {
             for (String table : tables)
                 _createAccount(player, table);
-        } else if (!hasAccount(player, tableName)) {
-            PreparedStatement ps = this.connection.prepareStatement("INSERT INTO " + tableName + "(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,0,0,0,0,0,0,0)");
+        } else {
+            PreparedStatement ps = this.connection.prepareStatement("INSERT INTO " + tableName +
+                    "(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,0,0,0,0,0,0,0) ON DUPLICATE KEY UPDATE UUID = UUID");
             ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString());
             ps.setString(2, player);
             ps.execute();
@@ -168,15 +157,21 @@ public class Connexion {
 
     private boolean _updateData(String player, Stats stats, String tableName) throws SQLException {
         StringBuilder sb = new StringBuilder();
-        sb.append("UPDATE ").append(tableName).append(" SET ");
         for (StatType st : StatType.values()) {
-            sb.append(st.getFieldName()).append("=").append(st.getFieldName()).append(" + ")
-                    .append(stats.getStat(st)).append(",");
+            sb.append(st.getFieldName()).append("=").append(st.getFieldName()).append("+").append(stats.getStat(st)).append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
-        sb.append(" WHERE UUID='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player)
-                .getBytes(StandardCharsets.UTF_8))).append("'");
-        PreparedStatement ps = this.connection.prepareStatement(sb.toString());
+        PreparedStatement ps = this.connection.prepareStatement("INSERT INTO " + tableName +
+                "(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " + sb);
+        ps.setString(1, UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8)).toString());
+        ps.setString(2, player);
+        ps.setInt(3, stats.getStat(StatType.KILLS));
+        ps.setInt(4, stats.getStat(StatType.DEATHS));
+        ps.setInt(5, stats.getStat(StatType.POINTS));
+        ps.setInt(6, stats.getStat(StatType.GAMES_PLAYED));
+        ps.setInt(7, stats.getStat(StatType.WINS));
+        ps.setInt(8, stats.getStat(StatType.BLOCKS_BROKEN));
+        ps.setInt(9, stats.getStat(StatType.BLOCKS_PLACED));
         ps.executeUpdate();
         ps.close();
         return true;
@@ -186,25 +181,24 @@ public class Connexion {
         int[] data = new int[7];
         StringBuilder query = new StringBuilder();
         if (!ALL_TABLES.equals(tableName)) {
-            query.append("SELECT * FROM ").append(tableName);
+            query.append("SELECT Kills, Deaths, Anoted_Points, Games_Played, Wins, Blocks_Broken, Blocks_Placed FROM ").append(tableName);
         } else {
-            query.append("SELECT UUID, PlayerName,sum(Kills) Kills,sum(Deaths) Deaths,sum(Anoted_Points) Anoted_Points,sum(Games_Played) Games_Played,sum(Wins) Wins,sum(Blocks_Broken) Blocks_Broken,sum(Blocks_Placed) Blocks_Placed FROM (");
+            query.append("SELECT sum(Kills) Kills,sum(Deaths) Deaths,sum(Anoted_Points) Anoted_Points,sum(Games_Played) Games_Played,sum(Wins) Wins,sum(Blocks_Broken) Blocks_Broken,sum(Blocks_Placed) Blocks_Placed FROM (");
             for (int i = 0; i < tables.size(); i++) {
                 query.append("SELECT * FROM ").append(tables.get(i));
                 if (i != tables.size() - 1) query.append(" UNION ALL ");
             }
             query.append(") t");
         }
-        query.append(" WHERE UUID ='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8))).append("'");
-        if (hasAccount(player, tableName)) {
-            PreparedStatement ps = this.connection.prepareStatement(query.toString());
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                for (int j = 0; j < data.length; j++) {
-                    data[j] = rs.getInt(3 + j);
-                }
+        query.append(" WHERE UUID ='").append(getUUID(player)).append("'");
+        PreparedStatement ps = this.connection.prepareStatement(query.toString());
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            for (int j = 0; j < data.length; j++) {
+                data[j] = rs.getInt(j + 1);
             }
         }
+        ps.close();
         return data;
     }
 
@@ -218,17 +212,25 @@ public class Connexion {
                 query.append("INNER JOIN ").append(tables.get(i)).append(" ON ").append(tables.get(0)).append(".UUID = ").append(tables.get(i)).append(".UUID").append(" ");
             }
         }
-        query.append("WHERE ").append(ALL_TABLES.equals(tableName) ? tables.get(0) : tableName).append(".UUID ='").append(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8))).append("'");
+        query.append("WHERE ").append(ALL_TABLES.equals(tableName) ? tables.get(0) : tableName).append(".UUID ='").append(getUUID(player)).append("'");
         PreparedStatement ps = this.connection.prepareStatement(query.toString());
         ResultSet rs = ps.executeQuery();
-        return rs.next();
+        boolean toret = rs.next();
+        ps.close();
+        return toret;
     }
 
     public List<String> getTables() {
         return tables;
     }
 
+    @Override
     public boolean isConnected() {
         return isConnected;
+    }
+
+    private String getUUID(String player) {
+        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + player)
+                .getBytes(StandardCharsets.UTF_8)).toString();
     }
 }

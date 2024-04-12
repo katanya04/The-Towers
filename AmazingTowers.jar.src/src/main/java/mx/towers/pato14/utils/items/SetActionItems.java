@@ -11,6 +11,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -25,7 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public class ActionItems {
+public class SetActionItems {
     private static boolean registered = false;
     public static void registerItems() {
         if (registered)
@@ -39,7 +40,10 @@ public class ActionItems {
                 ItemsEnum.GAME_SELECT.name
         );
         generateJoinMenuContents();
-        selectGameMenu.getMenu().setOnOpenBehaviour(ActionItems::sortContents);
+        selectGameMenu.getMenu().setOnOpenBehaviour(event -> {
+            sortContents(event);
+            event.getInventory().setContents(InventoryMenu.parseActionItemsByPlayer(event.getInventory().getContents(), (Player) event.getPlayer()));
+        });
 
         if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
             new ActionItem(pl -> Utils.setName(new ItemStack(Material.BED),
@@ -124,7 +128,7 @@ public class ActionItems {
         GameInstance[] instances = AmazingTowers.getGameInstances();
         for (int i = 0; i < instances.length; i++) {
             GameInstance current = instances[i];
-            event.getInventory().setItem(i, ActionItem.getByName("JoinMatch." + current.getInternalName()).toItemStack());
+            event.getInventory().setItem(i, Items.getByName("JoinMatch." + current.getInternalName()));
         }
     }
 
@@ -310,18 +314,18 @@ public class ActionItems {
     }
     private static ItemStack[] gameSettingsContents() {
         ItemStack[] toret = new ItemStack[9 * 3];
-        toret[10] = ActionItem.getByName(ItemsEnum.SET_RULES.name).returnPlaceholder();
-        toret[3] = ActionItem.getByName(ItemsEnum.WHITELIST.name).returnPlaceholder();
-        toret[12] = ActionItem.getByName(ItemsEnum.KICK_PLAYERS.name).returnPlaceholder();
-        toret[21] = ActionItem.getByName(ItemsEnum.BLACKLIST.name).returnPlaceholder();
-        toret[7] = ActionItem.getByName(ItemsEnum.STOP_COUNT.name).returnPlaceholder();
-        toret[16] = ActionItem.getByName(ItemsEnum.CONTINUE_COUNT.name).returnPlaceholder();
-        toret[25] = ActionItem.getByName(ItemsEnum.START_IMMEDIATELY.name).returnPlaceholder();
-        toret[14] = ActionItem.getByName(ItemsEnum.SET_TIMER.name).returnPlaceholder();
-        toret[15] = ActionItem.getByName(ItemsEnum.MODIFY_KITS.name).returnPlaceholder();
-        toret[26] = ActionItem.getByName(ItemsEnum.SAVE_SETTINGS.name).returnPlaceholder();
-        toret[17] = ActionItem.getByName(ItemsEnum.SELECT_DB.name).returnPlaceholder();
-        toret[8] = ActionItem.getByName(ItemsEnum.END_MATCH.name).returnPlaceholder();
+        toret[10] = Items.get(ItemsEnum.SET_RULES);
+        toret[3] = Items.get(ItemsEnum.WHITELIST);
+        toret[12] = Items.get(ItemsEnum.KICK_PLAYERS);
+        toret[21] = Items.get(ItemsEnum.BLACKLIST);
+        toret[7] = Items.get(ItemsEnum.STOP_COUNT);
+        toret[16] = Items.get(ItemsEnum.CONTINUE_COUNT);
+        toret[25] = Items.get(ItemsEnum.START_IMMEDIATELY);
+        toret[14] = Items.get(ItemsEnum.SET_TIMER);
+        toret[15] = Items.get(ItemsEnum.MODIFY_KITS);
+        toret[26] = Items.get(ItemsEnum.SAVE_SETTINGS);
+        toret[17] = Items.get(ItemsEnum.SELECT_DB);
+        toret[8] = Items.get(ItemsEnum.END_MATCH);
         return toret;
     }
     public static void setHotbarItemsInInstances() {

@@ -3,7 +3,7 @@ name: AmazingTowers
 author: Pato14, katanya04
 
 version: 3.0_beta3
-depend: [NametagEdit, BossBarAPI, AnotherGUIPlugin]
+depend: [BossBarAPI, AnotherGUIPlugin]
 softdepend: [Vault, PlaceholderAPI]
 
 main: mx.towers.pato14.AmazingTowers
@@ -12,3 +12,7 @@ main: mx.towers.pato14.AmazingTowers
 commands:
   towers: 
     aliases: [tower, tw, tt]
+  kits:
+    aliases: [kit]
+  lobby:
+    aliases: [hub, exit, salir, volver, leave, back]

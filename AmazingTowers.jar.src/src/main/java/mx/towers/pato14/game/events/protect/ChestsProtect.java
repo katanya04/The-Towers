@@ -5,7 +5,7 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.*;
 import org.bukkit.block.Block;

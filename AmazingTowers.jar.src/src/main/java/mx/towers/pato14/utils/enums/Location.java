@@ -1,6 +1,7 @@
 package mx.towers.pato14.utils.enums;
 
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.game.team.TeamColor;
 
 import java.util.Arrays;
 import java.util.List;

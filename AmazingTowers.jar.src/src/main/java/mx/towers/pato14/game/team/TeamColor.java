@@ -1,15 +1,17 @@
-package mx.towers.pato14.utils.enums;
+package mx.towers.pato14.game.team;
 
 import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.items.Items;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scoreboard.Team;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,10 +27,10 @@ public enum TeamColor {
     ORANGE(true, (short) 1, "&6"),
     PURPLE(true, (short) 10, "&d"),
     SPECTATOR(false, (short) 8, "&7");
+    private final static Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK, Color.ORANGE, Color.PURPLE};
     private final boolean matchTeam;
     private final short woolColor;
     private final String color;
-    private final static Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK, Color.ORANGE, Color.PURPLE};
     TeamColor(boolean matchTeam, short woolColor, String color) {
         this.matchTeam = matchTeam;
         this.woolColor = woolColor;
@@ -95,7 +97,7 @@ public enum TeamColor {
     }
 
     private ItemStack getTeamItem(GameInstance gameInstance) {
-        Team team;
+        ITeam team;
         if ((team = gameInstance.getGame().getTeams().getTeam(this)) == null && this.isMatchTeam())
             return new ItemStack(Material.AIR);
         ItemStack toret = new ItemStack(Material.WOOL, 1, this.woolColor);
@@ -104,7 +106,7 @@ public enum TeamColor {
             itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("lobbyItems.menuItems.joinTeam").replace("%team_color%", this.color)
                     .replace("%team_name%", this.getName(gameInstance))));
-            itemMeta.setLore(team.getListOnlinePlayers().stream().map(o -> "§r§7- " + o.getDisplayName()).collect(Collectors.toList()));
+            itemMeta.setLore(team.getOnlinePlayers().stream().map(o -> "§r§7- " + o.getDisplayName()).collect(Collectors.toList()));
         } else if (this == SPECTATOR)
             itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("lobbyItems.menuItems.spectator")));
@@ -117,14 +119,7 @@ public enum TeamColor {
         ItemStack[] toret = new ItemStack[TeamColor.values().length];
         int i = 0;
         for (TeamColor team : TeamColor.values())
-            toret[i++] = ActionItem.getByName("JoinTeam." + team).returnPlaceholder();
+            toret[i++] = Items.getByName("JoinTeam." + team);
         return toret;
     }
-
-    public static boolean isSpectatorItem(ItemStack item, GameInstance gameInstance) {
-        return Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("lobbyItems.menuItems.spectator"))
-                .equals(item.getItemMeta().getDisplayName());
-    }
 }
-
-

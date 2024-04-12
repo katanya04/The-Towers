@@ -7,7 +7,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
@@ -84,7 +84,7 @@ public class ScoreUpdate {
                 }
             } else {
                 int currentTeam = 0;
-                List<Team> teams = gameInstance.getGame().getTeams().getTeams();
+                List<ITeam> teams = gameInstance.getGame().getTeams().getTeams();
                 List<String> l = teams.size() < 5 ? gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameFourTeamsOrLess.scores") :
                         gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameUpToEightTeams.scores");
                 int i = 15 - (teams.size() < 5 ? 4 - teams.size() : 8 - teams.size());
@@ -105,13 +105,13 @@ public class ScoreUpdate {
                             if (!gameInstance.getRules().get(Rule.BEDWARS_STYLE))
                                 pointsText = String.valueOf(teams.get(currentTeam).getPoints());
                             else {
-                                if (teams.get(currentTeam).respawnPlayers())
+                                if (teams.get(currentTeam).doPlayersRespawn())
                                     pointsText = teams.get(currentTeam).getPoints() + " &4❤";
                                 else {
-                                    if (teams.get(currentTeam).getSizeOnlinePlayers() == 1)
-                                        pointsText = teams.get(currentTeam).getSizeOnlinePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("player");
+                                    if (teams.get(currentTeam).getNumAlivePlayers() == 1)
+                                        pointsText = teams.get(currentTeam).getNumAlivePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("player");
                                     else
-                                        pointsText = teams.get(currentTeam).getSizeOnlinePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("players");
+                                        pointsText = teams.get(currentTeam).getNumAlivePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("players");
                                 }
                             }
                             text = Utils.getColor(text

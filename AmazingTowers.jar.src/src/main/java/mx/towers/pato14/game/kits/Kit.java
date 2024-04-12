@@ -9,9 +9,10 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.enums.Rule;
-import mx.towers.pato14.utils.enums.TeamColor;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -53,8 +54,8 @@ public class Kit {
                 } else if (SetupVault.getCoins(player) >= selectedKit.getPrice()) {
                     ItemStack[] contents = new ItemStack[9 * 3];
                     contents[4] = selectedKit.iconInMenu;
-                    contents[21] = ItemsEnum.ACCEPT_BUY.getItem(player);
-                    contents[23] = ItemsEnum.DENY_BUY.getItem(player);
+                    contents[21] = Items.get(ItemsEnum.ACCEPT_BUY);
+                    contents[23] = Items.get(ItemsEnum.DENY_BUY);
                     buyKitMenu.setContents(contents);
                     buyKitMenu.openMenu(player);
                 } else {

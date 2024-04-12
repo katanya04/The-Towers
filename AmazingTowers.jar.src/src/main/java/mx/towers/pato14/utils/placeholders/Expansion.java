@@ -2,12 +2,10 @@ package mx.towers.pato14.utils.placeholders;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Utils;
-import mx.towers.pato14.utils.mysql.Connexion;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public class Expansion extends PlaceholderExpansion {
     @Override
@@ -40,7 +38,7 @@ public class Expansion extends PlaceholderExpansion {
         if (params.contains("db=") && Utils.isAValidTable(tableName = params.split("db=")[1]))
             result = AmazingTowers.connexion.getStats(player.getName(), tableName);
         else
-            result = AmazingTowers.connexion.getStats(player.getName(), Connexion.ALL_TABLES);
+            result = AmazingTowers.connexion.getStats(player.getName(), IConnexion.ALL_TABLES);
         if (params.equalsIgnoreCase("kills")) {
             toret = Integer.toString(result[0]);
         } else if (params.equalsIgnoreCase("points")) {

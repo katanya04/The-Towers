@@ -53,5 +53,3 @@ public class WandCoords {
         return this.region.getValue();
     }
 }
-
-

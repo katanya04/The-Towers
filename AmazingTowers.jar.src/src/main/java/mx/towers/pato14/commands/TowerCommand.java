@@ -5,14 +5,15 @@ import me.katanya04.anotherguiplugin.actionItems.MenuItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.mysql.Callback;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.stats.Rank;
 import mx.towers.pato14.utils.stats.StatType;
@@ -90,7 +91,7 @@ public class TowerCommand implements TabExecutor {
             case STATS:
                 if (AmazingTowers.isConnectedToDatabase()) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
-                        String tableName = Connexion.ALL_TABLES;
+                        String tableName = IConnexion.ALL_TABLES;
                         if (args.length > 2 && Utils.isAValidTable(args[2]))
                             tableName = args[2];
                         Callback.findPlayerAsync(args[1], tableName, result -> {
@@ -115,8 +116,7 @@ public class TowerCommand implements TabExecutor {
             case SPECTATOR:
                 assert gameInstance != null;
                 assert player != null;
-                if (player.getGameMode().equals(GameMode.SPECTATOR) &&
-                        !gameInstance.getGame().getTeams().containsNoRespawnPlayer(player.getName()))
+                if (player.getGameMode().equals(GameMode.SPECTATOR) && gameInstance.getGame().getTeams().getTeamByPlayer(player.getName()) == null)
                     gameInstance.getGame().spawn(player);
                 else
                     Utils.sendMessage("You can only execute this command when on spectator mode and not being part of a team", MessageType.INFO, sender);
@@ -160,7 +160,7 @@ public class TowerCommand implements TabExecutor {
             case SETSCORE:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
-                    Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
+                    ITeam team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
                     team.setPoints(Integer.parseInt(args[2]));
                     gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);

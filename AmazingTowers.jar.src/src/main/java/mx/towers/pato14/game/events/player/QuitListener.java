@@ -22,7 +22,6 @@ public class QuitListener implements Listener {
                     .replace("{Player}", name));
         if (instance != null) {
             instance.leaveInstance(player);
-            Utils.clearNameTagPlayer(player);
         }
     }
 }

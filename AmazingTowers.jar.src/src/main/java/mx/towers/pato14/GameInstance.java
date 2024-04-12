@@ -1,10 +1,11 @@
 package mx.towers.pato14;
 
-import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.game.Game;
+import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
+import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.rewards.VaultT;
 import org.bukkit.Bukkit;
@@ -62,11 +63,11 @@ public class GameInstance extends TowersWorldInstance {
     @Override
     public void setHotbarItems() {
         Config config = getConfig(ConfigType.CONFIG);
-        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), ActionItem.getByName(ItemsEnum.TEAM_SELECT.name).returnPlaceholder());
-        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectKit.position"), ActionItem.getByName(ItemsEnum.KIT_SELECT.name).returnPlaceholder());
-        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), ActionItem.getByName(ItemsEnum.QUIT_GAME.name).returnPlaceholder());
-        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name).returnPlaceholder());
-        hotbarItems.setCanBeGiven((player, item) -> ActionItem.getActionItem(item) != ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name) || player.isOp());
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), Items.get(ItemsEnum.TEAM_SELECT));
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectKit.position"), Items.get(ItemsEnum.KIT_SELECT));
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), Items.get(ItemsEnum.QUIT_GAME));
+        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), Items.get(ItemsEnum.GAME_SETTINGS));
+        hotbarItems.setCanBeGiven((player, item) -> !Items.is(ItemsEnum.GAME_SETTINGS, item) || player.isOp());
     }
 
     @Override

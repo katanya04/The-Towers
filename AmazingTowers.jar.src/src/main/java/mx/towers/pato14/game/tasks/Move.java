@@ -3,7 +3,7 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -30,7 +30,7 @@ public class Move {
 
     private void setPools(GameInstance gameInstance, Game game) {
         int i = 0;
-        for (Team team : game.getTeams().getTeams()) {
+        for (ITeam team : game.getTeams().getTeams()) {
             pools[i++] = new Pool(team,
                     gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(team.getTeamColor())));
         }
@@ -47,7 +47,7 @@ public class Move {
                 for (Player player : gameInstance.getGame().getPlayers()) {
                     if (player.getHealth() > 0.0D && !player.getGameMode().equals(GameMode.SPECTATOR)) {
                         for (Pool pool : Move.this.pools) {
-                            if (pool.getTeam().containsPlayer(player.getName()) || !pool.getTeam().respawnPlayers())
+                            if (pool.getTeam().containsPlayer(player.getName()) || !pool.getTeam().doPlayersRespawn())
                                 continue;
                             checkPool(pool, player, gameInstance);
                         }
@@ -60,8 +60,8 @@ public class Move {
     private void checkPool(Pool pool, Player player, GameInstance gameInstance) {
         if (AreaUtil.isInsideArea(pool, player.getLocation())) {
             boolean bedwarsStyle = gameInstance.getGame().isBedwarsStyle();
-            Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
-            Team teamScored = pool.getTeam();
+            ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+            ITeam teamScored = pool.getTeam();
             player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
             if (bedwarsStyle)
                 teamScored.scorePoint(true);
@@ -93,7 +93,7 @@ public class Move {
                 }
             } else if (teamScored.getPoints() <= 0) {
                 String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.title.noRespawnTitle"));
-                for (Player pl : teamScored.getListOnlinePlayers()) {
+                for (Player pl : teamScored.getOnlinePlayers()) {
                     pl.playSound(pl.getLocation(), Sound.ENDERDRAGON_GROWL, 0.5f, 1.f);
                     if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("scorePoint.title.enabled"))
                         ReflectionMethods.sendTitle(pl, title, "", 0, 50, 20);

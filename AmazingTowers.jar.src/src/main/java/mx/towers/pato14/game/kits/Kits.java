@@ -22,6 +22,9 @@ public class Kits {
     public static Set<String> getKitsNames() {
         return kits.keySet();
     }
+    public static Kit getByName(String name) {
+        return kits.get(name.toUpperCase());
+    }
 
     private static void setKits() {
         kits.clear();
@@ -30,10 +33,10 @@ public class Kits {
             Object value = kitsConfig.get("Kits." + entry);
             if (!(value instanceof ConfigurationSection))
                 continue;
-            kits.put(entry, getKitFromConfig((ConfigurationSection) value));
+            kits.put(entry.toUpperCase(), getKitFromConfig((ConfigurationSection) value));
         }
         if (kits.isEmpty())
-            kits.put("Default", getKitFromConfig(
+            kits.put("DEFAULT", getKitFromConfig(
                     (ConfigurationSection) Config.getFromDefault("Default", "kitsDefine.yml")));
     }
 
@@ -66,12 +69,12 @@ public class Kits {
     }
 
     private final String instanceName;
-    private final List<Kit> kitsInThisInstance;
+    private final Set<Kit> kitsInThisInstance;
     private final HashMap<String, List<Kit>> temporalBoughtKits;
 
     public Kits(GameInstance gameInstance) {
         this.instanceName = gameInstance.getInternalName();
-        this.kitsInThisInstance = new ArrayList<>();
+        this.kitsInThisInstance = new LinkedHashSet<>();
         this.temporalBoughtKits = new HashMap<>();
         addKits(gameInstance);
     }
@@ -80,8 +83,8 @@ public class Kits {
         this.kitsInThisInstance.clear();
         this.temporalBoughtKits.clear();
         List<String> kitsInInstance = gameInstance.getConfig(ConfigType.KITS).getStringList("KitsInThisInstance");
-        kitsInThisInstance.addAll(kits.entrySet().stream().filter(o -> kitsInInstance.contains(o.getKey()))
-                .map(Map.Entry::getValue).collect(Collectors.toList()));
+        kitsInThisInstance.addAll(kitsInInstance.stream().map(String::toUpperCase).map(kits::get)
+                .filter(Objects::nonNull).collect(Collectors.toSet()));
         if (kitsInThisInstance.isEmpty())
             kitsInThisInstance.add(kits.values().iterator().next());
     }
@@ -91,7 +94,10 @@ public class Kits {
     }
 
     public Kit getDefaultKit() {
-        return this.kitsInThisInstance.get(0);
+        return this.kitsInThisInstance.iterator().next();
+    }
+    public Set<String> getKitsNamesInInstance() {
+        return kitsInThisInstance.stream().map(Kit::getName).collect(Collectors.toSet());
     }
 
     public static Kit getByIcon(ItemStack iconInMenu) {

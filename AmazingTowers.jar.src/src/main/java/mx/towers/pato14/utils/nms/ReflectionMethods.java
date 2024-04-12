@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Objects;
+import java.util.*;
 
 public class ReflectionMethods {
     private static Class<?> getNMSClass(String name) {
@@ -43,6 +43,9 @@ public class ReflectionMethods {
     private static Field playerConnection;
     private static Method sendPacket;
     private static Constructor<?> PacketPlayOutTitleConstructor2;
+    private static Class<?> PacketPlayOutScoreboardTeam;
+    private static Constructor<?> PacketPlayOutScoreboardTeamConstructor;
+
     static {
         try {
             a = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class);
@@ -56,8 +59,29 @@ public class ReflectionMethods {
             playerConnection = EntityPlayer.getField("playerConnection");
             sendPacket = getNMSClass("PlayerConnection").getMethod("sendPacket", getNMSClass("Packet"));
             PacketPlayOutTitleConstructor2 = PacketPlayOutTitle.getConstructor(EnumTitleAction, IChatBaseComponent, int.class, int.class, int.class);
+            PacketPlayOutScoreboardTeam = getNMSClass("PacketPlayOutScoreboardTeam");
+            PacketPlayOutScoreboardTeamConstructor = PacketPlayOutScoreboardTeam.getConstructor();
         } catch (Exception ex) {
             Utils.sendConsoleMessage("Reflection error: " + ex.getClass().getSimpleName(), MessageType.ERROR);
+        }
+    }
+
+    private static void setField(Object change, String name, Object to) {
+        try {
+            Field field = change.getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(change, to);
+            field.setAccessible(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void sendPacketFn(Player player, Object packet) {
+        try {
+            sendPacket.invoke(playerConnection.get(getHandle.invoke(CraftPlayer.cast(player))), packet);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -69,13 +93,59 @@ public class ReflectionMethods {
             Object sTitle = PacketPlayOutTitleConstructor.newInstance(Objects.requireNonNull(EnumTitleAction).getEnumConstants()[0], CTitle);
             Object sSubtitle = PacketPlayOutTitleConstructor.newInstance(EnumTitleAction.getEnumConstants()[1], CSubtitle);
 
-            sendPacket.invoke(playerConnection.get(getHandle.invoke((CraftPlayer.cast(player)))), sTitle);
-            sendPacket.invoke(playerConnection.get(getHandle.invoke((CraftPlayer.cast(player)))), sSubtitle);
+            sendPacketFn(player, sTitle);
+            sendPacketFn(player, sSubtitle);
 
             Object timesPacket = PacketPlayOutTitleConstructor2.newInstance(EnumTitleAction.getEnumConstants()[2], null, fadeIn, stay, fadeOut);
-            sendPacket.invoke(playerConnection.get(getHandle.invoke((CraftPlayer.cast(player)))), timesPacket);
+            sendPacketFn(player, timesPacket);
         } catch (Exception ex) {
             Utils.sendConsoleMessage("Exception while sending title to player", MessageType.ERROR);
+        }
+    }
+
+    static public Map<UUID, String> tabTeam = new HashMap<>();
+
+    public static void setTabStyle(Player player, String prefix, String suffix, int priority, Collection<? extends Player> receivers) {
+        if (prefix == null)
+            prefix = "";
+        if (suffix == null)
+            suffix = "";
+        try {
+            String teamName = priority + UUID.randomUUID().toString();
+            if (teamName.length() > 16)
+                teamName = teamName.substring(0, 16);
+            Object packet = PacketPlayOutScoreboardTeamConstructor.newInstance();
+            setField(packet, "a", teamName);
+            setField(packet, "b", teamName);
+            setField(packet, "c", prefix);
+            setField(packet, "d", suffix);
+            setField(packet, "e", "ALWAYS");
+            setField(packet, "h", 0);
+            setField(packet, "g", Collections.singletonList(player.getName()));
+            for (Player p : receivers)
+                sendPacketFn(p, packet);
+            tabTeam.put(player.getUniqueId(), teamName);
+        } catch (Exception e) {
+            Utils.sendConsoleMessage("Exception while setting player name in tablist", MessageType.ERROR);
+        }
+    }
+
+    public static void clearTabStyle(Player player, Collection<? extends Player> receivers) {
+        if (!tabTeam.containsKey(player.getUniqueId()))
+            tabTeam.put(player.getUniqueId(), "nothing");
+        String teamName = tabTeam.get(player.getUniqueId());
+        try {
+            Object packet = PacketPlayOutScoreboardTeamConstructor.newInstance();
+            setField(packet, "a", teamName);
+            setField(packet, "b", teamName);
+            setField(packet, "e", "ALWAYS");
+            setField(packet, "h", 1);
+            setField(packet, "g", Collections.singletonList(player.getName()));
+            for (Player p : receivers)
+                sendPacketFn(p, packet);
+            tabTeam.put(player.getUniqueId(), teamName);
+        } catch (Exception e) {
+            Utils.sendConsoleMessage("Exception while resetting player name in tablist", MessageType.ERROR);
         }
     }
 }

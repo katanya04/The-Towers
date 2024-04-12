@@ -2,7 +2,7 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -41,15 +41,15 @@ public class DeathListener implements Listener {
             }, 1L);
         }
         e.setDeathMessage(null);
-        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
-        final String finalKill = playerTeam == null || playerTeam.respawnPlayers() ? "" : Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
+        final String finalKill = playerTeam == null || playerTeam.doPlayersRespawn() ? "" : Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
         if (killer == null) {
             gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor), true);
         } else {
-            final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
+            final ITeam killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
             boolean bowKill = player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.PROJECTILE;
             gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString(bowKill ? "deathMessages.knownKillerProjectile" : "deathMessages.knownKiller")
@@ -74,10 +74,10 @@ public class DeathListener implements Listener {
         }
         if (gameInstance.getGame().getGameState() == GameState.FINISH)
             return;
-        if (playerTeam != null && !playerTeam.respawnPlayers()) {
-            playerTeam.setPlayerState(player.getName(), PlayerState.NO_RESPAWN);
+        if (playerTeam != null && !playerTeam.doPlayersRespawn()) {
+            player.setGameMode(GameMode.SPECTATOR);
             gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
-            if (playerTeam.getSizeOnlinePlayers() <= 0)
+            if (playerTeam.getNumAlivePlayers() <= 0)
                 Utils.checkForTeamWin(gameInstance);
         } else
             gameInstance.getScoreUpdates().updateScoreboard(player);
@@ -94,10 +94,10 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
+        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
         if ((gameInstance.getGame().getGameState().equals(GameState.GAME) ||
                 gameInstance.getGame().getGameState().equals(GameState.GOLDEN_GOAL)) && playerTeam != null) {
-            if (playerTeam.respawnPlayers() && !playerTeam.isEliminated()) {
+            if (playerTeam.doPlayersRespawn() && !playerTeam.isEliminated()) {
                 e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
                 gameInstance.getGame().applyKitToPlayer(e.getPlayer());
             } else {

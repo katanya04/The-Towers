@@ -109,13 +109,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.nametagedit.plugin.NametagEdit</groupId>
-            <artifactId>NametagEdit</artifactId>
-            <scope>system</scope>
-            <version>4.5.14</version>
-            <systemPath>C:/spigot/plugins/NametagEdit.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>net.milkbowl.vault.Vault</groupId>
             <artifactId>Vault</artifactId>
             <scope>system</scope>

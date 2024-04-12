@@ -22,7 +22,9 @@ public class LobbyListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (instance instanceof LobbyInstance || (instance instanceof GameInstance &&
-                    (!(((GameInstance) instance).getGame().getGameState().matchIsBeingPlayed) || !((GameInstance) instance).getRules().get(Rule.HUNGER)))) {
+                    (((GameInstance)instance).getGame().getTeams().getTeamByPlayer(p.getName()) == null ||
+                            !((GameInstance) instance).getGame().getGameState().matchIsBeingPlayed ||
+                            !((GameInstance) instance).getRules().get(Rule.HUNGER)))) {
                 p.setFoodLevel(20);
                 e.setCancelled(true);
             }

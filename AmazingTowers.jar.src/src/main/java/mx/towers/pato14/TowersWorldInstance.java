@@ -6,7 +6,6 @@ import mx.towers.pato14.game.scoreboard.ScoreUpdate;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.mysql.Connexion;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -95,9 +94,6 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
     public void joinInstance(Player player) {
         this.getScoreUpdates().createScoreboard(player, false);
         this.getScoreUpdates().updateScoreboardAll(true, AmazingTowers.getAllOnlinePlayers());
-        if (AmazingTowers.isConnectedToDatabase()) {
-            AmazingTowers.connexion.createAccount(player.getName(), Connexion.ALL_TABLES);
-        }
     }
 
     public void leaveInstance(Player player) {

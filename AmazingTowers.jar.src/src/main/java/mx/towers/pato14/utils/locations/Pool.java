@@ -1,14 +1,14 @@
 package mx.towers.pato14.utils.locations;
 
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 
 import java.util.List;
 
 public class Pool {
-    private final Team team;
+    private final ITeam team;
     private final IntCoordinate corner1;
     private final IntCoordinate corner2;
-    public Pool(Team teamColor, List<String> location) {
+    public Pool(ITeam teamColor, List<String> location) {
         this.team = teamColor;
         this.corner1 = IntCoordinate.getFromString(location.get(0));
         this.corner2 = IntCoordinate.getFromString(location.get(1));
@@ -25,7 +25,7 @@ public class Pool {
     public void setCorner2(int x, int y, int z) {
         this.corner2.setCoordinate(x, y, z);
     }
-    public Team getTeam() {
+    public ITeam getTeam() {
         return team;
     }
 }

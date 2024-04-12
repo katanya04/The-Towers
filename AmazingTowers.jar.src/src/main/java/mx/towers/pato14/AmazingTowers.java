@@ -2,18 +2,24 @@ package mx.towers.pato14;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import mx.towers.pato14.commands.KitsCommand;
+import mx.towers.pato14.commands.LobbyCommand;
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.events.EventsManager;
+import mx.towers.pato14.game.events.player.TeamChatListener;
 import mx.towers.pato14.utils.enums.PermissionLevel;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
-import mx.towers.pato14.utils.cofresillos.SelectCofresillos;
+import mx.towers.pato14.game.refill.SelectCofresillos;
 import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.utils.files.Logger;
-import mx.towers.pato14.utils.items.ActionItems;
+import mx.towers.pato14.utils.logger.ILogger;
+import mx.towers.pato14.utils.logger.Logger;
+import mx.towers.pato14.utils.items.SetActionItems;
 import mx.towers.pato14.utils.mysql.Connexion;
+import mx.towers.pato14.utils.mysql.IConnexion;
 import mx.towers.pato14.utils.placeholders.Expansion;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import mx.towers.pato14.utils.wand.WandCoords;
@@ -32,8 +38,8 @@ public final class AmazingTowers extends JavaPlugin {
     private static HashMap<Player, WandCoords> wands;
     private static Config globalConfig;
     private static Config kitsDefine;
-    public static Connexion connexion;
-    public static Logger logger;
+    public static IConnexion connexion;
+    public static ILogger logger;
 
     @Override
     public void onEnable() {
@@ -42,21 +48,20 @@ public final class AmazingTowers extends JavaPlugin {
         globalConfig = new Config("globalConfig.yml", true);
         kitsDefine = new Config("kitsDefine.yml", true);
         games = new GameInstance[globalConfig.getInt("options.instances.amount")];
-
-        if (getServer().getPluginManager().getPlugin("NametagEdit") == null) {
-            Utils.sendConsoleMessage("§cNot detected the 'NameTagEdit' plugin, disabling AmazingTowers", MessageType.ERROR);
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
         createBackupsFolder();
 
         getCommand("towers").setExecutor(new TowerCommand());
+        getCommand("kits").setExecutor(new KitsCommand());
+        getCommand("lobby").setExecutor(new LobbyCommand());
 
         logger = new Logger(globalConfig.getBoolean("options.logger.activated"),
                 globalConfig.getBoolean("options.logger.logSQLCalls"),
                 Logger.SQLCallType.getOrDefault(globalConfig.getString("options.logger.SQLCallType"), Logger.SQLCallType.WRITE),
                 globalConfig.getBoolean("options.logger.logTowersCommand"),
                 PermissionLevel.getOrDefault(globalConfig.getString("options.logger.permLevelToLog"), PermissionLevel.ADMIN),
+                globalConfig.getBoolean("options.logger.logChat"),
+                Utils.getOrDefault(TeamChatListener.ChatScope.getScopes(Arrays.stream(globalConfig.getString("options.logger.chatScopeToLog")
+                        .split(",")).collect(Collectors.toList())), Arrays.stream(TeamChatListener.ChatScope.values()).collect(Collectors.toSet())),
                 globalConfig.getInt("options.logger.maxTimeHoursPerFile"));
 
         if (getGlobalConfig().getBoolean("options.database.active")) {
@@ -76,8 +81,8 @@ public final class AmazingTowers extends JavaPlugin {
             new Expansion().register();
         }
 
-        ActionItems.registerItems();
-        ActionItems.setHotbarItemsInInstances();
+        SetActionItems.registerItems();
+        SetActionItems.setHotbarItemsInInstances();
 
         (new EventsManager(getPlugin())).registerEvents();
         wands = new HashMap<>();

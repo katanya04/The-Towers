@@ -115,7 +115,8 @@ public class TeamScorebord implements ITeam {
 
     @Override
     public Set<Player> getOnlinePlayers() {
-        return this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).collect(Collectors.toSet());
+        return this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull)
+                .filter(o -> o.getWorld().equals(this.gameTeams.getGame().getGameInstance().getWorld())).collect(Collectors.toSet());
     }
 
     @Override

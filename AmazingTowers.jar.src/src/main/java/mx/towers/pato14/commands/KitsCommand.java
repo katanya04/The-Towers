@@ -39,11 +39,16 @@ public class KitsCommand implements TabExecutor {
                 Utils.sendMessage("Kit not found", MessageType.ERROR, p);
                 return true;
             }
-            if (kit.playerHasKit(p, game)) {
-                game.getGame().getPlayersSelectedKit().put(p, kit);
-                Utils.sendMessage("Kit applied", MessageType.INFO, p);
-            } else
-                Utils.sendMessage("You don't have this kit", MessageType.ERROR, p);
+            if (args.length == 1) {
+                if (kit.playerHasKit(p, game)) {
+                    game.getGame().getPlayersSelectedKit().put(p, kit);
+                    Utils.sendMessage("Kit applied", MessageType.INFO, p);
+                } else
+                    Utils.sendMessage("You don't have this kit", MessageType.ERROR, p);
+            } else if (args.length == 2 && args[1].equalsIgnoreCase("reset")) {
+                kit.resetHotbar(p);
+                Utils.sendMessage("Kit's hotbar reset", MessageType.INFO, p);
+            }
         }
         return true;
     }

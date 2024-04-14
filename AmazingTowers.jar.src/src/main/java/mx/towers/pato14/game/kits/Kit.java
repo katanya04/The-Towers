@@ -17,6 +17,7 @@ import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
@@ -26,9 +27,15 @@ public class Kit {
 
     static {
         changeHotbar.setOnClickBehaviour(event -> {
-            if (!event.getClickedInventory().equals(event.getInventory()) || event.getClick().isShiftClick() || event.getClick().isKeyboardClick())
+            if (event.getSlotType() == InventoryType.SlotType.OUTSIDE || !event.getClickedInventory().equals(event.getInventory())
+                    || event.getClick().isShiftClick() || event.getClick().isKeyboardClick())
                 event.setCancelled(true);
         });
+        changeHotbar.setOnDragBehaviour(event -> {
+            if (event.getRawSlots().stream().anyMatch(o -> o > event.getInventory().getSize()))
+                event.setCancelled(true);
+        });
+        changeHotbar.setRetrieveItemOnCursorOnClose(true);
     }
 
     private final static ChestMenu buyKitMenu = new ChestMenu("buyKitMenu", new ItemStack[9 * 3]);
@@ -137,6 +144,10 @@ public class Kit {
             hotbar = this.hotbar;
         }
         return hotbar;
+    }
+
+    public void resetHotbar(Player player) {
+        InventoryMenu.resetPlayerSave(player, this.getName());
     }
 
     public int getPrice() {

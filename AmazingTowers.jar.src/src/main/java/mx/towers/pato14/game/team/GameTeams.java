@@ -112,7 +112,7 @@ public class GameTeams {
                 .getString("enterSpectatorMode").replace("%newLine%", "\n")));
         if (currentTeam != null)
             currentTeam.removePlayer(player.getName());
-        Prefixes.setPrefix(player, ChatColor.GRAY + player.getName());
+        Prefixes.setPrefix(player, ChatColor.GRAY.toString());
         player.closeInventory();
     }
 

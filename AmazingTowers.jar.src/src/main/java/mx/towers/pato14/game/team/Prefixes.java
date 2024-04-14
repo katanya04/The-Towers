@@ -1,11 +1,9 @@
 package mx.towers.pato14.game.team;
 
-import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 

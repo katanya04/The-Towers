@@ -8,7 +8,6 @@ import mx.towers.pato14.game.tasks.*;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.game.team.Prefixes;
-import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.game.refill.RefillTask;
 import mx.towers.pato14.utils.enums.*;
@@ -201,6 +200,7 @@ public class Game {
 
     public void leave(Player player) {
         final ITeam playerTeam = this.getTeams().getTeamByPlayer(player.getName());
+        Prefixes.clearPrefix(player);
         switch (this.getGameState()) {
             case LOBBY:
             case PREGAME:

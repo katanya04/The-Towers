@@ -22,7 +22,7 @@ public class GameTeams {
         this.teams = new LinkedList<>();
         this.playersAmount = null;
         for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
-            this.teams.add(new TeamScorebord(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
+            this.teams.add(new Team(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ", this));
         }
     }

@@ -201,6 +201,7 @@ public class Game {
     public void leave(Player player) {
         final ITeam playerTeam = this.getTeams().getTeamByPlayer(player.getName());
         Prefixes.clearPrefix(player);
+        this.teams.updatePlayersAmount();
         switch (this.getGameState()) {
             case LOBBY:
             case PREGAME:

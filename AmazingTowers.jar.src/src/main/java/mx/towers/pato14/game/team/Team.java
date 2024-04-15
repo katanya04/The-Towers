@@ -18,14 +18,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class TeamScorebord implements ITeam {
+public class Team implements ITeam {
     private final Set<String> players;
     private String prefix;
     private final TeamColor teamColor;
     private int points;
     private final GameTeams gameTeams;
     private boolean eliminated;
-    public TeamScorebord(TeamColor teamColor, String prefix, GameTeams gameTeams) {
+    public Team(TeamColor teamColor, String prefix, GameTeams gameTeams) {
         this.prefix = prefix;
         this.teamColor = teamColor;
         this.points = 0;

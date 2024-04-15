@@ -9,7 +9,10 @@ import java.util.UUID;
 
 public interface Prefixes {
     static void setPrefix(Player player, String prefix) {
-        ReflectionMethods.setTabStyle(player, prefix, null, 0, player.getWorld().getPlayers());
+        ReflectionMethods.setTabStyle(player, prefix, null, prefix.hashCode(), player.getWorld().getPlayers());
+    }
+    static void setPrefixPriority(Player player, String prefix, int priority) {
+        ReflectionMethods.setTabStyle(player, prefix, null, priority, player.getWorld().getPlayers());
     }
     static void clearPrefix(Player player) {
         ReflectionMethods.setTabStyle(player, null, null, 0, player.getWorld().getPlayers());

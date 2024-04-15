@@ -139,7 +139,7 @@ public class Kit {
     }
 
     public ItemStack[] getHotbar(Player player) {
-        ItemStack[] hotbar = InventoryMenu.getSavedMenu(player, this.getName());
+        ItemStack[] hotbar = InventoryMenu.getSavedMenu(player, null, this.getName());
         if (hotbar == null) {
             hotbar = this.hotbar;
         }
@@ -147,7 +147,7 @@ public class Kit {
     }
 
     public void resetHotbar(Player player) {
-        InventoryMenu.resetPlayerSave(player, this.getName());
+        InventoryMenu.resetPlayerSave(player.getName(), null, this.getName());
     }
 
     public int getPrice() {

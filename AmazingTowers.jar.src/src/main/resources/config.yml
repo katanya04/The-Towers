@@ -58,6 +58,9 @@ lobbyItems:
     selectKit:
       name: '&3&lEscoger kit'
       position: 1
+    selectPlayers:
+      name: '&3&lEscoger jugadores'
+      position: 0
     modifyGameSettings:
       name: '&3&lModificar ajustes'
       position: 7

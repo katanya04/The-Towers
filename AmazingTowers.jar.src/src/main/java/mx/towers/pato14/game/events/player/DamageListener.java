@@ -6,7 +6,6 @@ import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.Utils;
-import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -34,7 +33,7 @@ public class DamageListener implements Listener {
             if (gameInstance.getGame() == null)
                 return;
             player.setLastDamageCause(e);
-            if (gameInstance.getGame().getGameState() != GameState.GAME && gameInstance.getGame().getGameState() != GameState.GOLDEN_GOAL)
+            if (!gameInstance.getGame().getGameState().matchIsBeingPlayed)
                 Utils.tpToLobby(gameInstance, player);
             else if (player.getHealth() > 0.0) {
                 if (player.isInsideVehicle())
@@ -59,7 +58,7 @@ public class DamageListener implements Listener {
             GameInstance gameInstance = (GameInstance) instance;
             if (gameInstance.getGame() == null)
                 return;
-            if (gameInstance.getGame().getGameState() == GameState.FINISH) {
+            if (!gameInstance.getGame().getGameState().matchIsBeingPlayed) {
                 e.setCancelled(true);
                 return;
             }

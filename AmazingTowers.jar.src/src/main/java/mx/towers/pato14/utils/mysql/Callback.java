@@ -1,19 +1,24 @@
 package mx.towers.pato14.utils.mysql;
 
 import mx.towers.pato14.AmazingTowers;
+import mx.towers.pato14.utils.stats.Stats;
 import org.bukkit.Bukkit;
+
+import java.util.Collection;
+import java.util.Map;
 
 public interface Callback<T> {
     void onQueryDone(T result);
-    static void findPlayerAsync(final String name, final String tableName, final Callback<int[]> callback) {
-        // Run outside the tick loop
+    static void findPlayerAsync(final String name, final String tableName, final Callback<Stats> callback) {
         Bukkit.getScheduler().runTaskAsynchronously(AmazingTowers.getPlugin(), () -> {
-            int[] data = AmazingTowers.connexion.getStats(name, tableName);
-            // go back to the tick loop
-            Bukkit.getScheduler().runTask(AmazingTowers.getPlugin(), () -> {
-                // call the callback with the result
-                callback.onQueryDone(data);
-            });
+            Stats data = AmazingTowers.connexion.getStats(name, tableName);
+            Bukkit.getScheduler().runTask(AmazingTowers.getPlugin(), () -> callback.onQueryDone(data));
+        });
+    }
+    static void findPlayerAsync(final Collection<String> players, final Collection<String> tables, final Callback<Map<String, Stats>> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(AmazingTowers.getPlugin(), () -> {
+            Map<String, Stats> data = AmazingTowers.connexion.getStats(players, tables);
+            Bukkit.getScheduler().runTask(AmazingTowers.getPlugin(), () -> callback.onQueryDone(data));
         });
     }
 }

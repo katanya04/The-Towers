@@ -23,6 +23,7 @@ rules:
   bedwarsStyle: 'false'
   explosiveChicken: 'false'
   hunger: 'true'
+  captains: 'false'
 whitelist:
   activated: 'false'
   players: ""

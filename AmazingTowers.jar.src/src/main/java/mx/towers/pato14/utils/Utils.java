@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -612,5 +613,26 @@ public class Utils {
             p.setItemInHand(new ItemStack(Material.AIR));
         else
             p.getItemInHand().setAmount(amount - 1);
+    }
+
+    public static <E> E getRandomSetElement(Set<E> set) {
+        return set.stream().skip(new Random().nextInt(set.size())).findFirst().orElse(null);
+    }
+
+    public static boolean isValidURL(String url) {
+        try {
+            URL url1 = new URL(url);
+            url1.toURI();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public static void reportException(String text, Exception ex) {
+        StringBuilder sb = new StringBuilder();
+        for (StackTraceElement stackLine : ex.getStackTrace())
+            sb.append(stackLine).append("\n");
+        Utils.sendConsoleMessage(text + "\n Exception: " + ex.getClass().getCanonicalName() + "\n" + sb, MessageType.ERROR);
     }
 }

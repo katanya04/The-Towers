@@ -5,13 +5,14 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.MessageType;
+import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.items.Items;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scoreboard.Team;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,9 +52,6 @@ public enum TeamColor {
     public static List<TeamColor> getTeams(int numberOfTeams) {
         return Arrays.stream(TeamColor.values()).limit(numberOfTeams).collect(Collectors.toList());
     }
-    public String firstCapitalized() {
-        return this.toString().toLowerCase().replace(this.toString().toLowerCase().charAt(0), this.toString().charAt(0));
-    }
     public Color getColorEnum() {
         if (this.ordinal() < colors.length - 1)
             return colors[this.ordinal()];
@@ -85,13 +83,20 @@ public enum TeamColor {
     }
 
     private static void createActionItem(TeamColor team) {
-        new ActionItem(player -> team.getTeamItem(AmazingTowers.getGameInstance(player)),
+        new ActionItem<Player>(player -> team.getTeamItem(AmazingTowers.getGameInstance(player)),
                 event -> {
                     GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
+                    if (game == null || game.getGame() == null)
+                        return;
                     if (team == SPECTATOR)
                         game.getGame().getTeams().joinSpectator(event.getPlayer());
-                    else
-                        game.getGame().getTeams().getTeam(team).changeTeam(event.getPlayer());
+                    else {
+                        if (!game.getRules().get(Rule.CAPTAINS))
+                            game.getGame().getTeams().getTeam(team).changeTeam(event.getPlayer());
+                        else
+                            Utils.sendMessage(game.getConfig(ConfigType.MESSAGES).getString("cantJoinInCaptainsMode"),
+                                    MessageType.ERROR, event.getPlayer());
+                    }
                 },
                 "JoinTeam." + team);
     }

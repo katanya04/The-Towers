@@ -32,7 +32,7 @@ public class KitsCommand implements TabExecutor {
             return true;
         }
         if (args.length == 0)
-            ((MenuItem<?>) ActionItem.getByName(ItemsEnum.KIT_SELECT.name)).getMenu().openMenu(p);
+            ((MenuItem<?, Object>) ActionItem.getByName(ItemsEnum.KIT_SELECT.name)).getMenu().openMenu(p);
         else {
             Kit kit = Kits.getByName(args[0]);
             if (kit == null) {

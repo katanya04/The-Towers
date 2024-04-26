@@ -4,26 +4,23 @@ import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
-import java.util.UUID;
-
 public interface Prefixes {
-    static void setPrefix(Player player, String prefix) {
-        ReflectionMethods.setTabStyle(player, prefix, null, prefix.hashCode(), player.getWorld().getPlayers());
+    static void setPrefix(String playerName, String prefix) {
+        Player p = Bukkit.getPlayer(playerName);
+        ReflectionMethods.setTabStyle(playerName, prefix, null, prefix.hashCode(), p == null ? null : p.getWorld().getPlayers());
     }
-    static void setPrefixPriority(Player player, String prefix, int priority) {
-        ReflectionMethods.setTabStyle(player, prefix, null, priority, player.getWorld().getPlayers());
+    static void setPrefixPriority(String playerName, String prefix, int priority) {
+        Player p = Bukkit.getPlayer(playerName);
+        ReflectionMethods.setTabStyle(playerName, prefix, null, priority, p == null ? null : p.getWorld().getPlayers());
     }
-    static void clearPrefix(Player player) {
-        ReflectionMethods.setTabStyle(player, null, null, 0, player.getWorld().getPlayers());
+    static void clearPrefix(String playerName) {
+        Player p = Bukkit.getPlayer(playerName);
+        ReflectionMethods.setTabStyle(playerName, null, null, 0, p == null ? null : p.getWorld().getPlayers());
     }
-    static String getPrefix(Player player) {
-        return ReflectionMethods.tabTeam.get(player.getUniqueId());
+    static String getPrefix(String playerName) {
+        return ReflectionMethods.tabTeam.get(playerName);
     }
     static void updatePrefixes() {
-        for (Map.Entry<UUID, String> entry : ReflectionMethods.tabTeam.entrySet()) {
-            Player p = Bukkit.getPlayer(entry.getKey());
-            setPrefix(p, entry.getValue());
-        }
+        ReflectionMethods.tabTeam.forEach(Prefixes::setPrefix);
     }
 }

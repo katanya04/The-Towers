@@ -16,3 +16,5 @@ commands:
     aliases: [kit]
   lobby:
     aliases: [hub, exit, salir, volver, leave, back]
+  ready:
+    aliases: [listo]

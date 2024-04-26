@@ -10,12 +10,12 @@ public enum StatType {
     BLOCKS_PLACED(9, "Bloques colocados", "Blocks_Placed", "§2");
     private final int index;
     private final String text;
-    private final String fieldName;
+    private final String columnName;
     private final String color;
-    StatType(int index, String text, String fieldName, String color) {
+    StatType(int index, String text, String columnName, String color) {
         this.index = index;
         this.text = text;
-        this.fieldName = fieldName;
+        this.columnName = columnName;
         this.color = color;
     }
     public String getText() {
@@ -24,10 +24,16 @@ public enum StatType {
     public int getIndex() {
         return this.index;
     }
-    public String getFieldName() {
-        return this.fieldName;
+    public String getColumnName() {
+        return this.columnName;
     }
     public String getColor() {
         return color;
+    }
+    public static StatType fromColumnName(String columnName) {
+        for (StatType statType : StatType.values())
+            if (statType.columnName.equalsIgnoreCase(columnName))
+                return statType;
+        return null;
     }
 }

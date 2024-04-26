@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import mx.towers.pato14.commands.KitsCommand;
 import mx.towers.pato14.commands.LobbyCommand;
+import mx.towers.pato14.commands.ReadyCommand;
 import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.game.events.player.TeamChatListener;
@@ -53,6 +54,7 @@ public final class AmazingTowers extends JavaPlugin {
         getCommand("towers").setExecutor(new TowerCommand());
         getCommand("kits").setExecutor(new KitsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand());
+        getCommand("ready").setExecutor(new ReadyCommand());
 
         logger = new Logger(globalConfig.getBoolean("options.logger.activated"),
                 globalConfig.getBoolean("options.logger.logSQLCalls"),

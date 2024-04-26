@@ -63,7 +63,7 @@ public class TeamChatListener implements Listener {
         } else if (instance instanceof GameInstance) {
             GameInstance gameInstance = (GameInstance) instance;
             ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(name);
-            if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) || gameInstance.getGame().getGameState().equals(GameState.PREGAME) || team == null || e.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            if (!gameInstance.getGame().getGameState().matchIsBeingPlayed || team == null || e.getPlayer().getGameMode() == GameMode.SPECTATOR) {
                 msg = Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.chat.format.defaultChat")
                         .replace("%vault_prefix%", SetupVault.getPrefixRank(e.getPlayer())).replace("%player%", name))
                         .replace("%msg%", msg);

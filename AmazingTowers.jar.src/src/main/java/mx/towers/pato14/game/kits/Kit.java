@@ -22,8 +22,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 public class Kit {
-    private final static ActionItem kit = new ActionItem(pl -> new ItemStack(Material.PAPER), null, ItemsEnum.KIT.name);
-    private final static ChestMenu changeHotbar = new ChestMenu("", new ItemStack[9], true, InventoryMenu.SaveOption.INDIVIDUAL, null, null);
+    private final static ActionItem<Player> kit = new ActionItem<>(pl -> new ItemStack(Material.PAPER), null, ItemsEnum.KIT.name);
+    private final static ChestMenu changeHotbar = new ChestMenu("", new ItemStack[9], true, InventoryMenu.SaveOption.INDIVIDUAL, false);
 
     static {
         changeHotbar.setOnClickBehaviour(event -> {
@@ -44,6 +44,8 @@ public class Kit {
         kit.setOnInteract(event -> {
             Player player = event.getPlayer();
             GameInstance game = AmazingTowers.getGameInstance(player);
+            if (game == null || game.getGame() == null)
+                return;
             Config messages = game.getConfig(ConfigType.MESSAGES);
             if (!game.getRules().get(Rule.KITS)) {
                 player.sendMessage(Utils.getColor(messages.getString("kitsDisabled")));

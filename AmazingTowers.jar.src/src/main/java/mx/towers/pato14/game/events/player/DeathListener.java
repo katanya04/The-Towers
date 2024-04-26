@@ -72,7 +72,7 @@ public class DeathListener implements Listener {
                 }
             }
         }
-        if (gameInstance.getGame().getGameState() == GameState.FINISH)
+        if (!gameInstance.getGame().getGameState().matchIsBeingPlayed)
             return;
         if (playerTeam != null && !playerTeam.doPlayersRespawn()) {
             player.setGameMode(GameMode.SPECTATOR);
@@ -95,8 +95,7 @@ public class DeathListener implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
-        if ((gameInstance.getGame().getGameState().equals(GameState.GAME) ||
-                gameInstance.getGame().getGameState().equals(GameState.GOLDEN_GOAL)) && playerTeam != null) {
+        if (gameInstance.getGame().getGameState().matchIsBeingPlayed && playerTeam != null) {
             if (playerTeam.doPlayersRespawn() && !playerTeam.isEliminated()) {
                 e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));
                 gameInstance.getGame().applyKitToPlayer(e.getPlayer());

@@ -61,7 +61,7 @@ public class ScoreUpdate {
             GameInstance gameInstance = (GameInstance) towersWorldInstance;
             if (gameInstance.getGame() == null)
                 return;
-            if (gameInstance.getGame().getGameState().equals(GameState.LOBBY)) {
+            if (gameInstance.getGame().getGameState().equals(GameState.LOBBY) || gameInstance.getGame().getGameState().equals(GameState.CAPTAINS_CHOOSE)) {
                 List<String> l = gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.lobby.scores");
                 int i = l.size();
                 for (String st : l) {
@@ -106,7 +106,7 @@ public class ScoreUpdate {
                                 pointsText = String.valueOf(teams.get(currentTeam).getPoints());
                             else {
                                 if (teams.get(currentTeam).doPlayersRespawn())
-                                    pointsText = teams.get(currentTeam).getPoints() + " &4❤";
+                                    pointsText = teams.get(currentTeam).getLives() + " &4❤";
                                 else {
                                     if (teams.get(currentTeam).getNumAlivePlayers() == 1)
                                         pointsText = teams.get(currentTeam).getNumAlivePlayers() + " " + gameInstance.getConfig(ConfigType.SCOREBOARD).getString("player");

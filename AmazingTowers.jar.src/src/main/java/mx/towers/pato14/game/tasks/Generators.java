@@ -5,7 +5,6 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.Location;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,7 +31,7 @@ public class Generators {
         (new BukkitRunnable() {
             public void run() {
                 GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
-                if (gameInstance.getGame().getGameState().equals(GameState.FINISH) ||
+                if (!gameInstance.getGame().getGameState().matchIsBeingPlayed ||
                         !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("generators.activated"))) {
                     cancel();
                     return;

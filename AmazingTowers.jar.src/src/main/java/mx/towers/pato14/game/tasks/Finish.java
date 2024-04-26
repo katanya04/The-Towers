@@ -41,9 +41,7 @@ public class Finish {
 
     public void fatality(final TeamColor teamColor) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        if (!gameInstance.getGame().getGameState().equals(GameState.FINISH)) {
-            gameInstance.getGame().setGameState(GameState.FINISH);
-        }
+        gameInstance.getGame().setGameState(GameState.FINISH);
         for (String p : gameInstance.getGame().getStats().getPlayerStats().keySet()) {
             gameInstance.getGame().getStats().addOne(p, StatType.GAMES_PLAYED);
             if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(p))
@@ -126,7 +124,7 @@ public class Finish {
                                     / (double) stats.getStat(player.getName(), StatType.DEATHS));
                             double points = killDeathRatio * 2.5 + stats.getStat(player.getName(), StatType.POINTS) * 1.5;
                             Rank rank = Rank.getRank(points);
-                            player.sendMessage(rank.toText());
+                            player.sendMessage(rank.getColor() + "§l" + rank.name());
                             player.playSound(player.getLocation(), rank.getSound(), 1.0F, rank.getPitch());
                         }
                     }
@@ -239,7 +237,7 @@ public class Finish {
         if (winningTeams.size() == 1)
             this.fatality(winningTeams.get(0).getTeamColor());
         else {
-            gameInstance.getGame().setGoldenGoal(true);
+            gameInstance.getGame().setGameState(GameState.EXTRA_TIME);
             gameInstance.getGame().getTeams().getTeams().forEach(o -> {
                 if (winningTeams.contains(o)) {
                     if (gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {

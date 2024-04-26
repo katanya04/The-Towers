@@ -16,6 +16,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalTime;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,18 +93,18 @@ public class Logger implements ILogger {
     }
 
     @Override
-    public void logSQLCall(IConnexion.Operation operationType, @Nullable String player, @Nullable String tableName,
-                           @Nullable Stats stats) {
+    public void logSQLCall(IConnexion.Operation operationType, @Nullable Collection<String> player,
+                           @Nullable Collection<String> tableName, @Nullable Map<String, Stats> stats) {
         if (!this.logSQLCalls || !this.sqlCallType.shouldLog(operationType.getSqlCallType()))
             return;
         StringBuilder logText = new StringBuilder();
         logText.append("Operation ").append(Utils.macroCaseToItemName(operationType.name()));
         if (player != null)
-            logText.append(" on player ").append(player);
+            logText.append(" on players ").append(player);
         if (tableName != null)
-            logText.append(" on table ").append(tableName);
+            logText.append(" on tables ").append(tableName);
         if (stats != null)
-            logText.append(" with stats ").append(stats);
+            logText.append(" with stats [").append(stats).append("]");
         log(LogType.SQL_CALL, logText.toString());
     }
 

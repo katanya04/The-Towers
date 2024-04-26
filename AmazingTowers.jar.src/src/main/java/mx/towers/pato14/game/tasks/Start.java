@@ -25,19 +25,16 @@ public class Start {
         hasStarted = true;
         GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
         Game game = gameInstance.getGame();
+        if (gameInstance.getRules().get(Rule.CAPTAINS) && !game.getCaptainsPhase().hasConcluded())
+            game.getCaptainsPhase().setPlayerList(false);
         (new BukkitRunnable() {
             public void run() {
                 if (Start.this.countDown <= 0) {
-                    game.setGameState(GameState.GAME);
                     cancel();
-                    game.setBedwarsStyle(gameInstance.getRules().get(Rule.BEDWARS_STYLE));
-                    Start.this.teleportPlayers();
-                    game.getGenerators().startGenerators();
-                    game.getRefill().startRefillTask();
-                    gameInstance.getScoreUpdates().updateScoreboardAll(false, game.getPlayers());
-                    game.getDetectionMove().MoveDetect();
-                    if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated")))
-                        game.getTimer().timerStart();
+                    if (gameInstance.getRules().get(Rule.CAPTAINS) && !game.getCaptainsPhase().hasConcluded())
+                        startCaptainsChoose();
+                    else
+                        startMatch();
                     return;
                 }
                 if (!runFromCommand && gameInstance.getNumPlayers() < gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
@@ -59,7 +56,8 @@ public class Start {
                     }
                 }
                 if (Start.this.countDown <= 5 &&
-                        gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("gameStart.title.enabled")) {
+                        gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("gameStart.title.enabled")
+                        && !(gameInstance.getRules().get(Rule.CAPTAINS) && !game.getCaptainsPhase().hasConcluded())) {
                     String title = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.titleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.countDown)));
                     String subtitle = Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("gameStart.title.subtitleFiveOrLessSec").replace("{count}", String.valueOf(Start.this.countDown)));
                     for (Player player : gameInstance.getWorld().getPlayers()) {
@@ -104,6 +102,8 @@ public class Start {
             this.gameStart();
         }
         this.continueCount();
+        if (game.getGameState() == GameState.CAPTAINS_CHOOSE)
+            game.getCaptainsPhase().conclude(true);
     }
     public void startFromCommand() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
@@ -116,6 +116,28 @@ public class Start {
         }
         this.continueCount();
         this.setCountDown(0);
+    }
+    public void startMatch() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
+        Game game = gameInstance.getGame();
+        game.setGameState(GameState.GAME);
+        Start.this.teleportPlayers();
+        game.getGenerators().startGenerators();
+        game.getRefill().startRefillTask();
+        gameInstance.getScoreUpdates().updateScoreboardAll(false, game.getPlayers());
+        game.getDetectionMove().checkPointScore();
+        if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("timer.activated")))
+            game.getTimer().timerStart();
+    }
+    public void startCaptainsChoose() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
+        Game game = gameInstance.getGame();
+        game.setGameState(GameState.CAPTAINS_CHOOSE);
+        game.getCaptainsPhase().initialize();
+    }
+    public void afterCaptainsChoose(boolean startImmediately) {
+        this.countDown = startImmediately ? 0 : 60;
+        gameStart();
     }
     public void reset() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);

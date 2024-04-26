@@ -11,6 +11,7 @@ import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.ItemsEnum;
+import mx.towers.pato14.utils.items.Skulls;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.mysql.Callback;
 import mx.towers.pato14.utils.mysql.IConnexion;
@@ -100,9 +101,10 @@ public class TowerCommand implements TabExecutor {
                             } else {
                                 for (StatType statType : StatType.values()) {
                                     sender.sendMessage("§7" + statType.getText() + ": " + statType.getColor() + "§l" +
-                                            result[statType.getIndex() - 3]);
+                                            result.getStat(statType));
                                 }
-                                sender.sendMessage("§7§lRANGO: " + Rank.getTotalRank(result).toText());
+                                Rank rank = Rank.getTotalRank(result);
+                                sender.sendMessage("§7§lRANGO: " + rank.getColor() + "§l" + rank.name());
                             }
                         });
                         cooldown.put(sender.getName(), System.currentTimeMillis());
@@ -153,8 +155,7 @@ public class TowerCommand implements TabExecutor {
                 break;
             case RULE:
                 assert gameInstance != null;
-                gameInstance.getRules().replace(Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
-                gameInstance.getConfig(ConfigType.GAME_SETTINGS).set("rules." + Utils.macroCaseToCamelCase(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
+                Rule.setRuleValue(gameInstance, Rule.valueOf(args[1].toUpperCase()), Boolean.parseBoolean(args[2].toLowerCase()));
                 Utils.sendMessage("Set " + args[1].toLowerCase() + " §rto §e" + args[2].toLowerCase(), MessageType.INFO, sender);
                 break;
             case SETSCORE:
@@ -164,11 +165,20 @@ public class TowerCommand implements TabExecutor {
                     team.setPoints(Integer.parseInt(args[2]));
                     gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
-                    int pointsToWin = Integer.parseInt(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.pointsToWin"));
-                    if (team.getPoints() >= pointsToWin && !gameInstance.getRules().get(Rule.BEDWARS_STYLE)) {
-                        gameInstance.getGame().getFinish().fatality(team.getTeamColor());
-                        gameInstance.getGame().setGameState(GameState.FINISH);
-                    }
+                    if (gameInstance.getGame().getTeams().checkWin(team.getTeamColor()))
+                        gameInstance.getGame().getTeams().win(team.getTeamColor());
+                } else
+                    Utils.sendMessage("You can only execute this command during a match.", MessageType.ERROR, sender);
+                break;
+            case SETLIVES:
+                assert gameInstance != null;
+                if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
+                    ITeam team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
+                    team.setLives(Integer.parseInt(args[2]));
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
+                            .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
+                    if (gameInstance.getGame().getTeams().checkNoLives(team.getTeamColor()))
+                        gameInstance.getGame().getTeams().loseRespawn(team.getTeamColor());
                 } else
                     Utils.sendMessage("You can only execute this command during a match.", MessageType.ERROR, sender);
                 break;
@@ -421,7 +431,7 @@ public class TowerCommand implements TabExecutor {
             case BOOK:
                 assert gameInstance != null;
                 assert player != null;
-                ((MenuItem<?>) ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name)).getMenu().openMenu(player);
+                ((MenuItem<?, Object>) ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name)).getMenu().openMenu(player);
                 break;
             case PARKOURPRIZE:
                 Player player2 = Bukkit.getPlayer(args[1]);
@@ -435,9 +445,9 @@ public class TowerCommand implements TabExecutor {
                 assert gameInstance != null;
                 assert player != null;
                 if (args.length < 2)
-                    ((MenuItem<?>) ActionItem.getByName(ItemsEnum.KIT_SELECT.name)).getMenu().openMenu(player);
+                    ((MenuItem<?, Object>) ActionItem.getByName(ItemsEnum.KIT_SELECT.name)).getMenu().openMenu(player);
                 else if (player.hasPermission(PermissionLevel.ADMIN.getPermissionName())) {
-                    ((MenuItem<?>) ActionItem.getByName(ItemsEnum.MODIFY_KITS.name)).getMenu().openMenu(player);
+                    ((MenuItem<?, Object>) ActionItem.getByName(ItemsEnum.MODIFY_KITS.name)).getMenu().openMenu(player);
                 } else
                     Utils.sendMessage("You don't have permission to execute this command.", MessageType.ERROR, sender);
                 break;
@@ -462,10 +472,35 @@ public class TowerCommand implements TabExecutor {
                     break;
                 }
                 gameInstance.getGame().endMatch();
-                if (Objects.requireNonNull(gameInstance.getGame().getGameState()) == GameState.GOLDEN_GOAL)
+                if (Objects.requireNonNull(gameInstance.getGame().getGameState()) == GameState.EXTRA_TIME)
                     Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
                 else if (Objects.requireNonNull(gameInstance.getGame().getGameState()) != GameState.FINISH)
                     Utils.sendMessage("This action can only be done while a match is taking place", MessageType.ERROR, sender);
+                break;
+            case PICKS:
+                if (gameInstance.getGame().getGameState().matchIsBeingPlayed || gameInstance.getGame().getGameState() == GameState.FINISH)
+                    Utils.sendMessage("This command can only be executioned before a match", MessageType.ERROR, sender);
+                else if (args[1].equalsIgnoreCase("add")) {
+                    if (args.length < 3)
+                        Utils.sendMessage("You need to specify a player", MessageType.ERROR, sender);
+                    else
+                        gameInstance.getGame().getCaptainsPhase().addPlayer(Arrays.copyOfRange(args, 2, args.length));
+                } else if (args[1].equalsIgnoreCase("remove")) {
+                    if (args.length < 3)
+                        Utils.sendMessage("You need to specify a player", MessageType.ERROR, sender);
+                    else
+                        gameInstance.getGame().getCaptainsPhase().removePlayer(Arrays.copyOfRange(args, 2, args.length));
+                } else if (args[1].equalsIgnoreCase("newCaptains")) {
+                    gameInstance.getGame().getStart().startCaptainsChoose();
+                    gameInstance.getGame().getStart().setCountDown(0);
+                } else if (args[1].equalsIgnoreCase("reloadPicks")) {
+                    gameInstance.getGame().getCaptainsPhase().setPlayerList(true);
+                }
+                break;
+            case DEBUG:
+                //player.getInventory().addItem(Skulls.getPlayerHead("katanya04"));
+                player.getInventory().addItem(Skulls.getSkullFromURL("45587da7fe7336e8ab9f791ea5e2cfc8a827ca959567eb9d53a647babf948d5"));
+                //player.getInventory().addItem(Skulls.getSkullFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDU1ODdkYTdmZTczMzZlOGFiOWY3OTFlYTVlMmNmYzhhODI3Y2E5NTk1NjdlYjlkNTNhNjQ3YmFiZjk0OGQ1In19fQ=="));
                 break;
         }
         return false;

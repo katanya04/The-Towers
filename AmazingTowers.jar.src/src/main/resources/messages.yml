@@ -16,6 +16,12 @@ enterSpectatorMode: '&7Modo espectador activado %newLine%&7Para volver usa &a/to
 leave: '&7Abandonaste el{Color}&l equipo {Team}&7!'
 alreadyJoinedTeam: '&7Ya estas en el{Color}&l equipo {Team}&7!'
 unbalancedTeam: '&cNo puedes unirte a este equipo porque esta desbalanceado'
+notEnoughPlayersCaptains: '&cNo hay suficientes jugadores para escoger capitanes, la partida empezara ahora'
+cantJoinInCaptainsMode: '&cNo puedes unirte a este equipo, los capitanes escogeran los equipos'
+currentTurn: 'Le toca escoger a {Color}{Captain}'
+notYourTurn: '&cNo es tu turno'
+choosePlayer: '{Color}{Captain}&r escogio a &l{Player}'
+teamReady: 'Equipo {Color}{Team}&r listo'
 
 selectKit: '&7Kit %kitName% seleccionado'
 buyKit: '&7Has comprado el kit %kitName%'

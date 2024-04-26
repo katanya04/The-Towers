@@ -32,10 +32,9 @@ public class Game {
     private GameState gameState;
     private final Kits kits;
     private final HashMap<HumanEntity, Kit> playersSelectedKit;
-    private boolean goldenGoal;
-    private boolean bedwarsStyle;
     private final RefillTask refill;
     private final Generators generators;
+    private final CaptainsPhase captainsPhase;
 
     public Game(GameInstance game) {
         this.name = game.getInternalName();
@@ -48,50 +47,44 @@ public class Game {
         this.finish = new Finish(game);
         this.stats = new StatisticsPlayer();
         this.detectionMove = new Move(game, this);
-        this.bedwarsStyle = false;
-        this.goldenGoal = false;
         this.refill = new RefillTask(game);
         this.generators = new Generators(game.getWorld().getName());
+        this.captainsPhase = new CaptainsPhase(game);
     }
 
     public StatisticsPlayer getStats() {
         return this.stats;
     }
-
     public GameTeams getTeams() {
         return this.teams;
     }
-
     public Start getStart() {
         return this.gameStart;
     }
-
     public Finish getFinish() {
         return this.finish;
     }
-
     public Move getDetectionMove() {
         return this.detectionMove;
     }
     public GameInstance getGameInstance() {
         return AmazingTowers.getGameInstance(this.name);
     }
-
     public List<Player> getPlayers() {
         return this.getGameInstance().getWorld().getPlayers();
     }
-
     public GameState getGameState() {
         return gameState;
     }
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
-
     public Kits getKits() {
         return kits;
     }
-
+    public CaptainsPhase getCaptainsPhase() {
+        return captainsPhase;
+    }
     public HashMap<HumanEntity, Kit> getPlayersSelectedKit() {
         return playersSelectedKit;
     }
@@ -108,26 +101,6 @@ public class Game {
         return timer;
     }
 
-    public boolean isGoldenGoal() {
-        return goldenGoal;
-    }
-
-    public void setGoldenGoal(boolean goldenGoal) {
-        this.goldenGoal = goldenGoal;
-    }
-
-    public void setBedwarsStyle(boolean bedwarsStyle) {
-        this.bedwarsStyle = bedwarsStyle;
-        if (bedwarsStyle) {
-            for (ITeam team : this.getTeams().getTeams())
-                team.setPoints(Integer.parseInt(this.getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getString("points.livesBedwarsMode")));
-        }
-    }
-
-    public boolean isBedwarsStyle() {
-        return bedwarsStyle;
-    }
-
     public RefillTask getRefill() {
         return refill;
     }
@@ -140,10 +113,8 @@ public class Game {
         switch (gameState) {
             case GAME:
                 getFinish().endMatchOrGoldenGoal();
-                if (isGoldenGoal())
-                    setGameState(GameState.GOLDEN_GOAL);
                 break;
-            case GOLDEN_GOAL:
+            case EXTRA_TIME:
                 getFinish().endMatch();
                 break;
             default:
@@ -162,8 +133,6 @@ public class Game {
         if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
             this.timer.removeAllBossBars();
         this.timer.update(this.getGameInstance());
-        this.bedwarsStyle = false;
-        this.goldenGoal = false;
     }
 
     public void spawn(Player player) {
@@ -200,7 +169,7 @@ public class Game {
 
     public void leave(Player player) {
         final ITeam playerTeam = this.getTeams().getTeamByPlayer(player.getName());
-        Prefixes.clearPrefix(player);
+        Prefixes.clearPrefix(player.getName());
         this.teams.updatePlayersAmount();
         switch (this.getGameState()) {
             case LOBBY:
@@ -209,7 +178,7 @@ public class Game {
                     playerTeam.removePlayer(player.getName());
                 break;
             case GAME:
-            case GOLDEN_GOAL:
+            case EXTRA_TIME:
                 if (this.getTimer().isActivated())
                     this.getTimer().removeBossBar(player);
                 if (playerTeam == null)

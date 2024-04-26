@@ -27,7 +27,9 @@ public enum ItemsEnum {
     END_MATCH("EndMatch", true),
     KIT("Kit", true),
     ACCEPT_BUY("AcceptBuy", true),
-    DENY_BUY("DenyBuy", true),;
+    DENY_BUY("DenyBuy", true),
+    SELECT_PLAYER("SelectPlayer", false),
+    SELECT_PLAYERS("SelectPlayers", true);
     public final String name;
     public final boolean needsPlayer;
     ItemsEnum(String name, boolean needsPlayer) {

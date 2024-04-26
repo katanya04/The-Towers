@@ -34,7 +34,7 @@ public class SetActionItems {
 
         //Lobby items
         Function<TowersWorldInstance, Config> config = game -> game.getConfig(ConfigType.CONFIG);
-        MenuItem<ChestMenu> selectGameMenu = new MenuItem<>(pl ->
+        MenuItem<ChestMenu, Player> selectGameMenu = new MenuItem<>(pl ->
                 Utils.setName(new ItemStack(Material.COMPASS), Utils.getColor(config.apply(AmazingTowers.getInstance(pl)).getString("lobbyItems.selectGame.name"))),
                 new ChestMenu("selectGameMenu", new ItemStack[AmazingTowers.getGameInstances().length]),
                 ItemsEnum.GAME_SELECT.name
@@ -46,7 +46,7 @@ public class SetActionItems {
         });
 
         if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled")) {
-            new ActionItem(pl -> Utils.setName(new ItemStack(Material.BED),
+            new ActionItem<Player>(pl -> Utils.setName(new ItemStack(Material.BED),
                     Utils.getColor(config.apply(AmazingTowers.getInstance(pl)).getString("lobbyItems.quit.name"))), event -> Utils.bungeecordTeleport(event.getPlayer()),
                     ItemsEnum.QUIT_LOBBY.name
             );
@@ -55,12 +55,12 @@ public class SetActionItems {
         //Game items
         TeamColor.createAllActionItems();
         ChestMenu selectTeam = new ChestMenu("selectTeam", TeamColor.getTeamItems());
-        new MenuItem<>(p -> Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14),
+        new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("lobbyItems.hotbarItems.selectTeam.name"))),
                 selectTeam, ItemsEnum.TEAM_SELECT.name);
 
 
-        new ActionItem(pl ->
+        new ActionItem<Player>(pl ->
                 Utils.setName(new ItemStack(Material.WOOL, 1, (short) 5), Utils.getColor(AmazingTowers.getGameInstance(pl).
                         getConfig(ConfigType.CONFIG).getString("lobbyItems.acceptBuy"))),
                 event -> {
@@ -78,7 +78,7 @@ public class SetActionItems {
                     player.closeInventory();
                     player.playSound(player.getLocation(), Sound.LEVEL_UP, 1.0f, 2.0f);
                 }, ItemsEnum.ACCEPT_BUY.name);
-        new ActionItem(pl ->
+        new ActionItem<Player>(pl ->
                 Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14), Utils.getColor(AmazingTowers.getGameInstance(pl)
                         .getConfig(ConfigType.CONFIG).getString("lobbyItems.denyBuy"))),
                 event -> event.getPlayer().closeInventory(), ItemsEnum.DENY_BUY.name);
@@ -90,29 +90,66 @@ public class SetActionItems {
                     .map(o -> ActionItem.getByName(ItemsEnum.KIT.name).convertToActionItem(o)).toArray(ItemStack[]::new);
             event.getInventory().setContents(newContents);
         });
-        new MenuItem<>(p -> Utils.setName(new ItemStack(Material.IRON_SWORD),
+        new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.IRON_SWORD),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("lobbyItems.hotbarItems.selectKit.name"))),
                 selectKit, ItemsEnum.KIT_SELECT.name);
 
-        new ActionItem(
+        new ActionItem<Player>(
                 p -> Utils.setName(new ItemStack(Material.BED), Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("lobbyItems.hotbarItems.quit.name"))),
                 event -> Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), event.getPlayer()), ItemsEnum.QUIT_GAME.name);
 
         generateSettingsMenuContents();
         ChestMenu gameSettingsMenu = new ChestMenu("gameSettingsMenu", gameSettingsContents());
-        new MenuItem<>(p -> Utils.setName(new ItemStack(Material.PAPER),
+        new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.PAPER),
                 Utils.getColor(config.apply(AmazingTowers.getInstance(p)).getString("lobbyItems.hotbarItems.modifyGameSettings.name"))),
                 gameSettingsMenu, ItemsEnum.GAME_SETTINGS.name);
+
+        ActionItem<String> selectPlayer = new ActionItem<>(Skulls::getPlayerHead, event -> {
+            GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
+            if (game == null || game.getGame() == null)
+                return;
+            game.getGame().getCaptainsPhase().choosePlayer(event.getPlayer(), Skulls.getPlayerByHead(event.getItem()));
+        }, ItemsEnum.SELECT_PLAYER.name);
+
+        ChestMenu selectPlayers = new ChestMenu("selectPlayers", pl -> {
+            GameInstance game = AmazingTowers.getGameInstance(pl);
+            if (game == null || game.getGame() == null || game.getGame().getGameState() != GameState.CAPTAINS_CHOOSE)
+                return new ItemStack[0];
+            return game.getGame().getCaptainsPhase().getPlayersToChoose().stream().map(selectPlayer::toItemStack).toArray(ItemStack[]::new);
+        });
+        selectPlayers.setOnOpenBehaviour(event -> {
+            GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
+            if (game == null || game.getGame() == null)
+                return;
+            game.getGame().getCaptainsPhase().setHeads(event.getInventory());
+        });
+        selectPlayers.setOnChangePage(event -> {
+            GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
+            if (game == null || game.getGame() == null)
+                return;
+            game.getGame().getCaptainsPhase().setHeads(event.getInv());
+        });
+        selectPlayers.setAfterUpdateContents(event -> {
+            GameInstance game = AmazingTowers.getGameInstance(event.getInventory().getViewers().get(0));
+            if (game == null || game.getGame() == null)
+                return;
+            game.getGame().getCaptainsPhase().setHeads(event.getInventory());
+        });
+        selectPlayers.parseActionItems = false;
+        new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.WOOL, 1,
+                AmazingTowers.getGameInstance(p).getGame().getTeams().getTeamColorByPlayer(p.getName()).getWoolColor()),
+                Utils.getColor(AmazingTowers.getGameInstance(p).getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.selectPlayers.name"))),
+                selectPlayers, ItemsEnum.SELECT_PLAYERS.name);
 
         registered = true;
 
     }
 
     private static void generateJoinMenuContents() {
-        ActionItem[] joinItems = new ActionItem[AmazingTowers.getGameInstances().length];
+        ActionItem<?>[] joinItems = new ActionItem[AmazingTowers.getGameInstances().length];
         for (int i = 0; i < joinItems.length; i++) {
             GameInstance instance = AmazingTowers.getGameInstances()[i];
-            joinItems[i] = new ActionItem(ignored -> Utils.setLore(Utils.setName(new ItemStack(Material.EMPTY_MAP),
+            joinItems[i] = new ActionItem<>(ignored -> Utils.setLore(Utils.setName(new ItemStack(Material.EMPTY_MAP),
                             Utils.getColor(instance.getName())), "§f" + instance.getNumPlayersString()),
                     null, "JoinMatch." + instance.getInternalName());
             joinItems[i].setOnInteract(event -> {
@@ -139,7 +176,7 @@ public class SetActionItems {
 
         Rule.createAllActionItems();
         ChestMenu rulesMenu = new ChestMenu("SetRules", Rule.getRuleItems());
-        /*10*/ new MenuItem<>(p -> Utils.setName(new ItemStack(Material.PAPER),
+        /*10*/ new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.PAPER),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.setRules"))),
                 rulesMenu, ItemsEnum.SET_RULES.name);
 
@@ -161,11 +198,11 @@ public class SetActionItems {
             return root;
         });
         whitelistBook.setToCacheKey(AmazingTowers::getGameInstance);
-        /*3*/ new MenuItem<>(p -> Utils.setName(new ItemStack(Material.BOOK_AND_QUILL),
+        /*3*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(new ItemStack(Material.BOOK_AND_QUILL),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.setWhitelist"))),
                 whitelistBook, ItemsEnum.WHITELIST.name);
 
-        /*12*/ new ActionItem(player -> Utils.setName(new ItemStack(Material.REDSTONE_TORCH_ON), Utils.getColor(
+        /*12*/ new ActionItem<Player>(player -> Utils.setName(new ItemStack(Material.REDSTONE_TORCH_ON), Utils.getColor(
                 config.apply(AmazingTowers.getGameInstance(player)).getString("settingsBook.kickAll.name"))), event -> AmazingTowers.getGameInstance(event.getPlayer()).getGame().getPlayers().stream().filter(
                 o -> !o.equals(event.getPlayer()) && !o.isOp()).forEach(o -> o.kickPlayer(config.apply(AmazingTowers.getGameInstance(event.getPlayer())).getString("settingsBook.kickAll.kickMessage"))),
                 ItemsEnum.KICK_PLAYERS.name
@@ -189,21 +226,21 @@ public class SetActionItems {
             return root;
         });
         blacklistBook.setToCacheKey(AmazingTowers::getGameInstance);
-        /*21*/ new MenuItem<>(p -> Utils.setName(new ItemStack(Material.BOOK_AND_QUILL),
+        /*21*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(new ItemStack(Material.BOOK_AND_QUILL),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.setBlacklist"))),
                 blacklistBook, ItemsEnum.BLACKLIST.name);
 
-        /*7*/ new ActionItem(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14),
+        /*7*/ new ActionItem<Player>(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 14),
                         Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.stopCount"))),
                 e -> AmazingTowers.getGameInstance(e.getPlayer()).getGame().getStart().stopCount(), ItemsEnum.STOP_COUNT.name
         );
 
-        /*16*/ new ActionItem(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4),
+        /*16*/ new ActionItem<Player>(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4),
                         Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.continueCount"))),
                 e -> AmazingTowers.getGameInstance(e.getPlayer()).getGame().getStart().continueFromCommand(), ItemsEnum.CONTINUE_COUNT.name
         );
 
-        /*25*/ new ActionItem(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5),
+        /*25*/ new ActionItem<Player>(p -> Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 5),
                         Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.startImmediately"))),
                 e -> AmazingTowers.getGameInstance(e.getPlayer()).getGame().getStart().startFromCommand(), ItemsEnum.START_IMMEDIATELY.name
         );
@@ -219,7 +256,7 @@ public class SetActionItems {
             return timerRoot;
         });
         timerBook.setToCacheKey(AmazingTowers::getGameInstance);
-        /*14*/ new MenuItem<>(p -> Utils.setName(new ItemStack(Material.WATCH),
+        /*14*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(new ItemStack(Material.WATCH),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.setTimer"))),
                 timerBook, ItemsEnum.SET_TIMER.name);
 
@@ -262,11 +299,11 @@ public class SetActionItems {
             return kitsRoot;
         });
         kitsBook.setToCacheKey(AmazingTowers::getGameInstance);
-        /*15*/ new MenuItem<>(p -> Utils.setName(new ItemStack(Material.IRON_SWORD),
+        /*15*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(new ItemStack(Material.IRON_SWORD),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.modifyKits"))),
                 kitsBook, ItemsEnum.MODIFY_KITS.name);
 
-        /*26*/ new ActionItem(p -> {
+        /*26*/ new ActionItem<Player>(p -> {
                 ItemStack item = Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 8),
                     Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.saveSettings.name")));
                 if (AmazingTowers.getGameInstance(p).needsToBeSaved())
@@ -283,11 +320,11 @@ public class SetActionItems {
                     AmazingTowers.getKitsDefine().saveConfig();
                     Utils.sendMessage(config.apply(game).getString("settingsBook.saveSettings.saveMessage"), MessageType.INFO, event.getPlayer());
                     game.setFlagChanges(false);
-                    ((MenuItem<InventoryMenu>) ActionItem.getByName(ItemsEnum.GAME_SETTINGS.name)).getMenu().updateContents();
+                    event.getActionItem().getParent().updateContents();
                 }, ItemsEnum.SAVE_SETTINGS.name
         );
 
-        /*17*/ ListItem selectDatabase = new ListItem(p ->
+        /*17*/ ListItem<Player> selectDatabase = new ListItem<>(p ->
                 Utils.setName(new ItemStack(Material.BEACON), Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.selectStatsDB"))),
                 AmazingTowers.connexion.getTables(), p -> AmazingTowers.connexion.getTables().indexOf(AmazingTowers.getGameInstance(p).getTableName()), true,
                 ItemsEnum.SELECT_DB.name);
@@ -298,13 +335,13 @@ public class SetActionItems {
             selectDatabase.getParent().updateContents();
         });
 
-        /*8*/ new ActionItem(p ->
+        /*8*/ new ActionItem<Player>(p ->
                 Utils.setName(new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15),
                         Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.endMatch"))),
                 event -> {
                     GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
                     game.getGame().endMatch();
-                    if (game.getGame().getGameState() == GameState.GOLDEN_GOAL)
+                    if (game.getGame().getGameState() == GameState.EXTRA_TIME)
                         Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, event.getPlayer());
                     else if (game.getGame().getGameState() != GameState.FINISH)
                         Utils.sendMessage("This action can only be done while a match is taking place", MessageType.ERROR, event.getPlayer());

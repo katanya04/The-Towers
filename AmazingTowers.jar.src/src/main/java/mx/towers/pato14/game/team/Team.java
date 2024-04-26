@@ -1,17 +1,19 @@
 package mx.towers.pato14.game.team;
 
-import me.katanya04.anotherguiplugin.actionItems.ActionItem;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.files.Config;
+import mx.towers.pato14.utils.items.Items;
+import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.locations.Locations;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -23,12 +25,14 @@ public class Team implements ITeam {
     private String prefix;
     private final TeamColor teamColor;
     private int points;
+    private int lives;
     private final GameTeams gameTeams;
     private boolean eliminated;
-    public Team(TeamColor teamColor, String prefix, GameTeams gameTeams) {
+    public Team(TeamColor teamColor, String prefix, GameTeams gameTeams, int lives) {
         this.prefix = prefix;
         this.teamColor = teamColor;
         this.points = 0;
+        this.lives = lives;
         this.gameTeams = gameTeams;
         this.eliminated = false;
         this.players = new HashSet<>();
@@ -81,8 +85,8 @@ public class Team implements ITeam {
     @Override
     public void removePlayer(String playerName) {
         this.players.remove(playerName);
-        Prefixes.clearPrefix(Bukkit.getPlayer(playerName));
-        ActionItem.getByName("JoinTeam." + teamColor).getParent().updateContents();
+        Prefixes.clearPrefix(playerName);
+        Items.updateMenu(ItemsEnum.TEAM_SELECT);
         this.gameTeams.updatePlayersAmount();
     }
 
@@ -92,14 +96,14 @@ public class Team implements ITeam {
         if ((currentTeam = this.gameTeams.getTeamByPlayer(playerName)) != null)
             currentTeam.removePlayer(playerName);
         this.players.add(playerName);
-        Prefixes.setPrefix(Bukkit.getPlayer(playerName), prefix);
-        ActionItem.getByName("JoinTeam." + teamColor).getParent().updateContents();
+        Prefixes.setPrefix(playerName, prefix);
+        Items.updateMenu(ItemsEnum.TEAM_SELECT);
         this.gameTeams.updatePlayersAmount();
     }
 
     @Override
     public int getNumPlayers() {
-        return this.players.size();
+        return this.getPlayers().size();
     }
 
     @Override
@@ -109,14 +113,23 @@ public class Team implements ITeam {
 
     @Override
     public int getNumAlivePlayers() {
-        return this.doPlayersRespawn() ? getNumOnlinePlayers() :
-                this.getOnlinePlayers().stream().filter(o -> o.getGameMode() != GameMode.SPECTATOR).collect(Collectors.toSet()).size();
+        return this.getAlivePlayers().size();
+    }
+
+    @Override
+    public Set<String> getPlayers() {
+        return this.players;
     }
 
     @Override
     public Set<Player> getOnlinePlayers() {
         return this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull)
                 .filter(o -> o.getWorld().equals(this.gameTeams.getGame().getGameInstance().getWorld())).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Player> getAlivePlayers() {
+        return this.getOnlinePlayers().stream().filter(o -> o.getGameMode() != GameMode.SPECTATOR).collect(Collectors.toSet());
     }
 
     @Override
@@ -150,16 +163,28 @@ public class Team implements ITeam {
     }
 
     @Override
+    public int getLives() {
+        return lives;
+    }
+
+    @Override
     public void setPoints(int points) {
         this.points = points;
     }
 
     @Override
-    public void scorePoint(boolean bedwarsStyle) {
-        if (bedwarsStyle)
-            this.points--;
-        else
-            this.points++;
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    @Override
+    public void scorePoint() {
+        this.setPoints(this.getPoints() - 1);
+    }
+
+    @Override
+    public void gotScored() {
+        this.setLives(this.getLives() - 1);
     }
 
     @Override
@@ -185,19 +210,31 @@ public class Team implements ITeam {
     @Override
     public boolean doPlayersRespawn() {
         GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
-        return (!gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.points != 0) && !isEliminated();
+        return (!gameInstance.getRules().get(Rule.BEDWARS_STYLE) || this.lives != 0) && !isEliminated();
     }
 
     @Override
     public void reset() {
-        this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(Prefixes::clearPrefix);
+        this.players.forEach(Prefixes::clearPrefix);
         this.players.clear();
         this.points = 0;
+        this.lives = 0;
         this.eliminated = false;
     }
 
     @Override
+    public void clear() {
+        this.players.forEach(this::removePlayer);
+    }
+
+    @Override
     public void updatePrefix() {
-        this.players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(o -> Prefixes.setPrefix(o, this.prefix));
+        this.players.forEach(o -> Prefixes.setPrefix(o, this.prefix));
+    }
+
+    @Override
+    public int compareTo(@NotNull ITeam o) {
+        GameInstance gameInstance = this.gameTeams.getGame().getGameInstance();
+        return gameInstance.getRules().get(Rule.BEDWARS_STYLE) ? this.lives - o.getLives() : this.getPoints() - o.getPoints();
     }
 }

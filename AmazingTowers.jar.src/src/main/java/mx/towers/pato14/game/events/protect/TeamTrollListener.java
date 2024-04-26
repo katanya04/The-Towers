@@ -5,7 +5,6 @@ import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -23,7 +22,7 @@ public class TeamTrollListener implements Listener {
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (gameInstance.getGame().getGameState() != GameState.GAME && gameInstance.getGame().getGameState() != GameState.GOLDEN_GOAL)
+        if (!gameInstance.getGame().getGameState().matchIsBeingPlayed)
             return;
         if (!e.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() || e.getBlock().getRelative(BlockFace.DOWN).getDrops().contains(new ItemStack(Material.SIGN))) {
             Player pl = e.getPlayer();

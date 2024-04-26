@@ -46,7 +46,7 @@ public class Timer {
     public void update(GameInstance gameInstance) {
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);
-        if (gameInstance.getGame().getGameState() == GameState.GAME) {
+        if (gameInstance.getGame().getGameState().matchIsBeingPlayed) {
             removeAllBossBars();
             if (this.activated)
                 timerStart();
@@ -91,7 +91,7 @@ public class Timer {
         }
         (timerTask = new BukkitRunnable() {
             public void run() {
-                if (!activated || AmazingTowers.getGameInstance(instanceName).getGame().getGameState().equals(GameState.FINISH)) {
+                if (!activated || !AmazingTowers.getGameInstance(instanceName).getGame().getGameState().matchIsBeingPlayed) {
                     removeAllBossBars();
                     return;
                 }

@@ -7,7 +7,6 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,7 +28,7 @@ public class RefillTask {
             refileadoProaso = SelectCofresillos.makelist(gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             (new BukkitRunnable() {
                 public void run() {
-                    if (gameInstance.getGame().getGameState().equals(GameState.FINISH) || !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS)
+                    if (!gameInstance.getGame().getGameState().matchIsBeingPlayed || !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS)
                             .getString("refill.activated"))) {
                         cancel();
                         refillTime = 0;

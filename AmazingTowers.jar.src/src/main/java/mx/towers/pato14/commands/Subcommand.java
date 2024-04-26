@@ -24,6 +24,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     COUNT(PermissionLevel.ORGANIZER, 1, false, true, "stop|start|<number>", "$<instanceName>"),
     RULE(PermissionLevel.ORGANIZER, 2, false, true, argsBuilder(Arrays.stream(Rule.values()).map(x -> x.name().toLowerCase()).toArray(String[]::new), '|'), "true|false", "$<instanceName>"),
     SETSCORE(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
+    SETLIVES(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
     TPWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>", "*<onlinePlayer>"),
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
@@ -42,7 +43,9 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     PARKOURPRIZE(PermissionLevel.ADMIN, 1, false, false, "<player>"),
     KITS(PermissionLevel.NONE, 0, true, true, "*modify"),
     SETDATABASE(PermissionLevel.ORGANIZER, 0, true, true, "*<tableName>"),
-    ENDMATCH(PermissionLevel.ORGANIZER, 0, true, true, "*%team_colors%");
+    ENDMATCH(PermissionLevel.ORGANIZER, 0, true, true, "*%team_colors%"),
+    PICKS(PermissionLevel.ORGANIZER, 1, true, true, "add|remove|newCaptains|reloadPicks", "*<player>..."),
+    DEBUG(PermissionLevel.ADMIN, 0, true, false);
 
     private final PermissionLevel permissionLevel;
     private final int numberOfNeededArguments;
@@ -103,6 +106,8 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     }
 
     public boolean correctNumberOfArguments(String[] args, CommandSender sender) {
+        if (this.arguments[this.arguments.length - 1].contains("..."))
+            return true;
         if (sender instanceof Entity)
             return numberOfNeededArguments <= args.length - 1 && arguments.length >= args.length - 1;
         else

@@ -13,23 +13,24 @@ public interface ITeam extends Comparable<ITeam> {
     int getNumPlayers();
     int getNumOnlinePlayers();
     int getNumAlivePlayers();
+    Set<String> getPlayers();
     Set<Player> getOnlinePlayers();
+    Set<Player> getAlivePlayers();
     boolean containsPlayer(String name);
     boolean containsOnlinePlayer(Player player);
     TeamColor getTeamColor();
     void setPrefix(String prefix);
     String getPrefix();
     int getPoints();
+    int getLives();
     void setPoints(int points);
-    void scorePoint(boolean bedwarsStyle);
+    void setLives(int lives);
+    void scorePoint();
+    void gotScored();
     void eliminateTeam();
     boolean isEliminated();
     boolean doPlayersRespawn();
     void reset();
     void updatePrefix();
-
-    @Override
-    default int compareTo(@NotNull ITeam o) {
-        return this.getPoints() - o.getPoints();
-    }
+    void clear();
 }

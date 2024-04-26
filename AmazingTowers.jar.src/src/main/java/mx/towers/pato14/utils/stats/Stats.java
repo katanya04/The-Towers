@@ -9,12 +9,21 @@ public class Stats {
         for (StatType st : StatType.values())
             stats.put(st, 0);
     }
+    public Stats(int... data) {
+        int i = 0;
+        for (StatType st : StatType.values())
+            stats.put(st, data[i++]);
+    }
     public void addOne(StatType st) {
         this.stats.replace(st, this.stats.get(st) + 1);
     }
 
     public int getStat(StatType st) {
         return this.stats.get(st);
+    }
+
+    public void put(StatType st, int value) {
+        this.stats.put(st, value);
     }
 
     @Override

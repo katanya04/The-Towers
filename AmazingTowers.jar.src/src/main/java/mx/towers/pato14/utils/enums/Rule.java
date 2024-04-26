@@ -37,7 +37,7 @@ public enum Rule {
     BEDWARS_STYLE(new ItemStack(Material.BED)),
     EXPLOSIVE_CHICKEN(new ItemStack(Material.EGG)),
     HUNGER(new ItemStack(Material.PORK)),
-    CAPTAINS(Skulls.getSkullFromURL("http://textures.minecraft.net/texture/45587da7fe7336e8ab9f791ea5e2cfc8a827ca959567eb9d53a647babf948d5"));
+    CAPTAINS(Skulls.getSkullFromURL("http://textures.minecraft.net/texture/45587da7fe7336e8ab9f791ea5e2cfc8a827ca959567eb9d53a647babf948d5").clone());
     private final ItemStack icon;
     Rule(ItemStack icon) {
         this.icon = icon;

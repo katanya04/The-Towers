@@ -179,7 +179,7 @@ public class Team implements ITeam {
 
     @Override
     public void scorePoint() {
-        this.setPoints(this.getPoints() - 1);
+        this.setPoints(this.getPoints() + 1);
     }
 
     @Override

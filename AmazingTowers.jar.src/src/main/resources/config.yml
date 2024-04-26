@@ -90,6 +90,7 @@ settingsBook:
   modifyKits: '&7&lModificar kits'
   selectStatsDB: '&7&lEscoger a donde van las stats'
   endMatch: '&7&lTerminar la partida'
+  possibleCaptains: '&7&lPosibles capitanes'
   saveSettings:
     name: '&d&lGuardar ajustes'
     saveMessage: 'Ajustes guardados correctamente'

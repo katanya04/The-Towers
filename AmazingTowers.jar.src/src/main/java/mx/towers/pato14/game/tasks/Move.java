@@ -42,17 +42,13 @@ public class Move {
                         for (Pool pool : Move.this.pools) {
                             if (pool.getTeam().containsPlayer(player.getName()) || !pool.getTeam().doPlayersRespawn())
                                 continue;
-                            checkPool(pool, player, gameInstance);
+                            if (AreaUtil.isInsideArea(pool, player.getLocation()))
+                                gameInstance.getGame().getTeams().scorePoint(player, pool.getTeam());
                         }
                     }
                 }
             }
         }).runTaskTimer(gameInstance.getPlugin(), 0L, gameInstance.getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
-    }
-
-    private void checkPool(Pool pool, Player player, GameInstance gameInstance) {
-        if (AreaUtil.isInsideArea(pool, player.getLocation()))
-            gameInstance.getGame().getTeams().scorePoint(player, pool.getTeam());
     }
 
     public Pool[] getPools() {

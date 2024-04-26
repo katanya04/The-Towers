@@ -17,9 +17,9 @@ public class Locations {
     public static String getLocationStringCenter(Location loc, boolean yawPitch) {
         StringBuilder toret = new StringBuilder();
         toret.append(loc.getWorld().getName());
-        toret.append(";").append(loc.getBlockX()).append(".5");
-        toret.append(";").append(loc.getBlockY());
-        toret.append(";").append(loc.getBlockZ()).append(".5");
+        toret.append(";").append((int) loc.getX()).append(".5");
+        toret.append(";").append((int) loc.getY());
+        toret.append(";").append((int) loc.getZ()).append(".5");
         if (yawPitch) {
             toret.append(";").append(loc.getYaw());
             toret.append(";").append(loc.getPitch());

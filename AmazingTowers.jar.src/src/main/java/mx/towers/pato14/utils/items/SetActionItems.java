@@ -348,6 +348,24 @@ public class SetActionItems {
                 },
                 ItemsEnum.END_MATCH.name
         );
+        BookMenu<GameInstance> possibleCaptains = new BookMenu<>(game -> {
+            BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("possibleCaptains"));
+            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
+            BookMenu.Field players = root.getFirstChildGivenData("players");
+            if (players == null) {
+                gameSettings.apply(game).set("possibleCaptains.players", "");
+                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("possibleCaptains"));
+                players = root.getFirstChildGivenData("players");
+            }
+            players.applyToChildren(field -> field.setRemovableFromBook(true), false);
+            players.setCanAddMoreFields(true);
+            root.setOnModifyChildrenValue(field -> game.setFlagChanges(true));
+            return root;
+        });
+        possibleCaptains.setToCacheKey(AmazingTowers::getGameInstance);
+        /*19*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(Skulls.getSkullFromURL("http://textures.minecraft.net/texture/45587da7fe7336e8ab9f791ea5e2cfc8a827ca959567eb9d53a647babf948d5").clone(),
+                Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.possibleCaptains"))),
+                possibleCaptains, ItemsEnum.POSSIBLE_CAPTAINS.name);
     }
     private static ItemStack[] gameSettingsContents() {
         ItemStack[] toret = new ItemStack[9 * 3];
@@ -363,6 +381,7 @@ public class SetActionItems {
         toret[26] = Items.get(ItemsEnum.SAVE_SETTINGS);
         toret[17] = Items.get(ItemsEnum.SELECT_DB);
         toret[8] = Items.get(ItemsEnum.END_MATCH);
+        toret[19] = Items.get(ItemsEnum.POSSIBLE_CAPTAINS);
         return toret;
     }
     public static void setHotbarItemsInInstances() {

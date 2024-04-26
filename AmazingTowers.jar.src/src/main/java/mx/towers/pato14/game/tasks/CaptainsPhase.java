@@ -23,8 +23,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -45,6 +43,15 @@ public class CaptainsPhase {
         this.ready = new HashMap<>();
         this.worldName = gameInstance.getInternalName();
         this.playersToChoose = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        this.captainCondition = pl -> !Utils.getConfBoolDefaultsIfNull(gameInstance.getConfig(ConfigType.GAME_SETTINGS),
+                "possibleCaptains.activated") || Utils.getConfSafeList(gameInstance.getConfig(ConfigType.GAME_SETTINGS),
+                "possibleCaptains.players").contains(pl.getName());
+    }
+
+    private Player getRandomCaptain(GameInstance game) {
+        List<Player> players = game.getWorld().getPlayers().stream()
+                .filter(o -> !this.captains.containsValue(o.getName())).collect(Collectors.toList());
+        return players.get(new Random().nextInt(players.size()));
     }
 
     public void initialize() {
@@ -64,10 +71,13 @@ public class CaptainsPhase {
         Collections.shuffle(validPlayers);
         Iterator<Player> playersItr = validPlayers.iterator();
         for (TeamColor team : teams) {
-            Player captain = playersItr.hasNext() ? playersItr.next() :
-                    game.getWorld().getPlayers().stream().filter(o -> !this.captains.containsValue(o.getName()))
-                            .collect(Collectors.toList()).get(new Random().nextInt(game.getNumPlayers()));
+            Player captain = playersItr.hasNext() ? playersItr.next() : getRandomCaptain(game);
             this.captains.put(team, captain.getName());
+            game.broadcastMessage(game.getConfig(ConfigType.MESSAGES).getString("captainSelected")
+                    .replace("{Player}", captain.getName())
+                    .replace("{Color}", team.getColor())
+                    .replace("{Team}", team.getName(game)),
+                    true);
             this.ready.put(team, false);
             game.getGame().getTeams().getTeam(team).addPlayer(captain.getName());
             Bukkit.getPlayer(captain.getName()).getInventory().setItem(Utils.getConfIntDefaultsIfNull(game.getConfig(ConfigType.CONFIG),
@@ -82,8 +92,8 @@ public class CaptainsPhase {
         GameInstance game = AmazingTowers.getGameInstance(this.worldName);
         if (clearPrevious)
             playersToChoose.clear();
-        playersToChoose.addAll(game.getWorld().getPlayers().stream().filter(p -> p.getGameMode() != GameMode.SPECTATOR)
-                .map(HumanEntity::getName).collect(Collectors.toSet()));
+        playersToChoose.addAll(game.getWorld().getPlayers().stream().filter(p -> p.getGameMode() != GameMode.SPECTATOR
+                && !this.captains.containsValue(p.getName())).map(HumanEntity::getName).collect(Collectors.toSet()));
         playersToChoose.forEach(Skulls::cachePlayerHead);
         Callback.findPlayerAsync(playersToChoose, Collections.singletonList(IConnexion.ALL_TABLES), cache::putAll);
     }
@@ -145,6 +155,10 @@ public class CaptainsPhase {
 
     public Set<String> getPlayersToChoose() {
         return this.playersToChoose;
+    }
+
+    public void setCaptainCondition(Predicate<Player> captainCondition) {
+        this.captainCondition = captainCondition;
     }
 
     public void reset() {

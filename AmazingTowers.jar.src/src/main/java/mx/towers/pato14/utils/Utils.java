@@ -556,6 +556,18 @@ public class Utils {
         return Integer.parseInt(obj);
     }
 
+    public static List<?> getConfSafeList(Config config, String path) {
+        Object obj = config.get(path);
+        if (obj == null)
+            return new ArrayList<>();
+        return obj instanceof List ? (List<?>) obj : Collections.singletonList(obj);
+    }
+
+    public static <T> T getObjDefaultsIfNull(Config config, String path, Class<T> clazz) throws ClassCastException {
+        Object obj = config.get(path);
+        return (T) (clazz.isInstance(obj) ? obj : Config.getFromDefault(path, config.getFileName()));
+    }
+
     public static int getRandomInt(int min, int max) {
         double rand = Math.random();
         double longitude = Math.abs(max - min);
@@ -587,7 +599,9 @@ public class Utils {
             if (expectedArraySize > 0 && toret.length != expectedArraySize)
                 throw new RuntimeException("Unexpected ItemStack array size at (Expected " + expectedArraySize + ", got " + toret.length + ")");
             return toret;
-        } else
+        } else if (obj instanceof ItemStack)
+            return new ItemStack[]{(ItemStack) obj};
+        else
             throw new RuntimeException("Error while parsing an ItemStack array");
     }
 

@@ -130,6 +130,7 @@ public class Game {
         this.finish.setSeconds(this.getGameInstance().getConfig(ConfigType.CONFIG).getInt("options.timerEndSeconds") + 1);
         this.teams.reset();
         this.stats.clear();
+        this.captainsPhase.reset();
         if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
             this.timer.removeAllBossBars();
         this.timer.update(this.getGameInstance());

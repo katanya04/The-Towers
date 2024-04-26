@@ -139,6 +139,12 @@ public class GameInstance extends TowersWorldInstance {
         this.getPermissions().remove(player.getName());
         game.leave(player);
         Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
+        if (getGame().getCaptainsPhase().isCaptain(player.getName()) && getGame().getGameState() == GameState.CAPTAINS_CHOOSE
+        || (getGame().getGameState() == GameState.PREGAME && game.getCaptainsPhase().hasConcluded())) {
+
+            getGame().getStart().startCaptainsChoose();
+        }
+
     }
 
     public boolean canJoin(HumanEntity player) {

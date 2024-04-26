@@ -5,6 +5,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
+import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.enums.Rule;
 import mx.towers.pato14.utils.items.Items;
@@ -86,12 +87,13 @@ public enum TeamColor {
         new ActionItem<Player>(player -> team.getTeamItem(AmazingTowers.getGameInstance(player)),
                 event -> {
                     GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
-                    if (game == null || game.getGame() == null)
+                    if (game == null || game.getGame() == null || game.getGame().getGameState() == GameState.EXTRA_TIME
+                            || game.getGame().getGameState() == GameState.FINISH)
                         return;
                     if (team == SPECTATOR)
                         game.getGame().getTeams().joinSpectator(event.getPlayer());
                     else {
-                        if (!game.getRules().get(Rule.CAPTAINS))
+                        if (!game.getRules().get(Rule.CAPTAINS) || game.getGame().getGameState().matchIsBeingPlayed)
                             game.getGame().getTeams().getTeam(team).changeTeam(event.getPlayer());
                         else
                             Utils.sendMessage(game.getConfig(ConfigType.MESSAGES).getString("cantJoinInCaptainsMode"),

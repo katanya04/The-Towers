@@ -106,7 +106,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     }
 
     public boolean correctNumberOfArguments(String[] args, CommandSender sender) {
-        if (this.arguments[this.arguments.length - 1].contains("..."))
+        if (this.arguments.length > 0 && this.arguments[this.arguments.length - 1].contains("..."))
             return true;
         if (sender instanceof Entity)
             return numberOfNeededArguments <= args.length - 1 && arguments.length >= args.length - 1;

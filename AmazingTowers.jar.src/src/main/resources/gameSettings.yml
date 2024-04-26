@@ -51,3 +51,6 @@ generators:
 respawnInvincibility:
   activated: 'true'
   timeInSeconds: '4'
+possibleCaptains:
+  activated: 'true'
+  players: ""

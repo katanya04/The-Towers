@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Kits {
-    private static final HashMap<String, Kit> kits = new HashMap<>();
+    private static final LinkedHashMap<String, Kit> kits = new LinkedHashMap<>();
 
     static {
         setKits();
@@ -82,7 +82,8 @@ public class Kits {
     private void addKits(GameInstance gameInstance) {
         this.kitsInThisInstance.clear();
         this.temporalBoughtKits.clear();
-        List<String> kitsInInstance = gameInstance.getConfig(ConfigType.KITS).getStringList("KitsInThisInstance");
+    List<String> kitsInInstance = Utils.getConfSafeList(gameInstance.getConfig(ConfigType.KITS), "KitsInThisInstance")
+            .stream().map(Object::toString).collect(Collectors.toList());
         kitsInThisInstance.addAll(kitsInInstance.stream().map(String::toUpperCase).map(kits::get)
                 .filter(Objects::nonNull).collect(Collectors.toSet()));
         if (kitsInThisInstance.isEmpty())

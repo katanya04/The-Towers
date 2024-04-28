@@ -8,7 +8,6 @@ import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.Skulls;
-import mx.towers.pato14.utils.nms.ReflectionMethods;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

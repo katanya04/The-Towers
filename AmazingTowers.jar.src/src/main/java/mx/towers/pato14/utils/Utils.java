@@ -8,12 +8,8 @@ import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
-import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.locations.Locations;
-import mx.towers.pato14.utils.mysql.IConnexion;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.command.CommandSender;
@@ -25,7 +21,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.map.MinecraftFont;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -157,10 +152,6 @@ public class Utils {
         return item;
     }
 
-    public static int ceilToMultipleOfNine(int n) {
-        return n <= 9 ? 9 : ((n - 1) / 9 + 1) * 9;
-    }
-
     public static String firstCapitalized(String text) {
         return text.replaceFirst(String.valueOf(text.charAt(0)), String.valueOf(text.charAt(0)).toUpperCase());
     }
@@ -200,28 +191,6 @@ public class Utils {
             }
         } while (match.find());
         return camelCaseText.toUpperCase();
-    }
-
-    public static void checkForTeamWin(GameInstance gameInstance) {
-        boolean makeATeamWin = true;
-        ITeam temp = null;
-        for (ITeam team : gameInstance.getGame().getTeams().getTeams()) {
-            if (team.getNumAlivePlayers() > 0) {
-                if (temp == null)
-                    temp = team;
-                else
-                    makeATeamWin = false;
-            }
-        }
-        if (makeATeamWin) {
-            if (temp != null)
-                gameInstance.getGame().getFinish().fatality(temp.getTeamColor());
-            else {
-                int numberOfTeams = gameInstance.getGame().getTeams().getTeams().size();
-                int teamNumber = (int) Math.floor(Math.random() * numberOfTeams);
-                gameInstance.getGame().getFinish().fatality(TeamColor.values()[teamNumber]);
-            }
-        }
     }
 
     public static boolean isStringTime(String[] time) {
@@ -387,40 +356,6 @@ public class Utils {
         }
     }
 
-    public static List<List<TextComponent>> getLines(List<TextComponent> text) { //Thx to Swedz :)
-        //Note that the only flaw with using MinecraftFont is that it can't account for some UTF-8 symbols, it will throw an IllegalArgumentException
-        final MinecraftFont font = new MinecraftFont();
-        final int maxLineWidth = font.getWidth("LLLLLLLLLLLLLLLLLLL");
-
-        //Get all of our lines
-        List<List<TextComponent>> lines = new ArrayList<>();
-        try {
-            List<TextComponent> line = new ArrayList<>();
-            for (TextComponent textComponent : text) {
-                String rawLine = ChatColor.stripColor(line.stream().map(TextComponent::getText).reduce("", String::concat));
-                rawLine += ChatColor.stripColor(textComponent.getText());
-                if (font.getWidth(rawLine) > maxLineWidth) {
-                    lines.add(line);
-                    line = new ArrayList<>();
-                }
-                line.add(textComponent);
-                if (textComponent.getText().endsWith("\n")) {
-                    lines.add(line);
-                    line = new ArrayList<>();
-                }
-            }
-        } catch (IllegalArgumentException ex) {
-            lines.clear();
-        }
-        return lines;
-    }
-
-    public static void joinMainLobby(Player player) {
-        player.setGameMode(GameMode.ADVENTURE);
-        Utils.resetPlayer(player);
-        AmazingTowers.getLobby().getHotbar().apply(player);
-    }
-
     public static void bungeecordTeleport(Player player) {
         if (!AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
             return;
@@ -441,10 +376,6 @@ public class Utils {
         return names.toString();
     }
 
-    public static boolean isAValidTable(String tableName) {
-        return tableName != null && (AmazingTowers.connexion.getTables().contains(tableName) || IConnexion.ALL_TABLES.equals(tableName));
-    }
-
     public static String getColor(String st) {
         return ChatColor.translateAlternateColorCodes('&', st);
     }
@@ -455,20 +386,6 @@ public class Utils {
 
     public static void sendConsoleMessage(String msg, MessageType messageType) {
         AmazingTowers.getPlugin().getServer().getConsoleSender().sendMessage(messageType.getPrefix() + msg);
-    }
-
-    public static boolean replaceWithBackup(String backupPath, String targetPath) throws IOException {
-        File source = new File(backupPath);
-        if (!source.exists())
-            return false;
-        File target = new File(targetPath);
-        if (target.exists()) {                                 //Borra el mundo que estaba de la anterior partida
-            Bukkit.unloadWorld(target.getName(), false);
-            deleteRecursive(target);
-        }                                                    //Lo sobreescribe con el de backup
-        FileUtils.copyDirectory(source, target);
-        Bukkit.createWorld(new WorldCreator(target.getName()));
-        return true;
     }
 
     public static void deleteRecursive(File file) {

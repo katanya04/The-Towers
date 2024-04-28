@@ -93,7 +93,7 @@ public class TowerCommand implements TabExecutor {
                 if (AmazingTowers.isConnectedToDatabase()) {
                     if (!cooldown.containsKey(sender.getName()) || System.currentTimeMillis() - cooldown.get(sender.getName()) > 3000) {
                         String tableName = IConnexion.ALL_TABLES;
-                        if (args.length > 2 && Utils.isAValidTable(args[2]))
+                        if (args.length > 2 && AmazingTowers.connexion.isAValidTable(args[2]))
                             tableName = args[2];
                         Callback.findPlayerAsync(args[1], tableName, result -> {
                             if (result == null) {
@@ -456,7 +456,7 @@ public class TowerCommand implements TabExecutor {
                 if (args.length == 1) {
                     gameInstance.setTableName(null);
                     Utils.sendMessage("This match isn't linked to a database table now", MessageType.INFO, sender);
-                } else if (Utils.isAValidTable(args[1])) {
+                } else if (AmazingTowers.connexion.isAValidTable(args[1])) {
                     gameInstance.setTableName(args[1]);
                     Utils.sendMessage("This match is now linked to the database table " + args[1], MessageType.INFO, sender);
                 } else

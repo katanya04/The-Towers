@@ -78,7 +78,7 @@ public class DeathListener implements Listener {
             player.setGameMode(GameMode.SPECTATOR);
             gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
             if (playerTeam.getNumAlivePlayers() <= 0)
-                Utils.checkForTeamWin(gameInstance);
+                gameInstance.getGame().getTeams().checkForTeamWin();
         } else
             gameInstance.getScoreUpdates().updateScoreboard(player);
     }

@@ -204,4 +204,26 @@ public class GameTeams {
             }
         }
     }
+
+    public void checkForTeamWin() {
+        boolean makeATeamWin = true;
+        ITeam temp = null;
+        for (ITeam team : getTeams()) {
+            if (team.getNumAlivePlayers() > 0) {
+                if (temp == null)
+                    temp = team;
+                else
+                    makeATeamWin = false;
+            }
+        }
+        if (makeATeamWin) {
+            if (temp != null)
+                getGame().getFinish().fatality(temp.getTeamColor());
+            else {
+                int numberOfTeams = getTeams().size();
+                int teamNumber = (int) Math.floor(Math.random() * numberOfTeams);
+                getGame().getFinish().fatality(TeamColor.values()[teamNumber]);
+            }
+        }
+    }
 }

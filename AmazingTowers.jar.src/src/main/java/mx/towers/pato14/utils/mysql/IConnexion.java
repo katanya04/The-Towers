@@ -31,6 +31,8 @@ public interface IConnexion {
     boolean hasAccount(Collection<String> player, Collection<String> tableName);
     List<String> getTables();
 
+    boolean isAValidTable(String tableName);
+
     enum Operation {
         CREATE_TABLE(Logger.SQLCallType.WRITE),
         CREATE_ACC(Logger.SQLCallType.WRITE),

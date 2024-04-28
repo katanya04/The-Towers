@@ -75,7 +75,7 @@ public class Connexion implements IConnexion {
             if (tables.contains(ALL_TABLES))
                 tables = getTables();
             else {
-                tables = tables.stream().filter(Utils::isAValidTable).collect(Collectors.toSet());
+                tables = tables.stream().filter(this::isAValidTable).collect(Collectors.toSet());
                 if (tables.isEmpty())
                     return null;
             }
@@ -260,6 +260,11 @@ public class Connexion implements IConnexion {
 
     public List<String> getTables() {
         return tables;
+    }
+
+    @Override
+    public boolean isAValidTable(String tableName) {
+        return tableName != null && (getTables().contains(tableName) || IConnexion.ALL_TABLES.equals(tableName));
     }
 
     @Override

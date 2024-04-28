@@ -185,7 +185,7 @@ public class Game {
                 if (playerTeam == null)
                     break;
                 if (playerTeam.getNumAlivePlayers() <= 0)
-                    Utils.checkForTeamWin(this.getGameInstance());
+                    getTeams().checkForTeamWin();
                 break;
         }
     }

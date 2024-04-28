@@ -37,7 +37,7 @@ public class Expansion extends PlaceholderExpansion {
             return "0";
         Stats playerStats;
         String tableName;
-        if (params.contains("db=") && Utils.isAValidTable(tableName = params.split("db=")[1]))
+        if (params.contains("db=") && AmazingTowers.connexion.isAValidTable(tableName = params.split("db=")[1]))
             playerStats = AmazingTowers.connexion.getStats(player.getName(), tableName);
         else
             playerStats = AmazingTowers.connexion.getStats(player.getName(), IConnexion.ALL_TABLES);

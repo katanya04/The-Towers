@@ -108,7 +108,7 @@ public class CaptainsPhase {
             return;
         GameTeams teams = game.getGame().getTeams();
         TeamColor captainColor = teams.getTeamColorByPlayer(captain.getName());
-        if (!this.captains.get(captainColor).equals(captain.getName())) { //this should not happen
+        if (!Objects.equals(this.captains.get(captainColor), captain.getName())) { //this should not happen
             Utils.sendMessage("You are not a captain", MessageType.ERROR, captain);
             return;
         }
@@ -209,6 +209,8 @@ public class CaptainsPhase {
             this.playersToChoose.remove(player);
             this.cache.remove(player);
         }
+        if (playersToChoose.isEmpty())
+            conclude(false);
     }
 
     private String getCorrectCase(String incorrectCase) {

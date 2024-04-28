@@ -7,6 +7,7 @@ import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.Color;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,8 +26,15 @@ public class LobbyInstance extends TowersWorldInstance {
     @Override
     public void joinInstance(Player player) {
         super.joinInstance(player);
-        Utils.joinMainLobby(player);
+        joinMainLobby(player);
     }
+
+    public static void joinMainLobby(Player player) {
+        player.setGameMode(GameMode.ADVENTURE);
+        Utils.resetPlayer(player);
+        AmazingTowers.getLobby().getHotbar().apply(player);
+    }
+
     public ItemStack getLobbyParkourPrize() {
         return lobbyParkourPrize;
     }

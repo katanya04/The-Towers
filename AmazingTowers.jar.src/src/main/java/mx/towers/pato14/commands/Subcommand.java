@@ -176,7 +176,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
                                 matches = true;
                             break;
                         case "<tableName>":
-                            if (Utils.isAValidTable(args[1]))
+                            if (AmazingTowers.connexion.isAValidTable(args[1]))
                                 matches = true;
                             break;
                         default:

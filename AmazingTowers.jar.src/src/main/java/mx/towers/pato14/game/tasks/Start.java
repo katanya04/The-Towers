@@ -115,6 +115,8 @@ public class Start {
             this.hasStarted = true;
             this.gameStart();
         }
+        if (game.getGameState() == GameState.CAPTAINS_CHOOSE)
+            game.getCaptainsPhase().conclude(true);
         this.continueCount();
         this.setCountDown(0);
     }

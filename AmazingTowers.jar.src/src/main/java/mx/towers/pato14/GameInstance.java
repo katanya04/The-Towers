@@ -8,12 +8,15 @@ import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.ItemsEnum;
 import mx.towers.pato14.utils.rewards.VaultT;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -44,7 +47,7 @@ public class GameInstance extends TowersWorldInstance {
         checkNeededLocationsExistence(this.numberOfTeams);
         if (AmazingTowers.isConnectedToDatabase()) {
             dbTableName = getConfig(ConfigType.GAME_SETTINGS).getString("database.database");
-            if (!Utils.isAValidTable(dbTableName))
+            if (!AmazingTowers.connexion.isAValidTable(dbTableName))
                 dbTableName = null;
         }
         if (this.nonExistentLocations.isEmpty()) {
@@ -80,7 +83,7 @@ public class GameInstance extends TowersWorldInstance {
 
     public boolean overwriteWithBackup(String worldName) {   //Borra mundo de partida anterior y lo sobreescribe con el de backup
         try {
-            if (!Utils.replaceWithBackup(plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName,
+            if (replaceWithBackup(plugin.getDataFolder().getAbsolutePath() + "/backup/" + worldName,
                     Bukkit.getWorldContainer().getAbsolutePath() + "/" + worldName)) {
                 Utils.sendConsoleMessage("There is no backup for " + worldName, MessageType.ERROR);
                 return false;
@@ -90,6 +93,20 @@ public class GameInstance extends TowersWorldInstance {
             return false;
         }
         this.setWorldProperties(getWorld());
+        return true;
+    }
+
+    private boolean replaceWithBackup(String backupPath, String targetPath) throws IOException {
+        File source = new File(backupPath);
+        if (!source.exists())
+            return false;
+        File target = new File(targetPath);
+        if (target.exists()) {
+            Bukkit.unloadWorld(target.getName(), false);
+            Utils.deleteRecursive(target);
+        }
+        FileUtils.copyDirectory(source, target);
+        Bukkit.createWorld(new WorldCreator(target.getName()));
         return true;
     }
 
@@ -139,9 +156,8 @@ public class GameInstance extends TowersWorldInstance {
         this.getPermissions().remove(player.getName());
         game.leave(player);
         Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
-        if (getGame().getCaptainsPhase().isCaptain(player.getName()) && getGame().getGameState() == GameState.CAPTAINS_CHOOSE
-        || (getGame().getGameState() == GameState.PREGAME && game.getCaptainsPhase().hasConcluded())) {
-
+        if (getGame().getCaptainsPhase().isCaptain(player.getName()) && (getGame().getGameState() == GameState.CAPTAINS_CHOOSE
+        || (getGame().getGameState() == GameState.PREGAME && game.getCaptainsPhase().hasConcluded()))) {
             getGame().getStart().startCaptainsChoose();
         }
 
@@ -177,7 +193,7 @@ public class GameInstance extends TowersWorldInstance {
             updateLists();
             setRules();
             this.dbTableName = getConfig(ConfigType.GAME_SETTINGS).getString("database.database");
-            if (!Utils.isAValidTable(this.dbTableName))
+            if (!AmazingTowers.connexion.isAValidTable(this.dbTableName))
                 this.dbTableName = null;
             this.game.reset();
             overwriteWithBackup(internalName);

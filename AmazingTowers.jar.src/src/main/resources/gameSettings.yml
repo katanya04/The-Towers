@@ -54,3 +54,10 @@ respawnInvincibility:
 possibleCaptains:
   activated: 'true'
   players: ""
+effects:
+  activated: 'false'
+  effects:
+    0:
+      effectType: "fast digging"
+      level: '0'
+      after: "60:00"

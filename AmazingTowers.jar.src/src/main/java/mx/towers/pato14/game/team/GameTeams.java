@@ -34,7 +34,7 @@ public class GameTeams {
         for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
             this.teams.add(new Team(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ", this,
-                    Utils.getConfIntDefaultsIfNull(gameInstance.getConfig(ConfigType.GAME_SETTINGS), "points.livesBedwarsMode")));
+                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).getInt("points.livesBedwarsMode")));
         }
     }
 
@@ -161,7 +161,7 @@ public class GameTeams {
     }
 
     public boolean checkWin(TeamColor team) {
-        int pointsToWin = Utils.getConfIntDefaultsIfNull(this.getGame().getGameInstance().getConfig(ConfigType.GAME_SETTINGS), "points.pointsToWin");
+        int pointsToWin = this.getGame().getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getInt("points.pointsToWin");
         return this.getTeam(team).getPoints() >= pointsToWin ||
                 this.teams.stream().filter(o -> !o.isEliminated()).count() == 1;
     }

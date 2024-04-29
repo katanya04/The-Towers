@@ -2,9 +2,11 @@ package mx.towers.pato14.game;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.game.gameevents.GameEvent;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.*;
+import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.game.team.Prefixes;
@@ -18,8 +20,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Game {
     private final String name;
@@ -35,6 +36,7 @@ public class Game {
     private final RefillTask refill;
     private final Generators generators;
     private final CaptainsPhase captainsPhase;
+    private final Set<GameEvent> events;
 
     public Game(GameInstance game) {
         this.name = game.getInternalName();
@@ -50,8 +52,17 @@ public class Game {
         this.refill = new RefillTask(game);
         this.generators = new Generators(game.getWorld().getName());
         this.captainsPhase = new CaptainsPhase(game);
+        this.events = new HashSet<>();
     }
-
+    public Set<GameEvent> getEvents() {
+        return events;
+    }
+    public void startEvents() {
+        this.getEvents().forEach(GameEvent::initialize);
+    }
+    public void stopEvents() {
+        this.getEvents().forEach(GameEvent::stop);
+    }
     public StatisticsPlayer getStats() {
         return this.stats;
     }
@@ -87,6 +98,9 @@ public class Game {
     }
     public HashMap<HumanEntity, Kit> getPlayersSelectedKit() {
         return playersSelectedKit;
+    }
+    public void addEvent(GameEvent event) {
+        this.events.add(event);
     }
 
     public void applyKitToPlayer(Player player) {
@@ -134,6 +148,7 @@ public class Game {
         if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
             this.timer.removeAllBossBars();
         this.timer.update(this.getGameInstance());
+        this.events.clear();
     }
 
     public void spawn(Player player) {

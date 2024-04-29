@@ -15,9 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class Team implements ITeam {
@@ -35,7 +35,7 @@ public class Team implements ITeam {
         this.lives = lives;
         this.gameTeams = gameTeams;
         this.eliminated = false;
-        this.players = new HashSet<>();
+        this.players = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     }
 
     @Override

@@ -184,12 +184,35 @@ public class TowerCommand implements TabExecutor {
                 break;
             case JOINTEAM:
                 assert gameInstance != null;
+                if (gameInstance.getGame().getGameState() == GameState.CAPTAINS_CHOOSE && gameInstance.getGame().getCaptainsPhase().isCaptain(args[1])) {
+                    Utils.sendMessage("You can't move a captain to another team", MessageType.ERROR, sender);
+                    break;
+                }
+                gameInstance.getGame().getCaptainsPhase().removePlayer(args[2]);
+                TeamColor teamToJoin = TeamColor.valueOf(args[1].toUpperCase());
+                gameInstance.getGame().getTeams().getTeam(teamToJoin).addPlayer(args[2]);
                 Player p = Bukkit.getPlayer(args[2]);
-                if (p != null && gameInstance.getGame().getPlayers().contains(p)) {
-                    gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase())).addPlayer(p.getName());
+                if (p != null && gameInstance.getGame().getPlayers().contains(p))
                     gameInstance.getGame().spawn(p);
-                } else
-                    Utils.sendMessage("That player isn't online.", MessageType.ERROR, sender);
+                Utils.sendMessage("Moved " + args[2] + " to " + teamToJoin.getColor() + teamToJoin.getName(gameInstance), MessageType.INFO, sender);
+                break;
+            case LEAVETEAM:
+                assert gameInstance != null;
+                if (gameInstance.getGame().getGameState() == GameState.CAPTAINS_CHOOSE && gameInstance.getGame().getCaptainsPhase().isCaptain(args[1])) {
+                    Utils.sendMessage("You can't remove a captain from its team", MessageType.ERROR, sender);
+                    break;
+                }
+                ITeam teamToLeave = gameInstance.getGame().getTeams().getTeamByPlayer(args[1]);
+                if (teamToLeave != null) {
+                    teamToLeave.removePlayer(args[1]);
+                    if (gameInstance.getGame().getGameState() == GameState.CAPTAINS_CHOOSE)
+                        gameInstance.getGame().getCaptainsPhase().addPlayer(args[1]);
+                    Utils.sendMessage("Removed player from team " + teamToLeave.getTeamColor().getColor() + teamToLeave.getTeamColor().getName(gameInstance), MessageType.INFO, sender);
+                    Player playerLeave = Bukkit.getPlayer(args[1]);
+                    if (playerLeave != null && gameInstance.getGame().getPlayers().contains(playerLeave))
+                        gameInstance.getGame().spawn(playerLeave);
+                }
+                Utils.sendMessage("That player is not part of any team", MessageType.ERROR, sender);
                 break;
             case TPWORLD:
                 World worldDestination = Bukkit.getWorld(args[1]);

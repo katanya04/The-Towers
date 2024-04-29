@@ -112,7 +112,7 @@ public class GameInstance extends TowersWorldInstance {
 
     private void setRules() {
         for (Rule rule : Rule.values())
-            this.rules.put(rule, Utils.getConfBoolDefaultsIfNull(getConfig(ConfigType.GAME_SETTINGS), "rules." + Utils.macroCaseToCamelCase(rule.name())));
+            this.rules.put(rule, Boolean.parseBoolean(getConfig(ConfigType.GAME_SETTINGS).getString("rules." + Utils.macroCaseToCamelCase(rule.name()))));
     }
 
     public VaultT getVault() {
@@ -138,6 +138,16 @@ public class GameInstance extends TowersWorldInstance {
     @Override
     public void joinInstance(Player player) {
         super.joinInstance(player);
+        if (blacklist.getKey() && blacklist.getValue().contains(player.getName()) && !player.isOp()) {
+            Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
+            player.kickPlayer("You are blacklisted");
+            return;
+        }
+        if (whitelist.getKey() && !whitelist.getValue().contains(player.getName()) && !player.isOp()) {
+            Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
+            player.kickPlayer("You are not in the whitelist");
+            return;
+        }
         if (game == null)
             return;
         if (this.game.getGameState() == GameState.LOBBY && this.getNumPlayers() >=

@@ -16,6 +16,7 @@ public class Start {
     private boolean hasStarted = false;
     private boolean runFromCommand = false;
     private final String worldName;
+    private long timestampStarted;
 
     public Start(GameInstance gameInstance) {
         this.worldName = gameInstance.getWorld().getName();
@@ -34,8 +35,11 @@ public class Start {
                     cancel();
                     if (gameInstance.getRules().get(Rule.CAPTAINS) && !game.getCaptainsPhase().hasConcluded())
                         startCaptainsChoose();
-                    else
+                    else {
                         startMatch();
+                        Start.this.timestampStarted = System.currentTimeMillis();
+                        game.startEvents();
+                    }
                     return;
                 }
                 if (!runFromCommand && gameInstance.getNumPlayers() < gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.minPlayers")) {
@@ -148,5 +152,9 @@ public class Start {
         this.runFromCommand = false;
         this.hasStarted = false;
         this.setCountDown(gameInstance.getConfig(ConfigType.CONFIG).getInt("options.gameStart.timerStart"));
+        this.timestampStarted = -1;
+    }
+    public long getSecondsSinceStart() {
+        return (System.currentTimeMillis() - this.timestampStarted) / 1000;
     }
 }

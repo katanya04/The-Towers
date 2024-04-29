@@ -50,6 +50,7 @@ public class Kit {
             if (!game.getRules().get(Rule.KITS)) {
                 player.sendMessage(Utils.getColor(messages.getString("kitsDisabled")));
                 player.closeInventory();
+                return;
             }
             Kit selectedKit = Kits.getByIcon(event.getItem());
             if (selectedKit == null)

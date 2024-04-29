@@ -9,6 +9,7 @@ import me.katanya04.anotherguiplugin.menu.InventoryMenu;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
+import mx.towers.pato14.game.gameevents.SetPotionEvents;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.team.TeamColor;
@@ -19,6 +20,7 @@ import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
@@ -136,10 +138,11 @@ public class SetActionItems {
             game.getGame().getCaptainsPhase().setHeads(event.getInventory());
         });
         selectPlayers.parseActionItems = false;
-        new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.WOOL, 1,
-                AmazingTowers.getGameInstance(p).getGame().getTeams().getTeamColorByPlayer(p.getName()).getWoolColor()),
-                Utils.getColor(AmazingTowers.getGameInstance(p).getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.selectPlayers.name"))),
-                selectPlayers, ItemsEnum.SELECT_PLAYERS.name);
+        new MenuItem<ChestMenu, Player>(p -> {
+            TeamColor team = AmazingTowers.getGameInstance(p).getGame().getTeams().getTeamColorByPlayer(p.getName());
+            return Utils.setName(new ItemStack(Material.WOOL, 1, team == null ? TeamColor.RED.getWoolColor(): team.getWoolColor()),
+                    Utils.getColor(AmazingTowers.getGameInstance(p).getConfig(ConfigType.CONFIG).getString("lobbyItems.hotbarItems.selectPlayers.name")));
+        }, selectPlayers, ItemsEnum.SELECT_PLAYERS.name);
 
         registered = true;
 
@@ -182,15 +185,10 @@ public class SetActionItems {
 
         BookMenu<GameInstance> whitelistBook = new BookMenu<>(game -> {
             BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
-            BookMenu.Field players = root.getFirstChildGivenData("players");
-            if (players == null) {
-                gameSettings.apply(game).set("whitelist.players", "");
-                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("whitelist"));
-                players = root.getFirstChildGivenData("players");
-            }
+            BookMenu.Field players = root.getChildCreateIfNotExists("players", "");
             players.applyToChildren(field -> field.setRemovableFromBook(true), false);
             players.setCanAddMoreFields(true);
-            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
+            root.getChildCreateIfNotExists("activated", "false").getChild(0).setValidCheckFunction(Utils::isBoolean);
             root.setOnModifyChildrenValue(field -> {
                 game.updateWhiteList();
                 game.setFlagChanges(true);
@@ -210,14 +208,9 @@ public class SetActionItems {
 
         BookMenu<GameInstance> blacklistBook = new BookMenu<>(game -> {
             BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
-            BookMenu.Field players = root.getFirstChildGivenData("players");
-            if (players == null) {
-                gameSettings.apply(game).set("blacklist.players", "");
-                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("blacklist"));
-                players = root.getFirstChildGivenData("players");
-            }
+            BookMenu.Field players = root.getChildCreateIfNotExists("players", "");
             players.applyToChildren(field -> field.setRemovableFromBook(true), false);
-            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
+            root.getChildCreateIfNotExists("activated", "false").getChild(0).setValidCheckFunction(Utils::isBoolean);
             players.setCanAddMoreFields(true);
             root.setOnModifyChildrenValue(field -> {
                 game.updateWhiteList();
@@ -247,8 +240,8 @@ public class SetActionItems {
 
         BookMenu<GameInstance> timerBook = new BookMenu<>(game -> {
             BookMenu.ConfigField timerRoot = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("timer"));
-            timerRoot.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(s -> "false".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s));
-            timerRoot.getFirstChildGivenData("time").getChild(0).setValidCheckFunction(s -> Utils.isStringTime(s.split(":")));
+            timerRoot.getChildCreateIfNotExists("activated", "false").getChild(0).setValidCheckFunction(s -> "false".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s));
+            timerRoot.getChildCreateIfNotExists("time", "30:00").getChild(0).setValidCheckFunction(s -> Utils.isStringTime(s.split(":")));
             timerRoot.setOnModifyChildrenValue(f -> {
                 game.getGame().getTimer().update(game);
                 game.setFlagChanges(true);
@@ -350,13 +343,8 @@ public class SetActionItems {
         );
         BookMenu<GameInstance> possibleCaptains = new BookMenu<>(game -> {
             BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("possibleCaptains"));
-            root.getFirstChildGivenData("activated").getChild(0).setValidCheckFunction(Utils::isBoolean);
-            BookMenu.Field players = root.getFirstChildGivenData("players");
-            if (players == null) {
-                gameSettings.apply(game).set("possibleCaptains.players", "");
-                root = BookMenu.ConfigField.fromConfig(gameSettings.apply(game).getConfigurationSection("possibleCaptains"));
-                players = root.getFirstChildGivenData("players");
-            }
+            root.getChildCreateIfNotExists("activated", "true").getChild(0).setValidCheckFunction(Utils::isBoolean);
+            BookMenu.Field players = root.getChildCreateIfNotExists("players", "");
             players.applyToChildren(field -> field.setRemovableFromBook(true), false);
             players.setCanAddMoreFields(true);
             root.setOnModifyChildrenValue(field -> game.setFlagChanges(true));
@@ -366,6 +354,48 @@ public class SetActionItems {
         /*19*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(Skulls.getSkullFromURL("http://textures.minecraft.net/texture/45587da7fe7336e8ab9f791ea5e2cfc8a827ca959567eb9d53a647babf948d5").clone(),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.possibleCaptains"))),
                 possibleCaptains, ItemsEnum.POSSIBLE_CAPTAINS.name);
+
+        BookMenu<GameInstance> potions = new BookMenu<>(game -> {
+            ConfigurationSection potionsConfig = gameSettings.apply(game).getConfigurationSection("effects");
+            if (potionsConfig == null)
+                potionsConfig = gameSettings.apply(game).createSection("effects");
+            BookMenu.ConfigField root = BookMenu.ConfigField.fromConfig(potionsConfig);
+            root.getChildCreateIfNotExists("activated", "false").getChild(0).setValidCheckFunction(Utils::isBoolean);
+            BookMenu.Field effects = root.getChildCreateIfNotExists("effects", "");
+            effects.applyToChildren(field -> field.setRemovableFromBook(true), false);
+            effects.setCanAddMoreFields(true);
+            BookMenu.Field childTemplate = new BookMenu.Field(String.valueOf(potionsConfig.getConfigurationSection("effects") == null ?
+                    String.valueOf(0) : potionsConfig.getConfigurationSection("effects").getKeys(false).size()), true, false)
+                    .addChild(new BookMenu.Field("effectType").addChild(new BookMenu.Field("fast digging", null, Utils::isPotionEffect)))
+                    .addChild(new BookMenu.Field("level").addChild(new BookMenu.Field("0", null, Utils::isInteger)))
+                    .addChild(new BookMenu.Field("after").addChild(new BookMenu.Field("60:00", null, s -> Utils.isStringTime(s.split(":")))));
+            childTemplate.setOpenMenuOnCreate(false);
+            effects.setChildTemplate(childTemplate);
+            effects.getChildren().forEach(f -> f.getChildrenGivenData("effectType", false).forEach(o -> o.getChild(0).setValidCheckFunction(Utils::isPotionEffect)));
+            effects.getChildren().forEach(f -> f.getChildrenGivenData("level", false).forEach(o -> o.getChild(0).setValidCheckFunction(Utils::isInteger)));
+            effects.getChildren().forEach(f -> f.getChildrenGivenData("after", false).forEach(o -> o.getChild(0).setValidCheckFunction(s -> Utils.isStringTime(s.split(":")))));
+            effects.setOnRemoveChildren(field -> {
+                int i = Utils.parseIntOrDefault(field.getData(), Integer.MAX_VALUE);
+                BookMenu.Field nextField = effects.getFirstChildGivenData(String.valueOf(i + 1));
+                while (nextField != null) {
+                    nextField.setValue(String.valueOf(i));
+                    i++;
+                    nextField = effects.getFirstChildGivenData(String.valueOf(i + 1));
+                }
+            });
+            root.setOnModifyChildrenValue(field -> {
+                if (Boolean.parseBoolean(root.getFirstChildGivenData("activated").getChild(0).getData()))
+                    SetPotionEvents.setPotionEvents(game.getGame());
+                else
+                    SetPotionEvents.clearPotionEvents(game.getGame());
+                game.setFlagChanges(true);
+            });
+            return root;
+        });
+        potions.setToCacheKey(AmazingTowers::getGameInstance);
+        /*1*/ new MenuItem<BookMenu<GameInstance>, Player>(p -> Utils.setName(new ItemStack(Material.POTION),
+                Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.potions"))),
+                potions, ItemsEnum.SET_POTIONS.name);
     }
     private static ItemStack[] gameSettingsContents() {
         ItemStack[] toret = new ItemStack[9 * 3];
@@ -382,6 +412,7 @@ public class SetActionItems {
         toret[17] = Items.get(ItemsEnum.SELECT_DB);
         toret[8] = Items.get(ItemsEnum.END_MATCH);
         toret[19] = Items.get(ItemsEnum.POSSIBLE_CAPTAINS);
+        toret[1] = Items.get(ItemsEnum.SET_POTIONS);
         return toret;
     }
     public static void setHotbarItemsInInstances() {

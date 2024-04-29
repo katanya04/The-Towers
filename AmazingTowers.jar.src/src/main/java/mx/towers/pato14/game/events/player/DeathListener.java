@@ -104,10 +104,10 @@ public class DeathListener implements Listener {
                 e.getPlayer().setGameMode(GameMode.SPECTATOR);
             }
             Config settings = gameInstance.getConfig(ConfigType.GAME_SETTINGS);
-            if (Utils.getConfBoolDefaultsIfNull(settings, "respawnInvincibility.activated")) {
+            if (Boolean.parseBoolean(settings.getString("respawnInvincibility.activated"))) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () ->
                     e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,
-                        Utils.getConfIntDefaultsIfNull(settings, "respawnInvincibility.timeInSeconds") * 20, 5, true, false)),
+                        settings.getInt("respawnInvincibility.timeInSeconds") * 20, 5, true, false)),
                 1L);
             }
         } else {

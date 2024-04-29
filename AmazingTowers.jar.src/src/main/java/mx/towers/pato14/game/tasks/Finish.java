@@ -49,6 +49,7 @@ public class Finish {
         }
         StatisticsPlayer stats = gameInstance.getGame().getStats();
         sendTitle(teamColor);
+        gameInstance.getGame().stopEvents();
         (new BukkitRunnable() {
             public void run() {
                 if (Finish.this.seconds == 0) {
@@ -60,7 +61,7 @@ public class Finish {
                         public void run() {
                             GameInstance gameToTp;
                             for (Player player : gameInstance.getGame().getPlayers()) {
-                                if (Utils.getConfBoolDefaultsIfNull(gameInstance.getConfig(ConfigType.CONFIG), "options.sendPlayerToAnotherInstanceAtTheEnd")
+                                if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
                                         && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
                                     Utils.tpToWorld(gameToTp.getWorld(), player);
                                 } else {
@@ -151,7 +152,7 @@ public class Finish {
             Bukkit.getScheduler().runTaskAsynchronously(AmazingTowers.getPlugin(), () -> {
                 final HashMap<String, Stats> statsMap = stats.getPlayerStats();
                 final String tableName = gameInstance.getTableName();
-                statsMap.forEach((pl, st) -> AmazingTowers.connexion.updateData(pl, st, tableName));
+                AmazingTowers.connexion.updateData(statsMap, Collections.singleton(tableName));
             });
         }
     }

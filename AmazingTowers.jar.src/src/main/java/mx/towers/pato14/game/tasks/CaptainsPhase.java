@@ -43,8 +43,8 @@ public class CaptainsPhase {
         this.ready = new HashMap<>();
         this.worldName = gameInstance.getInternalName();
         this.playersToChoose = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        this.captainCondition = pl -> !Utils.getConfBoolDefaultsIfNull(gameInstance.getConfig(ConfigType.GAME_SETTINGS),
-                "possibleCaptains.activated") || Utils.getConfSafeList(gameInstance.getConfig(ConfigType.GAME_SETTINGS),
+        this.captainCondition = pl -> !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString(
+                "possibleCaptains.activated")) || Utils.getConfSafeList(gameInstance.getConfig(ConfigType.GAME_SETTINGS),
                 "possibleCaptains.players").contains(pl.getName());
     }
 
@@ -80,10 +80,12 @@ public class CaptainsPhase {
                     true);
             this.ready.put(team, false);
             game.getGame().getTeams().getTeam(team).addPlayer(captain.getName());
-            Bukkit.getPlayer(captain.getName()).getInventory().setItem(Utils.getConfIntDefaultsIfNull(game.getConfig(ConfigType.CONFIG),
+            Bukkit.getPlayer(captain.getName()).getInventory().setItem(game.getConfig(ConfigType.CONFIG).getInt(
                     "lobbyItems.hotbarItems.selectPlayers.position"), Items.getAndParse(ItemsEnum.SELECT_PLAYERS, captain));
             removePlayer(captain.getName());
         }
+        game.getWorld().getPlayers().stream().filter(Player::isOp).forEach(o -> o.getInventory().setItem(game.getConfig(ConfigType.CONFIG).getInt(
+                "lobbyItems.hotbarItems.selectPlayers.position"), Items.getAndParse(ItemsEnum.SELECT_PLAYERS, o)));
         this.currentTurn = Utils.getRandomSetElement(captains.keySet());
         sendMsgTurn();
     }
@@ -131,8 +133,7 @@ public class CaptainsPhase {
         if (!playersToChoose.isEmpty()) {
             this.currentTurn = getNext();
             sendMsgTurn();
-        } else
-            conclude(false);
+        }
     }
 
     public boolean hasConcluded() {

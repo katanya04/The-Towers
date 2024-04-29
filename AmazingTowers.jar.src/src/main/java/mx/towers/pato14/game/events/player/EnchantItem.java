@@ -4,6 +4,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.enums.Rule;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,8 +21,8 @@ public class EnchantItem implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!gameInstance.getRules().get(Rule.ENCHANTS)) {
-            Material block = e.getClickedBlock().getType();
-            if (block.equals(Material.ENCHANTMENT_TABLE))
+            Block block = e.getClickedBlock();
+            if (block != null && block.getType().equals(Material.ENCHANTMENT_TABLE))
                 e.setCancelled(true);
         }
     }

@@ -26,6 +26,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     SETSCORE(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     SETLIVES(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
+    LEAVETEAM(PermissionLevel.ORGANIZER, 1, false, true, "<onlinePlayer>", "$<instanceName>"),
     TPWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>", "*<onlinePlayer>"),
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
     BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),

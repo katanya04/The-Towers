@@ -30,7 +30,8 @@ public enum ItemsEnum {
     DENY_BUY("DenyBuy", true),
     SELECT_PLAYER("SelectPlayer", false),
     SELECT_PLAYERS("SelectPlayers", true),
-    POSSIBLE_CAPTAINS("PossibleCaptains", true);
+    POSSIBLE_CAPTAINS("PossibleCaptains", true),
+    SET_POTIONS("SetPotions", true);
     public final String name;
     public final boolean needsPlayer;
     ItemsEnum(String name, boolean needsPlayer) {

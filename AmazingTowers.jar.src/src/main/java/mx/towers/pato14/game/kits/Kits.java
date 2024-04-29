@@ -1,5 +1,6 @@
 package mx.towers.pato14.game.kits;
 
+import me.katanya04.anotherguiplugin.menu.InventoryMenu;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.utils.files.Config;
@@ -147,6 +148,7 @@ public class Kits {
     public void updateKits() {
         addKits(AmazingTowers.getGameInstance(this.instanceName));
         updateGameKits(AmazingTowers.getGameInstance(this.instanceName));
+        kits.values().forEach(o -> InventoryMenu.resetSavedContents(null, o.getName()));
     }
 
     public void updateGameKits(GameInstance gameInstance) {

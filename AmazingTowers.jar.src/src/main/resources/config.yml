@@ -91,6 +91,7 @@ settingsBook:
   selectStatsDB: '&7&lEscoger a donde van las stats'
   endMatch: '&7&lTerminar la partida'
   possibleCaptains: '&7&lPosibles capitanes'
+  potions: '&7&lEfectos de pocion'
   saveSettings:
     name: '&d&lGuardar ajustes'
     saveMessage: 'Ajustes guardados correctamente'

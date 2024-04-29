@@ -22,12 +22,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -191,6 +193,10 @@ public class Utils {
             }
         } while (match.find());
         return camelCaseText.toUpperCase();
+    }
+
+    public static String itemCaseToMacroCase(String itemName) {
+        return itemName.toUpperCase().replace(" ", "_");
     }
 
     public static boolean isStringTime(String[] time) {
@@ -459,30 +465,11 @@ public class Utils {
         return "true".equalsIgnoreCase(value) || !"false".equalsIgnoreCase(value) && def;
     }
 
-    public static boolean getConfBoolDefaultsIfNull(Config config, String path) {
-        String obj = config.getString(path);
-        if (!("true".equals(obj) || "false".equals(obj)))
-            obj = Config.getFromDefault(path, config.getFileName()).toString();
-        return Boolean.parseBoolean(obj);
-    }
-
-    public static int getConfIntDefaultsIfNull(Config config, String path) {
-        String obj = config.getString(path);
-        if (!isInteger(obj))
-            obj = Config.getFromDefault(path, config.getFileName()).toString();
-        return Integer.parseInt(obj);
-    }
-
     public static List<?> getConfSafeList(Config config, String path) {
         Object obj = config.get(path);
         if (obj == null)
             return new ArrayList<>();
         return obj instanceof List ? (List<?>) obj : Collections.singletonList(obj);
-    }
-
-    public static <T> T getObjDefaultsIfNull(Config config, String path, Class<T> clazz) throws ClassCastException {
-        Object obj = config.get(path);
-        return (T) (clazz.isInstance(obj) ? obj : Config.getFromDefault(path, config.getFileName()));
     }
 
     public static int getRandomInt(int min, int max) {
@@ -565,5 +552,22 @@ public class Utils {
         for (StackTraceElement stackLine : ex.getStackTrace())
             sb.append(stackLine).append("\n");
         Utils.sendConsoleMessage(text + "\n Exception: " + ex.getClass().getCanonicalName() + "\n" + sb, MessageType.ERROR);
+    }
+
+    public static boolean isPotionEffect(String effect) {
+        return Arrays.stream(PotionEffectType.class.getFields()).filter(o -> o.getDeclaringClass().equals(PotionEffectType.class))
+                .map(Field::getName).collect(Collectors.toSet())
+                .contains(Utils.itemCaseToMacroCase(effect));
+    }
+
+    public static PotionEffectType getPotionEffect(String effect) {
+        Field potion = Arrays.stream(PotionEffectType.class.getFields()).filter(o -> o.getDeclaringClass().equals(PotionEffectType.class))
+                .filter(o -> o.getName().equals(Utils.itemCaseToMacroCase(effect)))
+                .findAny().orElse(null);
+        try {
+            return potion == null ? null : (PotionEffectType) potion.get("");
+        } catch (IllegalAccessException e) {
+            return null;
+        }
     }
 }

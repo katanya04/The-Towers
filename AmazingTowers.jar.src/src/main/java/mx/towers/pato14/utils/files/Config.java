@@ -10,9 +10,12 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.MessageType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.Validate;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.util.NumberConversions;
 
 public class Config extends YamlConfiguration {
     private final String name;
@@ -78,6 +81,11 @@ public class Config extends YamlConfiguration {
 
     public String getFileName() {
         return name;
+    }
+
+    @Override
+    protected Object getDefault(String path) {
+        return Config.getFromDefault(path, this.getFileName());
     }
 }
 

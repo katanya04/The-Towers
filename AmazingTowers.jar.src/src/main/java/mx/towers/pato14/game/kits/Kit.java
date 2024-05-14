@@ -57,7 +57,7 @@ public class Kit {
                 return;
             if (event.getInteractionType() == InteractionType.LEFT_CLICK) {
                 if (selectedKit.playerHasKit(player, game)) {
-                    game.getGame().getPlayersSelectedKit().put(player, selectedKit);
+                    game.getGame().getPlayersSelectedKit().put(player.getName(), selectedKit);
                     player.sendMessage(Utils.getColor(messages.getString("selectKit").replace("%kitName%", selectedKit.getName())));
                     player.playSound(player.getLocation(), Sound.CLICK, 1.0f, 1.0f);
                     player.closeInventory();

@@ -219,26 +219,16 @@ public class Utils {
     }
 
     public static String intTimeToString(int time) {
-        StringBuilder toret = new StringBuilder();
-        int temp;
-        int j = -1;
-        int i = 0;
-        while (j-- != 0) {
-            temp = time;
-            while (temp >= 60) {
-                temp /= 60;
-                i++;
-            }
-            toret.append(temp < 10 && j >= 0 ? "0" + temp : temp).append(":");
-            if (j < 0)
-                j = i;
-            while (i > 0) {
-                temp *= 60;
-                i--;
-            }
-            time -= temp;
-        }
-        return toret.deleteCharAt(toret.length() - 1).toString();
+        Stack<Integer> digits = new Stack<>();
+        do {
+            digits.push(time % 60);
+            time /= 60;
+        } while (time > 0);
+        StringBuilder sb = new StringBuilder();
+        sb.append(digits.pop());
+        while (!digits.empty())
+            sb.append(":").append(String.format("%02d", digits.pop()));
+        return sb.toString();
     }
 
     public static boolean isInteger(String str) {

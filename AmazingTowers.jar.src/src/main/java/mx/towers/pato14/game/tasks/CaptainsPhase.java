@@ -141,9 +141,11 @@ public class CaptainsPhase {
     }
 
     public void conclude(boolean startImmediately) {
+        GameInstance game = AmazingTowers.getGameInstance(this.worldName);
+        if (game.getGame().getGameState() != GameState.CAPTAINS_CHOOSE)
+            return;
         this.currentTurn = null;
         this.concluded = true;
-        GameInstance game = AmazingTowers.getGameInstance(this.worldName);
         game.getGame().setGameState(GameState.PREGAME);
         game.getGame().getStart().afterCaptainsChoose(startImmediately);
     }

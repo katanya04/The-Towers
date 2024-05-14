@@ -5,6 +5,7 @@ import me.katanya04.anotherguiplugin.actionItems.MenuItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
+import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
@@ -188,7 +189,8 @@ public class TowerCommand implements TabExecutor {
                     Utils.sendMessage("You can't move a captain to another team", MessageType.ERROR, sender);
                     break;
                 }
-                gameInstance.getGame().getCaptainsPhase().removePlayer(args[2]);
+                if (gameInstance.getRules().get(Rule.CAPTAINS) && !gameInstance.getGame().getCaptainsPhase().hasConcluded())
+                    gameInstance.getGame().getCaptainsPhase().removePlayer(args[2]);
                 TeamColor teamToJoin = TeamColor.valueOf(args[1].toUpperCase());
                 gameInstance.getGame().getTeams().getTeam(teamToJoin).addPlayer(args[2]);
                 Player p = Bukkit.getPlayer(args[2]);
@@ -205,7 +207,7 @@ public class TowerCommand implements TabExecutor {
                 ITeam teamToLeave = gameInstance.getGame().getTeams().getTeamByPlayer(args[1]);
                 if (teamToLeave != null) {
                     teamToLeave.removePlayer(args[1]);
-                    if (gameInstance.getGame().getGameState() == GameState.CAPTAINS_CHOOSE)
+                    if (gameInstance.getRules().get(Rule.CAPTAINS) && !gameInstance.getGame().getCaptainsPhase().hasConcluded())
                         gameInstance.getGame().getCaptainsPhase().addPlayer(args[1]);
                     Utils.sendMessage("Removed player from team " + teamToLeave.getTeamColor().getColor() + teamToLeave.getTeamColor().getName(gameInstance), MessageType.INFO, sender);
                     Player playerLeave = Bukkit.getPlayer(args[1]);
@@ -514,8 +516,16 @@ public class TowerCommand implements TabExecutor {
                     else
                         gameInstance.getGame().getCaptainsPhase().removePlayer(Arrays.copyOfRange(args, 2, args.length));
                 } else if (args[1].equalsIgnoreCase("newCaptains")) {
-                    gameInstance.getGame().getStart().startCaptainsChoose();
-                    gameInstance.getGame().getStart().setCountDown(0);
+                    if (gameInstance.getRules().get(Rule.CAPTAINS) && gameInstance.getGame().getGameState() == GameState.CAPTAINS_CHOOSE) {
+                        gameInstance.getWorld().getPlayers().stream()
+                                .filter(o -> o.getGameMode() == GameMode.SPECTATOR && !GameTeams.isSpectatorTeam(o))
+                                .forEach(o -> {
+                                    o.setGameMode(GameMode.ADVENTURE);
+                                    Utils.tpToLobby(AmazingTowers.getGameInstance(o), o);
+                                });
+                        gameInstance.getGame().getStart().startCaptainsChoose();
+                        gameInstance.getGame().getStart().setCountDown(0);
+                    }
                 } else if (args[1].equalsIgnoreCase("reloadPicks")) {
                     gameInstance.getGame().getCaptainsPhase().setPlayerList(true);
                 }

@@ -32,7 +32,7 @@ public class Game {
     private final Move detectionMove;
     private GameState gameState;
     private final Kits kits;
-    private final HashMap<HumanEntity, Kit> playersSelectedKit;
+    private final Map<String, Kit> playersSelectedKit;
     private final RefillTask refill;
     private final Generators generators;
     private final CaptainsPhase captainsPhase;
@@ -96,7 +96,7 @@ public class Game {
     public CaptainsPhase getCaptainsPhase() {
         return captainsPhase;
     }
-    public HashMap<HumanEntity, Kit> getPlayersSelectedKit() {
+    public Map<String, Kit> getPlayersSelectedKit() {
         return playersSelectedKit;
     }
     public void addEvent(GameEvent event) {
@@ -104,7 +104,7 @@ public class Game {
     }
 
     public void applyKitToPlayer(Player player) {
-        Kit kit = this.getPlayersSelectedKit().get(player);
+        Kit kit = this.getPlayersSelectedKit().get(player.getName());
         if (kit == null || !this.getGameInstance().getRules().get(Rule.KITS))
             getKits().getDefaultKit().applyKitToPlayer(player);
         else

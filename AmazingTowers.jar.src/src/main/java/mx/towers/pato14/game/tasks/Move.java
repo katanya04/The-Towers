@@ -37,7 +37,7 @@ public class Move {
                     cancel();
                     return;
                 }
-                for (Player player : gameInstance.getGame().getPlayers()) {
+                for (Player player : gameInstance.getWorld().getPlayers()) {
                     if (player.getHealth() > 0.0D && !player.getGameMode().equals(GameMode.SPECTATOR)) {
                         for (Pool pool : Move.this.pools) {
                             if (pool.getTeam().containsPlayer(player.getName()) || !pool.getTeam().doPlayersRespawn())
@@ -48,7 +48,7 @@ public class Move {
                     }
                 }
             }
-        }).runTaskTimer(gameInstance.getPlugin(), 0L, gameInstance.getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
+        }).runTaskTimer(AmazingTowers.getPlugin(), 0L, gameInstance.getConfig(ConfigType.CONFIG).getInt("options.ticksPerPoolsCheck"));
     }
 
     public Pool[] getPools() {

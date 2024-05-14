@@ -152,7 +152,7 @@ public class Kits {
     }
 
     public void updateGameKits(GameInstance gameInstance) {
-        for (Map.Entry<HumanEntity, Kit> entry : gameInstance.getGame().getPlayersSelectedKit().entrySet()) {
+        for (Map.Entry<String, Kit> entry : gameInstance.getGame().getPlayersSelectedKit().entrySet()) {
             gameInstance.getGame().getPlayersSelectedKit().put(entry.getKey(),
                     kits.containsKey(entry.getValue().getName()) ?
                             kits.get(entry.getValue().getName()) : getDefaultKit());

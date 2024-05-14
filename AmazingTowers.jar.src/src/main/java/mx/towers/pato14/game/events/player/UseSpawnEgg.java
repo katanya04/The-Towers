@@ -33,6 +33,8 @@ public class UseSpawnEgg implements Listener {
         e.setCancelled(true);
         SpawnEgg spawnEgg = (SpawnEgg) p.getItemInHand().getData();
         Entity entity = p.getWorld().spawnEntity(e.getClickedBlock().getRelative(e.getBlockFace()).getLocation().add(0.5, 0, 0.5), spawnEgg.getSpawnedType());
+        entity.getLocation().setPitch(p.getLocation().getPitch());
+        entity.getLocation().setYaw(p.getLocation().getYaw());
         if (entity.getType() == EntityType.HORSE) {
             Horse horse = (Horse) entity;
             horse.setTamed(true);

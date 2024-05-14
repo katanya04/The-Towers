@@ -34,7 +34,7 @@ public class GameTeams {
         for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
             this.teams.add(new Team(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ", this,
-                    gameInstance.getConfig(ConfigType.GAME_SETTINGS).getInt("points.livesBedwarsMode")));
+                    Utils.parseIntOrDefault(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.livesBedwarsMode"), 10)));
         }
     }
 
@@ -130,8 +130,13 @@ public class GameTeams {
                 .getString("enterSpectatorMode").replace("%newLine%", "\n")));
         if (currentTeam != null)
             currentTeam.removePlayer(player.getName());
+        getGame().getCaptainsPhase().removePlayer(player.getName());
         Prefixes.setPrefix(player.getName(), ChatColor.GRAY.toString());
         player.closeInventory();
+    }
+
+    public static boolean isSpectatorTeam(Player player) {
+        return Objects.equals(Prefixes.getPrefix(player.getName()), ChatColor.GRAY.toString());
     }
 
     public void updatePrefixes() {
@@ -161,7 +166,7 @@ public class GameTeams {
     }
 
     public boolean checkWin(TeamColor team) {
-        int pointsToWin = this.getGame().getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getInt("points.pointsToWin");
+        int pointsToWin = Integer.parseInt(this.getGame().getGameInstance().getConfig(ConfigType.GAME_SETTINGS).getString("points.pointsToWin"));
         return this.getTeam(team).getPoints() >= pointsToWin ||
                 this.teams.stream().filter(o -> !o.isEliminated()).count() == 1;
     }

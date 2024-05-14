@@ -108,7 +108,7 @@ public class Connexion implements IConnexion {
                 repeat = false;
             }
         } while (repeat);
-        return false;
+        return null;
     }
 
     @Override

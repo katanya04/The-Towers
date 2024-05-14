@@ -41,7 +41,7 @@ public class KitsCommand implements TabExecutor {
             }
             if (args.length == 1) {
                 if (kit.playerHasKit(p, game)) {
-                    game.getGame().getPlayersSelectedKit().put(p, kit);
+                    game.getGame().getPlayersSelectedKit().put(p.getName(), kit);
                     Utils.sendMessage("Kit applied", MessageType.INFO, p);
                 } else
                     Utils.sendMessage("You don't have this kit", MessageType.ERROR, p);

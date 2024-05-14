@@ -30,7 +30,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 public final class AmazingTowers extends JavaPlugin {
     private static AmazingTowers plugin;
@@ -42,6 +44,13 @@ public final class AmazingTowers extends JavaPlugin {
     public static IConnexion connexion;
     public static ILogger logger;
 
+    // MockBukkit constructors
+    public AmazingTowers() {
+        super();
+    }
+    protected AmazingTowers(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+        super(loader, description, dataFolder, file);
+    }
     @Override
     public void onEnable() {
         plugin = this;
@@ -110,9 +119,11 @@ public final class AmazingTowers extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        logger.closeStream();
-        connexion.close();
-        Arrays.stream(games).filter(o -> o.getGame() == null).map(TowersWorldInstance::getWorld).filter(Objects::nonNull).forEach(World::save);
+        if (logger != null)
+            logger.closeStream();
+        if (connexion != null)
+            connexion.close();
+        Arrays.stream(games).filter(o -> o != null && o.getGame() == null).map(TowersWorldInstance::getWorld).filter(Objects::nonNull).forEach(World::save);
     }
     public static WandCoords getWandCoords(Player player) {
         return wands.get(player);

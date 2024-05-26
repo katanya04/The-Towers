@@ -38,7 +38,7 @@ public final class AmazingTowers extends JavaPlugin {
     private static AmazingTowers plugin;
     private static LobbyInstance lobby;
     private static GameInstance[] games;
-    private static HashMap<Player, WandCoords> wands;
+    private static HashMap<String, WandCoords> wands;
     private static Config globalConfig;
     private static Config kitsDefine;
     public static IConnexion connexion;
@@ -126,7 +126,7 @@ public final class AmazingTowers extends JavaPlugin {
         Arrays.stream(games).filter(o -> o != null && o.getGame() == null).map(TowersWorldInstance::getWorld).filter(Objects::nonNull).forEach(World::save);
     }
     public static WandCoords getWandCoords(Player player) {
-        return wands.get(player);
+        return wands.get(player.getName());
     }
 
     public static AmazingTowers getPlugin() {
@@ -211,9 +211,9 @@ public final class AmazingTowers extends JavaPlugin {
         return connexion.isConnected();
     }
     public static void addPlayerWand(Player player) {
-        wands.put(player, new WandCoords());
+        wands.put(player.getName(), new WandCoords());
     }
     public static void removePlayerWand(Player player) {
-        wands.remove(player);
+        wands.remove(player.getName());
     }
 }

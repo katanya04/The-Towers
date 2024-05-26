@@ -33,7 +33,8 @@ public class Move {
         GameInstance gameInstance = AmazingTowers.getGameInstance(instanceName);
         (new BukkitRunnable() {
             public void run() {
-                if (!gameInstance.getGame().getGameState().equals(GameState.GAME)) {
+                if (!gameInstance.getGame().getGameState().matchIsBeingPlayed ||
+                        (gameInstance.getGame().getGameState() != GameState.GAME && gameInstance.getRules().get(Rule.BEDWARS_STYLE))) {
                     cancel();
                     return;
                 }

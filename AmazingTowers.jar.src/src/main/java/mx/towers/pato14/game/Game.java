@@ -16,7 +16,6 @@ import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.stats.StatisticsPlayer;
 import org.bukkit.GameMode;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -123,7 +122,7 @@ public class Game {
         return generators;
     }
 
-    public void endMatch() {
+    public void endMatchCommand() {
         switch (gameState) {
             case GAME:
                 getFinish().endMatchOrGoldenGoal();

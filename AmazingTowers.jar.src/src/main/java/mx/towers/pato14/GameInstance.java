@@ -51,8 +51,6 @@ public class GameInstance extends TowersWorldInstance {
                 dbTableName = null;
         }
         if (this.nonExistentLocations.isEmpty()) {
-            if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
-                plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
             if (overwriteWithBackup(name)) {
                 this.vault = new VaultT(this);
                 this.game = new Game(this);

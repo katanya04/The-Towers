@@ -27,7 +27,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     SETLIVES(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<number>", "$<instanceName>"),
     JOINTEAM(PermissionLevel.ORGANIZER, 2, false, true, "%team_colors%", "<onlinePlayer>", "$<instanceName>"),
     LEAVETEAM(PermissionLevel.ORGANIZER, 1, false, true, "<onlinePlayer>", "$<instanceName>"),
-    TPWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>", "*<onlinePlayer>"),
+    TPWORLD(PermissionLevel.NONE, 1, false, false, "<worldName>", "*<onlinePlayer>"),
     CREATEWORLD(PermissionLevel.ADMIN, 1, false, false, "<instanceName>|all"),
     BACKUPWORLD(PermissionLevel.ADMIN, 0, false, false, "$<instanceName>"),
     LOADWORLD(PermissionLevel.ADMIN, 1, false, false, "<worldName>"),
@@ -46,6 +46,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     SETDATABASE(PermissionLevel.ORGANIZER, 0, true, true, "*<tableName>"),
     ENDMATCH(PermissionLevel.ORGANIZER, 0, true, true, "*%team_colors%"),
     PICKS(PermissionLevel.ORGANIZER, 1, true, true, "add|remove|newCaptains|reloadPicks", "*<player>..."),
+    BUILD(PermissionLevel.ORGANIZER, 0, true, false),
     DEBUG(PermissionLevel.ADMIN, 0, true, false);
 
     private final PermissionLevel permissionLevel;

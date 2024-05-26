@@ -16,7 +16,7 @@ public class BlockStats implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!e.isCancelled())
-            gameInstance.getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_PLACED);
+            gameInstance.getGame().getStats().increaseOne(e.getPlayer().getName(), StatType.BLOCKS_PLACED);
     }
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent e) {
@@ -24,6 +24,6 @@ public class BlockStats implements Listener {
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
         if (!e.isCancelled())
-            gameInstance.getGame().getStats().addOne(e.getPlayer().getName(), StatType.BLOCKS_BROKEN);
+            gameInstance.getGame().getStats().increaseOne(e.getPlayer().getName(), StatType.BLOCKS_BROKEN);
     }
 }

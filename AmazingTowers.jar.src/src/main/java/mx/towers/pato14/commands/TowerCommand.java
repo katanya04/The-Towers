@@ -40,10 +40,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TowerCommand implements TabExecutor {
-    private final ArrayList<CommandSender> senderPlayer = new ArrayList<>();
-    private final LinkedHashMap<String, Long> cooldown = new LinkedHashMap<String, Long>() {
+    private final static ArrayList<CommandSender> senderPlayer = new ArrayList<>();
+    private final static LinkedHashMap<String, Long> cooldown = new LinkedHashMap<String, Long>() {
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+            return size() > 50;
+        }
+    };
+    public final static LinkedHashMap<String, Boolean> build = new LinkedHashMap<String, Boolean>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
             return size() > 50;
         }
     };
@@ -259,8 +265,8 @@ public class TowerCommand implements TabExecutor {
                 final File backup = new File(AmazingTowers.getPlugin().getDataFolder().getAbsolutePath() + "/backup", gameInstance.getWorld().getName());
                 if (backup.exists())
                     Utils.sendMessage("§fThe folder §a'" + gameInstance.getWorld().getName() + "'§f already exists in the backup folder!", MessageType.ERROR, sender);
-                else if (!this.senderPlayer.contains(sender)) {
-                    this.senderPlayer.add(sender);
+                else if (!senderPlayer.contains(sender)) {
+                    senderPlayer.add(sender);
                     Utils.sendMessage("§fDo you want to save the world §a" + gameInstance.getInternalName() + "§f in the backup folder? ", MessageType.INFO, sender);
                     Utils.sendMessage("§fIf you want to save it, execute again the command §a/towers backupWorld", MessageType.INFO, sender);
                 }
@@ -496,7 +502,7 @@ public class TowerCommand implements TabExecutor {
                         Utils.sendMessage("That's not a valid team color", MessageType.ERROR, sender);
                     break;
                 }
-                gameInstance.getGame().endMatch();
+                gameInstance.getGame().endMatchCommand();
                 if (Objects.requireNonNull(gameInstance.getGame().getGameState()) == GameState.EXTRA_TIME)
                     Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, sender);
                 else if (Objects.requireNonNull(gameInstance.getGame().getGameState()) != GameState.FINISH)
@@ -529,6 +535,11 @@ public class TowerCommand implements TabExecutor {
                 } else if (args[1].equalsIgnoreCase("reloadPicks")) {
                     gameInstance.getGame().getCaptainsPhase().setPlayerList(true);
                 }
+                break;
+            case BUILD:
+                assert player != null;
+                build.put(player.getName(), !build.getOrDefault(player.getName(), false));
+                Utils.sendMessage("Toggled build mode " + (build.get(player.getName()) ? "on" : "off"), MessageType.INFO, player);
                 break;
             case DEBUG:
                 //player.getInventory().addItem(Skulls.getPlayerHead("katanya04"));

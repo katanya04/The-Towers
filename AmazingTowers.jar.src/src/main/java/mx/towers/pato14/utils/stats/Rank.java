@@ -29,6 +29,8 @@ public enum Rank {
         return F;
     }
     public static Rank getTotalRank(Stats st) {
+        if (st == null)
+            return F;
         double toret = Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.DEATHS)) * 1.25 + Utils.safeDivide(st.getStat(StatType.POINTS), st.getStat(StatType.GAMES_PLAYED)) * 2.5 +
                 (Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.GAMES_PLAYED)) / 15 - Utils.safeDivide(st.getStat(StatType.DEATHS), st.getStat(StatType.GAMES_PLAYED)) / 20) + Utils.safeDivide(st.getStat(StatType.WINS), st.getStat(StatType.GAMES_PLAYED)) * 2;
         return getRank(toret);

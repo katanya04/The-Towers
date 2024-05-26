@@ -181,7 +181,7 @@ public class GameTeams {
         ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
         gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
-        getGame().getStats().addOne(player.getName(), StatType.POINTS);
+        getGame().getStats().increaseOne(player.getName(), StatType.POINTS);
         gameInstance.getVault().giveReward(player, RewardsEnum.POINT);
         gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString(bedwarsStyle ? "scorePoint.pointBedwarsStyle" : "scorePoint.point")
                         .replace("{Player}", player.getName())

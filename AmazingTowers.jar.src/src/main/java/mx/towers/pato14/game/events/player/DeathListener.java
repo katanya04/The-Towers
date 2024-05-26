@@ -64,7 +64,7 @@ public class DeathListener implements Listener {
             }
             killer.playSound(killer.getLocation(), Sound.SUCCESSFUL_HIT, 1f, 1f);
         }
-        gameInstance.getGame().getStats().addOne(player.getName(), StatType.DEATHS);
+        gameInstance.getGame().getStats().increaseOne(player.getName(), StatType.DEATHS);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
             for (ItemStack i : e.getDrops()) {
                 if (i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable()) {
@@ -84,7 +84,7 @@ public class DeathListener implements Listener {
     }
 
     private void addRewardsKiller(Player killer) {
-        AmazingTowers.getGameInstance(killer).getGame().getStats().addOne(killer.getName(), StatType.KILLS);
+        AmazingTowers.getGameInstance(killer).getGame().getStats().increaseOne(killer.getName(), StatType.KILLS);
         AmazingTowers.getGameInstance(killer).getScoreUpdates().updateScoreboard(killer);
         AmazingTowers.getGameInstance(killer).getVault().giveReward(killer, RewardsEnum.KILL);
     }

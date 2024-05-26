@@ -2,6 +2,7 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
+import mx.towers.pato14.commands.TowerCommand;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
@@ -20,6 +21,8 @@ public class ProtectedAreasListener implements Listener {
 
     @EventHandler
     public void blockBreak(BlockBreakEvent e) {
+        if (TowerCommand.build.getOrDefault(e.getPlayer().getName(), false))
+            return;
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
@@ -59,6 +62,8 @@ public class ProtectedAreasListener implements Listener {
 
     @EventHandler
     public void blockPlace(BlockPlaceEvent e) {
+        if (TowerCommand.build.getOrDefault(e.getPlayer().getName(), false))
+            return;
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;

@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Finish {
-    private final AmazingTowers plugin = AmazingTowers.getPlugin();
     private int seconds;
     private final boolean bungeecord;
     private final String name;
@@ -39,110 +38,85 @@ public class Finish {
         bungeecord = AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled");
     }
 
-    public void fatality(final TeamColor teamColor) {
+    public void fatality(final TeamColor winnerTeamColor) {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
         gameInstance.getGame().setGameState(GameState.FINISH);
-        for (String p : gameInstance.getGame().getStats().getPlayerStats().keySet()) {
-            gameInstance.getGame().getStats().addOne(p, StatType.GAMES_PLAYED);
-            if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(p))
-                gameInstance.getGame().getStats().addOne(p, StatType.WINS);
-        }
         StatisticsPlayer stats = gameInstance.getGame().getStats();
-        sendTitle(teamColor);
+        stats.increaseOneAll(StatType.GAMES_PLAYED);
+        stats.increaseOneConditional(StatType.WINS, player -> gameInstance.getGame().getTeams().getTeam(winnerTeamColor).containsPlayer(player));
+        sendTitle(winnerTeamColor);
         gameInstance.getGame().stopEvents();
+        List<Player> playersWithStats = gameInstance.getGame().getPlayers().stream()
+                .filter(player -> stats.getPlayerStats().containsKey(player.getName())).collect(Collectors.toList());
         (new BukkitRunnable() {
             public void run() {
-                if (Finish.this.seconds == 0) {
-                    cancel();
-                    return;
-                }
-                if (Finish.this.seconds == 1) {
-                    (new BukkitRunnable() {
-                        public void run() {
-                            GameInstance gameToTp;
-                            for (Player player : gameInstance.getGame().getPlayers()) {
-                                if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
-                                        && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
-                                    Utils.tpToWorld(gameToTp.getWorld(), player);
-                                } else {
-                                    if (AmazingTowers.getLobby() != null)
-                                        Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
-                                    else if (bungeecord)
-                                        Utils.bungeecordTeleport(player);
-                                    else
-                                        player.kickPlayer(Utils.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
-                                                .replace("{Color}", teamColor.getColor())
-                                                .replace("{Team}", teamColor.getName(gameInstance))
-                                                .replace("%newLine%", "\n")));
+                switch (Finish.this.seconds) {
+                    case 0:
+                        cancel();
+                        return;
+                    case 1:
+                        (new BukkitRunnable() {
+                            public void run() {
+                                GameInstance gameToTp;
+                                for (Player player : gameInstance.getGame().getPlayers()) {
+                                    if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.sendPlayerToAnotherInstanceAtTheEnd")
+                                            && (gameToTp = AmazingTowers.checkForInstanceToTp(player)) != null) {
+                                        Utils.tpToWorld(gameToTp.getWorld(), player);
+                                    } else {
+                                        if (AmazingTowers.getLobby() != null)
+                                            Utils.tpToWorld(AmazingTowers.getLobby().getWorld(), player);
+                                        else if (bungeecord)
+                                            Utils.bungeecordTeleport(player);
+                                        else
+                                            player.kickPlayer(Utils.getColor(AmazingTowers.getGameInstance(player).getConfig(ConfigType.MESSAGES).getString("kickPlayersAtEndOfMatch")
+                                                    .replace("{Color}", winnerTeamColor.getColor())
+                                                    .replace("{Team}", winnerTeamColor.getName(gameInstance))
+                                                    .replace("%newLine%", "\n")));
+                                    }
                                 }
+                                Bukkit.unloadWorld(gameInstance.getInternalName(), false);
+                                gameInstance.reset();
                             }
-                            Bukkit.unloadWorld(gameInstance.getInternalName(), false);
-                            gameInstance.reset();
+                        }).runTaskLater(AmazingTowers.getPlugin(), 60L);
+                        if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("serverRestart.enabled")) {
+                            gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("serverRestart.message"), true);
                         }
-                    }).runTaskLater(Finish.this.plugin, 60L);
-                    if (gameInstance.getConfig(ConfigType.MESSAGES).getBoolean("serverRestart.enabled")) {
-                        gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("serverRestart.message"), true);
-                    }
+                        break;
+                    case 9:
+                        LinkedHashMap<String, Stats> killsSorted = stats.getSorted(StatType.KILLS, 5);
+                        String topFiveKills = getTopText(killsSorted, StatType.KILLS);
+                        gameInstance.broadcastMessage("\n" + topFiveKills, true);
+                        playersWithStats.stream().filter(player -> !topFiveKills.contains(player.getName()))
+                                .forEach(player -> player.sendMessage(Utils.getColor(getPositionText(killsSorted, player.getName(), StatType.KILLS))));
+                        break;
+                    case 6:
+                        LinkedHashMap<String, Stats> pointsSorted = stats.getSorted(StatType.POINTS, 5);
+                        String topFivePoints = getTopText(pointsSorted, StatType.POINTS);
+                        gameInstance.broadcastMessage("\n" + topFivePoints, true);
+                        playersWithStats.stream().filter(player -> !topFivePoints.contains(player.getName()))
+                                .forEach(player -> player.sendMessage(Utils.getColor(getPositionText(pointsSorted, player.getName(), StatType.POINTS))));
+                        break;
+                    case 4:
+                        playersWithStats.forEach(player -> player.sendMessage("\n§lRango: "));
+                        break;
+                    case 3:
+                        playersWithStats.forEach(player -> {
+                                    Rank rank = Rank.getTotalRank(stats.getPlayerStats().get(player.getName()));
+                                    player.sendMessage(rank.getColor() + "§l" + rank.name());
+                                    player.playSound(player.getLocation(), rank.getSound(), 1.0F, rank.getPitch());
+                                });
+                        break;
                 }
-                if (Finish.this.seconds == 9) {
-                    Comparator<Stats> byKills = Comparator.comparingInt((Stats o) -> o.getStat(StatType.KILLS));
-                    List<Map.Entry<String, Stats>> killsSorted =
-                            stats.getPlayerStats().entrySet().stream()
-                                    .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byKills))).collect(Collectors.toList());
-                    String topFiveKills = Utils.getColor(getTopFive(killsSorted, StatType.KILLS));
-                    for (Player player : gameInstance.getGame().getPlayers()) {
-                        player.sendMessage("\n");
-                        player.sendMessage(topFiveKills);
-                        if (!topFiveKills.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = Utils.getColor(getPosition(killsSorted, player.getName(), StatType.KILLS));
-                            player.sendMessage(msg);
-                        }
-                    }
-                } else if (Finish.this.seconds == 6) {
-                    Comparator<Stats> byPoints = Comparator.comparingInt((Stats o) -> o.getStat(StatType.POINTS));
-                    List<Map.Entry<String, Stats>> pointsSorted =
-                            stats.getPlayerStats().entrySet().stream()
-                                    .sorted(Collections.reverseOrder(Map.Entry.comparingByValue(byPoints))).collect(Collectors.toList());
-                    String topFivePoints = Utils.getColor(getTopFive(pointsSorted, StatType.POINTS));
-                    for (Player player : gameInstance.getGame().getPlayers()) {
-                        player.sendMessage("\n");
-                        player.sendMessage(topFivePoints);
-                        if (!topFivePoints.contains(player.getName()) && stats.getPlayerStats().containsKey(player.getName())) {
-                            String msg = Utils.getColor(getPosition(pointsSorted, player.getName(), StatType.POINTS));
-                            player.sendMessage(msg);
-                        }
-                    }
-                } else if (Finish.this.seconds == 4) {
-                    for (Player player : gameInstance.getGame().getPlayers()) {
-                        if (stats.getPlayerStats().containsKey(player.getName()))
-                            player.sendMessage("\n§lRango: ");
-                    }
-                } else if (Finish.this.seconds == 3) {
-                    for (Player player : gameInstance.getGame().getPlayers()) {
-                        if (stats.getPlayerStats().containsKey(player.getName())) {
-                            double killDeathRatio = stats.getStat(player.getName(), StatType.DEATHS) == 0 ?
-                                    (stats.getStat(player.getName(), StatType.KILLS)) : (stats.getStat(player.getName(), StatType.KILLS)
-                                    / (double) stats.getStat(player.getName(), StatType.DEATHS));
-                            double points = killDeathRatio * 2.5 + stats.getStat(player.getName(), StatType.POINTS) * 1.5;
-                            Rank rank = Rank.getRank(points);
-                            player.sendMessage(rank.getColor() + "§l" + rank.name());
-                            player.playSound(player.getLocation(), rank.getSound(), 1.0F, rank.getPitch());
-                        }
-                    }
-                }
-                for (Player player : gameInstance.getGame().getPlayers()) {
-                    if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(player.getName()) &&
-                            player.getGameMode() != GameMode.SPECTATOR) {
-                        Finish.this.fireworks(player, teamColor.getColorEnum());
-                    }
-                }
-                Finish.this.seconds = Finish.this.seconds - 1;
+                playersWithStats.stream().filter(player -> gameInstance.getGame().getTeams().getTeam(winnerTeamColor)
+                        .containsPlayer(player.getName()) && player.getGameMode() != GameMode.SPECTATOR)
+                        .forEach(player -> fireworks(player, winnerTeamColor.getColorEnum()));
+                Finish.this.seconds--;
             }
-        }).runTaskTimer(this.plugin, 0L, 20L);
+        }).runTaskTimer(AmazingTowers.getPlugin(), 0L, 20L);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.rewards.vault") &&
                 SetupVault.getVaultEconomy() != null) {
             for (Player player : gameInstance.getGame().getPlayers()) {
-                if (gameInstance.getGame().getTeams().getTeam(teamColor).containsPlayer(player.getName())) {
+                if (gameInstance.getGame().getTeams().getTeam(winnerTeamColor).containsPlayer(player.getName())) {
                     AmazingTowers.getGameInstance(player).getVault().giveReward(player, RewardsEnum.WIN);
                 } else if (gameInstance.getGame().getTeams().getTeamByPlayer(player.getName()) != null)
                     AmazingTowers.getGameInstance(player).getVault().giveReward(player, RewardsEnum.LOSER_TEAM);
@@ -189,36 +163,30 @@ public class Finish {
                 .replace("{Team}", teamColor.getName(gameInstance)), true);
     }
 
-    private String getTopFive(List<Map.Entry<String, Stats>> list, StatType stat) {
+    private String getTopText(LinkedHashMap<String, Stats> sortedStats, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();
-        Iterator<Map.Entry<String, Stats>> listIterator = list.iterator();
+        Iterator<Map.Entry<String, Stats>> listIterator = sortedStats.entrySet().iterator();
         StringBuilder sb = new StringBuilder();
         sb.append("&lTop ").append(stat.getText()).append("\n&r");
-        int i;
-        for (i = 0; i < 5 && listIterator.hasNext(); i++) {
+        for (int i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            sb.append(game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor().getColor());
+            TeamColor team = game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor();
+            sb.append(team != null ? team.getColor() : TeamColor.SPECTATOR.getColor());
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("&r");
         }
         return sb.toString();
     }
 
-    private String getPosition(List<Map.Entry<String, Stats>> list, String p, StatType stat) {
+    private String getPositionText(LinkedHashMap<String, Stats> sortedStats, String p, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();
         StringBuilder sb = new StringBuilder();
+        int position = new ArrayList<>(sortedStats.keySet()).indexOf(p);
+        int value = sortedStats.get(p).getStat(stat);
+        TeamColor team = game.getTeams().getTeamByPlayer(p).getTeamColor();
         sb.append("Tu: ");
-        Iterator<Map.Entry<String, Stats>> listIterator = list.iterator();
-        int i = 0;
-        Map.Entry<String, Stats> current = null;
-        while (listIterator.hasNext()) {
-            i++;
-            current = listIterator.next();
-            if (current.getKey().equals(p)) break;
-        }
-        sb.append(game.getTeams().getTeamByPlayer(p).getTeamColor().getColor());
-        int value = current == null ? 0 : current.getValue().getStat(stat);
-        sb.append(i).append(". ").append(p).append(" - ").append(value).append("\n");
+        sb.append(team != null ? team.getColor() : TeamColor.SPECTATOR.getColor());
+        sb.append(position).append(". ").append(p).append(" - ").append(value).append("\n");
         return sb.toString();
     }
 

@@ -1,14 +1,27 @@
 package mx.towers.pato14.utils.stats;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class StatisticsPlayer {
     private final HashMap<String, Stats> playerStats = new HashMap<>();
 
-    public void addOne(String player, StatType st) {
+    public void increaseOne(String player, StatType st) {
         if (this.playerStats.containsKey(player)) {
             this.playerStats.get(player).addOne(st);
         }
+    }
+
+    public void increaseOneAll(StatType st) {
+        this.playerStats.values().forEach(o -> o.addOne(st));
+    }
+
+    public void increaseOneConditional(StatType st, Predicate<String> condition) {
+        this.playerStats.entrySet().stream().filter(o -> condition.test(o.getKey())).forEach(o -> o.getValue().addOne(st));
     }
 
     public void setHashStats(String player) {
@@ -27,6 +40,12 @@ public class StatisticsPlayer {
 
     public void clear() {
         this.playerStats.clear();
+    }
+
+    public LinkedHashMap<String, Stats> getSorted(StatType st, int top) {
+        Comparator<Stats> comparator = Comparator.comparingInt(o -> o.getStat(st));
+        return this.playerStats.entrySet().stream().sorted(Map.Entry.comparingByValue(comparator)).limit(top)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }
 

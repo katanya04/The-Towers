@@ -333,7 +333,7 @@ public class SetActionItems {
                         Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("settingsBook.endMatch"))),
                 event -> {
                     GameInstance game = AmazingTowers.getGameInstance(event.getPlayer());
-                    game.getGame().endMatch();
+                    game.getGame().endMatchCommand();
                     if (game.getGame().getGameState() == GameState.EXTRA_TIME)
                         Utils.sendMessage("Redo this action to finish the match definitively", MessageType.INFO, event.getPlayer());
                     else if (game.getGame().getGameState() != GameState.FINISH)

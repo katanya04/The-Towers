@@ -83,14 +83,14 @@ public class Finish {
                         }
                         break;
                     case 9:
-                        LinkedHashMap<String, Stats> killsSorted = stats.getSorted(StatType.KILLS, 5);
+                        LinkedHashMap<String, Stats> killsSorted = stats.getSorted(StatType.KILLS);
                         String topFiveKills = getTopText(killsSorted, StatType.KILLS);
                         gameInstance.broadcastMessage("\n" + topFiveKills, true);
                         playersWithStats.stream().filter(player -> !topFiveKills.contains(player.getName()))
                                 .forEach(player -> player.sendMessage(Utils.getColor(getPositionText(killsSorted, player.getName(), StatType.KILLS))));
                         break;
                     case 6:
-                        LinkedHashMap<String, Stats> pointsSorted = stats.getSorted(StatType.POINTS, 5);
+                        LinkedHashMap<String, Stats> pointsSorted = stats.getSorted(StatType.POINTS);
                         String topFivePoints = getTopText(pointsSorted, StatType.POINTS);
                         gameInstance.broadcastMessage("\n" + topFivePoints, true);
                         playersWithStats.stream().filter(player -> !topFivePoints.contains(player.getName()))

@@ -42,9 +42,9 @@ public class StatisticsPlayer {
         this.playerStats.clear();
     }
 
-    public LinkedHashMap<String, Stats> getSorted(StatType st, int top) {
+    public LinkedHashMap<String, Stats> getSorted(StatType st) {
         Comparator<Stats> comparator = Comparator.comparingInt(o -> o.getStat(st));
-        return this.playerStats.entrySet().stream().sorted(Map.Entry.comparingByValue(comparator)).limit(top)
+        return this.playerStats.entrySet().stream().sorted(Map.Entry.comparingByValue(comparator.reversed()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }

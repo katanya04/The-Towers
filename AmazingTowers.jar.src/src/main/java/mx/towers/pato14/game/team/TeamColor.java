@@ -104,8 +104,8 @@ public enum TeamColor {
     }
 
     private ItemStack getTeamItem(GameInstance gameInstance) {
-        ITeam team;
-        if ((team = gameInstance.getGame().getTeams().getTeam(this)) == null && this.isMatchTeam())
+        ITeam team = gameInstance.getGame().getTeams().getTeam(this);
+        if (team == null && this.isMatchTeam())
             return new ItemStack(Material.AIR);
         ItemStack toret = new ItemStack(Material.WOOL, 1, this.woolColor);
         ItemMeta itemMeta = toret.getItemMeta();

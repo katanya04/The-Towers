@@ -7,7 +7,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.Rule;
@@ -84,7 +84,7 @@ public class ScoreUpdate {
                 }
             } else {
                 int currentTeam = 0;
-                List<ITeam> teams = gameInstance.getGame().getTeams().getTeams();
+                List<Team> teams = gameInstance.getGame().getTeams().getTeams();
                 List<String> l = teams.size() < 5 ? gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameFourTeamsOrLess.scores") :
                         gameInstance.getConfig(ConfigType.SCOREBOARD).getStringList("scoreboard.gameUpToEightTeams.scores");
                 int i = 15 - (teams.size() < 5 ? 4 - teams.size() : 8 - teams.size());
@@ -118,7 +118,7 @@ public class ScoreUpdate {
                                     .replace("%team_color%", String.valueOf(teams.get(currentTeam).getTeamColor().getColor()))
                                     .replace("%team_points%", pointsText)
                                     .replace("%first_letter%", String.valueOf(teams.get(currentTeam).getTeamColor().name().charAt(0)))
-                                    .replace("%team_name%", String.valueOf(teams.get(currentTeam).getTeamColor().getNameFirstCapitalized(gameInstance))));
+                                    .replace("%team_name%", Utils.firstCapitalized(teams.get(currentTeam).getTeamColor().getName(gameInstance))));
                             currentTeam++;
                         } else
                             continue;

@@ -6,7 +6,7 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.tasks.Start;
 import mx.towers.pato14.game.team.GameTeams;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
@@ -168,7 +168,7 @@ public class TowerCommand implements TabExecutor {
             case SETSCORE:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
-                    ITeam team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
+                    Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
                     team.setPoints(Integer.parseInt(args[2]));
                     gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
@@ -180,7 +180,7 @@ public class TowerCommand implements TabExecutor {
             case SETLIVES:
                 assert gameInstance != null;
                 if (gameInstance.getGame().getGameState().equals(GameState.GAME)) {
-                    ITeam team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
+                    Team team = gameInstance.getGame().getTeams().getTeam(TeamColor.valueOf(args[1].toUpperCase()));
                     team.setLives(Integer.parseInt(args[2]));
                     gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("scorePoint.setScoresCommand")
                             .replace("{Scores}", gameInstance.getGame().getTeams().scores()), true);
@@ -210,7 +210,7 @@ public class TowerCommand implements TabExecutor {
                     Utils.sendMessage("You can't remove a captain from its team", MessageType.ERROR, sender);
                     break;
                 }
-                ITeam teamToLeave = gameInstance.getGame().getTeams().getTeamByPlayer(args[1]);
+                Team teamToLeave = gameInstance.getGame().getTeams().getTeamByPlayer(args[1]);
                 if (teamToLeave != null) {
                     teamToLeave.removePlayer(args[1]);
                     if (gameInstance.getRules().get(Rule.CAPTAINS) && !gameInstance.getGame().getCaptainsPhase().hasConcluded())

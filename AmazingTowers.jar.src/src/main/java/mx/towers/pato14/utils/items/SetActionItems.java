@@ -12,6 +12,7 @@ import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.gameevents.SetPotionEvents;
 import mx.towers.pato14.game.kits.Kit;
 import mx.towers.pato14.game.kits.Kits;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
@@ -24,9 +25,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SetActionItems {
     private static boolean registered = false;
@@ -55,8 +58,8 @@ public class SetActionItems {
         }
 
         //Game items
-        TeamColor.createAllActionItems();
-        ChestMenu selectTeam = new ChestMenu("selectTeam", TeamColor.getTeamItems());
+        createJoinTeamItems();
+        ChestMenu selectTeam = new ChestMenu("selectTeam", getJoinTeamItems());
         new MenuItem<ChestMenu, Player>(p -> Utils.setName(new ItemStack(Material.WOOL, 1, (short) 14),
                 Utils.getColor(config.apply(AmazingTowers.getGameInstance(p)).getString("lobbyItems.hotbarItems.selectTeam.name"))),
                 selectTeam, ItemsEnum.TEAM_SELECT.name);
@@ -146,6 +149,77 @@ public class SetActionItems {
 
         registered = true;
 
+    }
+
+    private static void createJoinTeamItems() {
+        for (TeamColor teamColor : TeamColor.values()) {
+            new ActionItem<Player>(player -> getTeamItem(AmazingTowers.getGameInstance(player), teamColor),
+                    event -> {
+                        Player p = event.getPlayer();
+                        GameInstance game = AmazingTowers.getGameInstance(p);
+                        if (game == null || game.getGame() == null || game.getGame().getGameState() == GameState.EXTRA_TIME
+                                || game.getGame().getGameState() == GameState.FINISH)
+                            return;
+                        if (teamColor == TeamColor.SPECTATOR)
+                            game.getGame().getTeams().joinSpectator(p);
+                        else {
+                            Config messages = game.getConfig(ConfigType.MESSAGES);
+                            if (!game.getRules().get(Rule.CAPTAINS) || game.getGame().getGameState().matchIsBeingPlayed) {
+                                Team team = game.getGame().getTeams().getTeam(teamColor);
+                                Team currentTeam = game.getGame().getTeams().getTeamByPlayer(p.getName());
+                                if (!team.containsPlayer(p.getName())) { //Si no está ya en ese equipo
+                                    if (!game.getRules().get(Rule.BALANCED_TEAMS)
+                                            || team.getNumPlayers() == game.getGame().getTeams().getLowestTeamPlayers(currentTeam)) {
+                                        team.addPlayer(p.getName());
+                                        if (game.getGame().getGameState().equals(GameState.GAME))
+                                            game.getGame().spawn(p);
+                                        p.sendMessage(Utils.getColor(messages.getString("selectTeam")
+                                                .replace("{Color}", team.getTeamColor().getColor())
+                                                .replace("{Team}", team.getTeamColor().getName(game))));
+                                        p.playSound(p.getLocation(), Sound.CLICK, 1.0f, 1.0f);
+                                        p.closeInventory();
+                                    } else {
+                                        p.sendMessage(Utils.getColor(messages.getString("unbalancedTeam")));
+                                        p.playSound(p.getLocation(), Sound.ANVIL_LAND, 1.0f, 1.0f);
+                                    }
+                                } else {
+                                    p.sendMessage(Utils.getColor(messages.getString("alreadyJoinedTeam")
+                                            .replace("{Color}", team.getTeamColor().getColor())
+                                            .replace("{Team}", team.getTeamColor().getName(game))));
+                                }
+                            } else
+                                Utils.sendMessage(messages.getString("cantJoinInCaptainsMode"), MessageType.ERROR, event.getPlayer());
+                        }
+                    },
+                    "JoinTeam." + teamColor);
+        }
+    }
+
+    private static ItemStack getTeamItem(GameInstance gameInstance, TeamColor teamColor) {
+        Team team = gameInstance.getGame().getTeams().getTeam(teamColor);
+        if (team == null && teamColor.isMatchTeam())
+            return new ItemStack(Material.AIR);
+        ItemStack toret = new ItemStack(Material.WOOL, 1, teamColor.getWoolColor());
+        ItemMeta itemMeta = toret.getItemMeta();
+        if (teamColor.isMatchTeam()) {
+            itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                    .getString("lobbyItems.menuItems.joinTeam").replace("%team_color%", teamColor.getColor())
+                    .replace("%team_name%", teamColor.getName(gameInstance))));
+            itemMeta.setLore(team.getOnlinePlayers().stream().map(o -> "§r§7- " + o.getDisplayName()).collect(Collectors.toList()));
+        } else if (teamColor == TeamColor.SPECTATOR)
+            itemMeta.setDisplayName(Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG)
+                    .getString("lobbyItems.menuItems.spectator")));
+
+        toret.setItemMeta(itemMeta);
+        return toret;
+    }
+
+    private static ItemStack[] getJoinTeamItems() {
+        ItemStack[] toret = new ItemStack[TeamColor.values().length];
+        int i = 0;
+        for (TeamColor team : TeamColor.values())
+            toret[i++] = Items.getByName("JoinTeam." + team);
+        return toret;
     }
 
     private static void generateJoinMenuContents() {

@@ -2,7 +2,7 @@ package mx.towers.pato14.game.events.player;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
@@ -41,7 +41,7 @@ public class DeathListener implements Listener {
             }, 1L);
         }
         e.setDeathMessage(null);
-        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
         final String finalKill = playerTeam == null || playerTeam.doPlayersRespawn() ? "" : Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
         if (killer == null) {
@@ -49,7 +49,7 @@ public class DeathListener implements Listener {
                     .replace("{Player}", player.getName())
                     .replace("{Color}", playerColor), true);
         } else {
-            final ITeam killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
+            final Team killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
             final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
             boolean bowKill = player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.PROJECTILE;
             gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString(bowKill ? "deathMessages.knownKillerProjectile" : "deathMessages.knownKiller")
@@ -94,7 +94,7 @@ public class DeathListener implements Listener {
         final GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
+        final Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(e.getPlayer().getName());
         if (gameInstance.getGame().getGameState().matchIsBeingPlayed && playerTeam != null) {
             if (playerTeam.doPlayersRespawn() && !playerTeam.isEliminated()) {
                 e.setRespawnLocation(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(playerTeam.getTeamColor()))));

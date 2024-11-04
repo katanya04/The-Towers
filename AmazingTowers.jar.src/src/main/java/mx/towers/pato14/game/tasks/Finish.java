@@ -3,7 +3,7 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.team.TeamColor;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
@@ -192,7 +192,7 @@ public class Finish {
 
     public void endMatch() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        List<ITeam> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
         if (winningTeams.size() == 1)
             this.fatality(winningTeams.get(0).getTeamColor());
         else {
@@ -202,7 +202,7 @@ public class Finish {
 
     public void endMatchOrGoldenGoal() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
-        List<ITeam> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
+        List<Team> winningTeams = gameInstance.getGame().getTeams().getWinningTeams();
         if (winningTeams.size() == 1)
             this.fatality(winningTeams.get(0).getTeamColor());
         else {
@@ -233,7 +233,7 @@ public class Finish {
                         }
                     }
                 } else {
-                    o.eliminateTeam();
+                    o.eliminate();
                 }
             });
             gameInstance.getWorld().spawnEntity(Locations.getLocationFromString(gameInstance

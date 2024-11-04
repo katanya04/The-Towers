@@ -4,10 +4,9 @@ import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -62,7 +61,7 @@ public class TeamChatListener implements Listener {
             chatScope = ChatScope.DEFAULT;
         } else if (instance instanceof GameInstance) {
             GameInstance gameInstance = (GameInstance) instance;
-            ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(name);
+            Team team = gameInstance.getGame().getTeams().getTeamByPlayer(name);
             if (!gameInstance.getGame().getGameState().matchIsBeingPlayed || team == null || e.getPlayer().getGameMode() == GameMode.SPECTATOR) {
                 msg = Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.chat.format.defaultChat")
                         .replace("%vault_prefix%", SetupVault.getPrefixRank(e.getPlayer())).replace("%player%", name))

@@ -8,7 +8,7 @@ import mx.towers.pato14.game.kits.Kits;
 import mx.towers.pato14.game.tasks.*;
 import mx.towers.pato14.game.tasks.Timer;
 import mx.towers.pato14.game.team.GameTeams;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.game.team.Prefixes;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.game.refill.RefillTask;
@@ -53,51 +53,67 @@ public class Game {
         this.captainsPhase = new CaptainsPhase(game);
         this.events = new HashSet<>();
     }
+
     public Set<GameEvent> getEvents() {
         return events;
     }
+
     public void startEvents() {
         this.getEvents().forEach(GameEvent::initialize);
     }
+
     public void stopEvents() {
         this.getEvents().forEach(GameEvent::stop);
     }
+
     public StatisticsPlayer getStats() {
         return this.stats;
     }
+
     public GameTeams getTeams() {
         return this.teams;
     }
+
     public Start getStart() {
         return this.gameStart;
     }
+
     public Finish getFinish() {
         return this.finish;
     }
+
     public Move getDetectionMove() {
         return this.detectionMove;
     }
+
     public GameInstance getGameInstance() {
         return AmazingTowers.getGameInstance(this.name);
     }
+
     public List<Player> getPlayers() {
         return this.getGameInstance().getWorld().getPlayers();
     }
+
     public GameState getGameState() {
         return gameState;
     }
+
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
+
     public Kits getKits() {
         return kits;
     }
+
     public CaptainsPhase getCaptainsPhase() {
         return captainsPhase;
     }
+
     public Map<String, Kit> getPlayersSelectedKit() {
         return playersSelectedKit;
     }
+
     public void addEvent(GameEvent event) {
         this.events.add(event);
     }
@@ -150,23 +166,73 @@ public class Game {
         this.events.clear();
     }
 
+    private void tpLobbyOnSpawn(Player player) {
+        player.setGameMode(GameMode.ADVENTURE);
+        getGameInstance().getHotbar().apply(player);
+        player.teleport(Locations.getLocationFromString(getGameInstance().getConfig(ConfigType.LOCATIONS)
+                .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+    }
+
+    private void setSpectatorOnSpawn(Player player) {
+        player.setGameMode(GameMode.SPECTATOR);
+        player.teleport(Locations.getLocationFromString(getGameInstance().getConfig(ConfigType.LOCATIONS)
+                .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+    }
+
+    private void joinTeamOnSpawn(Player player, Team team) {
+        if (team.doPlayersRespawn()) {
+            player.setGameMode(GameMode.SURVIVAL);
+            getGameInstance().getGame().applyKitToPlayer(player);
+            player.teleport(Locations.getLocationFromString(getGameInstance().getConfig(ConfigType.LOCATIONS)
+                    .getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
+        } else {
+            player.setGameMode(GameMode.SPECTATOR);
+            player.teleport(Locations.getLocationFromString(getGameInstance().getConfig(ConfigType.LOCATIONS)
+                    .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
+        }
+    }
+
     public void spawn(Player player) {
         Utils.resetPlayer(player);
-        ITeam team = this.getTeams().getTeamByPlayer(player.getName());
-        if (team == null || gameState == GameState.LOBBY || gameState == GameState.PREGAME) {
-            player.setGameMode(GameMode.ADVENTURE);
-            this.getGameInstance().getHotbar().apply(player);
-            player.teleport(Locations.getLocationFromString(this.getGameInstance().getConfig(ConfigType.LOCATIONS)
-                    .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
-        } else
-            team.respawn(player);
+        Team team = this.getTeams().getTeamByPlayer(player.getName());
+        switch (gameState) {
+            case LOBBY:
+            case PREGAME:
+                tpLobbyOnSpawn(player);
+                break;
+            case CAPTAINS_CHOOSE:
+                if (team == null) {
+                    setSpectatorOnSpawn(player);
+                } else {
+                    tpLobbyOnSpawn(player);
+                }
+            case GAME:
+                if (team == null) {
+                    if (getGameInstance().getRules().get(Rule.CAPTAINS)) {
+                        setSpectatorOnSpawn(player);
+                    } else {
+                        tpLobbyOnSpawn(player);
+                    }
+                } else {
+                    joinTeamOnSpawn(player, team);
+                }
+                break;
+            case EXTRA_TIME:
+                if (team == null) {
+                    setSpectatorOnSpawn(player);
+                } else {
+                    joinTeamOnSpawn(player, team);
+                }
+            case FINISH:
+                setSpectatorOnSpawn(player);
+                break;
+        }
     }
 
     public void joinGame(Player player) {
+        this.getTeams().updatePrefixes();
+        Team team = this.getTeams().getTeamByPlayer(player.getName());
         spawn(player);
-        if (this.teams != null)
-            this.teams.updatePrefixes();
-        ITeam team = this.getTeams().getTeamByPlayer(player.getName());
         switch (this.getGameState()) {
             case LOBBY:
             case PREGAME:
@@ -183,7 +249,7 @@ public class Game {
     }
 
     public void leave(Player player) {
-        final ITeam playerTeam = this.getTeams().getTeamByPlayer(player.getName());
+        final Team playerTeam = this.getTeams().getTeamByPlayer(player.getName());
         Prefixes.clearPrefix(player.getName());
         this.teams.updatePlayersAmount();
         switch (this.getGameState()) {

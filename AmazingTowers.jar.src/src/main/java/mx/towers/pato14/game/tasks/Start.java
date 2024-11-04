@@ -3,7 +3,7 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.team.ITeam;
+import mx.towers.pato14.game.team.Team;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.nms.ReflectionMethods;
@@ -139,7 +139,7 @@ public class Start {
     public void startCaptainsChoose() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(worldName);
         Game game = gameInstance.getGame();
-        game.getTeams().getTeams().forEach(ITeam::reset);
+        game.getTeams().getTeams().forEach(Team::reset);
         game.setGameState(GameState.CAPTAINS_CHOOSE);
         game.getCaptainsPhase().initialize();
     }

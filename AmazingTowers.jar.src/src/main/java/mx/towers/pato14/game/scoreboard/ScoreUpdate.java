@@ -127,7 +127,7 @@ public class ScoreUpdate {
                     i--;
                 }
                 while (i > 0) {
-                    helper.setSlot(i, "");
+                    helper.removeSlot(i);
                     i--;
                 }
             }

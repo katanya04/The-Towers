@@ -236,8 +236,6 @@ public class Finish {
                     o.eliminateTeam();
                 }
             });
-            gameInstance.getWorld().spawnEntity(Locations.getLocationFromString(gameInstance
-                    .getConfig(ConfigType.LOCATIONS).getString(Location.LOBBY.getPath())), EntityType.ENDER_DRAGON);
         }
     }
 

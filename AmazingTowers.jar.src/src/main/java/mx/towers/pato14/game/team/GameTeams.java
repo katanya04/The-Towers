@@ -179,6 +179,8 @@ public class GameTeams {
         GameInstance gameInstance = getGame().getGameInstance();
         boolean bedwarsStyle = gameInstance.getRules().get(Rule.BEDWARS_STYLE);
         ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        player.setHealth(20.0);
+        player.setFoodLevel(20);
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
         gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
         getGame().getStats().increaseOne(player.getName(), StatType.POINTS);

@@ -2,7 +2,7 @@ package mx.towers.pato14.game.events.protect;
 
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.GameMode;
@@ -26,7 +26,7 @@ public class TeamTrollListener implements Listener {
             return;
         if (!e.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() || e.getBlock().getRelative(BlockFace.DOWN).getDrops().contains(new ItemStack(Material.SIGN))) {
             Player pl = e.getPlayer();
-            Team plTeam = gameInstance.getGame().getTeams().getTeamByPlayer(pl.getName());
+            ITeam plTeam = gameInstance.getGame().getTeams().getTeamByPlayer(pl.getName());
             Entity[] arrayOfEntity = e.getBlock().getChunk().getEntities();
             for (Entity en : arrayOfEntity) {
                 if (!(en instanceof Player))
@@ -34,7 +34,7 @@ public class TeamTrollListener implements Listener {
                 Player player = (Player) en;
                 if (pl.equals(player))
                     continue;
-                Team playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+                ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
                 if (playerTeam == null)
                     continue;
                 if (playerTeam.equals(plTeam) && e.getBlock().getRelative(BlockFace.UP).equals(player.getLocation().getBlock()) && player.getGameMode() == GameMode.SURVIVAL) {

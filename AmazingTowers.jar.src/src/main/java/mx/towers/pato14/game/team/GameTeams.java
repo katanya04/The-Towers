@@ -25,40 +25,40 @@ import java.util.stream.Collectors;
 public class GameTeams {
     private final String name;
     private String playersAmount;
-    private final List<Team> teams;
+    private final List<ITeam> teams;
 
     public GameTeams(GameInstance gameInstance) {
         this.name = gameInstance.getInternalName();
         this.teams = new LinkedList<>();
         this.playersAmount = null;
         for (TeamColor teamColor : TeamColor.getMatchTeams(gameInstance.getNumberOfTeams())) {
-            this.teams.add(new TeamImpl(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
+            this.teams.add(new Team(teamColor, Utils.getColor(teamColor.getColor()) + gameInstance.getConfig(ConfigType.CONFIG)
                     .getString("teams.prefixes." + teamColor.name().toLowerCase()) + " ", this,
                     Utils.parseIntOrDefault(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("points.livesBedwarsMode"), 10)));
         }
     }
 
-    public Team getTeamByPlayer(String p) {
-        for (Team team : teams) {
+    public ITeam getTeamByPlayer(String p) {
+        for (ITeam team : teams) {
             if (team.containsPlayer(p))
                 return team;
         }
         return null;
     }
-    public Team getTeam(TeamColor teamColor) {
-        for (Team team : teams)
+    public ITeam getTeam(TeamColor teamColor) {
+        for (ITeam team : teams)
             if (Objects.equals(team.getTeamColor(), teamColor))
                 return team;
         return null;
     }
     public TeamColor getTeamColorByPlayer(String p) {
-        Team team = getTeamByPlayer(p);
+        ITeam team = getTeamByPlayer(p);
         return team == null ? null : team.getTeamColor();
     }
 
-    public int getLowestTeamPlayers(Team originTeam) {
+    public int getLowestTeamPlayers(ITeam originTeam) {
         int toret = Integer.MAX_VALUE;
-        for (Team team : teams) {
+        for (ITeam team : teams) {
             int players = team.equals(originTeam) ? team.getNumPlayers() - 1 : team.getNumPlayers();
             if (players < toret)
                 toret = team.getNumPlayers();
@@ -66,15 +66,15 @@ public class GameTeams {
         return toret;
     }
 
-    public List<Team> getTeams() {
+    public List<ITeam> getTeams() {
         return this.teams;
     }
 
     public String scores() {
         StringBuilder sb = new StringBuilder();
-        Iterator<Team> teamIterator = this.teams.listIterator();
+        Iterator<ITeam> teamIterator = this.teams.listIterator();
         while (teamIterator.hasNext()) {
-            Team t = teamIterator.next();
+            ITeam t = teamIterator.next();
             sb.append(t.getTeamColor().getColor()).append("&l");
             if (getGame().getGameInstance().getRules().get(Rule.BEDWARS_STYLE))
                 sb.append(t.getLives());
@@ -91,14 +91,14 @@ public class GameTeams {
     }
 
     public void reset() {
-        teams.forEach(Team::reset);
+        teams.forEach(ITeam::reset);
         this.playersAmount = null;
     }
 
-    public List<Team> getWinningTeams() {
-        List<Team> toret = new LinkedList<>();
+    public List<ITeam> getWinningTeams() {
+        List<ITeam> toret = new LinkedList<>();
         teams.sort(Comparator.reverseOrder());
-        for (Team team : teams) {
+        for (ITeam team : teams) {
             if (team.compareTo(teams.get(0)) == 0)
                 toret.add(team);
             else
@@ -116,7 +116,7 @@ public class GameTeams {
     public void updatePlayersAmount() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < teams.size(); i++) {
-            Team team = teams.get(i);
+            ITeam team = teams.get(i);
             sb.append(team.getTeamColor().getColor()).append(team.getNumAlivePlayers());
             if (i != teams.size() - 1) sb.append("&r vs ");
         }
@@ -124,7 +124,7 @@ public class GameTeams {
     }
 
     public void joinSpectator(Player player) {
-        Team currentTeam = getTeamByPlayer(player.getName());
+        ITeam currentTeam = getTeamByPlayer(player.getName());
         player.setGameMode(GameMode.SPECTATOR);
         player.sendMessage(Utils.getColor(AmazingTowers.getGameInstance(name).getConfig(ConfigType.MESSAGES)
                 .getString("enterSpectatorMode").replace("%newLine%", "\n")));
@@ -140,7 +140,7 @@ public class GameTeams {
     }
 
     public void updatePrefixes() {
-        teams.forEach(Team::updatePrefix);
+        teams.forEach(ITeam::updatePrefix);
     }
 
     public void win(TeamColor team) {
@@ -161,7 +161,7 @@ public class GameTeams {
         }
     }
 
-    public Set<Team> checkWin() {
+    public Set<ITeam> checkWin() {
         return this.teams.stream().filter(o -> this.checkWin(o.getTeamColor())).collect(Collectors.toSet());
     }
 
@@ -175,10 +175,10 @@ public class GameTeams {
         return this.getTeam(team).getLives() <= 0;
     }
 
-    public void scorePoint(Player player, Team teamScoredOn) {
+    public void scorePoint(Player player, ITeam teamScoredOn) {
         GameInstance gameInstance = getGame().getGameInstance();
         boolean bedwarsStyle = gameInstance.getRules().get(Rule.BEDWARS_STYLE);
-        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
         player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
         gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
         getGame().getStats().increaseOne(player.getName(), StatType.POINTS);
@@ -212,8 +212,8 @@ public class GameTeams {
 
     public void checkForTeamWin() {
         boolean makeATeamWin = true;
-        Team temp = null;
-        for (Team team : getTeams()) {
+        ITeam temp = null;
+        for (ITeam team : getTeams()) {
             if (team.getNumAlivePlayers() > 0) {
                 if (temp == null)
                     temp = team;

@@ -4,7 +4,7 @@ import me.katanya04.anotherguiplugin.actionItems.ListItem;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.team.GameTeams;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.items.Items;
 import mx.towers.pato14.utils.items.Skulls;
@@ -78,7 +78,7 @@ public enum Rule {
                     if (value)
                         gameTeams.getTeams().stream().filter(o -> gameTeams.checkNoLives(o.getTeamColor()))
                             .forEach(o -> gameTeams.loseRespawn(o.getTeamColor()));
-                    Set<Team> winners = gameTeams.checkWin();
+                    Set<ITeam> winners = gameTeams.checkWin();
                     if (!winners.isEmpty())
                         gameTeams.win(winners.iterator().next().getTeamColor());
                 }
@@ -96,7 +96,7 @@ public enum Rule {
                 } else {
                     gameInstance.getGame().getCaptainsPhase().setPlayerList(false);
                     if (!gameInstance.getGame().getGameState().matchIsBeingPlayed && gameInstance.getGame().getGameState() != GameState.FINISH)
-                        gameInstance.getGame().getTeams().getTeams().forEach(Team::clear);
+                        gameInstance.getGame().getTeams().getTeams().forEach(ITeam::clear);
                 }
             default:
                 break;

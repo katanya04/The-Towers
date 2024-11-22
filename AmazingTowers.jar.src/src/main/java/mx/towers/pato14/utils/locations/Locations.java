@@ -1,7 +1,7 @@
 package mx.towers.pato14.utils.locations;
 
 import mx.towers.pato14.game.team.GameTeams;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.ConfigType;
@@ -81,7 +81,7 @@ public class Locations {
 
     public static boolean isInsideBase(Location loc, GameTeams gameTeams) {
         final Config locations = gameTeams.getGame().getGameInstance().getConfig(ConfigType.LOCATIONS);
-        for (Team team : gameTeams.getTeams()) {
+        for (ITeam team : gameTeams.getTeams()) {
             if (AreaUtil.isInsideArea(locations.getStringList(mx.towers.pato14.utils.enums.Location.CHEST_PROTECT.getPath(team.getTeamColor())), loc))
                 return true;
         }

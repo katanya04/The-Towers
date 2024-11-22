@@ -5,7 +5,7 @@ import com.google.common.io.ByteStreams;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import mx.towers.pato14.utils.files.Config;
@@ -96,7 +96,7 @@ public class Utils {
     }
 
     private static String getJoinMessage(GameInstance gameInstance, String playerName) {
-        Team team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
+        ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(playerName);
         if (team != null) {
             return gameInstance.getConfig(ConfigType.MESSAGES).getString("joinTeam")
                     .replace("{Player}", playerName)
@@ -155,8 +155,7 @@ public class Utils {
     }
 
     public static String firstCapitalized(String text) {
-        return text == null ? null :
-                text.replaceFirst(String.valueOf(text.charAt(0)), String.valueOf(text.charAt(0)).toUpperCase());
+        return text.replaceFirst(String.valueOf(text.charAt(0)), String.valueOf(text.charAt(0)).toUpperCase());
     }
 
     public static String macroCaseToItemName(String macroCaseText) {

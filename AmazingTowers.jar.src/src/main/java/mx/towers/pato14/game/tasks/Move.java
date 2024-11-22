@@ -3,7 +3,7 @@ package mx.towers.pato14.game.tasks;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.game.Game;
-import mx.towers.pato14.game.team.Team;
+import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.AreaUtil;
 import mx.towers.pato14.utils.enums.*;
 import mx.towers.pato14.utils.locations.Pool;
@@ -23,7 +23,7 @@ public class Move {
 
     private void setPools(GameInstance gameInstance, Game game) {
         int i = 0;
-        for (Team team : game.getTeams().getTeams()) {
+        for (ITeam team : game.getTeams().getTeams()) {
             pools[i++] = new Pool(team,
                     gameInstance.getConfig(ConfigType.LOCATIONS).getStringList(Location.POOL.getPath(team.getTeamColor())));
         }

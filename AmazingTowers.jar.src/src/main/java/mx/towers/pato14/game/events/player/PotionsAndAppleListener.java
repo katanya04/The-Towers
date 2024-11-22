@@ -16,7 +16,7 @@ public class PotionsAndAppleListener implements Listener {
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getPlayer());
         if (gameInstance == null || gameInstance.getGame() == null)
             return;
-        if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE) && ((e.getItem().getType().equals(Material.GOLDEN_APPLE) && e.getItem().getDurability() == 1)
+        if (!gameInstance.getRules().get(Rule.POTS_AND_APPLE) && (e.getItem().getType().equals(Material.GOLDEN_APPLE)
                 || e.getItem().getType().equals(Material.POTION)))
             e.setCancelled(true);
     }

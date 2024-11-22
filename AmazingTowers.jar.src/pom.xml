@@ -113,11 +113,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.milkbowl.vault.Vault</groupId>
+            <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
-            <scope>system</scope>
             <version>1.5.6-b49</version>
-            <systemPath>C:/spigot/plugins/Vault.jar</systemPath>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dependencies/Vault.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
@@ -136,14 +136,14 @@
             <artifactId>bossbarapi</artifactId>
             <version>2.4.1</version>
             <scope>system</scope>
-            <systemPath>C:/spigot/plugins/BossBarAPI_v2.4.1.jar</systemPath>
+            <systemPath>${project.basedir}/dependencies/BossBarAPI_v2.4.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.katanya04</groupId>
             <artifactId>AnotherGUIPlugin</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>C:/spigot/plugins/apis/AnotherGUIPlugin-1.0.jar</systemPath>
+            <systemPath>${project.basedir}/dependencies/AnotherGUIPlugin-1.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.github.seeseemelk</groupId>

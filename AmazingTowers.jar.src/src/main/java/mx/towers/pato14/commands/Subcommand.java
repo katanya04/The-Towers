@@ -45,7 +45,7 @@ public enum Subcommand { //* = optional argument, always at the end if it exists
     KITS(PermissionLevel.NONE, 0, true, true, "*modify"),
     SETDATABASE(PermissionLevel.ORGANIZER, 0, true, true, "*<tableName>"),
     ENDMATCH(PermissionLevel.ORGANIZER, 0, true, true, "*%team_colors%"),
-    PICKS(PermissionLevel.ORGANIZER, 1, true, true, "add|remove|newCaptains|reloadPicks", "*<player>..."),
+    PICKS(PermissionLevel.ORGANIZER, 1, true, true, "add|remove|newCaptains|reloadPicks", "*<player>"),
     BUILD(PermissionLevel.ORGANIZER, 0, true, false),
     DEBUG(PermissionLevel.ADMIN, 0, true, false);
 

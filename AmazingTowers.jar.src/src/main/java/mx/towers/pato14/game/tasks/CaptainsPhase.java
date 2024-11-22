@@ -84,10 +84,13 @@ public class CaptainsPhase {
                     "lobbyItems.hotbarItems.selectPlayers.position"), Items.getAndParse(ItemsEnum.SELECT_PLAYERS, captain));
             removePlayer(captain.getName());
         }
-        game.getWorld().getPlayers().stream().filter(Player::isOp).forEach(o -> o.getInventory().setItem(game.getConfig(ConfigType.CONFIG).getInt(
-                "lobbyItems.hotbarItems.selectPlayers.position"), Items.getAndParse(ItemsEnum.SELECT_PLAYERS, o)));
-        this.currentTurn = Utils.getRandomSetElement(captains.keySet());
-        sendMsgTurn();
+        game.getWorld().getPlayers().stream().filter(player -> player.isOp() || player.hasPermission("towers.admin")).forEach(o -> o.getInventory().setItem(
+        game.getConfig(ConfigType.CONFIG).getInt("lobbyItems.hotbarItems.selectPlayers.position"),
+        Items.getAndParse(ItemsEnum.SELECT_PLAYERS, o)
+    ));
+this.currentTurn = Utils.getRandomSetElement(captains.keySet());
+sendMsgTurn();
+
     }
 
     public void setPlayerList(boolean clearPrevious) {

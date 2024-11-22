@@ -1,7 +1,6 @@
 package mx.towers.pato14.game.gameevents;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.game.Game;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class RepeatingGameEvent extends GameEvent {

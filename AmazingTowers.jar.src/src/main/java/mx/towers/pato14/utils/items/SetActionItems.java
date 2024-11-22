@@ -202,7 +202,7 @@ public class SetActionItems {
 
         /*12*/ new ActionItem<Player>(player -> Utils.setName(new ItemStack(Material.REDSTONE_TORCH_ON), Utils.getColor(
                 config.apply(AmazingTowers.getGameInstance(player)).getString("settingsBook.kickAll.name"))), event -> AmazingTowers.getGameInstance(event.getPlayer()).getGame().getPlayers().stream().filter(
-                o -> !o.equals(event.getPlayer()) && !o.isOp()).forEach(o -> o.kickPlayer(config.apply(AmazingTowers.getGameInstance(event.getPlayer())).getString("settingsBook.kickAll.kickMessage"))),
+                    o -> !o.equals(event.getPlayer()) && !(o.isOp() || o.hasPermission("towers.admin"))).forEach(o -> o.kickPlayer(config.apply(AmazingTowers.getGameInstance(event.getPlayer())).getString("settingsBook.kickAll.kickMessage"))),
                 ItemsEnum.KICK_PLAYERS.name
         );
 

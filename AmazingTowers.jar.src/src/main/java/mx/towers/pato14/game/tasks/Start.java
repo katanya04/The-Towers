@@ -81,7 +81,6 @@ public class Start {
             gameInstance.getGame().spawn(player);
         }
     }
-
     private String getCountDown() {
         return (this.countDown == 1) ? AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.second") : AmazingTowers.getGameInstance(worldName).getConfig(ConfigType.MESSAGES).getString("gameStart.seconds");
     }

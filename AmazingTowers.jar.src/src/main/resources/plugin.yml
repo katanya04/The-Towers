@@ -18,3 +18,5 @@ commands:
     aliases: [hub, exit, salir, volver, leave, back]
   ready:
     aliases: [listo]
+  listall:
+    aliases: [listatodos]

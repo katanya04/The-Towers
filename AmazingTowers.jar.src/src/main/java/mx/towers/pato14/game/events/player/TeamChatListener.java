@@ -7,7 +7,6 @@ import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.ITeam;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
-import mx.towers.pato14.utils.enums.GameState;
 import mx.towers.pato14.utils.rewards.SetupVault;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -72,7 +71,8 @@ public class TeamChatListener implements Listener {
             } else if (msg.startsWith("!")) {
                 msg = Utils.getColor(gameInstance.getConfig(ConfigType.CONFIG).getString("options.chat.format.globalChat")
                         .replace("%team_color%", team.getTeamColor().getColor()).replace("%player%", name)
-                        .replace("%msg%", msg).replaceFirst("!", ""));
+                        .replace("%msg%", msg).replaceFirst("!", "")
+                        .replace("%team_prefix%", team.getPrefix()));
                 players = instance.getWorld().getPlayers();
                 chatScope = ChatScope.GLOBAL;
             } else {

@@ -2,7 +2,7 @@ name: AmazingTowers
 
 author: Pato14, katanya04
 
-version: 3.0_beta3
+version: '${project.version}'
 depend: [BossBarAPI, AnotherGUIPlugin]
 softdepend: [Vault, PlaceholderAPI]
 
@@ -20,3 +20,5 @@ commands:
     aliases: [listo]
   listall:
     aliases: [listatodos]
+  AmazingTowers:
+    aliases: [at]

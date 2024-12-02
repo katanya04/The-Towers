@@ -4,3 +4,4 @@ AmazingTowers.jar.src/target
 AmazingTowers.jar.src/out
 AmazingTowers.jar.src/src/test/
 *.class
+/AmazingTowers.jar.src/.vscode

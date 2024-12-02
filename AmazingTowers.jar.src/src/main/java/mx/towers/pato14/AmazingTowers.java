@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import mx.towers.pato14.commands.AmazingTowersCommand;
 import mx.towers.pato14.commands.KitsCommand;
 import mx.towers.pato14.commands.LobbyCommand;
 import mx.towers.pato14.commands.ReadyCommand;
@@ -66,6 +67,8 @@ public final class AmazingTowers extends JavaPlugin {
         getCommand("lobby").setExecutor(new LobbyCommand());
         getCommand("ready").setExecutor(new ReadyCommand());
         getCommand("listall").setExecutor(new ListAllCommand());
+        getCommand("AmazingTowers").setExecutor(new AmazingTowersCommand(this));
+
 
         logger = new Logger(globalConfig.getBoolean("options.logger.activated"),
                 globalConfig.getBoolean("options.logger.logSQLCalls"),

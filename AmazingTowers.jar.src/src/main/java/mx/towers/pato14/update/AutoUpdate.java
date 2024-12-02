@@ -19,7 +19,7 @@ public class AutoUpdate {
 
     public void checkForUpdates() {
         String currentVersion = plugin.getDescription().getVersion();
-        String apiUrl = "https://github.com/katanya04/The-Towers/releases/latest";
+        String apiUrl = "https://api.github.com/repos/katanya04/The-Towers/releases/latest";
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
@@ -47,11 +47,11 @@ public class AutoUpdate {
 
                 if (compareVersions(currentVersion, latestVersion) >= 0) {
                     // Si la versión actual es igual o mayor que la última
-                    plugin.getLogger().info("RegionPlugin está actualizado.");
-                    notifyAdmins("§aRegionPlugin está actualizado a la versión más reciente. §8[§b" + latestVersion + "§8]");
+                    plugin.getLogger().info("AmazingTowers está actualizado.");
+                    notifyAdmins("§aAmazingTowers está actualizado a la versión más reciente. §8[§b" + latestVersion + "§8]");
                 } else {
                     plugin.getLogger().info("Nueva versión disponible: " + latestVersion);
-                    notifyAdmins("§eNueva versión de RegionPlugin disponible: " + latestVersion);
+                    notifyAdmins("§eNueva versión de AmazingTowers disponible: " + latestVersion);
 
                     String downloadUrl = parseDownloadUrlFromJson(response);
                     if (downloadUrl == null) {
@@ -61,7 +61,7 @@ public class AutoUpdate {
                     }
 
                     // Descargar la nueva versión
-                    notifyAdmins("§eDescargando nueva versión de RegionPlugin...");
+                    notifyAdmins("§eDescargando nueva versión de AmazingTowers...");
                     downloadNewVersion(downloadUrl);
                     plugin.getLogger().info("Nueva versión descargada. Notificando a los administradores...");
                     notifyAdmins("§aNueva versión descargada. Reinicia el servidor para aplicar los cambios.");

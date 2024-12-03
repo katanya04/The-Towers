@@ -2,8 +2,8 @@ A Minecraft The Towers 1.8 plugin, based on the one by Pato14: [Amazing Towers](
 
 ## If you want more features
 You can look out for 2 of our complement plugins specifically made for this Fork of Amazing Towers: 
-- [Region Plugin](https://github.com/nicoliee/RegionPlugin).
-- [Captains For Towers](https://github.com/nicoliee/captainsForTowers).
+- [RegionPlugin](https://github.com/nicoliee/RegionPlugin).
+- [TowersBot](https://github.com/nicoliee/TowersBot).
 
 ## Explanation
 What started as a few bug fixes on the original plugin, ended up becoming a completely different plugin. Main key features added:

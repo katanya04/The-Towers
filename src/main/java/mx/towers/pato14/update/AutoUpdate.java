@@ -6,8 +6,6 @@ import java.net.URL;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class AutoUpdate {
 
@@ -82,8 +80,17 @@ public class AutoUpdate {
 
     private String parseVersionFromJson(String json) {
         try {
-            JSONObject jsonObject = new JSONObject(json);
-            return jsonObject.getString("tag_name"); // Obtiene la versión del campo `tag_name`
+            // Buscar el índice de "tag_name"
+            int tagNameIndex = json.indexOf("\"tag_name\":\"");
+            if (tagNameIndex == -1) return null;
+    
+            // Calcular las posiciones de inicio y fin del valor de "tag_name"
+            int valueStart = tagNameIndex + "\"tag_name\":\"".length();
+            int valueEnd = json.indexOf("\"", valueStart);
+            if (valueEnd == -1) return null;
+    
+            // Extraer y retornar el valor
+            return json.substring(valueStart, valueEnd);
         } catch (Exception e) {
             plugin.getLogger().severe("Error al analizar la versión del JSON: " + e.getMessage());
             return null;
@@ -92,18 +99,30 @@ public class AutoUpdate {
 
     private String parseDownloadUrlFromJson(String json) {
         try {
-            JSONObject jsonObject = new JSONObject(json);
-            JSONArray assets = jsonObject.getJSONArray("assets");
-            if (assets.length() > 0) {
-                JSONObject firstAsset = assets.getJSONObject(0);
-                return firstAsset.getString("browser_download_url"); // URL del primer asset
-            }
-            return null;
+            // Buscar el índice del array de "assets"
+            int assetsStartIndex = json.indexOf("\"assets\":");
+            if (assetsStartIndex == -1) return null;
+
+            // Cortar desde "assets" en adelante
+            String assetsSubstring = json.substring(assetsStartIndex);
+
+            // Buscar el primer "browser_download_url"
+            int urlStartIndex = assetsSubstring.indexOf("\"browser_download_url\":\"");
+            if (urlStartIndex == -1) return null;
+
+            // Cortar desde el inicio de la URL
+            int urlValueStart = urlStartIndex + "\"browser_download_url\":\"".length();
+            int urlEndIndex = assetsSubstring.indexOf("\"", urlValueStart);
+            if (urlEndIndex == -1) return null;
+
+            // Extraer y retornar la URL
+            return assetsSubstring.substring(urlValueStart, urlEndIndex);
         } catch (Exception e) {
             plugin.getLogger().severe("Error al analizar la URL de descarga del JSON: " + e.getMessage());
             return null;
         }
     }
+
 
     private void downloadNewVersion(String downloadUrl) {
         try {

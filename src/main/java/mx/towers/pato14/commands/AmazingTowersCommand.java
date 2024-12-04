@@ -1,12 +1,17 @@
 package mx.towers.pato14.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import mx.towers.pato14.update.AutoUpdate;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.TabCompleter;
 
-public class AmazingTowersCommand implements CommandExecutor {
+public class AmazingTowersCommand implements CommandExecutor, TabCompleter {
     private JavaPlugin plugin;
 
     public AmazingTowersCommand(JavaPlugin plugin) {
@@ -51,5 +56,23 @@ public class AmazingTowersCommand implements CommandExecutor {
             }
         }
         return false;
+    }
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            // Lista de opciones posibles
+            List<String> options = Arrays.asList("reload", "update");
+
+            // Filtrar las opciones que comienzan con el texto ingresado por el usuario
+            String input = args[0].toLowerCase();
+            List<String> filteredOptions = new ArrayList<>();
+            for (String option : options) {
+                if (option.toLowerCase().startsWith(input)) {
+                    filteredOptions.add(option);
+                }
+            }
+            return filteredOptions;
+        }
+        return new ArrayList<>();
     }
 }

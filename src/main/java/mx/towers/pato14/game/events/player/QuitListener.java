@@ -3,7 +3,6 @@ package mx.towers.pato14.game.events.player;
 import mx.towers.pato14.AmazingTowers;
 import mx.towers.pato14.GameInstance;
 import mx.towers.pato14.TowersWorldInstance;
-import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

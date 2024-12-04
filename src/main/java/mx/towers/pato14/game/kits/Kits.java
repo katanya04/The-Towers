@@ -7,7 +7,6 @@ import mx.towers.pato14.utils.files.Config;
 import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -145,6 +144,7 @@ public class Kits {
         Arrays.stream(AmazingTowers.getGameInstances()).forEach(o -> o.getGame().getKits().updateKits());
     }
 
+    @SuppressWarnings("deprecation")
     public void updateKits() {
         addKits(AmazingTowers.getGameInstance(this.instanceName));
         updateGameKits(AmazingTowers.getGameInstance(this.instanceName));

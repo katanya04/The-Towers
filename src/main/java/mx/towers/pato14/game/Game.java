@@ -201,6 +201,9 @@ public class Game {
                 if (playerTeam.getNumAlivePlayers() <= 0)
                     getTeams().checkForTeamWin();
                 break;
+            case CAPTAINS_CHOOSE:
+            case FINISH:
+                break;
         }
     }
 

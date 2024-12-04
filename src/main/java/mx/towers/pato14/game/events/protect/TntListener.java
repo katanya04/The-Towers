@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 
 public class TntListener implements Listener {
+    @SuppressWarnings("deprecation")
     @EventHandler
     public void onTntExplode(EntityExplodeEvent e) throws NoSuchFieldException {
         GameInstance gameInstance = AmazingTowers.getGameInstance(e.getEntity());

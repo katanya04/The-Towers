@@ -1,9 +1,5 @@
 package mx.towers.pato14.utils.items;
 
-import me.katanya04.anotherguiplugin.actionItems.ActionItem;
-import mx.towers.pato14.GameInstance;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public enum ItemsEnum {
     GAME_SELECT("GameSelect", false),

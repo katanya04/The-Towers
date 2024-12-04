@@ -1,7 +1,6 @@
 package mx.towers.pato14.utils.placeholders;
 
 import mx.towers.pato14.AmazingTowers;
-import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.mysql.IConnexion;
 import mx.towers.pato14.utils.stats.StatType;
 import mx.towers.pato14.utils.stats.Stats;

@@ -1,7 +1,7 @@
 
-AmazingTowers.jar.src/.idea
-AmazingTowers.jar.src/target
-AmazingTowers.jar.src/out
-AmazingTowers.jar.src/src/test/
+/.idea
+/target
+/out
+/src/test/
 *.class
-/AmazingTowers.jar.src/.vscode
+/.vscode

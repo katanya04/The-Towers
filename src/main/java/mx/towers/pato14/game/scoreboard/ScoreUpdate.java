@@ -97,6 +97,7 @@ public class ScoreUpdate {
                             .replace("%player_points%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.POINTS)))
                             .replace("%player_deaths%", String.valueOf(gameInstance.getGame().getStats().getStat(player.getName(), StatType.DEATHS)))
                             .replace("%refill_time%", Utils.intTimeToString(gameInstance.getGame().getRefill().getTimeRegeneration()))
+                            .replace("%time%", Utils.intTimeToString(gameInstance.getGame().getRefill().getTime()))
                             .replace("%instance_name%", gameInstance.getConfig(ConfigType.CONFIG).getString("name", "The Towers"))
                             .replace("%players_amount%", gameInstance.getGame().getTeams().getPlayersAmount());
                     if (st.contains("%team_points%")) {

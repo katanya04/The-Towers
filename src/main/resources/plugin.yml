@@ -3,7 +3,7 @@ name: AmazingTowers
 author: Pato14, katanya04
 
 version: '${project.version}'
-depend: [BossBarAPI, AnotherGUIPlugin]
+depend: [AnotherGUIPlugin]
 softdepend: [Vault, PlaceholderAPI]
 
 main: mx.towers.pato14.AmazingTowers

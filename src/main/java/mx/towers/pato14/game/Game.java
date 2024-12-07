@@ -144,8 +144,6 @@ public class Game {
         this.teams.reset();
         this.stats.clear();
         this.captainsPhase.reset();
-        if (this.timer.getBossBars() != null && !this.timer.getBossBars().isEmpty())
-            this.timer.removeAllBossBars();
         this.timer.update(this.getGameInstance());
         this.events.clear();
     }
@@ -172,8 +170,6 @@ public class Game {
             case PREGAME:
                 break;
             case GAME:
-                if (this.getTimer().isActivated())
-                    this.getTimer().addPlayer(player);
                 break;
             default:
                 if (team == null || team.isEliminated())
@@ -194,8 +190,6 @@ public class Game {
                 break;
             case GAME:
             case EXTRA_TIME:
-                if (this.getTimer().isActivated())
-                    this.getTimer().removeBossBar(player);
                 if (playerTeam == null)
                     break;
                 if (playerTeam.getNumAlivePlayers() <= 0)

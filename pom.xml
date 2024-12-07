@@ -6,12 +6,10 @@
 
     <groupId>mx.towers.pato14</groupId>
     <artifactId>AmazingTowers</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
-
     <name>AmazingTowers</name>
-
-    <description>AmazingTowers3.0_beta3</description>
+    <description>AmazingTowers</description>
     <properties>
         <java.version>8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -131,13 +129,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.16.1</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.inventivetalent</groupId>
-            <artifactId>bossbarapi</artifactId>
-            <version>2.4.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/dependencies/BossBarAPI_v2.4.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>me.katanya04</groupId>

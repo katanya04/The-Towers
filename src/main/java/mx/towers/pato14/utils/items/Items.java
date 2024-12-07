@@ -15,6 +15,7 @@ public interface Items {
         ActionItem<?> item = ActionItem.getByName(name);
         return item == null ? null : item.returnPlaceholder();
     }
+    @SuppressWarnings("unchecked")
     static void updateMenu(ItemsEnum itemsEnum) {
         ActionItem<?> item = ActionItem.getByName(itemsEnum.name);
         ((MenuItem<InventoryMenu, ?>) item).getMenu().updateOpenMenus();

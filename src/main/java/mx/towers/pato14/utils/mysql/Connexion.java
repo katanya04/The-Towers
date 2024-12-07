@@ -124,6 +124,7 @@ public class Connexion implements IConnexion {
         operation(Operation.UPDATE_DATA, null, tables, stats);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Stats> getStats(Collection<String> players, Collection<String> tables) {
         return (Map<String, Stats>) Utils.getValueOrDefault(operation(Operation.GET_DATA, players, tables, null), new HashMap<String, Stats>());

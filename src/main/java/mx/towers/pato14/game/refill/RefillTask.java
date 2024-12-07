@@ -30,10 +30,9 @@ public class RefillTask {
                 gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
             refileadoProaso = SelectCofresillos.makelist(gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
             new BukkitRunnable() {
-                @Override
                 public void run() {
-                    // Verificar si el juego no está en curso
-                    if (!gameInstance.getGame().getGameState().matchIsBeingPlayed) {
+                    if (!gameInstance.getGame().getGameState().matchIsBeingPlayed || !Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS)
+                            .getString("refill.activated"))) {
                         cancel();
                         time = 0;
                         refillTime = 0;
@@ -49,18 +48,14 @@ public class RefillTask {
                     time++;
                     
                     // Lógica del temporizador de recarga
-                    if (refillTime == 0) {
+                    if (RefillTask.this.refillTime == 0) {
                         resetTime();
-                        if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("refill.activated")) &&
-                                gameInstance.getConfig(ConfigType.LOCATIONS).getStringList("LOCATIONS.REFILLCHEST") != null) {
-                            refileadoProaso = SelectCofresillos.makelist(gameInstance.getConfig(ConfigType.LOCATIONS), "LOCATIONS.REFILLCHEST");
-                            SelectCofresillos.refill(refileadoProaso);
-                            if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill"))
-                                gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("filledChest"), true);
-                        }
-                    } else {
-                        refillTime--;
+                        SelectCofresillos.refill(refileadoProaso);
+                        if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill"))
+                            gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("filledChest"), true);
+                        return;
                     }
+                    refillTime--;
                 }
             }.runTaskTimer(gameInstance.getPlugin(), 0L, 20L);
         } else {

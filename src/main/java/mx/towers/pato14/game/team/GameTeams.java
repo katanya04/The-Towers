@@ -118,7 +118,7 @@ public class GameTeams {
         for (int i = 0; i < teams.size(); i++) {
             ITeam team = teams.get(i);
             sb.append(team.getTeamColor().getColor()).append(team.getNumAlivePlayers());
-            if (i != teams.size() - 1) sb.append("&r vs ");
+            if (i != teams.size() - 1) sb.append("&r &7vs ");
         }
         this.playersAmount = Utils.getColor(sb.toString());
     }
@@ -179,10 +179,10 @@ public class GameTeams {
         GameInstance gameInstance = getGame().getGameInstance();
         boolean bedwarsStyle = gameInstance.getRules().get(Rule.BEDWARS_STYLE);
         ITeam team = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.setSaturation(20.0f);
-        player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS).getString(Location.SPAWN.getPath(team.getTeamColor()))), PlayerTeleportEvent.TeleportCause.COMMAND);
         gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
         getGame().getStats().increaseOne(player.getName(), StatType.POINTS);
         gameInstance.getVault().giveReward(player, RewardsEnum.POINT);

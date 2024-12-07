@@ -151,7 +151,7 @@ public class Game {
     public void spawn(Player player) {
         Utils.resetPlayer(player);
         ITeam team = this.getTeams().getTeamByPlayer(player.getName());
-        if (team == null || gameState == GameState.LOBBY || gameState == GameState.PREGAME) {
+        if (team == null || gameState == GameState.LOBBY || gameState == GameState.PREGAME || gameState == GameState.CAPTAINS_CHOOSE ) {
             player.setGameMode(GameMode.ADVENTURE);
             this.getGameInstance().getHotbar().apply(player);
             player.teleport(Locations.getLocationFromString(this.getGameInstance().getConfig(ConfigType.LOCATIONS)
@@ -162,6 +162,7 @@ public class Game {
 
     public void joinGame(Player player) {
         spawn(player);
+        this.teams.updatePlayersAmount();
         if (this.teams != null)
             this.teams.updatePrefixes();
         ITeam team = this.getTeams().getTeamByPlayer(player.getName());

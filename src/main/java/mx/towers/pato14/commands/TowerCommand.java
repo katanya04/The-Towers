@@ -553,18 +553,40 @@ public class TowerCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String alias, String[] args) {
         List<String> autocomplete = new ArrayList<>();
-        if (args.length == 1)
-            autocomplete.addAll(Subcommand.getListAvailableSubcommand(commandSender));
-        else {
+
+        // Verificar si se está completando el primer argumento
+        if (args.length == 1) {
+            List<String> subcommands = Subcommand.getListAvailableSubcommand(commandSender);
+            if (subcommands != null) {
+                autocomplete.addAll(subcommands);
+            }
+        } else {
+            // Validar si el subcomando es válido
             Subcommand subcommand = Subcommand.isValidSubcommand(args[0]);
-            if (subcommand == null || !subcommand.hasPermission(commandSender))
-                return null;
+            if (subcommand == null || !subcommand.hasPermission(commandSender)) {
+                return null; // Si no es válido, retornar null
+            }
+
+            // Obtener la instancia del juego, si corresponde
             GameInstance gameInstance = null;
-            if (commandSender instanceof Entity)
+            if (commandSender instanceof Entity) {
                 gameInstance = AmazingTowers.getGameInstance((Entity) commandSender);
-            autocomplete.addAll(Objects.requireNonNull(subcommand.autocompleteArgs(args.length - 2,
-                    gameInstance == null ? 8 : gameInstance.getNumberOfTeams())));
+            }
+
+            // Completar argumentos del subcomando
+            List<String> subcommandAutocomplete = subcommand.autocompleteArgs(
+                args.length - 2,
+                (gameInstance == null) ? 8 : gameInstance.getNumberOfTeams()
+            );
+
+            if (subcommandAutocomplete != null) {
+                autocomplete.addAll(subcommandAutocomplete);
+            }
         }
-        return autocomplete.stream().filter(o -> o.regionMatches(true, 0, args[args.length - 1], 0, args[args.length - 1].length())).collect(Collectors.toList());
+
+        // Filtrar las opciones de autocompletado según el texto ingresado
+        return autocomplete.stream()
+            .filter(o -> o.regionMatches(true, 0, args[args.length - 1], 0, args[args.length - 1].length()))
+            .collect(Collectors.toList());
     }
 }

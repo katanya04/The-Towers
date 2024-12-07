@@ -26,6 +26,7 @@ public class LobbyListener implements Listener {
                             !((GameInstance) instance).getGame().getGameState().matchIsBeingPlayed ||
                             !((GameInstance) instance).getRules().get(Rule.HUNGER)))) {
                 p.setFoodLevel(20);
+                p.setSaturation(20.0F);
                 e.setCancelled(true);
             }
         }

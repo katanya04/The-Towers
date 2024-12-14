@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum TeamColor {
-    BLUE(true, (short) 11, "&9"),
     RED(true, (short) 14, "&4"),
+    BLUE(true, (short) 11, "&9"),
     GREEN(true, (short) 5, "&a"),
     YELLOW(true, (short) 4, "&e"),
     WHITE(true, (short) 0, "&f"),
@@ -29,7 +29,7 @@ public enum TeamColor {
     ORANGE(true, (short) 1, "&6"),
     PURPLE(true, (short) 10, "&d"),
     SPECTATOR(false, (short) 8, "&7");
-    private final static Color[] colors = {Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK, Color.ORANGE, Color.PURPLE};
+    private final static Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE, Color.BLACK, Color.ORANGE, Color.PURPLE};
     private final boolean matchTeam;
     private final short woolColor;
     private final String color;

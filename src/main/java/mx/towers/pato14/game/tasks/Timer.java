@@ -36,7 +36,11 @@ public class Timer {
     // 
     public void timerStart() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(this.instanceName);
-        gameInstance.broadcastMessage(" &eLa partida terminará en " + time + " minutos.", true);
+        if (time <= 60) {
+            gameInstance.broadcastMessage(" &eLa partida terminará en &b" + time + " &esegundos.", true);
+        } else{
+            gameInstance.broadcastMessage(" &eLa partida terminará en &b" + (time / 60) + " &eminutos.", true);
+        }
         (timerTask = new BukkitRunnable() {
             public void run() {
                 if (!activated || !AmazingTowers.getGameInstance(instanceName).getGame().getGameState().matchIsBeingPlayed) {

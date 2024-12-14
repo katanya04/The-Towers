@@ -16,9 +16,10 @@ public class QuitListener implements Listener {
         AmazingTowers.removePlayerWand(player);
         final String name = player.getName();
         final TowersWorldInstance instance = AmazingTowers.getInstance(player);
-        if (instance instanceof GameInstance)
+        if (instance instanceof GameInstance){
             e.setQuitMessage(instance.getConfig(ConfigType.MESSAGES).getString("quitMessage").replaceAll("&", "§")
                     .replace("{Player}", name));
+        }
         if (instance != null) {
             instance.leaveInstance(player);
         }

@@ -165,7 +165,7 @@ public class GameInstance extends TowersWorldInstance {
         game.leave(player);
         Arrays.sort(AmazingTowers.getGameInstances(), Collections.reverseOrder());
         if (getGame().getCaptainsPhase().isCaptain(player.getName()) && getGame().getGameState() == GameState.CAPTAINS_CHOOSE)
-            getGame().getStart().startCaptainsChoose();
+            getGame().getStart().startCaptainsChoose(); //Si el jugador que se va es capitán, se inicia la fase de selección de capitanes de nuevo
     }
 
     public boolean canJoin(HumanEntity player) {

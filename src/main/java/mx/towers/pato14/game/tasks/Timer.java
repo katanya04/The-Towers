@@ -33,7 +33,10 @@ public class Timer {
         return 1800;
     }
 
+    // 
     public void timerStart() {
+        GameInstance gameInstance = AmazingTowers.getGameInstance(this.instanceName);
+        gameInstance.broadcastMessage(" &eLa partida terminará en " + time + " minutos.", true);
         (timerTask = new BukkitRunnable() {
             public void run() {
                 if (!activated || !AmazingTowers.getGameInstance(instanceName).getGame().getGameState().matchIsBeingPlayed) {
@@ -44,10 +47,22 @@ public class Timer {
                     timerTask.cancel();
                     return;
                 }
+                if (time % 300 == 0 && time > 0) {
+                    int minutesRemaining = time / 60;
+                    gameInstance.broadcastMessage(" &eQuedan &b" + minutesRemaining + " &eminutos.", true);
+                }else if(time==120 || time==180 || time==240) {
+                    int minutesRemaining = time / 60;
+                    gameInstance.broadcastMessage(" &eQuedan &b" + minutesRemaining + " &eminutos.", true);
+                }else if (time == 60 ||time == 30 || time == 10 || (time <= 5)) {
+                    gameInstance.broadcastMessage(" &eQuedan &b" + time + " &esegundos.", true);
+                } else if (time == 1){
+                    gameInstance.broadcastMessage(" &eQueda &b" + time + " &esegundo.", true);
+                }
                 time--;
             }
-        }).runTaskTimer(AmazingTowers.getPlugin(), 20L, 20L);
+        }).runTaskTimer(gameInstance.getPlugin(), 20L, 20L);
     }
+    
     public void update(GameInstance gameInstance) {
         this.activated = getActivated(gameInstance);
         this.time = getTime(gameInstance);

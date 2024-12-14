@@ -171,6 +171,7 @@ public class Game {
             case PREGAME:
                 break;
             case GAME:
+            spawn(player);
                 break;
             default:
                 if (team == null || team.isEliminated())
@@ -201,7 +202,7 @@ public class Game {
                 break;
         }
     }
-
+    
     public void start() {
         this.setGameState(GameState.PREGAME);
         this.getStart().gameStart();

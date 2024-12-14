@@ -40,14 +40,8 @@ public class RefillTask {
                         refileadoProaso.clear();
                         return;
                     }
-    
-                    // Actualizar el marcador
                     gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
-    
-                    // Lógica del temporizador de tiempo
                     time++;
-                    
-                    // Lógica del temporizador de recarga
                     if (RefillTask.this.refillTime == 0) {
                         resetTime();
                         SelectCofresillos.refill(refileadoProaso);

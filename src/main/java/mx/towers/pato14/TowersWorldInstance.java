@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +42,7 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
         world.setGameRuleValue("doMobSpawning", "false");
         world.setGameRuleValue("mobGriefing", "false");
         world.setGameRuleValue("doDaylightCycle", "false");
+        world.setGameRuleValue("doFireTick", "false");
         world.setTime(1000L);
     }
     private void registerConfigs(String worldName, Class<? extends TowersWorldInstance> aClass) {

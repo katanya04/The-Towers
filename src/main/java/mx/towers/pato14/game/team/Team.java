@@ -80,7 +80,7 @@ public class Team implements ITeam {
             player.teleport(Locations.getLocationFromString(gameInstance.getConfig(ConfigType.LOCATIONS)
                     .getString(Location.LOBBY.getPath())), PlayerTeleportEvent.TeleportCause.COMMAND);
         }
-    } // Bug capitanes, bug contador de players
+    }
 
     @Override
     public void removePlayer(String playerName) {

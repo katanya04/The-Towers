@@ -9,7 +9,7 @@ import mx.towers.pato14.commands.KitsCommand;
 import mx.towers.pato14.commands.LobbyCommand;
 import mx.towers.pato14.commands.ReadyCommand;
 import mx.towers.pato14.commands.TowerCommand;
-import mx.towers.pato14.commands.ListAllCommand;
+import mx.towers.pato14.commands.ListCommand;
 import mx.towers.pato14.game.events.EventsManager;
 import mx.towers.pato14.game.events.player.TeamChatListener;
 import mx.towers.pato14.utils.enums.PermissionLevel;
@@ -66,7 +66,7 @@ public final class AmazingTowers extends JavaPlugin {
         getCommand("kits").setExecutor(new KitsCommand());
         getCommand("lobby").setExecutor(new LobbyCommand());
         getCommand("ready").setExecutor(new ReadyCommand());
-        getCommand("listall").setExecutor(new ListAllCommand());
+        getCommand("list").setExecutor(new ListCommand());
         getCommand("AmazingTowers").setExecutor(new AmazingTowersCommand(this));
 
 

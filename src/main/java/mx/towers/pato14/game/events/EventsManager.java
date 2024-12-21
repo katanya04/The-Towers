@@ -35,11 +35,9 @@ public class EventsManager {
         pm.registerEvents(new PotionsAndAppleListener(), this.plugin);
         pm.registerEvents(new IronArmorListener(), this.plugin);
         pm.registerEvents(new EnderpearlAndPotionThrowListener(), this.plugin);
-        pm.registerEvents(new BlockStats(), this.plugin);
         pm.registerEvents(new EnchantItem(), this.plugin);
         pm.registerEvents(new ParkourPrizeFly(), this.plugin);
         pm.registerEvents(new MobSpawn(), this.plugin);
-        pm.registerEvents(new UseSpawnEgg(), this.plugin);
         if (AmazingTowers.getLobby().getConfig(ConfigType.CONFIG).getBoolean("options.portalsToGame"))
             pm.registerEvents(new LobbyPortal(), this.plugin);
     }

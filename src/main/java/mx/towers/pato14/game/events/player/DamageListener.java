@@ -6,7 +6,9 @@ import mx.towers.pato14.LobbyInstance;
 import mx.towers.pato14.TowersWorldInstance;
 import mx.towers.pato14.game.team.GameTeams;
 import mx.towers.pato14.utils.Utils;
+import mx.towers.pato14.game.team.ITeam;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -48,33 +50,46 @@ public class DamageListener implements Listener {
     public void onDamage(EntityDamageByEntityEvent e) {
         if (e.getEntityType() != EntityType.PLAYER)
             return;
+
         Player player = (Player) e.getEntity();
         TowersWorldInstance instance = AmazingTowers.getInstance(player);
         if (instance == null)
             return;
+
         if (instance instanceof LobbyInstance) {
             e.setCancelled(true);
-        } else if (instance instanceof GameInstance) {
+            return;
+        }
+
+        if (instance instanceof GameInstance) {
             GameInstance gameInstance = (GameInstance) instance;
-            if (gameInstance.getGame() == null)
-                return;
-            if (!gameInstance.getGame().getGameState().matchIsBeingPlayed) {
+            if (gameInstance.getGame() == null || !gameInstance.getGame().getGameState().matchIsBeingPlayed) {
                 e.setCancelled(true);
                 return;
             }
+
             GameTeams teams = gameInstance.getGame().getTeams();
-            if (teams.getTeamByPlayer(player.getName()) == null) {
+            ITeam playerTeam = teams.getTeamByPlayer(player.getName());
+            if (playerTeam == null) {
                 e.setCancelled(true);
                 return;
             }
-            if (e.getDamager().getType().equals(EntityType.PLAYER)) { // Player attacks player
-                if (teams.getTeamByPlayer(e.getDamager().getName()) == null ||
-                        teams.getTeamByPlayer(player.getName()).equals(teams.getTeamByPlayer(e.getDamager().getName())))
+
+            Entity damager = e.getDamager();
+            if (damager.getType() == EntityType.PLAYER) {
+                ITeam damagerTeam = teams.getTeamByPlayer(damager.getName());
+                if (damagerTeam == null || playerTeam.equals(damagerTeam)) {
                     e.setCancelled(true);
-                // Player shoots player
-            } else if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
-                if (teams.getTeamByPlayer(player.getName()).equals(teams.getTeamByPlayer(((Player) ((Projectile) e.getDamager()).getShooter()).getName())))
-                    e.setCancelled(true);
+                }
+            } else if (damager instanceof Projectile) {
+                Projectile projectile = (Projectile) damager;
+                if (projectile.getShooter() instanceof Player) {
+                    Player shooter = (Player) projectile.getShooter();
+                    ITeam shooterTeam = teams.getTeamByPlayer(shooter.getName());
+                    if (playerTeam.equals(shooterTeam)) {
+                        e.setCancelled(true);
+                    }
+                }
             }
         }
     }

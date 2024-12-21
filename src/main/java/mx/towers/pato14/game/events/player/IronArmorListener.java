@@ -35,7 +35,7 @@ public class IronArmorListener implements Listener {
             ItemStack result = inventory.getResult();
 
             if (result != null && isIronArmor(result.getType())) {
-                inventory.setResult(null); // Bloquea el crafteo
+                inventory.setResult(null);
             }
         }
     }

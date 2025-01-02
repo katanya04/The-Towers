@@ -31,6 +31,8 @@ kitsDisabled: '&cLos kits estan desactivados en esta partida'
 tryingToEditNotOwnedKit: '&cNo posees este kit'
 
 filledChest: '&eLos cofres han sido rellenados'
+minutesRemaining: '&eLa partida termina en: &b{count} minutos'
+secondsRemaining: '&eLa partida termina en: &b{count} segundos'
 openingEnemyChest: '&cNo puedes abrir los cofres del equipo enemigo'
 
 trollingTeammates: '&c&lNo fastidies a tus compañeros!'

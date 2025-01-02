@@ -86,6 +86,11 @@ public abstract class TowersWorldInstance implements Comparable<TowersWorldInsta
             player.sendMessage(msg);
         }
     }
+    public void playSound(String sound, float volume, float pitch) {
+        for (Player player : getWorld().getPlayers()) {
+            player.playSound(player.getLocation(), sound, volume, pitch);
+        }
+    }
 
     public HotbarItems getHotbar() {
         return hotbarItems;

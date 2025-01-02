@@ -6,6 +6,8 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class Timer {
     private boolean activated;
@@ -36,47 +38,44 @@ public class Timer {
     // 
     public void timerStart() {
         GameInstance gameInstance = AmazingTowers.getGameInstance(this.instanceName);
+        int timeinMinutes = time / 60;
         if (time <= 60) {
-            gameInstance.broadcastMessage(" &eLa partida terminará en &b" + time + " &esegundos.", true);
+            gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("secondsRemaining").replace("{count}", String.valueOf(time)), true);
         } else {
-            gameInstance.broadcastMessage(" &eLa partida terminará en &b" + (time / 60) + " &eminutos.", true);
+            gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("minutesRemaining").replace("{count}", String.valueOf(timeinMinutes)), true);
         }
-    
-        // Registrar el tiempo de inicio del temporizador
         final long startTime = System.currentTimeMillis();
         final long endTime = startTime + (time * 1000L);
-    
         (timerTask = new BukkitRunnable() {
             public void run() {
                 if (!activated || !AmazingTowers.getGameInstance(instanceName).getGame().getGameState().matchIsBeingPlayed) {
                     this.cancel();
                     return;
                 }
-    
-                // Calcular el tiempo restante basado en el reloj del sistema
                 long currentTime = System.currentTimeMillis();
                 long remainingTime = (endTime - currentTime) / 1000;
-    
                 if (remainingTime <= 0) {
                     AmazingTowers.getGameInstance(instanceName).getGame().getFinish().endMatchOrGoldenGoal();
                     this.cancel();
                     return;
                 }
-    
-                // Enviar mensajes en los momentos adecuados
+                if (remainingTime <= 30){
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        if (onlinePlayer.getWorld().getName().equals(instanceName)){
+                        gameInstance.playSound("random.click", 1, 2);
+                        }
+                    }
+                }
                 if (remainingTime % 300 == 0 && remainingTime > 0 || remainingTime == 120 || remainingTime == 180 || remainingTime == 240) {
                     int minutesRemaining = (int) (remainingTime / 60);
-                    gameInstance.broadcastMessage(" &eQuedan &b" + minutesRemaining + " &eminutos.", true);
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("minutesRemaining").replace("{count}", String.valueOf(minutesRemaining)), true);
+                    gameInstance.playSound("random.click", 1, 2);
                 } else if (remainingTime == 60 || remainingTime == 30 || remainingTime == 10 || remainingTime <= 5) {
-                    gameInstance.broadcastMessage(" &eQuedan &b" + remainingTime + " &esegundos.", true);
-                } else if (remainingTime == 1) {
-                    gameInstance.broadcastMessage(" &eQueda &b" + remainingTime + " &esegundo.", true);
+                    gameInstance.broadcastMessage(gameInstance.getConfig(ConfigType.MESSAGES).getString("secondsRemaining").replace("{count}", String.valueOf(remainingTime)), true);
                 }
-    
-                // Actualizar la variable de tiempo (opcional, para sincronización interna)
                 time = (int) remainingTime;
             }
-        }).runTaskTimer(gameInstance.getPlugin(), 20L, 20L); // El tick rate se usa solo para verificar, no para medir tiempo real
+        }).runTaskTimer(gameInstance.getPlugin(), 20L, 20L);
     }
     
     public void update(GameInstance gameInstance) {

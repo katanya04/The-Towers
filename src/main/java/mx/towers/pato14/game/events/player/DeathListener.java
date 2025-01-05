@@ -10,6 +10,7 @@ import mx.towers.pato14.utils.locations.Locations;
 import mx.towers.pato14.utils.rewards.RewardsEnum;
 import mx.towers.pato14.utils.stats.StatType;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -27,85 +29,58 @@ public class DeathListener implements Listener {
     public void onDeath(PlayerDeathEvent e) {
         final Player player = e.getEntity().getPlayer();
         final GameInstance gameInstance = AmazingTowers.getGameInstance(player);
-
-        if (gameInstance == null || gameInstance.getGame() == null) return;
-
-        if (player.isInsideVehicle()) player.leaveVehicle();
-
+        if (gameInstance == null || gameInstance.getGame() == null)
+            return;
+        if (player.isInsideVehicle())
+            player.leaveVehicle();
         final Player killer = e.getEntity().getKiller();
-        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
-        final String playerColor = (playerTeam == null) ? "&f" : playerTeam.getTeamColor().getColor();
-        final boolean isFinalKill = playerTeam != null && !playerTeam.doPlayersRespawn();
-        final String finalKillPrefix = isFinalKill ? Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix")) : "";
-
-        // Instant Respawn Option
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.instantRespawn")) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(AmazingTowers.getPlugin(), () -> {
                 player.setCanPickupItems(false);
                 player.spigot().respawn();
             }, 1L);
         }
-
         e.setDeathMessage(null);
-
+        final ITeam playerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(player.getName());
+        final String playerColor = playerTeam == null ? "&f" : playerTeam.getTeamColor().getColor();
+        final String finalKill = playerTeam == null || playerTeam.doPlayersRespawn() ? "" : Utils.getColor(gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.finalKillPrefix"));
         if (killer == null) {
-            broadcastDeathMessage(gameInstance, finalKillPrefix, "deathMessages.unknownKiller", player.getName(), playerColor, "", "", "");
+            gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString("deathMessages.unknownKiller")
+                    .replace("{Player}", player.getName())
+                    .replace("{Color}", playerColor), true);
         } else {
-            handleKillerInteraction(gameInstance, player, killer, finalKillPrefix, playerColor);
+            final ITeam killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
+            final String killerColor = killerTeam == null ? "&f" : killerTeam.getTeamColor().getColor();
+            boolean bowKill = player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.PROJECTILE;
+            gameInstance.broadcastMessage(finalKill + gameInstance.getConfig(ConfigType.MESSAGES).getString(bowKill ? "deathMessages.knownKillerProjectile" : "deathMessages.knownKiller")
+                    .replace("{Player}", player.getName())
+                    .replace("{Color}", playerColor)
+                    .replace("{ColorKiller}", killerColor)
+                    .replace("{Killer}", killer.getName())
+                    .replace("{Distance}", (bowKill ? String.valueOf((int) (Math.round(killer.getLocation().distance(player.getLocation())))) : "")), true);
+            addRewardsKiller(killer);
+            if (Boolean.parseBoolean(gameInstance.getConfig(ConfigType.GAME_SETTINGS).getString("itemOnKill.activated"))) {
+                killer.getInventory().addItem(Utils.getItemsFromConf(gameInstance.getConfig(ConfigType.GAME_SETTINGS), "itemOnKill.item"));
+            }
+            killer.playSound(killer.getLocation(), Sound.SUCCESSFUL_HIT, 1f, 1f);
         }
-
-        // Update Player Stats
         gameInstance.getGame().getStats().increaseOne(player.getName(), StatType.DEATHS);
-
-        // Handle Item Drops
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
-            e.getDrops().removeIf(i -> i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable());
+            for (ItemStack i : e.getDrops()) {
+                if (i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable()) {
+                    i.setType(Material.AIR);
+                }
+            }
         }
-
-        // Spectator Mode and Score Updates
-        if (!gameInstance.getGame().getGameState().matchIsBeingPlayed) return;
-
-        if (isFinalKill) {
-            handleFinalKill(player, playerTeam, gameInstance);
-        } else {
+        if (!gameInstance.getGame().getGameState().matchIsBeingPlayed)
+            return;
+        if (playerTeam != null && !playerTeam.doPlayersRespawn()) {
+            player.setGameMode(GameMode.SPECTATOR);
+            gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
+            if (playerTeam.getNumAlivePlayers() <= 0)
+                gameInstance.getGame().getTeams().checkForTeamWin();
+        } else
             gameInstance.getScoreUpdates().updateScoreboard(player);
-        }
-    }
-
-    private void broadcastDeathMessage(GameInstance gameInstance, String finalKillPrefix, String messageKey, String playerName, String playerColor, String killerColor, String killerName, String distance) {
-        gameInstance.broadcastMessage(finalKillPrefix + gameInstance.getConfig(ConfigType.MESSAGES).getString(messageKey)
-            .replace("{Player}", playerName)
-            .replace("{Color}", playerColor)
-            .replace("{ColorKiller}", killerColor)
-            .replace("{Killer}", killerName)
-            .replace("{Distance}", distance), true);
-    }
-
-    private void handleKillerInteraction(GameInstance gameInstance, Player player, Player killer, String finalKillPrefix, String playerColor) {
-        final ITeam killerTeam = gameInstance.getGame().getTeams().getTeamByPlayer(killer.getName());
-        final String killerColor = (killerTeam == null) ? "&f" : killerTeam.getTeamColor().getColor();
-        final boolean bowKill = player.getLastDamageCause().getCause() == EntityDamageEvent.DamageCause.PROJECTILE;
-        final String messageKey = bowKill ? "deathMessages.knownKillerProjectile" : "deathMessages.knownKiller";
-        final String distance = bowKill ? String.valueOf((int) Math.round(killer.getLocation().distance(player.getLocation()))) : "";
-
-        broadcastDeathMessage(gameInstance, finalKillPrefix, messageKey, player.getName(), playerColor, killerColor, killer.getName(), distance);
-
-        addRewardsKiller(killer);
-
-        if (gameInstance.getConfig(ConfigType.GAME_SETTINGS).getBoolean("itemOnKill.activated")) {
-            killer.getInventory().addItem(Utils.getItemsFromConf(gameInstance.getConfig(ConfigType.GAME_SETTINGS), "itemOnKill.item"));
-        }
-
-        killer.playSound(killer.getLocation(), Sound.SUCCESSFUL_HIT, 1f, 1f);
-    }
-
-    private void handleFinalKill(Player player, ITeam playerTeam, GameInstance gameInstance) {
-        player.setGameMode(GameMode.SPECTATOR);
-        gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
-
-        if (playerTeam.getNumAlivePlayers() <= 0) {
-            gameInstance.getGame().getTeams().checkForTeamWin();
-        }
     }
 
     private void addRewardsKiller(Player killer) {

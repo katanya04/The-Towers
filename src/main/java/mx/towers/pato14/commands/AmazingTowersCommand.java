@@ -31,14 +31,14 @@ public class AmazingTowersCommand implements CommandExecutor, TabCompleter {
             // Si no hay argumentos, muestra la versión actual
             if (args.length == 0) {
                 String currentVersion = plugin.getDescription().getVersion();
-                sender.sendMessage("§aLa versión actual de AmazingTowers es: §b" + currentVersion);
+                sender.sendMessage("§8[§bAmazingTowers§8] §7v" + currentVersion);
                 return true;
             }
             // Si el comando es "/AmazingTowers update"
             else if (args.length > 0 && args[0].equalsIgnoreCase("update")) {
                 // Mostrar la versión actual del plugin
                 String currentVersion = plugin.getDescription().getVersion();
-                sender.sendMessage("§aLa versión actual de AmazingTowers es: §b" + currentVersion);
+                sender.sendMessage("§8[§bAmazingTowers§8] §7v" + currentVersion);
 
                 // Iniciar la verificación de actualizaciones
                 AutoUpdate updateChecker = new AutoUpdate(plugin); // Si necesita el plugin como parámetro
@@ -48,10 +48,10 @@ public class AmazingTowersCommand implements CommandExecutor, TabCompleter {
             }
             // Si el comando es "/AmazingTowers reload"
             else if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-                sender.sendMessage("§aRecargando el plugin...");
+                sender.sendMessage("§8[§bAmazingTowers§8] §7Reloading...");
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
                 plugin.getServer().getPluginManager().enablePlugin(plugin);
-                sender.sendMessage("§aEl plugin se ha recargado correctamente.");
+                sender.sendMessage("§8[§bAmazingTowers§8] §aReloaded.");
                 return true;
             }
         }

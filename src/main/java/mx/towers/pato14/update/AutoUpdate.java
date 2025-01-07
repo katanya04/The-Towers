@@ -38,35 +38,35 @@ public class AutoUpdate {
                 // Obtener la última versión y la URL de descarga del JSON
                 String latestVersion = parseVersionFromJson(response);
                 if (latestVersion == null) {
-                    plugin.getLogger().severe("No se pudo obtener la última versión del JSON.");
-                    notifyAdmins("§cError al verificar actualizaciones. Consulta la consola para más información.");
+                    plugin.getLogger().severe("JSON error: Could not obtain the latest version.");
+                    notifyAdmins("§8[§bAmazingTowers§8] §cError.");
                     return;
                 }
 
                 if (compareVersions(currentVersion, latestVersion) >= 0) {
                     // Si la versión actual es igual o mayor que la última
-                    plugin.getLogger().info("AmazingTowers está actualizado.");
-                    notifyAdmins("§aAmazingTowers está actualizado a la versión más reciente. §8[§b" + latestVersion + "§8]");
+                    plugin.getLogger().info("AmazingTowers is up to date.");
+                    notifyAdmins("§8[§bAmazingTowers§8] §aUp to date.");
                 } else {
-                    plugin.getLogger().info("Nueva versión disponible: " + latestVersion);
-                    notifyAdmins("§eNueva versión de AmazingTowers disponible: " + latestVersion);
+                    plugin.getLogger().info("New version available: " + latestVersion);
+                    notifyAdmins("§8[§bAmazingTowers§8] §eNew version available: §7v" + latestVersion);
 
                     String downloadUrl = parseDownloadUrlFromJson(response);
                     if (downloadUrl == null) {
-                        plugin.getLogger().severe("No se pudo obtener la URL de descarga del JSON.");
-                        notifyAdmins("§cError al verificar actualizaciones. Consulta la consola para más información.");
+                        plugin.getLogger().severe("URL error: Could not obtain the download URL.");
+                        notifyAdmins("§8[§bAmazingTowers§8] §cError.");
                         return;
                     }
 
                     // Descargar la nueva versión
-                    notifyAdmins("§eDescargando nueva versión de AmazingTowers...");
+                    notifyAdmins("§8[§bAmazingTowers§8] §eDownloading...");
                     downloadNewVersion(downloadUrl);
-                    plugin.getLogger().info("Nueva versión descargada. Notificando a los administradores...");
-                    notifyAdmins("§aNueva versión descargada. Reinicia el servidor para aplicar los cambios.");
+                    plugin.getLogger().info("New version downloaded.");
+                    notifyAdmins("§8[§bAmazingTowers§8] §aDownloaded. Reload the server.");
                 }
             } catch (Exception e) {
-                plugin.getLogger().severe("Error verificando actualizaciones: " + e.getMessage());
-                notifyAdmins("§cOcurrió un error al verificar actualizaciones. Consulta la consola para más información.");
+                plugin.getLogger().severe("Error: " + e.getMessage());
+                notifyAdmins("§8[§bAmazingTowers§8] §cError.");
             }
         });
     }
@@ -92,7 +92,7 @@ public class AutoUpdate {
             // Extraer y retornar el valor
             return json.substring(valueStart, valueEnd);
         } catch (Exception e) {
-            plugin.getLogger().severe("Error al analizar la versión del JSON: " + e.getMessage());
+            plugin.getLogger().severe("Error: JSON " + e.getMessage());
             return null;
         }
     }
@@ -118,7 +118,7 @@ public class AutoUpdate {
             // Extraer y retornar la URL
             return assetsSubstring.substring(urlValueStart, urlEndIndex);
         } catch (Exception e) {
-            plugin.getLogger().severe("Error al analizar la URL de descarga del JSON: " + e.getMessage());
+            plugin.getLogger().severe("Error: JSON " + e.getMessage());
             return null;
         }
     }

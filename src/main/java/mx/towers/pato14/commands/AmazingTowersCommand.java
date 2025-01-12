@@ -41,9 +41,19 @@ public class AmazingTowersCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage("§8[§bAmazingTowers§8] §7v" + currentVersion);
 
                 // Iniciar la verificación de actualizaciones
-                AutoUpdate updateChecker = new AutoUpdate(plugin); // Si necesita el plugin como parámetro
+                AutoUpdate updateChecker = new AutoUpdate(plugin);
                 updateChecker.checkForUpdates();
+                return true;
+            }
+            // Si el comando es "/AmazingTowers forceUpdate"
+            else if (args.length > 0 && args[0].equalsIgnoreCase("forceUpdate")) {
+                // Mostrar la versión actual del plugin
+                String currentVersion = plugin.getDescription().getVersion();
+                sender.sendMessage("§8[§bAmazingTowers§8] §7v" + currentVersion);
 
+                // Iniciar la verificación de actualizaciones
+                AutoUpdate updateChecker = new AutoUpdate(plugin);
+                updateChecker.forceUpdate();
                 return true;
             }
             // Si el comando es "/AmazingTowers reload"
@@ -61,7 +71,7 @@ public class AmazingTowersCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             // Lista de opciones posibles
-            List<String> options = Arrays.asList("reload", "update");
+            List<String> options = Arrays.asList("forceUpdate","reload", "update");
 
             // Filtrar las opciones que comienzan con el texto ingresado por el usuario
             String input = args[0].toLowerCase();

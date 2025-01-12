@@ -71,6 +71,46 @@ public class AutoUpdate {
         });
     }
 
+    public void forceUpdate() {
+        String apiUrl = "https://api.github.com/repos/katanya04/The-Towers/releases/latest";
+    
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                // Abrir conexión a la API de GitHub
+                HttpURLConnection connection = (HttpURLConnection) new URL(apiUrl).openConnection();
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+    
+                // Leer la respuesta de la API
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        responseBuilder.append(line);
+                    }
+                }
+                String response = responseBuilder.toString();
+    
+                // Obtener la URL de descarga del JSON
+                String downloadUrl = parseDownloadUrlFromJson(response);
+                if (downloadUrl == null) {
+                    plugin.getLogger().severe("URL error: Could not obtain the download URL.");
+                    notifyAdmins("§8[§bAmazingTowers§8] §cError.");
+                    return;
+                }
+    
+                // Descargar la nueva versión
+                notifyAdmins("§8[§bAmazingTowers§8] §eDownloading...");
+                downloadNewVersion(downloadUrl);
+                plugin.getLogger().info("New version downloaded.");
+                notifyAdmins("§8[§bAmazingTowers§8] §aDownloaded. Reload the server.");
+    
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error: " + e.getMessage());
+                notifyAdmins("§8[§bAmazingTowers§8] §cError.");
+            }
+        });
+    }
+
     private void notifyAdmins(String message) {
         // Notificar a todos los jugadores con el permiso `towers.admin`
         Bukkit.getOnlinePlayers().stream()

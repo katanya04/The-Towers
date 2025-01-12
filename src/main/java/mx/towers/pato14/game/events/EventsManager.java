@@ -25,7 +25,7 @@ public class EventsManager {
         pm.registerEvents(new PistonsillosListener(), this.plugin);
         pm.registerEvents(new LeatherProtectListener(), this.plugin);
         pm.registerEvents(new WeatherListener(), this.plugin);
-        pm.registerEvents(new TeamTrollListener(), this.plugin);
+        // pm.registerEvents(new TeamTrollListener(), this.plugin);
         pm.registerEvents(new FallingSandTrollListener(), this.plugin);
         pm.registerEvents(new TntListener(), this.plugin);
         pm.registerEvents(new ProtectedAreasListener(), this.plugin);

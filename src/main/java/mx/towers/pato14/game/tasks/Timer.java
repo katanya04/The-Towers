@@ -6,8 +6,6 @@ import mx.towers.pato14.utils.Utils;
 import mx.towers.pato14.utils.enums.ConfigType;
 import mx.towers.pato14.utils.enums.MessageType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public class Timer {
     private boolean activated;
@@ -60,11 +58,7 @@ public class Timer {
                     return;
                 }
                 if (remainingTime <= 30){
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        if (onlinePlayer.getWorld().getName().equals(instanceName)){
-                        gameInstance.playSound("random.click", 1, 2);
-                        }
-                    }
+                    gameInstance.playSound("random.click", 1, 2);
                 }
                 if (remainingTime % 300 == 0 && remainingTime > 0 || remainingTime == 120 || remainingTime == 180 || remainingTime == 240) {
                     int minutesRemaining = (int) (remainingTime / 60);

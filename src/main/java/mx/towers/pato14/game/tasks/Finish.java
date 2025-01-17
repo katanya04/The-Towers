@@ -165,15 +165,26 @@ public class Finish {
         Iterator<Map.Entry<String, Stats>> listIterator = sortedStats.entrySet().iterator();
         StringBuilder sb = new StringBuilder();
         sb.append("&lTop ").append(stat.getText()).append("\n&r");
+    
         for (int i = 0; i < 5 && listIterator.hasNext(); i++) {
             Map.Entry<String, Stats> current = listIterator.next();
-            TeamColor team = game.getTeams().getTeamByPlayer(current.getKey()).getTeamColor();
-            sb.append(team != null ? team.getColor() : TeamColor.SPECTATOR.getColor());
+            TeamColor team = null;
+    
+            // Safely get the team and its color
+            ITeam playerTeam = game.getTeams().getTeamByPlayer(current.getKey());
+            if (playerTeam != null) {
+                team = playerTeam.getTeamColor();
+            } else {
+                team = TeamColor.SPECTATOR; // Default to spectator color if team is null
+            }
+    
+            sb.append(team.getColor());
             sb.append((i + 1)).append(". ").append(current.getKey()).append(" - ").append(current.getValue().getStat(stat)).append("\n");
             sb.append("&r");
         }
         return sb.toString();
     }
+    
 
     private String getPositionText(LinkedHashMap<String, Stats> sortedStats, String p, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();

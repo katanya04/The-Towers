@@ -42,7 +42,7 @@ public class RefillTask {
                     }
                     gameInstance.getScoreUpdates().updateScoreboardAll(false, gameInstance.getWorld().getPlayers());
                     time++;
-                    if (RefillTask.this.refillTime == 0) {
+                    if (RefillTask.this.refillTime == 1) {
                         resetTime();
                         SelectCofresillos.refill(refileadoProaso);
                         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.chests.refillChests.sendMessageOnRefill"))

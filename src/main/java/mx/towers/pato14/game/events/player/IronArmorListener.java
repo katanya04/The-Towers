@@ -44,6 +44,7 @@ public class IronArmorListener implements Listener {
         return material == Material.IRON_HELMET ||
                material == Material.IRON_CHESTPLATE ||
                material == Material.IRON_LEGGINGS ||
-               material == Material.IRON_BOOTS;
+               material == Material.IRON_BOOTS ||
+               material == Material.FISHING_ROD;
     }
 }

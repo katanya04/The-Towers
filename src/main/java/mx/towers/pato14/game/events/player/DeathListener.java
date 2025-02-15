@@ -67,9 +67,10 @@ public class DeathListener implements Listener {
         gameInstance.getGame().getStats().increaseOne(player.getName(), StatType.DEATHS);
         if (gameInstance.getConfig(ConfigType.CONFIG).getBoolean("options.doNotDropArmorAndTools")) {
             for (ItemStack i : e.getDrops()) {
-                if (i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable()) {
-                    i.setType(Material.AIR);
-                }
+                if (i.hasItemMeta() && i.getItemMeta().spigot().isUnbreakable() || 
+                (i.getType() == Material.GOLDEN_APPLE && i.getDurability() == 0)) {
+                i.setType(Material.AIR);
+            }
             }
         }
         if (!gameInstance.getGame().getGameState().matchIsBeingPlayed)

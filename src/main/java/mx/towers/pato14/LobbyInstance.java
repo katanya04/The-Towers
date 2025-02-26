@@ -39,9 +39,11 @@ public class LobbyInstance extends TowersWorldInstance {
     }
     @Override
     public void setHotbarItems() {
-        Config lobbyConfig = AmazingTowers.getLobby().getConfig(ConfigType.CONFIG);
-        hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.selectGame.position"), Items.get(ItemsEnum.GAME_SELECT));
-        if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
-            hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.quit.position"), Items.get(ItemsEnum.QUIT_LOBBY));
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.lobby.activated")){
+            Config lobbyConfig = AmazingTowers.getLobby().getConfig(ConfigType.CONFIG);
+            hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.selectGame.position"), Items.get(ItemsEnum.GAME_SELECT));
+            if (AmazingTowers.getGlobalConfig().getBoolean("options.bungeecord.enabled"))
+                hotbarItems.setItem(lobbyConfig.getInt("lobbyItems.quit.position"), Items.get(ItemsEnum.QUIT_LOBBY));
+        }
     }
 }

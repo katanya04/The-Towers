@@ -38,8 +38,10 @@ public class EventsManager {
         pm.registerEvents(new EnchantItem(), this.plugin);
         pm.registerEvents(new ParkourPrizeFly(), this.plugin);
         pm.registerEvents(new MobSpawn(), this.plugin);
-        if (AmazingTowers.getLobby().getConfig(ConfigType.CONFIG).getBoolean("options.portalsToGame"))
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.lobby.activated")){
+            if (AmazingTowers.getLobby().getConfig(ConfigType.CONFIG).getBoolean("options.portalsToGame"))
             pm.registerEvents(new LobbyPortal(), this.plugin);
+        }
     }
 }
 

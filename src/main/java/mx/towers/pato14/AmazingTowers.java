@@ -198,8 +198,13 @@ public final class AmazingTowers extends JavaPlugin {
     }
 
     public static TowersWorldInstance getInstance(World world) {
-        return world.equals(lobby.getWorld()) ? lobby : getGameInstance(world);
+        if (lobby != null && world.equals(lobby.getWorld())) {
+            return lobby;
+        } else {
+            return getGameInstance(world);
+        }
     }
+    
 
     public static GameInstance getInstanceMostPlayers() {
         return games[0];
@@ -208,7 +213,9 @@ public final class AmazingTowers extends JavaPlugin {
     public static Collection<Player> getAllOnlinePlayers() {
         List<Player> playersInGameInstances = new ArrayList<>();
         Arrays.stream(games).filter(o -> o.getWorld() != null).forEach(o -> playersInGameInstances.addAll(o.getWorld().getPlayers()));
-        playersInGameInstances.addAll(lobby.getWorld().getPlayers());
+        if (lobby != null){
+            playersInGameInstances.addAll(lobby.getWorld().getPlayers());
+        }
         return playersInGameInstances;
     }
 

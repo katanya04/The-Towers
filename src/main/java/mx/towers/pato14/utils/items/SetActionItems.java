@@ -416,7 +416,9 @@ public class SetActionItems {
         return toret;
     }
     public static void setHotbarItemsInInstances() {
-        AmazingTowers.getLobby().setHotbarItems();
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.lobby.activated")){
+            AmazingTowers.getLobby().setHotbarItems();
+        }
         for (GameInstance game : AmazingTowers.getGameInstances())
             game.setHotbarItems();
     }

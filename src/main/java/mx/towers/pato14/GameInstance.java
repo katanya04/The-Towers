@@ -66,7 +66,9 @@ public class GameInstance extends TowersWorldInstance {
         Config config = getConfig(ConfigType.CONFIG);
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectTeam.position"), Items.get(ItemsEnum.TEAM_SELECT));
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.selectKit.position"), Items.get(ItemsEnum.KIT_SELECT));
-        hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), Items.get(ItemsEnum.QUIT_GAME));
+        if (AmazingTowers.getGlobalConfig().getBoolean("options.lobby.activated")){
+            hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.quit.position"), Items.get(ItemsEnum.QUIT_GAME));
+        }
         hotbarItems.setItem(config.getInt("lobbyItems.hotbarItems.modifyGameSettings.position"), Items.get(ItemsEnum.GAME_SETTINGS));
         hotbarItems.setCanBeGiven((player, item) -> !Items.is(ItemsEnum.GAME_SETTINGS, item) || player.isOp() || player.hasPermission("towers.admin"));
     }

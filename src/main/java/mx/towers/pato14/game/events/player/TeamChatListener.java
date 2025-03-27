@@ -44,7 +44,7 @@ public class TeamChatListener implements Listener {
         String msg = e.getMessage();
         Collection<Player> players = null;
         ChatScope chatScope = null;
-        if (e.getPlayer().hasPermission("towers.chat.color"))
+        if (e.getPlayer().hasPermission("towers.admin"))
             msg = Utils.getColor(msg);
         if (msg.startsWith("!!") && AmazingTowers.getGlobalConfig().getBoolean("globalChat.activated")) {
             msg = Utils.getColor(AmazingTowers.getGlobalConfig().getString("globalChat.format")

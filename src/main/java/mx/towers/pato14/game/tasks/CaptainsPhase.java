@@ -257,7 +257,7 @@ sendMsgTurn();
             lore.add("§r" + StatType.KILLS.getText() + ": " + StatType.KILLS.getColor() + stat.getStat(StatType.KILLS));
             lore.add("§r" + StatType.DEATHS.getText() + ": " + StatType.DEATHS.getColor() + stat.getStat(StatType.DEATHS));
             lore.add("§r" + StatType.POINTS.getText() + ": " + StatType.POINTS.getColor() + stat.getStat(StatType.POINTS));
-            lore.add("§r" + StatType.GAMES_PLAYED.getText() + ": " + StatType.GAMES_PLAYED.getColor() + stat.getStat(StatType.GAMES_PLAYED));
+            lore.add("§r" + StatType.GAMES.getText() + ": " + StatType.GAMES.getColor() + stat.getStat(StatType.GAMES));
             lore.add("§r" + StatType.WINS.getText() + ": " + StatType.WINS.getColor() + stat.getStat(StatType.WINS));
             Utils.setLore(playerHead, lore);
             Rank rank = Rank.getTotalRank(stat);

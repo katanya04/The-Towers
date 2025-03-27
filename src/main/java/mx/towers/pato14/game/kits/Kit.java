@@ -142,7 +142,6 @@ public class Kit {
     }
 
     public ItemStack[] getHotbar(Player player) {
-        @SuppressWarnings("deprecation")
         ItemStack[] hotbar = InventoryMenu.getSavedMenu(player, null, this.getName());
         if (hotbar == null) {
             hotbar = this.hotbar;
@@ -150,7 +149,6 @@ public class Kit {
         return hotbar;
     }
 
-    @SuppressWarnings("deprecation")
     public void resetHotbar(Player player) {
         InventoryMenu.resetPlayerSave(player.getName(), null, this.getName());
     }

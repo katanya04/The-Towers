@@ -39,7 +39,7 @@ public class Finish {
         GameInstance gameInstance = AmazingTowers.getGameInstance(name);
         gameInstance.getGame().setGameState(GameState.FINISH);
         StatisticsPlayer stats = gameInstance.getGame().getStats();
-        stats.increaseOneAll(StatType.GAMES_PLAYED);
+        stats.increaseOneAll(StatType.GAMES);
         stats.increaseOneConditional(StatType.WINS, player -> gameInstance.getGame().getTeams().getTeam(winnerTeamColor).containsPlayer(player));
         sendTitle(winnerTeamColor);
         gameInstance.getGame().stopEvents();
@@ -185,7 +185,6 @@ public class Finish {
         return sb.toString();
     }
     
-
     private String getPositionText(LinkedHashMap<String, Stats> sortedStats, String p, StatType stat) {
         Game game = AmazingTowers.getGameInstance(name).getGame();
         StringBuilder sb = new StringBuilder();

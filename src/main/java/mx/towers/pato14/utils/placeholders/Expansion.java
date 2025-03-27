@@ -47,11 +47,11 @@ public class Expansion extends PlaceholderExpansion {
         } else if (params.equalsIgnoreCase("wins")) {
             toret = Integer.toString(playerStats.getStat(StatType.WINS));
         } else if (params.equalsIgnoreCase("games_played")) {
-            toret = Integer.toString(playerStats.getStat(StatType.GAMES_PLAYED));
+            toret = Integer.toString(playerStats.getStat(StatType.GAMES));
         } else if (params.equalsIgnoreCase("deaths")) {
             toret = Integer.toString(playerStats.getStat(StatType.DEATHS));
         } else if (params.equalsIgnoreCase("losses")) {
-            toret= Integer.toString(playerStats.getStat(StatType.GAMES_PLAYED) - playerStats.getStat(StatType.WINS));
+            toret= Integer.toString(playerStats.getStat(StatType.GAMES) - playerStats.getStat(StatType.WINS));
         } else {
             toret = null; // Placeholder is unknown by the Expansion
         }

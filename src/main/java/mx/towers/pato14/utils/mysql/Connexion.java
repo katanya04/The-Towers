@@ -137,7 +137,7 @@ public class Connexion implements IConnexion {
 
     private boolean _createTables() throws SQLException {
         for (String table : tables) {
-            PreparedStatement ps = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + "(UUID VARCHAR(37), PlayerName VARCHAR(20), Kills INT(9)NOT NULL, Deaths INT(9)NOT NULL, Anoted_Points INT(9) NOT NULL,Games_Played INT(9) NOT NULL,Wins INT(9)NOT NULL,Blocks_Broken INT(9)NOT NULL,Blocks_Placed INT(9)NOT NULL,PRIMARY KEY(UUID))");
+            PreparedStatement ps = this.connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + "(UUID VARCHAR(37), username VARCHAR(20), kills INT(9)NOT NULL, deaths INT(9)NOT NULL, points INT(9) NOT NULL,games INT(9) NOT NULL,wins INT(9)NOT NULL,Blocks_Broken INT(9)NOT NULL,Blocks_Placed INT(9)NOT NULL,PRIMARY KEY(UUID))");
             ps.execute();
             ps.close();
         }
@@ -150,7 +150,7 @@ public class Connexion implements IConnexion {
             int numPlayers = players.size();
             sb.append("INSERT INTO ").append(tableName);
             for (int i = 0; i < numPlayers; i++) {
-                sb.append(" (UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,0,0,0,0,0,0,0)");
+                sb.append(" (UUID,username,kills,deaths,points,games,wins,Blocks_Broken,Blocks_Placed) VALUES (?,?,0,0,0,0,0,0,0)");
                 if (i != numPlayers - 1)
                     sb.append(",");
             }
@@ -172,7 +172,7 @@ public class Connexion implements IConnexion {
             if (statsMap.isEmpty())
                 return false;
             StringBuilder sb = new StringBuilder();
-            sb.append("INSERT INTO ").append(tableName).append("(UUID,PlayerName,Kills,Deaths,Anoted_Points,Games_Played,Wins,Blocks_Broken,Blocks_Placed) VALUES");
+            sb.append("INSERT INTO ").append(tableName).append("(UUID,username,kills,deaths,points,games,wins,Blocks_Broken,Blocks_Placed) VALUES");
             int numPlayers = statsMap.size();
             for (int i = 0; i < numPlayers; i++) {
                 sb.append(" (?,?,?,?,?,?,?,?,?)");
@@ -193,7 +193,7 @@ public class Connexion implements IConnexion {
                 ps.setInt(i++, entry.getValue().getStat(StatType.KILLS));
                 ps.setInt(i++, entry.getValue().getStat(StatType.DEATHS));
                 ps.setInt(i++, entry.getValue().getStat(StatType.POINTS));
-                ps.setInt(i++, entry.getValue().getStat(StatType.GAMES_PLAYED));
+                ps.setInt(i++, entry.getValue().getStat(StatType.GAMES));
                 ps.setInt(i++, entry.getValue().getStat(StatType.WINS));
                 ps.setInt(i++, entry.getValue().getStat(StatType.BLOCKS_BROKEN));
                 ps.setInt(i++, entry.getValue().getStat(StatType.BLOCKS_PLACED));
@@ -207,7 +207,7 @@ public class Connexion implements IConnexion {
     private Map<String, Stats> _getStats(Collection<String> players, Collection<String> tables) throws SQLException {
         Map<String, Stats> statsMap = new HashMap<>();
         StringBuilder query = new StringBuilder();
-        query.append("SELECT PlayerName, sum(Kills) Kills,sum(Deaths) Deaths,sum(Anoted_Points) Anoted_Points,sum(Games_Played) Games_Played,sum(Wins) Wins,sum(Blocks_Broken) Blocks_Broken,sum(Blocks_Placed) Blocks_Placed FROM (");
+        query.append("SELECT username, sum(kills) kills,sum(deaths) deaths,sum(points) points,sum(games) games,sum(wins) wins,sum(Blocks_Broken) Blocks_Broken,sum(Blocks_Placed) Blocks_Placed FROM (");
         int i = 0;
         for (String tableName : tables) {
             query.append("SELECT * FROM ").append(tableName);

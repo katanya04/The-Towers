@@ -31,8 +31,8 @@ public enum Rank {
     public static Rank getTotalRank(Stats st) {
         if (st == null)
             return F;
-        double toret = Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.DEATHS)) * 1.25 + Utils.safeDivide(st.getStat(StatType.POINTS), st.getStat(StatType.GAMES_PLAYED)) * 2.5 +
-                (Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.GAMES_PLAYED)) / 15 - Utils.safeDivide(st.getStat(StatType.DEATHS), st.getStat(StatType.GAMES_PLAYED)) / 20) + Utils.safeDivide(st.getStat(StatType.WINS), st.getStat(StatType.GAMES_PLAYED)) * 2;
+        double toret = Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.DEATHS)) * 1.25 + Utils.safeDivide(st.getStat(StatType.POINTS), st.getStat(StatType.GAMES)) * 2.5 +
+                (Utils.safeDivide(st.getStat(StatType.KILLS), st.getStat(StatType.GAMES)) / 15 - Utils.safeDivide(st.getStat(StatType.DEATHS), st.getStat(StatType.GAMES)) / 20) + Utils.safeDivide(st.getStat(StatType.WINS), st.getStat(StatType.GAMES)) * 2;
         return getRank(toret);
     }
     public String getColor() {

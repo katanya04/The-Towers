@@ -1,11 +1,11 @@
 package mx.towers.pato14.utils.stats;
 
 public enum StatType {
-    KILLS(3, "Kills", "Kills", "§3"),
-    DEATHS(4, "Muertes", "Deaths", "§4"),
-    POINTS(5, "Puntos", "Anoted_Points", "§6"),
-    GAMES_PLAYED(6, "Partidas jugadas", "Games_Played", "§a"),
-    WINS(7, "Victorias", "Wins", "§b"),
+    KILLS(3, "Kills", "kills", "§3"),
+    DEATHS(4, "Muertes", "deaths", "§4"),
+    POINTS(5, "Puntos", "points", "§6"),
+    GAMES(6, "Partidas jugadas", "games", "§a"),
+    WINS(7, "Victorias", "wins", "§b"),
     BLOCKS_BROKEN(8, "Bloques rotos",  "Blocks_Broken", "§d"),
     BLOCKS_PLACED(9, "Bloques colocados", "Blocks_Placed", "§2");
     private final int index;

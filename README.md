@@ -1,8 +1,7 @@
 A Minecraft The Towers 1.8 plugin, based on the one by Pato14: [Amazing Towers](https://www.spigotmc.org/resources/amazingtowers-1-8-x-1-12-x-bungee-mode-thetowers-minigame-recoded.26858/).
 
 ## If you want more features
-You can look out for 2 of our complement plugins specifically made for this Fork of Amazing Towers: 
-- [RegionPlugin](https://github.com/nicoliee/RegionPlugin).
+You can look out for our complement plugin specifically made for this Fork of Amazing Towers: 
 - [TowersBot](https://github.com/nicoliee/TowersBot).
 
 ## Explanation
